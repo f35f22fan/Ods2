@@ -1,0 +1,26 @@
+Duration::toString() doesn't store years/months/days
+===============================================
+[util.cc PrintBorder 034] Cell at 2:0...
+[Warning util.cc 046] style == nullptr
+[util.cc PrintBorder 034] Cell at 2:0...
+[Warning util.cc 046] style == nullptr
+[util.cc PrintBorder 034] Cell at 2:0...
+[Warning util.cc 046] style == nullptr
+[util.cc PrintBorder 034] Cell at 2:0...
+[Warning util.cc 046] style == nullptr
+[util.cc PrintBorder 034] Cell at 2:0...
+[Warning util.cc 046] style == nullptr
+[util.cc PrintBorder 034] Cell at 2:0...
+[Warning util.cc 046] style == nullptr
+[util.cc PrintBorder 034] Cell at 2:0...
+[Warning util.cc 046] style == nullptr
+
+(cell->GetColumnIndex() issue not fixable)
+================================================
+
+
+- ManifestManifest in ctor sets pointer in Book
+to itself but Book does the same.
+================================================
+
+- Add all style types for Abstract::IsAnyStyle() (date, duration, currency, etc)

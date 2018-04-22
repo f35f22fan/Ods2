@@ -1,0 +1,54 @@
+/*
+ * Copyright © 2014 f35f22fan@gmail.com
+ *
+ * Read the LICENSE file that comes with this project for license details.
+*/
+
+#include <ods/Book.hpp>
+#include <ods/Cell.hpp>
+#include <ods/country.hxx>
+#include <ods/currency.hxx>
+#include <ods/Duration.hpp>
+#include <ods/err.hpp>
+#include <ods/Formula.hpp>
+#include <ods/HAlign.hpp>
+#include <ods/id.hh>
+#include <ods/Length.hpp>
+#include <ods/LineStyle.hpp>
+#include <ods/ods.hh>
+#include <ods/ods.hxx>
+#include <ods/Row.hpp>
+#include <ods/Sheet.hpp>
+#include <ods/style.hxx>
+#include <ods/VAlign.hpp>
+
+#include <ods/attr/Border.hpp>
+#include <ods/attr/FoFontStyle.hpp>
+#include <ods/attr/FoFontWeight.hpp>
+#include <ods/attr/StyleTextUnderlineColor.hpp>
+#include <ods/attr/StyleTextUnderlineWidth.hpp>
+
+#include <ods/formula/Value.hpp>
+
+#include <ods/inst/Abstract.hpp>
+#include <ods/inst/DrawFrame.hpp>
+#include <ods/inst/DrawImage.hpp>
+#include <ods/inst/NumberCurrencyStyle.hpp>
+#include <ods/inst/NumberCurrencySymbol.hpp>
+#include <ods/inst/NumberDateStyle.hpp>
+#include <ods/inst/NumberPercentageStyle.hpp>
+#include <ods/inst/NumberNumber.hpp>
+#include <ods/inst/NumberText.hpp>
+#include <ods/inst/NumberTimeStyle.hpp>
+#include <ods/inst/OfficeAutomaticStyles.hpp>
+#include <ods/inst/OfficeDocumentContent.hpp>
+#include <ods/inst/OfficeFontFaceDecls.hpp>
+#include <ods/inst/OfficeSpreadsheet.hpp>
+#include <ods/inst/StyleParagraphProperties.hpp>
+#include <ods/inst/StyleFontFace.hpp>
+#include <ods/inst/StyleStyle.hpp>
+#include <ods/inst/StyleTableCellProperties.hpp>
+#include <ods/inst/StyleTableColumnProperties.hpp>
+#include <ods/inst/StyleTextProperties.hpp>
+#include <ods/inst/TextP.hpp>
+#include <ods/inst/TableTableColumn.hpp>
