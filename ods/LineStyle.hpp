@@ -2,10 +2,11 @@
 
 #include "err.hpp"
 #include "line.hxx"
+#include "global.hxx"
 
 namespace ods { // ods::
 
-class LineStyle
+class ODS_API LineStyle
 {
 public:
 	LineStyle();

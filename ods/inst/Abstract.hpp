@@ -21,7 +21,7 @@ namespace Bits {
 const uint16_t Style = 1 << 0;
 }
 
-class Abstract {
+class ODS_API Abstract {
 public:
 	
 	Abstract(Abstract *parent, Ns *ns, ods::id::func f);
@@ -66,6 +66,9 @@ public:
 	void
 	DeleteNodes();
 	
+	QString
+	FullName() const;
+	
 	id::func
 	func() const { return func_; }
 	
@@ -73,7 +76,7 @@ public:
 	func(const id::func f) { func_ = f; }
 	
 	Abstract*
-	Get(const id::func f) const;
+	Get(const Id id) const;
 	
 	inst::StyleStyle*
 	Get(const QString &style_name) const;
@@ -87,11 +90,14 @@ public:
 	virtual StyleTextProperties*
 	GetStyleTextProperties(const AddIfNeeded ain);
 	
-	QString
-	FullName() const;
+	ods::Id
+	id() const { return id_; }
+	
+	void
+	id(const ods::Id n) { id_ = n; }
 	
 	bool
-	Is(const id::func id, const id::func id2 = nullptr) const;
+	Is(const Id id1, const Id id2 = ods::Id::None) const;
 	
 	bool
 	is_root() const { return parent_ == nullptr; }
@@ -157,6 +163,7 @@ protected:
 	void
 	Write(QXmlStreamWriter &xml, Abstract *a);
 	
+	ods::Id id_ = ods::Id::None;
 	ods::id::func func_;
 	ods::Ns *ns_ = nullptr;
 	inst::Abstract *parent_ = nullptr;

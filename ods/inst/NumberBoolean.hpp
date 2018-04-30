@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class NumberBoolean : public Abstract
+class ODS_API NumberBoolean : public Abstract
 {
 public:
 	NumberBoolean(Abstract *parent, Tag *tag = nullptr);

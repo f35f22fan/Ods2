@@ -2,13 +2,14 @@
 
 #include "../decl.hxx"
 #include "../err.hpp"
+#include "../global.hxx"
 
 #include <QColor>
 
 namespace ods { // ods::
 namespace attr { // ods::attr::
 
-class Border
+class ODS_API Border
 {
 public:
 	Border();

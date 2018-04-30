@@ -23,7 +23,10 @@ set(src_files
 	examples1.cc examples1.hh
 	examples2.cc examples2.hh
 	main.cpp
-	util.cc util.hh
+
+	util/Invoice.cpp util/Invoice.hpp
+	util/Item.cpp util/Item.hpp
+	util/util.cc util/util.hh
 )
 
 foreach(f IN LISTS src_files)
@@ -32,6 +35,7 @@ foreach(f IN LISTS src_files)
 		COMPILE_DEFINITIONS "SRC_FILE_NAME=\"${b}\"")
 endforeach()
 
+add_definitions(-DODS2_TEST_DIR="${Ods2_SOURCE_DIR}")
 set (exe_name "app")
 add_executable(${exe_name} ${GUI_TYPE} ${src_files})
 get_property(zlib_libs GLOBAL PROPERTY zlib_libs_property)

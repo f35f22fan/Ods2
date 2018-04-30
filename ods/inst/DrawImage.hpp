@@ -10,7 +10,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class DrawImage: public Abstract
+class ODS_API DrawImage: public Abstract
 {
 public:
 	DrawImage(Abstract *parent, ods::Tag *tag = nullptr);

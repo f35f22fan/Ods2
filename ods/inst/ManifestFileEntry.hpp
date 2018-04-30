@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class ManifestFileEntry : public Abstract
+class ODS_API ManifestFileEntry : public Abstract
 {
 public:
 	ManifestFileEntry(Abstract *parent, Tag *tag = nullptr);

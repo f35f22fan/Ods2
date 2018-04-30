@@ -8,7 +8,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class DrawFrame : public Abstract
+class ODS_API DrawFrame : public Abstract
 {
 public:
 	DrawFrame(Abstract *parent, ods::Tag *tag = nullptr);

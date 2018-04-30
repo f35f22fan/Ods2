@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class NumberYear : public Abstract
+class ODS_API NumberYear : public Abstract
 {
 public:
 	NumberYear(Abstract *parent, ods::Tag *tag = nullptr);

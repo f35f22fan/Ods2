@@ -9,7 +9,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleStyle : public Abstract
+class ODS_API StyleStyle : public Abstract
 {
 public:
 	StyleStyle(Abstract *parent, ods::Tag *tag = nullptr);

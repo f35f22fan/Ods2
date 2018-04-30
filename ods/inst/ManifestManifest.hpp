@@ -9,7 +9,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class ManifestManifest : public Abstract
+class ODS_API ManifestManifest : public Abstract
 {
 public:
 	ManifestManifest(ods::Book *book, ods::Ns *ns, Tag *tag = nullptr);

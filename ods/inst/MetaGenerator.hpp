@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class MetaGenerator : public Abstract
+class ODS_API MetaGenerator : public Abstract
 {
 public:
 	MetaGenerator(Abstract *parent, Tag *tag = nullptr);

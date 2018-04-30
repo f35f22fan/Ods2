@@ -10,7 +10,7 @@
 namespace ods { // ods::
 namespace formula { // ods::formula::
 
-class Value
+class ODS_API Value
 {
 public:
 	Value();

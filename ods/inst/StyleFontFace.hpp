@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleFontFace : public Abstract
+class ODS_API StyleFontFace : public Abstract
 {
 public:
 	StyleFontFace(ods::inst::Abstract *parent, ods::Tag *tag = nullptr);

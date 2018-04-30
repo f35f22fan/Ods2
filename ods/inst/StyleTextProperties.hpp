@@ -11,7 +11,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleTextProperties : public ods::inst::Abstract
+class ODS_API StyleTextProperties : public ods::inst::Abstract
 {
 public:
 	StyleTextProperties(Abstract *parent, ods::Tag *tag = nullptr);

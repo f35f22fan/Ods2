@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class NumberMinutes : public Abstract
+class ODS_API NumberMinutes : public Abstract
 {
 public:
 	NumberMinutes(Abstract *parent, ods::Tag *tag = nullptr);

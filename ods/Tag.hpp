@@ -2,6 +2,7 @@
 
 #include "decl.hxx"
 #include "err.hpp"
+#include "global.hxx"
 #include "ods.hxx"
 #include "Prefix.hpp"
 
@@ -11,7 +12,7 @@
 
 namespace ods { // ods::
 
-class Tag
+class ODS_API Tag
 {
 public:
 	Tag(Ns *ns, ods::Prefix *prefix, const QString &name);

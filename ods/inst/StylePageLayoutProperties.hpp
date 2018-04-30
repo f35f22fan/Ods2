@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StylePageLayoutProperties : public Abstract
+class ODS_API StylePageLayoutProperties : public Abstract
 {
 public:
 	StylePageLayoutProperties(Abstract *parent, ods::Tag *tag = nullptr);

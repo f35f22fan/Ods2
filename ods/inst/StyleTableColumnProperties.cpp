@@ -9,10 +9,13 @@ namespace ods { // ods::
 namespace inst { // ods::inst::
 
 StyleTableColumnProperties::StyleTableColumnProperties(Abstract *parent,
-ods::Tag *tag) : Abstract(parent, parent->ns(), id::StyleTableColumnProperties)
+ods::Tag *tag) : Abstract(parent, parent->ns(), ods::id::StyleTableColumnProperties)
 {
 	if (tag != nullptr)
 		Init(tag);
+
+	mtl_line("func: %p", (void*)func());
+	mtl_line("tcp func: %p", (void*) ods::id::StyleTableColumnProperties);
 }
 
 StyleTableColumnProperties::StyleTableColumnProperties(const StyleTableColumnProperties &cloner)
@@ -55,13 +58,12 @@ StyleTableColumnProperties::Init(ods::Tag *tag)
 void
 StyleTableColumnProperties::SetColumnWidth(Length *length)
 {
+	delete style_column_width_;
+
 	if (length == nullptr)
-	{
-		delete style_column_width_;
 		style_column_width_ = nullptr;
-	} else {
+	else
 		style_column_width_ = length->Clone();
-	}
 }
 
 void

@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class MetaDocumentStatistic : public Abstract
+class ODS_API MetaDocumentStatistic : public Abstract
 {
 public:
 	MetaDocumentStatistic(Abstract *parent, Tag *tag = nullptr);

@@ -9,7 +9,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class OfficeDocumentMeta : public Abstract
+class ODS_API OfficeDocumentMeta : public Abstract
 {
 public:
 	OfficeDocumentMeta(ods::Book *book, ods::Ns *ns, Tag *tag = nullptr);

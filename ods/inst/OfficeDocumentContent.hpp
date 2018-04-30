@@ -9,7 +9,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class OfficeDocumentContent : public Abstract
+class ODS_API OfficeDocumentContent : public Abstract
 {
 public:
 	OfficeDocumentContent(Book *book, Ns *ns, Tag *tag = nullptr);

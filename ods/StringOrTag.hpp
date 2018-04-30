@@ -1,6 +1,7 @@
 #pragma once
 
 #include "decl.hxx"
+#include "global.hxx"
 
 #include <QString>
 
@@ -13,7 +14,7 @@ enum class StringOrTagType : quint8
 	Tag
 };
 
-class StringOrTag
+class ODS_API StringOrTag
 {
 public:
 	StringOrTag(const QString &s);

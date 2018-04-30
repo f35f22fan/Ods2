@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../err.hpp"
+#include "../global.hxx"
 
 #include <QColor>
 
@@ -14,7 +15,7 @@ enum class TextUnderlineColor : uint8_t
 	FontColor
 };
 
-class StyleTextUnderlineColor
+class ODS_API StyleTextUnderlineColor
 {
 public:
 	StyleTextUnderlineColor();

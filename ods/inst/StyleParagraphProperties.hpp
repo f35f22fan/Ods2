@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleParagraphProperties : public ods::inst::Abstract
+class ODS_API StyleParagraphProperties : public ods::inst::Abstract
 {
 public:
 	StyleParagraphProperties(Abstract *parent, ods::Tag *tag = nullptr);

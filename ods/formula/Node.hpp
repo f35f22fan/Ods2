@@ -9,7 +9,7 @@
 namespace ods { // ods::
 namespace formula { // ods::formula::
 
-class Node
+class  ODS_API Node
 {
 public:
 	virtual ~Node();

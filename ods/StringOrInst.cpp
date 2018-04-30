@@ -54,7 +54,7 @@ StringOrInst::DeleteData()
 }
 
 bool
-StringOrInst::Is(const id::func f1, const id::func f2) const
+StringOrInst::Is(const Id id1, const Id id2) const
 {
 	if (!is_inst())
 		return false;
@@ -65,7 +65,7 @@ StringOrInst::Is(const id::func f1, const id::func f2) const
 		return false;
 	}
 	
-	return as_inst()->Is(f1, f2);
+	return as_inst()->Is(id1, id2);
 }
 
 void

@@ -2,6 +2,8 @@
 cmake_minimum_required(VERSION 2.8.12)
 Project(Ods2)
 
+message("Source dir: " ${Ods2_SOURCE_DIR})
+
 #only build zlib on windows because unix has it by default
 IF(WIN32)
 	include_directories(${Ods2_SOURCE_DIR}/zlib)

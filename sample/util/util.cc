@@ -11,21 +11,15 @@ namespace util { // util::
 QString
 FindFile(const QString &file_name)
 {
-	QStringList list = QStandardPaths::standardLocations
-		(QStandardPaths::DocumentsLocation);
-	
-	if (list.isEmpty())
-		return QLatin1String();
-	
-	QString dir_path = list[0];
-	QString full_path = dir_path + QLatin1String("/ods_test_files/") + file_name;
+	QString full_path = QString(ODS2_TEST_DIR)
+		+ QLatin1String("/sample/test_files/") + file_name;
 	
 	if (QFile(full_path).exists())
 		return full_path;
 	
 	auto ba = full_path.toLocal8Bit();
 	mtl_warn("File not found: %s", ba.data());
-	return QLatin1String();
+	return QString();
 }
 
 void
@@ -48,7 +42,7 @@ PrintBorder(ods::Cell *cell, const int row, const int col_index)
 	}
 	
 	auto *tcp = (ods::inst::StyleTableCellProperties*)
-		style->Get(ods::id::StyleTableCellProperties);
+		style->Get(ods::Id::StyleTableCellProperties);
 	
 	if (tcp == nullptr)
 	{
@@ -168,11 +162,34 @@ PrintWidth(ods::inst::TableTableColumn *col)
 	}
 	
 	auto *tcp = (ods::inst::StyleTableColumnProperties*)
-		style->Get(ods::id::StyleTableColumnProperties);
+		style->Get(ods::Id::StyleTableColumnProperties);
 	
 	if (tcp == nullptr)
 	{
-		mtl_warn("No table column properties");
+		const auto &vec = style->nodes();
+
+		for (ods::StringOrInst *soi : vec)
+		{
+			if (soi->is_string())
+			{
+				mtl_line("[String]");
+				qDebug() << *soi->as_string();
+			} else if (soi->is_inst()) {
+				mtl_line("[Inst]");
+				ods::inst::Abstract *p = soi->as_inst();
+				mtl_line("func: %p", (void*)p->func());
+				mtl_line("tcp func: %p", (void*) ods::id::StyleTableColumnProperties);
+
+				auto ba = p->FullName().toLocal8Bit();
+				mtl_line("Full name: %s", ba.data());
+
+			} else {
+				mtl_line("[OTHER]");
+			}
+		}
+
+		const int size = style->nodes().size();
+		mtl_warn("No table column properties, nodes count: %d", size);
 		return;
 	}
 	
@@ -189,9 +206,10 @@ PrintWidth(ods::inst::TableTableColumn *col)
 }
 
 void
-Save(ods::Book *book)
+Save(ods::Book *book, const char *file_name)
 {
-	QFile as(QDir::home().filePath("out.ods"));
+	const char *fn = (file_name == nullptr) ? "out.ods" : file_name;
+	QFile as(QDir::home().filePath(fn));
 	book->Save(as);
 }
 
@@ -199,7 +217,7 @@ void
 SetHAlignment(ods::inst::StyleStyle *style, const ods::halign::Value a)
 {
 	auto *spp = (ods::inst::StyleParagraphProperties*)
-		style->Get(ods::id::StyleParagraphProperties);
+		style->Get(ods::Id::StyleParagraphProperties);
 	
 	if (spp == nullptr)
 		spp = style->NewParagraphProperties();
@@ -232,7 +250,7 @@ SetPercentage(ods::inst::StyleStyle *style, const int min_integer_digits,
 		// Note: Calligra Sheets doesn't display percentage formatting properly
 	}
 	
-	auto *nt = (ods::inst::NumberText*)percent_style->Get(ods::id::NumberText);
+	auto *nt = (ods::inst::NumberText*)percent_style->Get(ods::Id::NumberText);
 	
 	if (nt == nullptr)
 		nt = percent_style->NewNumberText();
@@ -244,7 +262,7 @@ void
 SetVAlignment(ods::inst::StyleStyle *style, const ods::valign::Value a)
 {
 	auto *tcp = (ods::inst::StyleTableCellProperties*)
-		style->Get(ods::id::StyleTableCellProperties);
+		style->Get(ods::Id::StyleTableCellProperties);
 	
 	if (tcp == nullptr)
 		tcp = style->NewTableCellProperties();

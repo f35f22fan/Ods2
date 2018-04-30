@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class OfficeBody : public Abstract
+class ODS_API OfficeBody : public Abstract
 {
 public:
 	OfficeBody(Abstract *parent, Tag *tag = nullptr);

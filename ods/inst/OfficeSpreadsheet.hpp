@@ -9,7 +9,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class OfficeSpreadsheet : public Abstract
+class ODS_API OfficeSpreadsheet : public Abstract
 {
 public:
 	OfficeSpreadsheet(Abstract *parent, Tag *tag = nullptr);

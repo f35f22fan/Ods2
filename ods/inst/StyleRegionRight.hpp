@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleRegionRight : public Abstract
+class ODS_API StyleRegionRight : public Abstract
 {
 public:
 	StyleRegionRight(Abstract *parent, Tag *tag = nullptr);

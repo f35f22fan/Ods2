@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../err.hpp"
+#include "../global.hxx"
 
 namespace ods { // ods::
 namespace attr { // ods::attr::
@@ -21,7 +22,7 @@ enum class FontWeight : uint8_t
 	N900
 };
 
-class FoFontWeight
+class ODS_API FoFontWeight
 {
 public:
 	FoFontWeight();

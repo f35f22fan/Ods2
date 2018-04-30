@@ -1,6 +1,6 @@
 #include "examples1.hh"
 
-#include "util.hh"
+#include "util/util.hh"
 
 #include <ods/ods>
 #include <ods/inst/SvgDesc.hpp>
@@ -75,8 +75,9 @@ ReadColumnWidths()
 	
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
-	util::PrintWidth(sheet->GetColumn(3));
+	util::PrintWidth(sheet->GetColumn(0));
 	util::PrintWidth(sheet->GetColumn(1));
+	util::PrintWidth(sheet->GetColumn(3));
 	util::PrintWidth(sheet->GetColumn(6));
 }
 
@@ -618,7 +619,7 @@ ReadHAlignment()
 	}
 	
 	auto *spp = (ods::inst::StyleParagraphProperties*)
-		style->Get(ods::id::StyleParagraphProperties);
+		style->Get(ods::Id::StyleParagraphProperties);
 	
 	if (spp == nullptr)
 	{
@@ -718,7 +719,7 @@ ReadVAlignment()
 	}
 	
 	auto *tcp = (ods::inst::StyleTableCellProperties*)
-		style->Get(ods::id::StyleTableCellProperties);
+		style->Get(ods::Id::StyleTableCellProperties);
 	
 	if (tcp == nullptr)
 	{
@@ -763,7 +764,7 @@ CreateBorders()
 		style = cell->NewStyle();
 	
 	auto *tcp = (ods::inst::StyleTableCellProperties*)
-		style->Get(ods::id::StyleTableCellProperties);
+		style->Get(ods::Id::StyleTableCellProperties);
 	
 	if (tcp == nullptr)
 		tcp = style->NewTableCellProperties();
@@ -834,13 +835,13 @@ CreateImage()
 	auto *row = sheet->NewRowAt(3);
 	auto *cell = row->NewCellAt(3);
 	
-	auto *draw_frame = (ods::inst::DrawFrame*) cell->Get(ods::id::DrawFrame);
+	auto *draw_frame = (ods::inst::DrawFrame*) cell->Get(ods::Id::DrawFrame);
 	
 	if (draw_frame == nullptr)
 		draw_frame = cell->NewDrawFrame();
 	
 	auto *draw_image = (ods::inst::DrawImage*)
-		draw_frame->Get(ods::id::DrawImage);
+		draw_frame->Get(ods::Id::DrawImage);
 	
 	if (draw_image == nullptr)
 		draw_image = draw_frame->NewDrawImage();
@@ -861,14 +862,14 @@ CreateImage()
 	ods::Length height(sz.height() / 2, ods::Measure::Px);
 	draw_frame->height(&height);
 	
-	auto *svg_desc = (ods::inst::SvgDesc*) draw_frame->Get(ods::id::SvgDesc);
+	auto *svg_desc = (ods::inst::SvgDesc*) draw_frame->Get(ods::Id::SvgDesc);
 	
 	if (svg_desc == nullptr)
 		svg_desc = draw_frame->NewSvgDesc();
 	
 	svg_desc->SetFirstString("svg description");
 	
-	auto *svg_title = (ods::inst::SvgTitle*) draw_frame->Get(ods::id::SvgTitle);
+	auto *svg_title = (ods::inst::SvgTitle*) draw_frame->Get(ods::Id::SvgTitle);
 	
 	if (svg_title == nullptr)
 		svg_title = draw_frame->NewSvgTitle();
@@ -902,7 +903,7 @@ ReadImage()
 	auto *row = sheet->GetRow(3);
 	auto *cell = row->GetCell(3);
 	
-	auto *df = (ods::inst::DrawFrame*) cell->Get(ods::id::DrawFrame);
+	auto *df = (ods::inst::DrawFrame*) cell->Get(ods::Id::DrawFrame);
 	
 	if (df == nullptr)
 	{
@@ -910,7 +911,7 @@ ReadImage()
 		return;
 	}
 	
-	auto *di = (ods::inst::DrawImage*) df->Get(ods::id::DrawImage);
+	auto *di = (ods::inst::DrawImage*) df->Get(ods::Id::DrawImage);
 	
 	if (di == nullptr)
 	{
@@ -1060,20 +1061,20 @@ ReadDate()
 		auto *inst = x->as_inst(); // pointer to the base class ods::inst::Abstract
 		
 		// Find out what class it is:
-		if (inst->Is(ods::id::NumberYear))
+		if (inst->Is(ods::Id::NumberYear))
 		{
 			printf("Year");
-		} else if (inst->Is(ods::id::NumberMonth)) {
+		} else if (inst->Is(ods::Id::NumberMonth)) {
 			printf("Month");
-		} else if (inst->Is(ods::id::NumberDay)) {
+		} else if (inst->Is(ods::Id::NumberDay)) {
 			printf("Day");
-		} else if (inst->Is(ods::id::NumberHours)) {
+		} else if (inst->Is(ods::Id::NumberHours)) {
 			printf("Hours");
-		} else if (inst->Is(ods::id::NumberMinutes)) {
+		} else if (inst->Is(ods::Id::NumberMinutes)) {
 			printf("Minutes");
-		} else if (inst->Is(ods::id::NumberSeconds)) {
+		} else if (inst->Is(ods::Id::NumberSeconds)) {
 			printf("Seconds");
-		} else if (inst->Is(ods::id::NumberText)) {
+		} else if (inst->Is(ods::Id::NumberText)) {
 			auto *t = (ods::inst::NumberText*) inst;
 			QString *s = t->GetFirstString();
 			
@@ -1197,20 +1198,20 @@ ReadTime()
 		auto *inst = x->as_inst(); // pointer to the abstract class ods::inst::Abstract
 		
 		// Find out what class it is:
-		if (inst->Is(ods::id::NumberYear))
+		if (inst->Is(ods::Id::NumberYear))
 		{
 			printf("Year");
-		} else if (inst->Is(ods::id::NumberMonth)) {
+		} else if (inst->Is(ods::Id::NumberMonth)) {
 			printf("Month");
-		} else if (inst->Is(ods::id::NumberDay)) {
+		} else if (inst->Is(ods::Id::NumberDay)) {
 			printf("Day");
-		} else if (inst->Is(ods::id::NumberHours)) {
+		} else if (inst->Is(ods::Id::NumberHours)) {
 			printf("Hours");
-		} else if (inst->Is(ods::id::NumberMinutes)) {
+		} else if (inst->Is(ods::Id::NumberMinutes)) {
 			printf("Minutes");
-		} else if (inst->Is(ods::id::NumberSeconds)) {
+		} else if (inst->Is(ods::Id::NumberSeconds)) {
 			printf("Seconds");
-		} else if (inst->Is(ods::id::NumberText)) {
+		} else if (inst->Is(ods::Id::NumberText)) {
 			auto *t = (ods::inst::NumberText*) inst;
 			QString *s = t->GetFirstString();
 			

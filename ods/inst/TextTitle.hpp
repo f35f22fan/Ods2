@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class TextTitle : public Abstract
+class ODS_API TextTitle : public Abstract
 {
 public:
 	TextTitle(Abstract *parent, Tag *tag = nullptr);

@@ -3,6 +3,7 @@
 #include <QFont>
 
 #include "../err.hpp"
+#include "../global.hxx"
 
 namespace ods { // ods::
 namespace attr { // ods::attr::
@@ -15,7 +16,7 @@ enum class FontStyle : uint8_t
 	Oblique
 };
 
-class FoFontStyle
+class ODS_API FoFontStyle
 {
 public:
 	FoFontStyle();

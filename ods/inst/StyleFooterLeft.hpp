@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleFooterLeft : public Abstract
+class ODS_API StyleFooterLeft : public Abstract
 {
 public:
 	StyleFooterLeft(Abstract *parent, Tag *tag = nullptr);

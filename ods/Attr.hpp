@@ -1,13 +1,14 @@
 #pragma once
 
 #include "err.hpp"
+#include "global.hxx"
 #include "Prefix.hpp"
 
 #include <QXmlStreamWriter>
 
 namespace ods { // ods::
 
-class Attr
+class ODS_API Attr
 {
 public:
 	Attr(ods::Prefix *prefix, const QString &name,

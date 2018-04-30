@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class NumberPercentageStyle : public Abstract
+class ODS_API NumberPercentageStyle : public Abstract
 {
 public:
 	NumberPercentageStyle(Abstract *parent, ods::Tag *tag = nullptr);

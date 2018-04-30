@@ -1,6 +1,7 @@
 #include "examples2.hh"
 
-#include "util.hh"
+#include "util/util.hh"
+#include "util/Invoice.hpp"
 
 #include <ods/ods>
 
@@ -11,10 +12,6 @@ CreateCurrency()
 	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");
-	
-	if (sheet == nullptr)
-		mtl_warn();
-	
 	auto *row = sheet->NewRowAt(0);
 	auto *cell = row->NewCellAt(0);
 	
@@ -29,13 +26,13 @@ CreateCurrency()
 		style = cell->NewStyle();
 	
 	auto *ncs = (ods::inst::NumberCurrencyStyle*)
-		style->Get(ods::id::NumberCurrencyStyle);
+		style->Get(ods::Id::NumberCurrencyStyle);
 	
 	if (ncs == nullptr)
 		ncs = style->NewCurrencyStyle();
 	
 	auto *cs = (ods::inst::NumberCurrencySymbol*)
-		ncs->Get(ods::id::NumberCurrencySymbol);
+		ncs->Get(ods::Id::NumberCurrencySymbol);
 	
 	if (cs == nullptr)
 		cs = ncs->NewCurrencySymbol();
@@ -44,7 +41,7 @@ CreateCurrency()
 	cs->country(ods::country::USA);
 	cs->SetSymbol(ods::currency::symbol::USD);
 	
-	auto *nn = (ods::inst::NumberNumber*) ncs->Get(ods::id::NumberNumber);
+	auto *nn = (ods::inst::NumberNumber*) ncs->Get(ods::Id::NumberNumber);
 	
 	if (nn == nullptr)
 		nn = ncs->NewNumber();
@@ -125,7 +122,7 @@ ReadCurrency()
 	}
 	
 	auto *cs = (ods::inst::NumberCurrencySymbol*)
-		ncs->Get(ods::id::NumberCurrencySymbol);
+		ncs->Get(ods::Id::NumberCurrencySymbol);
 	
 	if (cs != nullptr)
 	{
@@ -141,7 +138,7 @@ ReadCurrency()
 		mtl_warn("no currency symbol");
 	}
 	
-	auto *nn = (ods::inst::NumberNumber*) ncs->Get(ods::id::NumberNumber);
+	auto *nn = (ods::inst::NumberNumber*) ncs->Get(ods::Id::NumberNumber);
 	
 	if (nn != nullptr)
 	{
@@ -163,10 +160,6 @@ CreateFormula()
 	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");
-	
-	if (sheet == nullptr)
-		mtl_warn();
-	
 	auto *row = sheet->NewRowAt(0);
 	auto *cell0 = row->NewCellAt(0);
 	cell0->SetDouble(5.0);
@@ -253,3 +246,10 @@ ReadFormula()
 		mtl_warn("Other types not supported yet");
 	}
 }
+
+void
+CreateInvoice()
+{
+	util::Invoice invoice;
+}
+

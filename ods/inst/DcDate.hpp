@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class DcDate : public Abstract
+class ODS_API DcDate : public Abstract
 {
 public:
 	DcDate(Abstract *parent, Tag *tag = nullptr);

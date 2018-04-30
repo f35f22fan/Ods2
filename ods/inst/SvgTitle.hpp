@@ -8,7 +8,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class SvgTitle : public Abstract
+class ODS_API SvgTitle : public Abstract
 {
 public:
 	SvgTitle(Abstract *parent, ods::Tag *tag = nullptr);

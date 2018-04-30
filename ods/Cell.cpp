@@ -56,7 +56,7 @@ Cell::~Cell()
 void
 Cell::AppendString(const QString &s)
 {
-	auto *inst = Get(id::TextP);
+	auto *inst = Get(Id::TextP);
 	
 	if (inst != nullptr)
 	{
@@ -130,7 +130,7 @@ Cell::CloneValue() const
 QString*
 Cell::GetFirstString() const
 {
-	auto *inst = Get(id::TextP);
+	auto *inst = Get(Id::TextP);
 	
 	if (inst == nullptr)
 		return nullptr;
@@ -209,10 +209,10 @@ Cell::QueryDesiredHeight() const
 		return nullptr;
 	
 	auto *tcp = (inst::StyleTableCellProperties*)
-		style->Get(id::StyleTableCellProperties);
+		style->Get(Id::StyleTableCellProperties);
 	
 	auto *stp = (inst::StyleTextProperties*)
-		style->Get(id::StyleTextProperties);
+		style->Get(Id::StyleTextProperties);
 	
 	if (stp == nullptr)
 	{
@@ -478,7 +478,7 @@ Cell::SetDuration(const ods::Duration *p)
 void
 Cell::SetFirstString(const QString &s)
 {
-	auto *inst = Get(id::TextP);
+	auto *inst = Get(Id::TextP);
 	
 	if (inst != nullptr)
 	{
@@ -522,7 +522,7 @@ Cell::SetStyle(Abstract *inst)
 	
 	QString *name = nullptr;
 	
-	if (inst->Is(id::StyleStyle))
+	if (inst->Is(Id::StyleStyle))
 		name = ((inst::StyleStyle*)inst)->style_name();
 	
 	if (name != nullptr)

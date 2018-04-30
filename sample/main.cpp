@@ -10,6 +10,7 @@ main(int argc, char *argv[])
 {
 	QGuiApplication app(argc, argv);
 	
+
 //	SetColumnWidths();
 //	ReadColumnWidths();
 	
@@ -22,7 +23,7 @@ main(int argc, char *argv[])
 //	CellSpan();
 //	ReadCellSpan();
 	
-//	CreatePercentage();
+//	CreatePercentage(); // doesn't display properly in Excel 2016
 //	ReadPercentage();
 	
 //	CreateHAlignment();
@@ -34,13 +35,13 @@ main(int argc, char *argv[])
 //	CreateBorders();
 //	ReadBorders();
 	
-//	CreateImage();
+//	CreateImage(); // doesn't work in Excel 2016
 //	ReadImage();
 	
 //	CreateDate();
 //	ReadDate();
 	
-//	CreateCurrency();
+//	CreateCurrency(); // not displayed properly in Excel 2016 or LibreOffice
 //	ReadCurrency();
 	
 //	CreateTime();
@@ -49,8 +50,10 @@ main(int argc, char *argv[])
 //	CreateBoolean();
 //	ReadBoolean();
 	
-//	CreateFormula();
-	ReadFormula();
+//  CreateFormula();
+//  ReadFormula();
+	
+//	CreateInvoice(); // TBD
 	
 	return 0;
 }

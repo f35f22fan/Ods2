@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class NumberTextStyle : public Abstract
+class ODS_API NumberTextStyle : public Abstract
 {
 public:
 	NumberTextStyle(Abstract *parent, ods::Tag *tag = nullptr);

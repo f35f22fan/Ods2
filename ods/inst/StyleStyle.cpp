@@ -32,7 +32,8 @@ StyleStyle::StyleStyle(Abstract *parent, ods::Tag *tag)
 
 StyleStyle::StyleStyle(const StyleStyle &cloner)
 : Abstract(cloner)
-{}
+{
+}
 
 StyleStyle::~StyleStyle()
 {}
@@ -70,7 +71,7 @@ StyleStyle::GetBooleanStyle() const
 	if (ds == nullptr)
 		return nullptr;
 	
-	if (ds->Is(id::NumberBooleanStyle))
+	if (ds->Is(Id::NumberBooleanStyle))
 		return (inst::NumberBooleanStyle*) ds;
 	
 	return nullptr;
@@ -93,7 +94,7 @@ StyleStyle::GetCurrencyStyle() const
 	if (ds == nullptr)
 		return nullptr;
 	
-	if (ds->Is(id::NumberCurrencyStyle))
+	if (ds->Is(Id::NumberCurrencyStyle))
 		return (inst::NumberCurrencyStyle*) ds;
 	
 	return nullptr;
@@ -107,7 +108,7 @@ StyleStyle::GetDateStyle() const
 	if (ds == nullptr)
 		return nullptr;
 	
-	if (ds->Is(id::NumberDateStyle))
+	if (ds->Is(Id::NumberDateStyle))
 		return (inst::NumberDateStyle*) ds;
 	
 	return nullptr;
@@ -124,7 +125,7 @@ StyleStyle::GetPercentageStyle() const
 		return nullptr;
 	}
 	
-	if (ds->Is(id::NumberPercentageStyle))
+	if (ds->Is(Id::NumberPercentageStyle))
 		return (inst::NumberPercentageStyle*) ds;
 	
 	mtl_line();
@@ -139,7 +140,7 @@ StyleStyle::GetTimeStyle() const
 	if (ds == nullptr)
 		return nullptr;
 	
-	if (ds->Is(id::NumberTimeStyle))
+	if (ds->Is(Id::NumberTimeStyle))
 		return (inst::NumberTimeStyle*) ds;
 	
 	return nullptr;
@@ -239,7 +240,7 @@ StyleStyle::NewTimeStyle()
 StyleFontFace*
 StyleStyle::QueryFontFace() const
 {
-	auto *tp = (inst::StyleTextProperties*)Get(id::StyleTextProperties);
+	auto *tp = (inst::StyleTextProperties*)Get(Id::StyleTextProperties);
 	
 	if (tp == nullptr)
 		return nullptr;
@@ -254,7 +255,7 @@ StyleStyle::Scan(ods::Tag *tag)
 	{
 		if (AddText(x))
 			continue;
-		
+
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->style(), ods::ns::kTextProperties))

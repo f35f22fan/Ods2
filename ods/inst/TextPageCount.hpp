@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class TextPageCount : public Abstract
+class ODS_API TextPageCount : public Abstract
 {
 public:
 	TextPageCount(Abstract *parent, ods::Tag *tag = nullptr);

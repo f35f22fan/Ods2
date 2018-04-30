@@ -1,6 +1,7 @@
 #pragma once
 
 #include "err.hpp"
+#include "global.hxx"
 
 namespace ods { // ods::
 namespace length { // ods::length::
@@ -23,7 +24,7 @@ enum class Measure : uint8_t
 	None
 };
 
-class Length
+class ODS_API Length
 {
 public:
 	Length(const double sz, const Measure fm);

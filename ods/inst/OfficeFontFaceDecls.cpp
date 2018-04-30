@@ -48,7 +48,7 @@ OfficeFontFaceDecls::GetFontFace(const QString &font_name, const AddIfNeeded ain
 	
 	for (auto *x: nodes_)
 	{
-		if (x->Is(id::StyleFontFace))
+		if (x->Is(Id::StyleFontFace))
 		{
 			auto *p = (StyleFontFace*)x->as_inst();
 

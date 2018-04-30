@@ -6,3 +6,5 @@ void ReadCurrency();
 
 void CreateFormula();
 void ReadFormula();
+
+void CreateInvoice();

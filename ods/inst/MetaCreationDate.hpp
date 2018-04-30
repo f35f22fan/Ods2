@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class MetaCreationDate : public Abstract
+class ODS_API MetaCreationDate : public Abstract
 {
 public:
 	MetaCreationDate(Abstract *parent, Tag *tag = nullptr);

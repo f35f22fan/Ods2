@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleBackgroundImage : public Abstract
+class ODS_API StyleBackgroundImage : public Abstract
 {
 public:
 	StyleBackgroundImage(Abstract *parent, Tag *tag = nullptr);

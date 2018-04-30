@@ -11,7 +11,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleTableCellProperties : public Abstract
+class ODS_API StyleTableCellProperties : public Abstract
 {
 public:
 	StyleTableCellProperties(Abstract *parent, ods::Tag *tag = nullptr);

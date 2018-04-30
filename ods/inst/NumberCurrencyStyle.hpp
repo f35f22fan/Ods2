@@ -8,7 +8,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class NumberCurrencyStyle : public Abstract
+class ODS_API NumberCurrencyStyle : public Abstract
 {
 public:
 	NumberCurrencyStyle(Abstract *parent, Tag *tag = nullptr);

@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class TextTime : public Abstract
+class ODS_API TextTime : public Abstract
 {
 public:
 	TextTime(Abstract *parent, ods::Tag *tag = nullptr);

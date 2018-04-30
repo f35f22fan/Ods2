@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleHeader : public Abstract
+class ODS_API StyleHeader : public Abstract
 {
 public:
 	StyleHeader(Abstract *parent, Tag *tag = nullptr);

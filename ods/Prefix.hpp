@@ -1,6 +1,7 @@
 #pragma once
 
 #include "err.hpp"
+#include "global.hxx"
 
 #include <QXmlStreamWriter>
 
@@ -36,7 +37,7 @@ enum class UriId : quint8
 	Xlink
 };
 
-class Prefix {
+class ODS_API Prefix {
 public:
 	
 	virtual ~Prefix();

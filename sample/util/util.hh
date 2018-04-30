@@ -25,7 +25,7 @@ int
 ReadFile();
 
 void
-Save(ods::Book *book);
+Save(ods::Book *book, const char *file_name = nullptr);
 
 void
 SetHAlignment(ods::inst::StyleStyle *style, const ods::halign::Value a);
@@ -47,12 +47,3 @@ private:
 };
 
 } // util::
-/*
-AutoDelete::AutoDelete(ods::Book *book) : book_(book)
-{}
-
-AutoDelete::~AutoDelete()
-{
-	delete book_;
-}
-*/

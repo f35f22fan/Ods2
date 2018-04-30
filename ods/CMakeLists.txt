@@ -59,7 +59,6 @@ set(lib_files
 	attr/StyleTextUnderlineColor.cpp attr/StyleTextUnderlineColor.hpp
 	attr/StyleTextUnderlineWidth.cpp attr/StyleTextUnderlineWidth.hpp
 	
-#	SubRegion.cpp SubRegion.hpp
 	formula/CellRef.cpp formula/CellRef.hpp
 	formula/Node.cpp formula/Node.hpp formula/node.hxx
 	formula/Value.cpp formula/Value.hpp

@@ -2,11 +2,12 @@
 
 #include "../decl.hxx"
 #include "../err.hpp"
+#include "../global.hxx"
 
 namespace ods { // ods::
 namespace attr { // ods::attr::
 
-class StyleBorderLineWidth
+class ODS_API StyleBorderLineWidth
 {
 public:
 	StyleBorderLineWidth();

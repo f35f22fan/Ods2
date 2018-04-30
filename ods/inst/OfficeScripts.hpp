@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class OfficeScripts : public Abstract
+class ODS_API OfficeScripts : public Abstract
 {
 public:
 	OfficeScripts(Abstract *parent, Tag *tag = nullptr);

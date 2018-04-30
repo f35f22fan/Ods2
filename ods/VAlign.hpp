@@ -1,6 +1,7 @@
 #pragma once
 
 #include "err.hpp"
+#include "global.hxx"
 
 namespace ods { // ods::
 
@@ -16,7 +17,7 @@ enum class Value : uint8_t
 
 } // ods::valign::
 
-class VAlign
+class ODS_API VAlign
 {
 public:
 	VAlign(const valign::Value value);

@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class NumberCurrencySymbol : public Abstract
+class ODS_API NumberCurrencySymbol : public Abstract
 {
 public:
 	NumberCurrencySymbol(Abstract *parent, ods::Tag *tag = nullptr);

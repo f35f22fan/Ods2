@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../err.hpp"
+#include "../global.hxx"
 
 namespace ods { // ods::
 namespace attr { // ods::attr::
@@ -15,7 +16,7 @@ enum class TextUnderlineWidth : uint8_t
 	PositiveLength
 };
 
-class StyleTextUnderlineWidth
+class ODS_API StyleTextUnderlineWidth
 {
 public:
 	StyleTextUnderlineWidth();

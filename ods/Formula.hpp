@@ -3,6 +3,7 @@
 #include "decl.hxx"
 #include "err.hpp"
 #include "formula.hxx"
+#include "global.hxx"
 #include "ods.hxx"
 #include "value.hxx"
 
@@ -12,7 +13,7 @@
 
 namespace ods { // ods::
 
-class Formula
+class ODS_API Formula
 {
 public:
 	Formula(ods::Cell *cell);

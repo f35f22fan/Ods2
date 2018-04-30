@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class MetaEditingCycles : public Abstract
+class ODS_API MetaEditingCycles : public Abstract
 {
 public:
 	MetaEditingCycles(Abstract *parent, Tag *tag = nullptr);

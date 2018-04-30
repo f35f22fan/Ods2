@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class MetaTemplate : public Abstract
+class ODS_API MetaTemplate : public Abstract
 {
 public:
 	MetaTemplate(Abstract *parent, Tag  *Tag = nullptr);

@@ -2,13 +2,14 @@
 
 #include "err.hpp"
 #include "decl.hxx"
+#include "global.hxx"
 #include "inst/decl.hxx"
 
 #include <QXmlStreamReader>
 
 namespace ods { // ods::
 
-class Ns
+class ODS_API Ns
 {
 public:
 	Ns();

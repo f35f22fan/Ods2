@@ -81,11 +81,11 @@ Abstract::FullName() const
 }
 
 Abstract*
-Abstract::Get(const id::func f) const
+Abstract::Get(const Id id) const
 {
 	for (auto *x: nodes_)
 	{
-		if (x->Is(f))
+		if (x->Is(id))
 			return x->as_inst();
 	}
 	
@@ -158,7 +158,7 @@ Abstract::GetStyleRecursive(const QString &name)
 inst::StyleTableCellProperties*
 Abstract::GetStyleTableCellProperties(const AddIfNeeded ain)
 {
-	auto *p = (StyleTableCellProperties*)Get(id::StyleTableCellProperties);
+	auto *p = (StyleTableCellProperties*)Get(Id::StyleTableCellProperties);
 	
 	if (p != nullptr || ain == AddIfNeeded::No)
 		return p;
@@ -171,7 +171,7 @@ Abstract::GetStyleTableCellProperties(const AddIfNeeded ain)
 StyleTextProperties*
 Abstract::GetStyleTextProperties(const AddIfNeeded ain)
 {
-	auto *p = (StyleTextProperties*)Get(id::StyleTextProperties);
+	auto *p = (StyleTextProperties*)Get(Id::StyleTextProperties);
 	
 	if (p != nullptr || ain == AddIfNeeded::No)
 		return p;
@@ -182,15 +182,18 @@ Abstract::GetStyleTextProperties(const AddIfNeeded ain)
 }
 
 bool
-Abstract::Is(const id::func f1, const id::func f2) const
+Abstract::Is(const Id id1, const Id id2) const
 {
-	return (func_ == f1) || (func_ == f2);
+	if (id_ != id1)
+		return false;
+	
+	return (id2 == Id::None || id_ == id2);
 }
 
 bool
 Abstract::IsTextP() const
 {
-	return func_ == id::TextP;
+	return id_ == Id::TextP;
 }
 
 void

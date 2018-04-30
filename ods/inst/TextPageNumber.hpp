@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class TextPageNumber : public Abstract
+class ODS_API TextPageNumber : public Abstract
 {
 public:
 	TextPageNumber(Abstract *parent, Tag *tag = nullptr);

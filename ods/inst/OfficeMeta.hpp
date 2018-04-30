@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class OfficeMeta : public Abstract
+class ODS_API OfficeMeta : public Abstract
 {
 public:
 	OfficeMeta(Abstract *parent, Tag *tag = nullptr);

@@ -9,7 +9,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class OfficeDocumentStyles : public Abstract
+class ODS_API OfficeDocumentStyles : public Abstract
 {
 public:
 	OfficeDocumentStyles(ods::Book *book, ods::Ns *ns, ods::Tag *tag = nullptr);

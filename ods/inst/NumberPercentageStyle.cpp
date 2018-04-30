@@ -41,7 +41,7 @@ NumberPercentageStyle::Clone(Abstract *parent) const
 inst::NumberNumber*
 NumberPercentageStyle::GetNumberStyle()
 {
-	auto *p = Get(id::NumberNumber);
+	auto *p = Get(Id::NumberNumber);
 	return (p == nullptr) ? nullptr : (inst::NumberNumber*) p;
 }
 

@@ -1,0 +1,194 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>How to build QOds</title>
+<style>
+
+.note {
+	text-decoration: underline;
+}
+.parag {
+	font-size: 14px;
+	color: rgb(0, 0, 255);
+	font-weight: bold;
+	text-align: center;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	border: 1px solid blue;
+}
+.subparag {
+	font-size: 14px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	color: rgb(100, 100, 255);
+	
+}
+
+body {
+	margin-bottom: 600px;
+	width: 900px;
+}
+</style>
+</head>
+<body>
+
+<div style="text-align:center">
+<b>How to build QOds</b><p/>
+</div>
+<span class="note">Note 1:</span>
+<span style="color:rgb(200,0,0);font-weight:bold">
+Shared libraries</span> are built by default, to build
+<span style="color:rgb(200,0,0);font-weight:bold">static libraries</span>
+uncomment the line<br/>
+<b>#set (BUILD_STATIC_LIBRARIES "1")</b><br/>
+from QOds/CMakeLists.txt.
+</span><p/>
+
+<span class="note">Note 2:</span> After compilation the resulting
+libraries are to be found in "QOds/build/lib".
+<br/>The example code from "QOds/app" in
+"QOds/build/app".
+<p/>
+
+<span class="note">Note 3:</span> Since Nov 2014 QOds comes with its own
+copy of <a href="http://www.zlib.net">zlib</a> to make the building
+process (a lot) easier.<p/>
+<br/><br/>
+<div class="parag">Prerequisites, all OSes</div>
+<ol>
+<li>Obviously, make sure you have Qt 5.x installed and a C++11
+capable compiler.</li>
+<li>Install <a href="http://www.cmake.org">CMake (cmake.exe)</a> (not to be confused with make (make.exe)),
+ you'll need CMake to generate the build
+files for your (native) development environment,
+be it Visual Studio, MinGW, or whatever.<br/>
+<span style="color:rgb(100,100,100);font-style:italic;">In case you wonder, "CMakeLists.txt" are the files from which cmake.exe
+generates the files for your native building environment.</span>
+</li>
+<li>Good practice: create a "build" dir to keep
+the to be created build/config files apart from the source code because the building
+environments generate quite a bit of building garbage.
+After this the source tree will look like this:
+<pre>
+[+]app
+[+]<b>build</b>
+[+]ods
+[+]quazip
+[+]zlib
+CMakeLists.txt
+how_to_build.html
+setup_windows_env.bat
+</pre>
+</li>
+</ol>
+
+<div class="parag">On Windows</div>
+A few notes before compilation:<p/>
+<b>Note 1:</b> Tested on Win7 and Win8.1<p/>
+
+<b>Note 2:</b> The QOds library ships with 2 other libs it depends on: quazip and zlib, the latter
+is included because Windows ships without zlib.
+Hence, after QOds is built, it's comprised of these files:
+<pre>
+[-]build
+    [-]lib
+        [-]Release
+            ods.dll -&gt; the actual QOds library
+            quazip.dll -&gt; high level zip/unzip library QOds depends on
+            zlib.dll -&gt; low level zip/unzip library quazip depends on
+</pre>
+
+Back to compilation:<br/>
+<ol>
+<li>
+Edit the file setup_windows_env.bat to point to your installation
+of Qt 5.x and cmake.exe</li>
+
+<li>For MinGW users only: Install make.exe if not yet installed and
+edit the setup_windows_env.bat accordingly.</li>
+
+<li>Now open cmd.exe, navigate to the source dir and execute
+setup_windows_env.bat from the command line
+for the system to know where your Qt5.x and cmake.exe are installed.
+</li>
+
+<p/>
+<div style="border:1px solid green;padding:5px;">
+<b>Extra step for users of Win10/Qt5:</b><br/>
+Edit these lines from QOds/CMakeLists.txt properly:<br/>
+<pre>
+if(WIN32)
+    set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.7.1\\5.7\\msvc2015_64\\")
+endif (WIN32)
+</pre>
+</div><br/>
+
+<li>From the command line go to the "build" dir (cd build).</li>
+</ol>
+Then:
+
+<div class="subparag">Visual Studio 2013 users:</div>
+
+<ul>
+<li>Recent versions of cmake.exe can generate files for VS2013:<br/>
+<br/>
+<b>For 32 bit</b>:
+<br/>
+<i>cmake -G "Visual Studio 12 2013" ..</i>
+<p/>
+<b>For 64 bit:</b>
+<br/>
+<i>cmake -G "Visual Studio 12 2013 Win64" ..</i>
+
+</li>
+<li>Done. Look into the "build" dir, the files should be there, particularly
+the "project" file QOds.sln. You know what to do next.</li>
+</ul>
+
+<div class="subparag">MinGW users:</div>
+<ul>
+<li>Now you're ready to generate build files for MinGW from the command line:
+<p/>
+<i>cmake -G "MinGW Makefiles" ..</i>
+</li>
+<li>Now you can build the project with the good old make:
+<p/>
+<i>make -j4</i>
+</li>
+</ul>
+
+<div class="parag">On Linux</div>
+<ul>
+From the "build" dir issue:
+<br/>
+<i>cmake ..</i>
+<br/>
+Then
+<br/>
+<i>make -j4</i>
+</ul>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -51,12 +51,9 @@ TableTableColumn::FetchTableColumnProperties()
 	}
 	
 	inst::StyleTableColumnProperties *tcp = (inst::StyleTableColumnProperties*)
-		style->Get(id::StyleTableColumnProperties);
+		style->Get(Id::StyleTableColumnProperties);
 	
-	if (tcp == nullptr)
-		tcp = style->NewTableColumnProperties();
-	
-	return tcp;
+	return (tcp == nullptr) ? style->NewTableColumnProperties() : tcp;
 }
 
 StyleStyle*
@@ -89,7 +86,7 @@ TableTableColumn::QueryColumnWidth() const
 		return nullptr;
 	
 	inst::StyleTableColumnProperties *tcp = (inst::StyleTableColumnProperties*)
-		style->Get(id::StyleTableColumnProperties);
+		style->Get(Id::StyleTableColumnProperties);
 	
 	return (tcp == nullptr) ? nullptr : tcp->column_width();
 }

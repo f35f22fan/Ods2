@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class TableCalculationSettings : public Abstract
+class ODS_API TableCalculationSettings : public Abstract
 {
 public:
 	TableCalculationSettings(Abstract *parent, Tag *tag = nullptr);

@@ -12,6 +12,6 @@ Licensed under the GPLv3, see LICENSE for details.
 
 TBD (95% done, yet):
 - Test/fix to work on windows
-- Make sure generated files work with MS 2015+
+- Make sure generated files work with MS Office 2015+
 - Create a sample invoice to show up what Ods2 can do.
 - Detect possibly missing features to be on par with QOds

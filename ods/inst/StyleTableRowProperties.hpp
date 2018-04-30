@@ -8,7 +8,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class StyleTableRowProperties : public Abstract
+class ODS_API StyleTableRowProperties : public Abstract
 {
 public:
 	StyleTableRowProperties(ods::inst::Abstract *parent, ods::Tag *tag = nullptr);

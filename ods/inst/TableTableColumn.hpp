@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class TableTableColumn : public Abstract
+class ODS_API TableTableColumn : public Abstract
 {
 public:
 	TableTableColumn(Abstract *parent, Tag *tag = nullptr);

@@ -7,7 +7,7 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-class OfficeMasterStyles : public Abstract
+class ODS_API OfficeMasterStyles : public Abstract
 {
 public:
 	OfficeMasterStyles(Abstract *parent, Tag *tag = nullptr);

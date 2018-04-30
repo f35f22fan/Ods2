@@ -1,6 +1,7 @@
 #pragma once
 
 #include "decl.hxx"
+#include "global.hxx"
 #include "id.hh"
 #include "ods.hxx"
 #include "StringOrTag.hpp"
@@ -17,7 +18,7 @@ enum class StringOrInstType : quint8 {
 	Inst,
 };
 
-class StringOrInst
+class ODS_API StringOrInst
 {
 public:
 	StringOrInst(const QString &s);
@@ -41,7 +42,7 @@ public:
 	DeleteData();
 	
 	bool
-	Is(const id::func f1, const id::func f2 = nullptr) const;
+	Is(const Id id1, const Id id2 = Id::None) const;
 	
 	bool
 	is_inst() const { return type_ == StringOrInstType::Inst; }
