@@ -190,12 +190,28 @@ Book::Load(const QString &full_path)
 	{
 		if (path.endsWith(ods::filename::ContentXml)) {
 			LoadContentXml(path);
-		} else if (path.endsWith(ods::filename::ManifestXml)) {
+			break;
+		}
+	}
+	for (auto path : extracted_file_paths_)
+	{
+		if (path.endsWith(ods::filename::ManifestXml)) {
 			LoadManifestXml(path);
-		} else if (path.endsWith(ods::filename::MetaXml)) {
+			break;
+		}
+	}
+	for (auto path : extracted_file_paths_)
+	{
+		if (path.endsWith(ods::filename::MetaXml)) {
 			LoadMetaXml(path);
-		} else if (path.endsWith(ods::filename::StylesXml)) {
+			break;
+		}
+	}
+	for (auto path : extracted_file_paths_)
+	{
+		if (path.endsWith(ods::filename::StylesXml)) {
 			LoadStylesXml(path);
+			break;
 		}
 	}
 }
