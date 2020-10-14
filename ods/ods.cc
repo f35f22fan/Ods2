@@ -2,10 +2,28 @@
 
 #include "err.hpp"
 #include "ns.hxx"
+#include "str.hxx"
 
 #include <cmath>
 
 namespace ods { // ods::
+
+void
+ApplyBool(const QString &str, ods::Bool &b)
+{
+	if (str.isEmpty()) {
+		b = ods::Bool::None;
+	} else {
+		QString s = str.toLower();
+		if (s == ods::str::True) {
+			b = ods::Bool::True;
+		} else if (s == ods::str::False) {
+			b = ods::Bool::False;
+		} else {
+			b = ods::Bool::None;
+		}
+	}
+}
 
 QChar
 CharFromOp(const ods::Op op)
@@ -24,15 +42,15 @@ ods::Op
 CharToOp(const QChar c)
 {
 	if (c == '*')
-		return ods::Op::Multiply;
+		return Op::Multiply;
 	if (c == '/')
-		return ods::Op::Divide;
+		return Op::Divide;
 	if (c == '+')
-		return ods::Op::Add;
+		return Op::Add;
 	if (c == '-')
-		return ods::Op::Subtract;
+		return Op::Subtract;
 	
-	return ods::Op::None;
+	return Op::None;
 }
 
 static double dpi = -1.0;

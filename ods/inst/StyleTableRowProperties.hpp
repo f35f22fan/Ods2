@@ -2,8 +2,8 @@
 
 #include "Abstract.hpp"
 #include "decl.hxx"
-
 #include "../err.hpp"
+#include "../ods.hxx"
 
 namespace ods { // ods::
 namespace inst { // ods::inst::
@@ -19,6 +19,9 @@ public:
 	Clone(Abstract *parent = nullptr) const override;
 	
 	void
+	SetOptimal(Length *size);
+	
+	void
 	WriteData(QXmlStreamWriter &xml) override;
 	
 private:
@@ -26,8 +29,8 @@ private:
 	void Init(ods::Tag *tag);
 	
 	QString fo_break_before_;
-	QString style_use_optimal_row_height_;
-	QString style_row_height_;
+	ods::Bool style_use_optimal_row_height_ = ods::Bool::None;
+	Length *style_row_height_ = nullptr;
 };
 
 } // ods::inst::

@@ -13,6 +13,7 @@
 #include <ods/Formula.hpp>
 #include <ods/HAlign.hpp>
 #include <ods/id.hh>
+#include <ods/lang.hxx>
 #include <ods/Length.hpp>
 #include <ods/LineStyle.hpp>
 #include <ods/ods.hh>
@@ -41,9 +42,11 @@
 #include <ods/inst/NumberText.hpp>
 #include <ods/inst/NumberTimeStyle.hpp>
 #include <ods/inst/OfficeAutomaticStyles.hpp>
+#include <ods/inst/OfficeDocumentStyles.hpp>
 #include <ods/inst/OfficeDocumentContent.hpp>
 #include <ods/inst/OfficeFontFaceDecls.hpp>
 #include <ods/inst/OfficeSpreadsheet.hpp>
+#include <ods/inst/OfficeStyles.hpp>
 #include <ods/inst/StyleParagraphProperties.hpp>
 #include <ods/inst/StyleFontFace.hpp>
 #include <ods/inst/StyleStyle.hpp>

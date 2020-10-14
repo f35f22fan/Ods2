@@ -1,17 +1,12 @@
 #pragma once
 
 #include <QString>
+#include "types.hxx"
 
 namespace ods { // ods::
+namespace lang { // ods::lang::
 
-struct Lang {
-	lang::Id id;
-	QString str;
-};
-
-namespace lang {
-
-enum class Id : quint16 {
+enum class Id : u16 {
 	NotSet = 0,
 	Arabic,
 	Chinese,
@@ -23,6 +18,11 @@ enum class Id : quint16 {
 	Russian,
 	Spanish,
 	Turkish
+};
+
+struct Lang {
+	lang::Id id;
+	QString str;
 };
 
 const Lang Arabic { lang::Id::Arabic, QLatin1String("ar") };

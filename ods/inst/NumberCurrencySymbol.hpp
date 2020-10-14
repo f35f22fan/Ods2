@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Abstract.hpp"
+#include "../currency.hxx"
 #include "decl.hxx"
 #include "../err.hpp"
 
@@ -30,7 +31,7 @@ public:
 	language(const QString &s) { number_language_ = s; }
 	
 	void
-	SetSymbol(const QString &s);
+	SetSymbol(const ods::Currency &c);
 	
 	QString
 	GetSymbol();

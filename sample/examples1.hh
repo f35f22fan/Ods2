@@ -1,5 +1,7 @@
 #pragma once
 
+void TestBugFromAzure();
+
 void SetColumnWidths();
 void ReadColumnWidths();
 

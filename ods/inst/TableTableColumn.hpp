@@ -35,7 +35,7 @@ public:
 	int
 	number_columns_repeated() const { return table_number_columns_repeated_; }
 	
-	int
+	void
 	number_columns_repeated(const int n)
 	{
 		table_number_columns_repeated_ = n;

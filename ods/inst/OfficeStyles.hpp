@@ -17,6 +17,12 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
+	NumberCurrencyStyle*
+	NewNumberCurrencyStyle();
+	
+	StyleStyle*
+	NewStyleStyle(const style::Family f);
+	
 	void
 	WriteData(QXmlStreamWriter &xml) override;
 	

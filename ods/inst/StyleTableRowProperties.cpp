@@ -1,7 +1,9 @@
 #include "StyleTableRowProperties.hpp"
 
+#include "../Length.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
+#include "../str.hxx"
 #include "../Tag.hpp"
 
 namespace ods { // ods::
@@ -18,7 +20,11 @@ StyleTableRowProperties::StyleTableRowProperties(const StyleTableRowProperties &
 : Abstract(cloner)
 {}
 
-StyleTableRowProperties::~StyleTableRowProperties() {}
+StyleTableRowProperties::~StyleTableRowProperties()
+{
+	delete style_row_height_;
+	style_row_height_ = nullptr;
+}
 
 Abstract*
 StyleTableRowProperties::Clone(Abstract *parent) const
@@ -40,8 +46,15 @@ StyleTableRowProperties::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->fo(), ods::ns::kBreakBefore, fo_break_before_);
 	tag->Copy(ns_->style(), ods::ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
-	tag->Copy(ns_->style(), ods::ns::kRowHeight, style_row_height_);
+	tag->Copy(ns_->style(), ods::ns::kRowHeight, &style_row_height_);
 	ScanString(tag);
+}
+
+void
+StyleTableRowProperties::SetOptimal(Length *size)
+{
+	style_use_optimal_row_height_ = ods::Bool::True;
+	style_row_height_ = size;
 }
 
 void

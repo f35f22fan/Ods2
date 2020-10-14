@@ -2,12 +2,11 @@
 
 #include "err.hpp"
 #include "global.hxx"
+#include "types.hxx"
 
 namespace ods { // ods::
 
-namespace valign { // ods::valign::
-
-enum class Value : uint8_t
+enum class VAlignSide : u8
 {
 	None,
 	Top,
@@ -15,12 +14,14 @@ enum class Value : uint8_t
 	Bottom
 };
 
+namespace valign { // ods::valign::
+
 } // ods::valign::
 
 class ODS_API VAlign
 {
 public:
-	VAlign(const valign::Value value);
+	VAlign(const VAlignSide value);
 	virtual ~VAlign();
 	
 	VAlign*
@@ -30,36 +31,36 @@ public:
 	FromString(const QString &str);
 	
 	bool
-	is_bottom() const { return value_ == valign::Value::Bottom; }
+	is_bottom() const { return value_ == VAlignSide::Bottom; }
 	
 	bool
-	is_middle() const { return value_ == valign::Value::Middle; }
+	is_middle() const { return value_ == VAlignSide::Middle; }
 	
 	bool
-	is_top() const { return value_ == valign::Value::Top; }
+	is_top() const { return value_ == VAlignSide::Top; }
 	
 	bool
-	is_valid() const { return value_ != valign::Value::None; }
+	is_valid() const { return value_ != VAlignSide::None; }
 	
 	QString
 	toString() const;
 	
-	valign::Value
+	VAlignSide
 	value() const { return value_; }
 	
 	void
-	value(const valign::Value v) { value_ = v; }
+	value(const VAlignSide v) { value_ = v; }
 	
 private:
 	NO_ASSIGN_COPY_MOVE(VAlign);
 	
-	static valign::Value
+	static VAlignSide
 	ValueFromString(const QString &str);
 	
 	QString
 	ValueToString() const;
 	
-	valign::Value value_ = valign::Value::None;
+	VAlignSide value_ = VAlignSide::None;
 };
 
 } // ods::

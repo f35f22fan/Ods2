@@ -21,6 +21,12 @@ public:
 	virtual QString*
 	data_style_name() { return nullptr; }
 	
+	NumberCurrencySymbol*
+	FetchCurrencySymbol();
+	
+	NumberNumber*
+	FetchNumber();
+	
 	inst::NumberCurrencySymbol*
 	NewCurrencySymbol();
 	

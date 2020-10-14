@@ -4,7 +4,7 @@
 
 namespace ods { // ods::
 
-VAlign::VAlign(const valign::Value value)
+VAlign::VAlign(const VAlignSide value)
 {
 	value_ = value;
 }
@@ -23,9 +23,9 @@ VAlign::FromString(const QString &str)
 	if (str.isEmpty())
 		return nullptr;
 	
-	valign::Value v = ValueFromString(str);
+	VAlignSide v = ValueFromString(str);
 	
-	if (v == valign::Value::None)
+	if (v == VAlignSide::None)
 		return nullptr;
 	
 	return new VAlign(v);
@@ -37,31 +37,31 @@ VAlign::toString() const
 	return ValueToString();
 }
 
-valign::Value
+VAlignSide
 VAlign::ValueFromString(const QString &str)
 {
 	if (str == ods::ns::kBottom)
-		return valign::Value::Bottom;
+		return VAlignSide::Bottom;
 	
 	if (str == ods::ns::kMiddle)
-		return valign::Value::Middle;
+		return VAlignSide::Middle;
 	
 	if (str == ods::ns::kTop)
-		return valign::Value::Top;
+		return VAlignSide::Top;
 	
-	return valign::Value::None;
+	return VAlignSide::None;
 }
 
 QString
 VAlign::ValueToString() const
 {
-	if (value_ == valign::Value::Bottom)
+	if (value_ == VAlignSide::Bottom)
 		return ods::ns::kBottom;
 	
-	if (value_ == valign::Value::Middle)
+	if (value_ == VAlignSide::Middle)
 		return ods::ns::kMiddle;
 	
-	if (value_ == valign::Value::Top)
+	if (value_ == VAlignSide::Top)
 		return ods::ns::kTop;
 	
 	it_happened();

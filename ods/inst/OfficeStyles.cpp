@@ -1,9 +1,11 @@
 #include "OfficeStyles.hpp"
 
 #include "StyleDefaultStyle.hpp"
+#include "NumberCurrencyStyle.hpp"
 #include "NumberNumberStyle.hpp"
 #include "StyleStyle.hpp"
 
+#include "../Book.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Tag.hpp"
@@ -40,6 +42,30 @@ void
 OfficeStyles::Init(ods::Tag *tag)
 {
 	Scan(tag);
+}
+
+NumberCurrencyStyle*
+OfficeStyles::NewNumberCurrencyStyle()
+{
+	QString new_name = book_->GenUniqueStyleName(style::Family::None,
+		id::NumberCurrencyStyle);
+	auto *p = new NumberCurrencyStyle(this);
+	p->style_name(new_name);
+	Append(p);
+	
+	return p;
+}
+
+StyleStyle*
+OfficeStyles::NewStyleStyle(const style::Family f)
+{
+	QString new_name = book_->GenUniqueStyleName(f);
+	auto *p = new StyleStyle(this);
+	p->style_name(new_name);
+	p->SetFamily(f);
+	Append(p);
+	
+	return p;
 }
 
 void

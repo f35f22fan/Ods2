@@ -1,8 +1,6 @@
 #include "examples2.hh"
 
-#include "util/util.hh"
-#include "util/Invoice.hpp"
-
+#include "util.hh"
 #include <ods/ods>
 
 void
@@ -15,43 +13,23 @@ CreateCurrency()
 	auto *row = sheet->NewRowAt(0);
 	auto *cell = row->NewCellAt(0);
 	
-	// currency value:
-	cell->SetCurrency(49.2, ods::currency::str::USD);
-	// using ods::currency::str::USD for "USD" to avoid typos.
+	cell->SetCurrency(49.2, ods::currency::USD);
 	
 	// other currency info and formatting rules:
-	ods::inst::StyleStyle *style = cell->GetStyle();
+	ods::inst::StyleStyle *style = cell->FetchStyle();
+	ods::inst::NumberCurrencyStyle *ncs = style->FetchNumberCurrencyStyle();
+	auto *cs = ncs->FetchCurrencySymbol();
 	
-	if (style == nullptr)
-		style = cell->NewStyle();
-	
-	auto *ncs = (ods::inst::NumberCurrencyStyle*)
-		style->Get(ods::Id::NumberCurrencyStyle);
-	
-	if (ncs == nullptr)
-		ncs = style->NewCurrencyStyle();
-	
-	auto *cs = (ods::inst::NumberCurrencySymbol*)
-		ncs->Get(ods::Id::NumberCurrencySymbol);
-	
-	if (cs == nullptr)
-		cs = ncs->NewCurrencySymbol();
-	
-	cs->language("en");
+	cs->language(ods::lang::English.str);
 	cs->country(ods::country::USA);
-	cs->SetSymbol(ods::currency::symbol::USD);
-	
-	auto *nn = (ods::inst::NumberNumber*) ncs->Get(ods::Id::NumberNumber);
-	
-	if (nn == nullptr)
-		nn = ncs->NewNumber();
-	
+	cs->SetSymbol(ods::currency::USD);
+	auto *nn = ncs->FetchNumber();
 	{
 		nn->grouping(1);
 		nn->min_integer_digits(5);
 		nn->decimal_places(4);
 		nn->min_decimal_places(3);
-		// This makes 49.2 be displayed as "$00,049.200"
+		// This makes 49.2 to be displayed as "$00,049.200"
 		// If nn->grouping(0) then "$00049.200" will be displayed.
 		// -1 means value not set.
 		// Note: Calligra Sheets doesn't display currency formatting properly
@@ -68,17 +46,16 @@ ReadCurrency()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(2);
@@ -193,17 +170,16 @@ ReadFormula()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -216,14 +192,12 @@ ReadFormula()
 	
 	auto *cell = row->GetCell(2);
 	
-	if (cell == nullptr)
-	{
+	if (cell == nullptr) {
 		mtl_warn("No such cell");
 		return;
 	}
 	
-	if (!cell->has_formula())
-	{
+	if (!cell->has_formula()) {
 		mtl_warn("Cell has no formula");
 		return;
 	}
@@ -232,24 +206,16 @@ ReadFormula()
 	ods::formula::Value result;
 	formula->Eval(result);
 	
-	if (result.has_error())
-	{
+	if (result.has_error()) {
 		mtl_warn("Got an error when evaluating formula");
 		return;
 	}
 	
-	if (result.is_double())
-	{
+	if (result.is_double()) {
 		double num = *result.as_double();
 		mtl_line("Formula value: %.2f", num);
 	} else {
 		mtl_warn("Other types not supported yet");
 	}
-}
-
-void
-CreateInvoice()
-{
-	util::Invoice invoice;
 }
 

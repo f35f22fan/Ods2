@@ -25,14 +25,14 @@ public:
 	inst::OfficeDocumentContent*
 	document_content() const { return document_content_; }
 	
-	const QString&
-	error_msg() const { return error_msg_; }
+	inst::OfficeDocumentStyles*
+	document_styles() const { return document_styles_; }
 	
 	const QStringList&
 	extracted_file_paths() const { return extracted_file_paths_; }
 	
 	static Book*
-	FromFile(const QString &full_path);
+	FromFile(const QString &full_path, QString *err);
 	
 	inst::Abstract*
 	GetAnyStyle(const QString &name);
@@ -62,10 +62,13 @@ public:
 	NewColumnStyle(const Place place = Place::ContentFile);
 	
 	inst::StyleStyle*
+	NewRowStyle(const Place place = Place::ContentFile);
+	
+	inst::StyleStyle*
 	NewStyle(const Place place, const style::Family f);
 	
 	bool // returns true on success
-	Save(const QFile &target);
+	Save(const QFile &target, QString *err);
 	
 	inst::OfficeSpreadsheet*
 	spreadsheet() const;
@@ -81,17 +84,16 @@ private:
 	
 	void InitTempDir();
 	void InitDefault();
-	void Load(const QString &full_path);
-	void LoadContentXml(const QString &full_path);
-	void LoadManifestXml(const QString &full_path);
-	void LoadMetaXml(const QString &full_path);
-	void LoadStylesXml(const QString &full_path);
-	bool Save(inst::Abstract *top, const QString &full_path);
+	void Load(const QString &full_path, QString *err);
+	void LoadContentXml(const QString &full_path, QString *err);
+	void LoadManifestXml(const QString &full_path, QString *err);
+	void LoadMetaXml(const QString &full_path, QString *err);
+	void LoadStylesXml(const QString &full_path, QString *err);
+	bool Save(inst::Abstract *top, const QString &full_path, QString *err);
 	void Scan(ods::Tag *parent);
 	
 	QMimeDatabase db_;
 	const bool dev_mode_ = true;
-	QString error_msg_;
 	QStringList extracted_file_paths_;
 	QString media_dir_path_;
 	

@@ -210,20 +210,14 @@ Save(ods::Book *book, const char *file_name)
 {
 	const char *fn = (file_name == nullptr) ? "out.ods" : file_name;
 	QFile as(QDir::home().filePath(fn));
-	book->Save(as);
-}
-
-void
-SetHAlignment(ods::inst::StyleStyle *style, const ods::halign::Value a)
-{
-	auto *spp = (ods::inst::StyleParagraphProperties*)
-		style->Get(ods::Id::StyleParagraphProperties);
+	QString err;
+	book->Save(as, &err);
 	
-	if (spp == nullptr)
-		spp = style->NewParagraphProperties();
-	
-	ods::HAlign ha(a);
-	spp->text_align(&ha);
+	if (!err.isEmpty()) {
+		auto ba = err.toLocal8Bit();
+		mtl_warn("%s", ba.data());
+		return;
+	}
 }
 
 void
@@ -256,19 +250,6 @@ SetPercentage(ods::inst::StyleStyle *style, const int min_integer_digits,
 		nt = percent_style->NewNumberText();
 	
 	nt->SetFirstString(QLatin1String("%"));
-}
-
-void
-SetVAlignment(ods::inst::StyleStyle *style, const ods::valign::Value a)
-{
-	auto *tcp = (ods::inst::StyleTableCellProperties*)
-		style->Get(ods::Id::StyleTableCellProperties);
-	
-	if (tcp == nullptr)
-		tcp = style->NewTableCellProperties();
-	
-	ods::VAlign va(a);
-	tcp->vertical_align(&va);
 }
 
 } // util::

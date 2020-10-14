@@ -14,6 +14,7 @@
 #include "inst/OfficeDocumentMeta.hpp"
 #include "inst/OfficeDocumentStyles.hpp"
 #include "inst/OfficeSpreadsheet.hpp"
+#include "inst/OfficeStyles.hpp"
 
 #include <QGuiApplication>
 #include <QSaveFile>
@@ -39,10 +40,10 @@ Book::~Book()
 }
 
 Book*
-Book::FromFile(const QString &full_path)
+Book::FromFile(const QString &full_path, QString *err)
 {
 	auto *book = new Book();
-	book->Load(full_path);
+	book->Load(full_path, err);
 	return book;
 }
 
@@ -168,7 +169,7 @@ Book::InitTempDir()
 }
 
 void
-Book::Load(const QString &full_path)
+Book::Load(const QString &full_path, QString *err)
 {
 	InitTempDir();
 	
@@ -180,50 +181,50 @@ Book::Load(const QString &full_path)
 	
 	extracted_file_paths_ = JlCompress::extractDir(full_path, temp_dir_path_);
 	
-	if (extracted_file_paths_.isEmpty())
-	{
-		error_msg_ = QLatin1String("Couldn't extract files");
+	if (extracted_file_paths_.isEmpty()) {
+		if (err != nullptr)
+			*err = QLatin1String("Couldn't extract files");
 		return;
 	}
 	
-	for (auto path : extracted_file_paths_)
-	{
+	for (auto path : extracted_file_paths_) {
 		if (path.endsWith(ods::filename::ContentXml)) {
-			LoadContentXml(path);
+			LoadContentXml(path, err);
 			break;
 		}
 	}
-	for (auto path : extracted_file_paths_)
-	{
+	
+	for (auto path : extracted_file_paths_) {
 		if (path.endsWith(ods::filename::ManifestXml)) {
-			LoadManifestXml(path);
+			LoadManifestXml(path, err);
 			break;
 		}
 	}
-	for (auto path : extracted_file_paths_)
-	{
+	
+	for (auto path : extracted_file_paths_) {
 		if (path.endsWith(ods::filename::MetaXml)) {
-			LoadMetaXml(path);
+			LoadMetaXml(path, err);
 			break;
 		}
 	}
-	for (auto path : extracted_file_paths_)
-	{
+	
+	for (auto path : extracted_file_paths_) {
 		if (path.endsWith(ods::filename::StylesXml)) {
-			LoadStylesXml(path);
+			LoadStylesXml(path, err);
 			break;
 		}
 	}
 }
 
 void
-Book::LoadContentXml(const QString &full_path)
+Book::LoadContentXml(const QString &full_path, QString *err)
 {
 	QFile file(full_path);
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
-		error_msg_ = file.errorString();
+		if (err != nullptr)
+			*err = file.errorString();
 		return;
 	}
 	
@@ -247,19 +248,20 @@ Book::LoadContentXml(const QString &full_path)
 			break;
 		}
 		
-		if (!error_msg_.isEmpty())
+		if (err != nullptr && !err->isEmpty())
 			break;
 	}
 }
 
 void
-Book::LoadManifestXml(const QString &full_path)
+Book::LoadManifestXml(const QString &full_path, QString *err)
 {
 	QFile file(full_path);
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
-		error_msg_ = file.errorString();
+		if (err != nullptr)
+			*err = file.errorString();
 		return;
 	}
 	
@@ -283,19 +285,20 @@ Book::LoadManifestXml(const QString &full_path)
 			break;
 		}
 		
-		if (!error_msg_.isEmpty())
+		if (err != nullptr && !err->isEmpty())
 			break;
 	}
 }
 
 void
-Book::LoadMetaXml(const QString &full_path)
+Book::LoadMetaXml(const QString &full_path, QString *err)
 {
 	QFile file(full_path);
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
-		error_msg_ = file.errorString();
+		if (err != nullptr)
+			*err = file.errorString();
 		return;
 	}
 	
@@ -319,19 +322,20 @@ Book::LoadMetaXml(const QString &full_path)
 			break;
 		}
 		
-		if (!error_msg_.isEmpty())
+		if (err != nullptr && !err->isEmpty())
 			break;
 	}
 }
 
 void
-Book::LoadStylesXml(const QString &full_path)
+Book::LoadStylesXml(const QString &full_path, QString *err)
 {
 	QFile file(full_path);
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
-		error_msg_ = file.errorString();
+		if (err != nullptr)
+			*err = file.errorString();
 		return;
 	}
 	
@@ -354,7 +358,7 @@ Book::LoadStylesXml(const QString &full_path)
 			break;
 		}
 		
-		if (!error_msg_.isEmpty())
+		if (err != nullptr && !err->isEmpty())
 			break;
 	}
 }
@@ -374,17 +378,12 @@ Book::NewStyle(const Place place, const style::Family f)
 	
 	if (place == Place::ContentFile)
 	{
-		au = document_content_->automatic_styles();
+		return document_content_->automatic_styles()->NewStyleStyle(f);
 	} else if (place == Place::StylesFile) {
-		au = document_styles_->automatic_styles();
-	} else {
-		it_happened();
+		return document_styles_->office_styles()->NewStyleStyle(f);
 	}
 	
-	if (au != nullptr)
-		return au->NewStyleStyle(f);
-	
-	mtl_warn();
+	it_happened();
 	return nullptr;
 }
 
@@ -400,8 +399,14 @@ Book::NewColumnStyle(const Place place)
 	return NewStyle(place, style::Family::Column);
 }
 
+inst::StyleStyle*
+Book::NewRowStyle(const Place place)
+{
+	return NewStyle(place, style::Family::Row);
+}
+
 bool
-Book::Save(const QFile &target)
+Book::Save(const QFile &target, QString *err)
 {
 	if (document_content_ == nullptr || document_styles_ == nullptr)
 	{
@@ -415,39 +420,38 @@ Book::Save(const QFile &target)
 	const QString MetaInf = QLatin1String("META-INF");
 	
 	full_path = base_dir.filePath(ods::filename::ContentXml);
-	Save(document_content_, full_path);
+	Save(document_content_, full_path, err);
 	
 	full_path = base_dir.filePath(ods::filename::StylesXml);
-	Save(document_styles_, full_path);
+	Save(document_styles_, full_path, err);
 	
 	QDir meta_dir(base_dir.filePath(MetaInf));
-	if (!meta_dir.exists())
-	{
-		if (!base_dir.mkdir(MetaInf))
-		{
-			mtl_line("Failed to create meta-inf dir");
+	
+	if (!meta_dir.exists()) {
+		if (!base_dir.mkdir(MetaInf)) {
+			if (err != nullptr)
+				*err = "Failed to create meta-inf dir";
 			return false;
 		}
 	}
 	
 	full_path = meta_dir.filePath(ods::filename::ManifestXml);
-	Save(manifest_, full_path);
+	Save(manifest_, full_path, err);
 	
 	full_path = base_dir.filePath(ods::filename::MetaXml);
-	Save(document_meta_, full_path);
+	Save(document_meta_, full_path, err);
 	
 	{ // mimetype
 		full_path = base_dir.filePath(ods::filename::MimeType);
 		QFile file(full_path);
-		auto ba = full_path.toLocal8Bit();
 		
 		if (file.open(QIODevice::ReadWrite))
 		{
 			QTextStream stream(&file);
 			stream << "application/vnd.oasis.opendocument.spreadsheet";
-			//mtl_line("Saved as %s", ba.data());
 		} else {
-			mtl_line("Failed to save %s", ba.data());
+			if (err != nullptr)
+				*err = QLatin1String("Failed to save ") + full_path;
 			return false;
 		}
 	}
@@ -455,18 +459,18 @@ Book::Save(const QFile &target)
 	QString ods_path = target.fileName();
 	if (!JlCompress::compressDir(ods_path, temp_dir_path_))
 	{
-		mtl_warn("Failed to compress dir");
+		if (err != nullptr)
+			*err = QLatin1String("Failed to compress dir");
 		return false;
 	}
 	
-	auto ba = ods_path.toLocal8Bit();
-	mtl_line("Saved as: %s", ba.data());
-	
+//	auto ba = ods_path.toLocal8Bit();
+//	mtl_line("Saved as: %s", ba.data());
 	return true;
 }
 
 bool
-Book::Save(inst::Abstract *top, const QString &full_path)
+Book::Save(inst::Abstract *top, const QString &full_path, QString *err)
 {
 	QSaveFile out(full_path);
 	out.open(QIODevice::WriteOnly | QIODevice::Truncate);
@@ -476,10 +480,9 @@ Book::Save(inst::Abstract *top, const QString &full_path)
 	top->Write(xml);
 	xml.writeEndDocument();
 	const bool ok = out.commit();
-	auto ba = full_path.toLocal8Bit();
 	
-	if (!ok)
-		mtl_line("Failed to save as \"%s\"", ba.data());
+	if (!ok && err != nullptr)
+		*err = QString("Failed to save as ") + full_path;
 	
 	return ok;
 }

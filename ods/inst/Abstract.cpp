@@ -6,9 +6,11 @@
 #include "StyleTextProperties.hpp"
 
 #include "../Book.hpp"
+#include "../Length.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Prefix.hpp"
+#include "../str.hxx"
 #include "../Tag.hpp"
 
 namespace ods {
@@ -233,11 +235,29 @@ Abstract::Write(QXmlStreamWriter &xml, QString &str)
 }
 
 void
-Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
-	const QString &value)
+Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix,
+	const char *name, const QString &value)
 {
 	if (!value.isEmpty())
 		xml.writeAttribute(prefix->With(name), value);
+}
+
+void
+Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
+	const ods::Bool value)
+{
+	if (value != ods::Bool::None) {
+		QString s = (value == ods::Bool::True) ? ods::str::True : ods::str::False;
+		xml.writeAttribute(prefix->With(name), s);
+	}
+}
+
+void
+Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
+	const ods::Length *value)
+{
+	if (value != nullptr)
+		xml.writeAttribute(prefix->With(name), value->toString());
 }
 
 void

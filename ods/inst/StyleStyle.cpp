@@ -15,7 +15,11 @@
 #include "StyleTableRowProperties.hpp"
 #include "StyleTextProperties.hpp"
 
+#include "../attr/Border.hpp"
+#include "../attr/FoFontWeight.hpp"
+
 #include "../Book.hpp"
+#include "../LineStyle.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Tag.hpp"
@@ -61,6 +65,30 @@ StyleStyle::DeriveCellStyle()
 	auto *p = book_->NewCellStyle();
 	p->SetParentStyle(this);
 	return p;
+}
+
+StyleTableCellProperties*
+StyleStyle::FetchTableCellProperties()
+{
+	auto *tcp = (ods::inst::StyleTableCellProperties*)
+		Get(ods::Id::StyleTableCellProperties);
+	
+	if (tcp == nullptr)
+		tcp = NewTableCellProperties();
+	
+	return tcp;
+}
+
+NumberCurrencyStyle*
+StyleStyle::FetchNumberCurrencyStyle()
+{
+	auto *tcp = (ods::inst::NumberCurrencyStyle*)
+		Get(ods::Id::NumberCurrencyStyle);
+	
+	if (tcp == nullptr)
+		tcp = NewCurrencyStyle();
+	
+	return tcp;
 }
 
 NumberBooleanStyle*
@@ -128,8 +156,18 @@ StyleStyle::GetPercentageStyle() const
 	if (ds->Is(Id::NumberPercentageStyle))
 		return (inst::NumberPercentageStyle*) ds;
 	
-	mtl_line();
 	return nullptr;
+}
+
+StyleTableRowProperties*
+StyleStyle::GetTableRowProperties() const
+{
+	auto *p = Get(Id::StyleTableRowProperties);
+	
+	if (p == nullptr)
+		return nullptr;
+	
+	return (inst::StyleTableRowProperties*)p;
 }
 
 NumberTimeStyle*
@@ -227,6 +265,14 @@ StyleStyle::NewTableColumnProperties()
 	return tcp;
 }
 
+StyleTableRowProperties*
+StyleStyle::NewTableRowProperties()
+{
+	auto *p = new StyleTableRowProperties(this);
+	Append(p);
+	return p;
+}
+
 NumberTimeStyle*
 StyleStyle::NewTimeStyle()
 {
@@ -278,9 +324,102 @@ StyleStyle::Scan(ods::Tag *tag)
 }
 
 void
+StyleStyle::SetBackgroundColor(const QColor &color)
+{
+	// set background color:
+	auto *stcp = GetStyleTableCellProperties(ods::AddIfNeeded::Yes);
+	stcp->SetBackgroundColor(color);
+}
+
+void
+StyleStyle::SetBoldText(const bool bold)
+{
+	ods::inst::StyleTextProperties *tp = GetStyleTextProperties
+		(ods::AddIfNeeded::Yes);
+
+	// set font weight:
+	auto *font_weight = new ods::attr::FoFontWeight();
+	
+	if (bold)
+		font_weight->SetBold();
+	else
+		font_weight->SetNormal();
+	
+	tp->SetFontWeight(font_weight);
+}
+
+void
+StyleStyle::SetBorder(const ods::Length &width, const QColor &color,
+	const ods::line::Style &line_style, const u8 sides)
+{
+	auto *tcp = FetchTableCellProperties();
+	ods::attr::Border border;
+	border.width(&width);
+	border.color(&color);
+	ods::LineStyle line_style_class;
+	line_style_class.Set(line_style);
+	border.line_style(&line_style_class);
+	
+	if (sides == ods::BorderAll) {
+		tcp->border(&border);
+		return;
+	}
+	
+	if (sides & ods::BorderLeft)
+		tcp->border_left(&border);
+	if (sides & ods::BorderRight)
+		tcp->border_right(&border);
+	if (sides & ods::BorderTop)
+		tcp->border_top(&border);
+	if (sides & ods::BorderBottom)
+		tcp->border_bottom(&border);
+}
+
+void
+StyleStyle::SetDataStyle(NumberCurrencyStyle *p) {
+	style_data_style_name_ = *p->style_name();
+}
+
+void
 StyleStyle::SetFamily(const style::Family f)
 {
 	style_family_ = f;
+}
+
+void
+StyleStyle::SetFontStyle(const ods::attr::FontStyle font_style)
+{
+	ods::inst::StyleTextProperties *tp = GetStyleTextProperties
+		(ods::AddIfNeeded::Yes);
+	
+	auto *fo_font_style = new ods::attr::FoFontStyle(font_style);
+	tp->SetFontStyle(fo_font_style);
+}
+
+void
+StyleStyle::SetHAlignment(const HAlignSide place)
+{
+	auto *spp = (ods::inst::StyleParagraphProperties*)
+		Get(ods::Id::StyleParagraphProperties);
+	
+	if (spp == nullptr)
+		spp = NewParagraphProperties();
+	
+	ods::HAlign ha(place);
+	spp->text_align(&ha);
+}
+
+void
+StyleStyle::SetVAlignment(const VAlignSide place)
+{
+	auto *tcp = (ods::inst::StyleTableCellProperties*)
+		Get(ods::Id::StyleTableCellProperties);
+	
+	if (tcp == nullptr)
+		tcp = NewTableCellProperties();
+	
+	ods::VAlign va(place);
+	tcp->vertical_align(&va);
 }
 
 void

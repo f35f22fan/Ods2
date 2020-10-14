@@ -28,11 +28,17 @@ public:
 	int
 	GetColumnIndex(const ods::Cell *cell) const;
 	
+	inst::StyleStyle*
+	GetStyle() const;
+	
 	ods::Cell*
 	NewCellAt(const int col_index, const int number_columns_repeated = 1);
 	
 	ods::Cell*
 	NewCellInPlaceOf(const int col_index, const int ncr);
+	
+	inst::StyleStyle*
+	NewStyle();
 	
 	int
 	num() const { return number_rows_repeated_; }
@@ -54,6 +60,9 @@ public:
 	
 	int
 	QueryStart() const;
+	
+	void
+	SetOptimalHeight();
 	
 	void
 	SetStyle(const ods::Row *p);

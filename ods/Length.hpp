@@ -14,7 +14,7 @@ PxToPt(double px, double dpi);
 
 } // ods::length::
 
-enum class Measure : uint8_t
+enum class Unit : uint8_t
 { // (pc|px|pt|mm|cm|in|em)
 	Cm,
 	In,
@@ -27,7 +27,7 @@ enum class Measure : uint8_t
 class ODS_API Length
 {
 public:
-	Length(const double sz, const Measure fm);
+	Length(const double sz, const Unit fm);
 	Length(const Length &fs);
 	virtual ~Length();
 	
@@ -41,24 +41,24 @@ public:
 	FromString(const QString &str);
 	
 	bool
-	is_cm() const { return measure_ == Measure::Cm; }
+	is_cm() const { return measure_ == Unit::Cm; }
 	
 	bool
-	is_in() const { return measure_ == Measure::In; }
+	is_in() const { return measure_ == Unit::In; }
 	
 	bool
-	is_mm() const { return measure_ == Measure::Mm; }
+	is_mm() const { return measure_ == Unit::Mm; }
 	
 	bool
-	is_pt() const { return measure_ == Measure::Pt; }
+	is_pt() const { return measure_ == Unit::Pt; }
 	
 	bool
-	is_px() const { return measure_ == Measure::Px; }
+	is_px() const { return measure_ == Unit::Px; }
 	
 	bool
-	is_valid() const { return measure_ != Measure::None; }
+	is_valid() const { return measure_ != Unit::None; }
 	
-	Measure
+	Unit
 	measure() const { return measure_; }
 	
 	double
@@ -79,11 +79,11 @@ private:
 	const char*
 	MeasureToString() const;
 	
-	static Measure
+	static Unit
 	MeasureFromString(const QString &s);
 	
 	double size_ = -1.0;
-	Measure measure_ = Measure::None;
+	Unit measure_ = Unit::None;
 };
 
 } // ods::

@@ -3,8 +3,14 @@
 #include "Abstract.hpp"
 #include "decl.hxx"
 
+#include "../attr/Border.hpp"
+#include "../attr/FoFontStyle.hpp"
+
 #include "../err.hpp"
+#include "../HAlign.hpp"
+#include "../line.hxx"
 #include "../style.hh"
+#include "../VAlign.hpp"
 
 namespace ods { // ods::
 namespace inst { // ods::inst::
@@ -28,6 +34,12 @@ public:
 	style::Family
 	family() const { return style_family_; }
 	
+	StyleTableCellProperties*
+	FetchTableCellProperties();
+	
+	NumberCurrencyStyle*
+	FetchNumberCurrencyStyle();
+	
 	NumberBooleanStyle*
 	GetBooleanStyle() const;
 	
@@ -42,6 +54,9 @@ public:
 	
 	NumberPercentageStyle*
 	GetPercentageStyle() const;
+	
+	StyleTableRowProperties*
+	GetTableRowProperties() const;
 	
 	NumberTimeStyle*
 	GetTimeStyle() const;
@@ -70,6 +85,9 @@ public:
 	StyleTableColumnProperties*
 	NewTableColumnProperties();
 	
+	StyleTableRowProperties*
+	NewTableRowProperties();
+	
 	NumberTimeStyle*
 	NewTimeStyle();
 	
@@ -77,7 +95,20 @@ public:
 	QueryFontFace() const;
 	
 	void
+	SetBackgroundColor(const QColor &color);
+	
+	void
+	SetBoldText(const bool bold);
+	
+	void // "u8 sides" defined in attr/Border.hpp
+	SetBorder(const ods::Length &width, const QColor &color,
+		const ods::line::Style &line_style, const u8 sides = ods::BorderAll);
+	
+	void
 	SetFamily(const style::Family f);
+	
+	void
+	SetHAlignment(const ods::HAlignSide place);
 	
 	void
 	SetMasterPageName(const QString &s);
@@ -99,6 +130,15 @@ public:
 	
 	virtual QString*
 	parent_style_name() override { return &style_parent_style_name_; }
+	
+	void
+	SetDataStyle(NumberCurrencyStyle *p);
+	
+	void
+	SetFontStyle(const ods::attr::FontStyle font_style);
+	
+	void
+	SetVAlignment(const VAlignSide place);
 	
 	void
 	WriteData(QXmlStreamWriter &xml) override;

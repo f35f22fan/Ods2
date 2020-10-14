@@ -70,6 +70,16 @@
 	__LINE__, ##args, MTL_COLOR_DEFAULT)
 #endif
 
+#ifdef _MSC_VER
+#define mtl_trace(fmt, ...) fprintf(stderr, \
+	"%s[Trace %s %s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
+	__FUNCTION__, __LINE__, __VA_ARGS__, MTL_COLOR_DEFAULT)
+#else
+#define mtl_trace(fmt, args...) fprintf(stderr, \
+	"%s[Trace %s %s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
+	__FUNCTION__, __LINE__, ##args, MTL_COLOR_DEFAULT)
+#endif
+
 #define mtl_status(status) fprintf (stderr, "%s[%s %.3d] %s%s\n", \
 	MTL_COLOR_RED, SRC_FILE_NAME, \
 	__LINE__, strerror(status), MTL_COLOR_DEFAULT)

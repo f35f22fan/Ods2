@@ -18,6 +18,7 @@
 #include "formula/Value.hpp"
 
 #include "inst/DrawFrame.hpp"
+#include "inst/DrawImage.hpp"
 #include "inst/OfficeAutomaticStyles.hpp"
 #include "inst/OfficeDocumentContent.hpp"
 #include "inst/StyleFontFace.hpp"
@@ -125,6 +126,20 @@ Cell::CloneValue() const
 		return new ods::Duration(*as_duration());
 	else if (is_boolean())
 		return new bool(*as_boolean());
+	mtl_trace();
+	
+	return nullptr;
+}
+
+inst::StyleStyle*
+Cell::FetchStyle()
+{
+	auto *style = Get(table_style_name_);
+	
+	if (style == nullptr)
+		style = NewStyle();
+	
+	return style;
 }
 
 QString*
@@ -176,6 +191,25 @@ Cell::NewDrawFrame()
 	return p;
 }
 
+std::tuple<inst::DrawFrame*, inst::DrawImage*, QSize>
+Cell::NewDrawFrame(const QString &full_path)
+{
+	auto *draw_frame = (ods::inst::DrawFrame*) Get(ods::Id::DrawFrame);
+	
+	if (draw_frame == nullptr)
+		draw_frame = NewDrawFrame();
+	
+	auto *draw_image = (ods::inst::DrawImage*) draw_frame->Get(ods::Id::DrawImage);
+	
+	if (draw_image == nullptr)
+		draw_image = draw_frame->NewDrawImage();
+	
+	QSize sz;
+	draw_image->LoadImage(full_path, sz);
+	
+	return std::make_tuple(draw_frame, draw_image, sz);
+}
+
 ods::Formula*
 Cell::NewFormula()
 {
@@ -196,7 +230,8 @@ QString
 Cell::QueryAddress() const
 {
 	QString s = ods::ColumnNumberToLetters(QueryStart());
-	s.append(QString::number(row_->QueryStart()));
+	// row + 1 because .ods indexing starts at 1
+	s.append(QString::number(row_->QueryStart() + 1));
 	return s;
 }
 
@@ -271,15 +306,15 @@ Cell::QueryDesiredHeight() const
 		mtl_warn();
 		return font_size->Clone();
 	}
-	auto ba = value.toLocal8Bit();
-	mtl_line("String value: \"%s\"", ba.data());
+//	auto ba = value.toLocal8Bit();
+//	mtl_line("String value: \"%s\"", ba.data());
 	
 	inst::StyleFontFace *font_face = QueryFontFace(style, table_column);
 	
-	ba = font_face->font_family().toLocal8Bit();
-	auto ba2 = font_size->toString().toLocal8Bit();
-	mtl_line("Font is %s, %s, in pt: %f", ba.data(), ba2.data(),
-		font_size->toPt());
+//	ba = font_face->font_family().toLocal8Bit();
+//	auto ba2 = font_size->toString().toLocal8Bit();
+//	mtl_line("Font is %s, %s, in pt: %f", ba.data(), ba2.data(),
+//		font_size->toPt());
 	
 	QFont font(font_face->font_family(), int(font_size->toPt()));
 	QFontMetrics fm(font);
@@ -292,11 +327,11 @@ Cell::QueryDesiredHeight() const
 	if ((int_col_width != 0) && (int(width) % int_col_width))
 		line_count++;
 	
-	ba = col_width->toString().toLocal8Bit();
-	mtl_line("line count: %d, str width pt: %f, col_width pt: %f, as is: %s\n\n",
-		line_count, width, col_width->toPt(), ba.data());
+//	ba = col_width->toString().toLocal8Bit();
+//	mtl_line("line count: %d, str width pt: %f, col_width pt: %f, as is: %s\n\n",
+//		line_count, width, col_width->toPt(), ba.data());
 	
-	return new Length(line_count * font_size->toPt(), Measure::Pt);
+	return new Length(line_count * font_size->toPt(), Unit::Pt);
 }
 
 inst::StyleFontFace*
@@ -435,11 +470,11 @@ Cell::SetBooleanFromString(const QString &s)
 }
 
 void
-Cell::SetCurrency(const double d, const QString str)
+Cell::SetCurrency(const double d, const Currency &c)
 {
 	SetDouble(d);
 	office_value_type_ = ods::value::Type::Currency;
-	office_currency_ = str;
+	office_currency_ = c.str;
 }
 
 void
@@ -476,7 +511,7 @@ Cell::SetDuration(const ods::Duration *p)
 }
 
 void
-Cell::SetFirstString(const QString &s)
+Cell::SetFirstString(const QString &s, bool change_value_type)
 {
 	auto *inst = Get(Id::TextP);
 	
@@ -490,7 +525,8 @@ Cell::SetFirstString(const QString &s)
 		Append(textp);
 	}
 	
-	office_value_type_ = ods::value::Type::String;
+	if (change_value_type)
+		office_value_type_ = ods::value::Type::String;
 }
 
 void
@@ -509,6 +545,12 @@ Cell::SetPercentage(const double d)
 {
 	SetDouble(d);
 	office_value_type_ = ods::value::Type::Percentage;
+}
+
+void
+Cell::SetRowColSpan(int rows, int cols) {
+	number_rows_spanned(rows);
+	number_columns_spanned(cols);
 }
 
 void

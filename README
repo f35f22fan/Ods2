@@ -1,17 +1,17 @@
-This project is written from scratch to address QOds's core shortcommings:
+Ods2 is written from scratch to address QOds's core shortcommings:
+ - [x] Allow for editing (updating) .ods files
+ - [x] Allow for a full test suite
+ - [x] A much more sound core structure.
 
-- Allow for editing (updating) .ods files
-- Allow for a full test suite
-- A much more sound core structure.
+Built exactly as QOds, see subfolder sample/* for examples on how to use.
 
-Built exactly as QOds, see sample/examples* for how to use.
+For questions, feature requests, etc: f35f22fan AT gmail.com
 
-For questions, feature requests, etc: f35f22fan@gmail.com
+The file sample/Invoice.ods was created with Ods2, the source code
+is in sample/Invoice.cpp
 
 Licensed under the GPLv3, see LICENSE for details.
 
-TBD (95% done, yet):
-- Test/fix to work on windows
-- Make sure generated files work with MS Office 2015+
-- Create a sample invoice to show up what Ods2 can do.
-- Detect possibly missing features to be on par with QOds
+#### TBD
+ - [ ] Test/fix to work on windows
+ - [ ] Make sure generated files work with MS Office 2015+

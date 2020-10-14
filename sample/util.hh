@@ -28,14 +28,8 @@ void
 Save(ods::Book *book, const char *file_name = nullptr);
 
 void
-SetHAlignment(ods::inst::StyleStyle *style, const ods::halign::Value a);
-
-void
 SetPercentage(ods::inst::StyleStyle *style, const int min_integer_digits,
 	const int min_decimal_places);
-
-void
-SetVAlignment(ods::inst::StyleStyle *style, const ods::valign::Value a);
 
 template <class A_Type> class AutoDelete {
 public:

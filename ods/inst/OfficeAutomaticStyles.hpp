@@ -32,11 +32,11 @@ public:
 	NumberPercentageStyle*
 	NewNumberPercentageStyle();
 	
-	StyleStyle*
-	NewStyleStyle(const style::Family f);
-	
 	NumberTimeStyle*
 	NewNumberTimeStyle();
+	
+	StyleStyle*
+	NewStyleStyle(const style::Family f);
 	
 	void
 	WriteData(QXmlStreamWriter &xml) override;

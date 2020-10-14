@@ -83,18 +83,6 @@ OfficeAutomaticStyles::NewNumberBooleanStyle()
 	return p;
 }
 
-StyleStyle*
-OfficeAutomaticStyles::NewStyleStyle(const style::Family f)
-{
-	QString new_name = book_->GenUniqueStyleName(f);
-	auto *ss = new StyleStyle(this);
-	ss->style_name(new_name);
-	ss->SetFamily(f);
-	Append(ss);
-	
-	return ss;
-}
-
 NumberCurrencyStyle*
 OfficeAutomaticStyles::NewNumberCurrencyStyle()
 {
@@ -138,6 +126,18 @@ OfficeAutomaticStyles::NewNumberTimeStyle()
 		id::NumberTimeStyle);
 	auto *p = new NumberTimeStyle(this);
 	p->style_name(new_name);
+	Append(p);
+	
+	return p;
+}
+
+StyleStyle*
+OfficeAutomaticStyles::NewStyleStyle(const style::Family f)
+{
+	QString new_name = book_->GenUniqueStyleName(f);
+	auto *p = new StyleStyle(this);
+	p->style_name(new_name);
+	p->SetFamily(f);
 	Append(p);
 	
 	return p;

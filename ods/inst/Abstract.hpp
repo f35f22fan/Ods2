@@ -148,10 +148,16 @@ public:
 	WriteNodes(QXmlStreamWriter &xml);
 	
 protected:
-	
 	void
 	Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
 		const QString &value);
+	void
+	Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
+		const ods::Bool value);
+	
+	void
+	Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
+		const ods::Length *value);
 	
 	void
 	Write(QXmlStreamWriter &xml, QString &str);

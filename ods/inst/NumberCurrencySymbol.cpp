@@ -57,16 +57,18 @@ NumberCurrencySymbol::Init(ods::Tag *tag)
 }
 
 void
-NumberCurrencySymbol::SetSymbol(const QString &s)
+NumberCurrencySymbol::SetSymbol(const ods::Currency &c)
 {
 	for (auto *x: nodes_)
 	{
 		if (x->is_string())
 		{
-			x->SetString(s);
+			x->SetString(c.symbol);
 			return;
 		}
 	}
+	
+	Append(c.symbol);
 }
 
 void

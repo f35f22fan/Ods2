@@ -4,13 +4,13 @@
 
 #include "examples1.hh"
 #include "examples2.hh"
+#include "Invoice.hpp"
 
 int
 main(int argc, char *argv[])
 {
 	QGuiApplication app(argc, argv);
 	
-
 //	SetColumnWidths();
 //	ReadColumnWidths();
 	
@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 //  CreateFormula();
 //  ReadFormula();
 	
-//	CreateInvoice(); // TBD
+	new sample::Invoice();
 	
 	return 0;
 }

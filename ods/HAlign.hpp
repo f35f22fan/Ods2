@@ -5,9 +5,7 @@
 
 namespace ods { // ods::
 
-namespace halign { // ods::halign::
-
-enum class Value : uint8_t
+enum class HAlignSide : uint8_t
 {
 	None,
 	Left,
@@ -15,12 +13,10 @@ enum class Value : uint8_t
 	Right
 };
 
-} // ods::halign::
-
 class ODS_API HAlign
 {
 public:
-	HAlign(const halign::Value value);
+	HAlign(const HAlignSide value);
 	virtual ~HAlign();
 	
 	HAlign*
@@ -30,36 +26,36 @@ public:
 	FromString(const QString &str);
 	
 	bool
-	is_center() const { return value_ == halign::Value::Center; }
+	is_center() const { return value_ == HAlignSide::Center; }
 	
 	bool
-	is_left() const { return value_ == halign::Value::Left; }
+	is_left() const { return value_ == HAlignSide::Left; }
 	
 	bool
-	is_right() const { return value_ == halign::Value::Right; }
+	is_right() const { return value_ == HAlignSide::Right; }
 	
 	bool
-	is_valid() const { return value_ != halign::Value::None; }
+	is_valid() const { return value_ != HAlignSide::None; }
 	
 	QString
 	toString() const;
 	
-	halign::Value
+	HAlignSide
 	value() const { return value_; }
 	
 	void
-	value(const halign::Value v) { value_ = v; }
+	value(const HAlignSide v) { value_ = v; }
 	
 private:
 	NO_ASSIGN_COPY_MOVE(HAlign);
 	
-	static halign::Value
+	static HAlignSide
 	ValueFromString(const QString &str);
 	
 	QString
 	ValueToString() const;
 	
-	halign::Value value_ = halign::Value::None;
+	HAlignSide value_ = HAlignSide::None;
 };
 
 } // ods::

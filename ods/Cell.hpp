@@ -1,5 +1,6 @@
 #pragma once
 
+#include "currency.hxx"
 #include "decl.hxx"
 #include "err.hpp"
 #include "global.hxx"
@@ -10,6 +11,7 @@
 #include "inst/decl.hxx"
 
 #include <QDateTime>
+#include <tuple>
 
 namespace ods { // ods::
 
@@ -47,6 +49,9 @@ public:
 	
 	virtual inst::Abstract*
 	Clone(inst::Abstract *parent = nullptr) const override;
+	
+	inst::StyleStyle*
+	FetchStyle();
 	
 	ods::Formula*
 	formula() const { return formula_; }
@@ -101,6 +106,9 @@ public:
 	inst::DrawFrame*
 	NewDrawFrame();
 	
+	std::tuple<inst::DrawFrame*, inst::DrawImage*, QSize>
+	NewDrawFrame(const QString &full_path);
+	
 	inst::StyleStyle*
 	NewStyle();
 	
@@ -148,7 +156,7 @@ public:
 	SetBooleanFromString(const QString &s);
 
 	void
-	SetCurrency(const double d, const QString str);
+	SetCurrency(const double d, const Currency &c);
 
 	void
 	SetDate(const QDateTime *p);
@@ -160,7 +168,13 @@ public:
 	SetDuration(const Duration *p);
 	
 	void
-	SetFirstString(const QString &s);
+	SetFirstString(const QString &s, bool change_value_type = true);
+	
+	void
+	SetRowColSpan(int rows, int cols);
+	
+	void
+	SetString(const QString &s) { SetFirstString(s); }
 
 	void
 	SetFormula(ods::Formula *p);
@@ -170,6 +184,12 @@ public:
 	
 	void
 	SetStyle(Abstract *a);
+	
+	void
+	SetValue(const QString &s) { SetFirstString(s); }
+	
+	void
+	SetValue(const i64 n) { SetDouble(double(n)); }
 	
 	const QString&
 	table_style_name() const { return table_style_name_; }

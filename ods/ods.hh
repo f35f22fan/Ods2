@@ -8,6 +8,9 @@
 
 namespace ods { // ods::
 
+ODS_API void
+ApplyBool(const QString &str, ods::Bool &b);
+
 ODS_API QChar
 CharFromOp(const ods::Op);
 

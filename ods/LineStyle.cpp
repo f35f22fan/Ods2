@@ -57,6 +57,9 @@ LineStyle::FromString(const QString &s)
 		return new LineStyle(ods::line::Style::Solid);
 	if (s == WaveStr)
 		return new LineStyle(ods::line::Style::Wave);
+	
+	mtl_trace();
+	return nullptr;
 }
 
 QString

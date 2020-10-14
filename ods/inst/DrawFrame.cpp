@@ -143,6 +143,16 @@ DrawFrame::Scan(ods::Tag *scan_tag)
 }
 
 void
+DrawFrame::SetSize(int w, int h, ods::Unit m)
+{
+	ods::Length len_w(w, m);
+	width(&len_w);
+	
+	ods::Length len_h(h, m);
+	height(&len_h);
+}
+
+void
 DrawFrame::width(const Length *l)
 {
 	delete svg_width_;

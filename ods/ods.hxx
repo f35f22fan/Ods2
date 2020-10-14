@@ -1,10 +1,17 @@
 #pragma once
 
 #include "global.hxx"
+#include "types.hxx"
 #include <QtGlobal>
 #include <QString>
 
 namespace ods { // ods::
+
+enum class Bool : u8 {
+	None,
+	True,
+	False,
+};
 
 class Ns;
 namespace inst { // ods::inst::
@@ -25,9 +32,9 @@ const double kCmInAnInch = 2.54;
 
 enum class AddMode: uint8_t
 {
-	None,
-	Insert,
-	Replace,
+	None = 0,
+	Insert = 1,
+	Replace = 2,
 };
 
 enum class ReplaceExisting: uint8_t

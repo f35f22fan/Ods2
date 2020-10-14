@@ -2,13 +2,13 @@
 
 #include <QString>
 
-namespace util { // util::
+namespace sample {
 
-class Item
+class InvoiceItem
 {
 public:
-	Item(const QString &descr, const double price, const int qtty);
-	virtual ~Item();
+	InvoiceItem(const QString &descr, const double price, const int qtty);
+	virtual ~InvoiceItem();
 	
 	const QString&
 	description() const { return description_; }
@@ -38,11 +38,10 @@ public:
 	unit_price_set(const double n) { unit_price_ = n; }
 	
 private:
-	int id_ = -1;
-	QString description_;
-	double unit_price_ = 0.0f;
-	int qtty_ordered_ = 0;
+	int			id_;
+	QString		description_;
+	double		unit_price_ = 0.0f;
+	int			qtty_ordered_ = 0;
 };
 
-} // util::
-
+}

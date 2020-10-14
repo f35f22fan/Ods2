@@ -29,7 +29,7 @@ const char *Px = "px";
 
 Length::Length() {}
 
-Length::Length(const double sz, const Measure fm)
+Length::Length(const double sz, const Unit fm)
 : size_(sz), measure_(fm)
 {}
 
@@ -94,26 +94,26 @@ Length::FromString(const QString &str)
 	return new Length(num, fm);
 }
 
-Measure
+Unit
 Length::MeasureFromString(const QString &s)
 {
 	if (s == Cm)
-		return Measure::Cm;
+		return Unit::Cm;
 	
 	if (s == In)
-		return Measure::In;
+		return Unit::In;
 	
 	if (s == Mm)
-		return Measure::Mm;
+		return Unit::Mm;
 	
 	if (s == Pt)
-		return Measure::Pt;
+		return Unit::Pt;
 	
 	if (s == Px)
-		return Measure::Px;
+		return Unit::Px;
 	
 	mtl_warn();
-	return Measure::None;
+	return Unit::None;
 }
 
 const char*
@@ -121,11 +121,11 @@ Length::MeasureToString() const
 {
 	switch(measure_)
 	{
-	case Measure::Cm: return Cm;
-	case Measure::In: return In;
-	case Measure::Mm: return Mm;
-	case Measure::Pt: return Pt;
-	case Measure::Px: return Px;
+	case Unit::Cm: return Cm;
+	case Unit::In: return In;
+	case Unit::Mm: return Mm;
+	case Unit::Pt: return Pt;
+	case Unit::Px: return Px;
 	default: return nullptr;
 	}
 }
@@ -148,7 +148,8 @@ Length::toCm() const
 		return ods::kCmInAPoint * pt;
 	}
 	
-	mtl_warn();
+	mtl_trace();
+	return 0.0;
 }
 
 double

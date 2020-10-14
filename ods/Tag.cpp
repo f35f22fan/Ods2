@@ -1,8 +1,11 @@
 #include "Tag.hpp"
 
 #include "Attr.hpp"
+#include "inst/Abstract.hpp"
+#include "Length.hpp"
 #include "Ns.hpp"
 #include "ns.hxx"
+#include "ods.hh"
 #include "StringOrTag.hpp"
 
 namespace ods { // ods::
@@ -27,6 +30,25 @@ void
 Tag::Append(ods::Tag *tag)
 {
 	nodes_.append(new StringOrTag(tag));
+}
+
+void
+Tag::Copy(ods::Prefix *prefix, const char *name, ods::Bool &into)
+{
+	QString s;
+	Copy(prefix, name, s);
+	ods::ApplyBool(s, into);
+}
+
+void
+Tag::Copy(ods::Prefix *prefix, const char *name, ods::Length **size)
+{
+	QString value;
+	Copy(prefix, name, value);
+	ods::Length *l = ods::Length::FromString(value);
+	
+	if (l != nullptr)
+		*size = l;
 }
 
 void

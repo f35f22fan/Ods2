@@ -3,10 +3,18 @@
 #include "../decl.hxx"
 #include "../err.hpp"
 #include "../global.hxx"
+#include "../types.hxx"
 
 #include <QColor>
 
 namespace ods { // ods::
+
+const u8 BorderTop = 1;
+const u8 BorderLeft = 1 << 1;
+const u8 BorderRight = 1 << 2;
+const u8 BorderBottom = 1 << 3;
+const u8 BorderAll = BorderTop | BorderLeft | BorderRight | BorderBottom;
+
 namespace attr { // ods::attr::
 
 class ODS_API Border

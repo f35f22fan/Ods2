@@ -28,6 +28,12 @@ public:
 	attrs() { return attrs_; }
 	
 	void
+	Copy(ods::Prefix *prefix, const char *name, ods::Bool &into);
+	
+	void
+	Copy(ods::Prefix *prefix, const char *name, ods::Length **size);
+	
+	void
 	Copy(ods::Prefix *prefix, const char *name, QString &into);
 	
 	void

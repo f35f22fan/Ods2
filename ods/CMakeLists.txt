@@ -48,6 +48,7 @@ set(lib_files
 	style.cc style.hh style.hxx
 
 	Tag.cpp Tag.hpp
+	types.hxx
 	VAlign.cpp VAlign.hpp
 	value.hxx
 	

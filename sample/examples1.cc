@@ -1,8 +1,9 @@
 #include "examples1.hh"
 
-#include "util/util.hh"
+#include "util.hh"
 
 #include <ods/ods>
+#include <ods/err.hpp>
 #include <ods/inst/SvgDesc.hpp>
 #include <ods/inst/SvgTitle.hpp>
 #include <ods/inst/NumberBooleanStyle.hpp>
@@ -28,12 +29,12 @@ SetColumnWidths()
 	{
 		// A new style per column:
 		ods::inst::TableTableColumn *col = sheet->NewColumnAt(3);
-		ods::Length width(7.5, ods::Measure::Cm); // 7.5 cm
+		ods::Length width(7.5, ods::Unit::Cm); // 7.5 cm
 		col->SetWidth(&width);
 		//col->SetWidth(nullptr); // resets to default width
 		
 		col = sheet->NewColumnAt(1);
-		ods::Length width2(1.5, ods::Measure::In); // 1.5 in
+		ods::Length width2(1.5, ods::Unit::In); // 1.5 in
 		col->SetWidth(&width2);
 	}
 	
@@ -41,7 +42,7 @@ SetColumnWidths()
 		// Same style for many columns, thus saving .ods file space:
 		ods::inst::StyleStyle *style = book->NewColumnStyle();
 		ods::inst::StyleTableColumnProperties *tcp = style->NewTableColumnProperties();
-		ods::Length width3(65, ods::Measure::Px); // 65 px
+		ods::Length width3(65, ods::Unit::Px); // 65 px
 		tcp->SetColumnWidth(&width3);
 		
 		for (int i = 6; i < 10; i++)
@@ -62,17 +63,16 @@ ReadColumnWidths()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	util::PrintWidth(sheet->GetColumn(0));
@@ -93,20 +93,7 @@ CreateFont()
 	const int col = 2;
 	auto *cell = row->NewCellAt(col);
 	cell->SetFirstString("Row2Cel0");
-	auto *style = cell->GetStyle();
-	
-	if (style == nullptr)
-	{
-		style = cell->NewStyle();
-	} else {
-		// Just in case, derive new style to avoid 
-		// changing other cells' appearance
-		// if this style is used by other cells too
-		style = style->DeriveCellStyle();
-		cell->SetStyle(style);
-	}
-	
-	// set text color:
+	auto *style = cell->FetchStyle();
 	ods::inst::StyleTextProperties *tp = style->GetStyleTextProperties
 		(ods::AddIfNeeded::Yes);
 
@@ -121,7 +108,7 @@ CreateFont()
 	tp->SetFontWeight(font_weight);
 	
 	// set font size:
-	auto *l = new ods::Length(0.8, ods::Measure::Cm);
+	auto *l = new ods::Length(0.8, ods::Unit::Cm);
 	tp->SetFontSize(l);
 	
 	// set font face:
@@ -141,17 +128,16 @@ ReadFont()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -301,17 +287,16 @@ ReadColorsAndUnderline()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -444,7 +429,15 @@ ReadCellSpan()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
+	
+	if (!err.isEmpty()) {
+		auto ba = err.toLocal8Bit();
+		mtl_warn("%s", ba.data());
+		return;
+	}
+	
 	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
@@ -515,17 +508,16 @@ ReadPercentage()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -557,24 +549,20 @@ CreateHAlignment()
 	auto *cell = row->NewCellAt(0);
 	cell->SetFirstString("Hello");
 	
-	ods::inst::StyleStyle *style = cell->GetStyle();
-	
-	if (style == nullptr)
-		style = cell->NewStyle();
-	
-	util::SetHAlignment(style, ods::halign::Value::Center);
+	ods::inst::StyleStyle *style = cell->FetchStyle();
+	style->SetHAlignment(ods::HAlignSide::Center);
 	
 	cell = row->NewCellAt(2);
 	cell->SetDouble(3.1415);
 	style = book->NewCellStyle();
 	cell->SetStyle(style);
-	util::SetHAlignment(style, ods::halign::Value::Right);
+	style->SetHAlignment(ods::HAlignSide::Right);
 	
 	cell = row->NewCellAt(3);
 	cell->SetDouble(932.0);
 	style = book->NewCellStyle();
 	cell->SetStyle(style);
-	util::SetHAlignment(style, ods::halign::Value::Left);
+	style->SetHAlignment(ods::HAlignSide::Left);
 	
 	util::Save(book);
 }
@@ -587,17 +575,16 @@ ReadHAlignment()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -662,19 +649,19 @@ CreateVAlignment()
 	if (style == nullptr)
 		style = cell->NewStyle();
 	
-	util::SetVAlignment(style, ods::valign::Value::Bottom);
+	style->SetVAlignment(ods::VAlignSide::Bottom);
 	
 	cell = row->NewCellAt(1);
 	cell->SetFirstString("world!");
 	style = book->NewCellStyle();
 	cell->SetStyle(style);
-	util::SetVAlignment(style, ods::valign::Value::Middle);
+	style->SetVAlignment(ods::VAlignSide::Middle);
 	
 	cell = row->NewCellAt(2);
 	cell->SetDouble(3.14);
 	style = book->NewCellStyle();
 	cell->SetStyle(style);
-	util::SetVAlignment(style, ods::valign::Value::Top);
+	style->SetVAlignment(ods::VAlignSide::Top);
 	
 	util::Save(book);
 }
@@ -687,9 +674,8 @@ ReadVAlignment()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
 	if (!err.isEmpty())
 	{
@@ -698,6 +684,7 @@ ReadVAlignment()
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -758,23 +745,15 @@ CreateBorders()
 	auto *cell = row->NewCellAt(3);
 	cell->SetFirstString("Hello");
 	
-	auto *style = cell->GetStyle();
-	
-	if (style == nullptr)
-		style = cell->NewStyle();
-	
-	auto *tcp = (ods::inst::StyleTableCellProperties*)
-		style->Get(ods::Id::StyleTableCellProperties);
-	
-	if (tcp == nullptr)
-		tcp = style->NewTableCellProperties();
+	auto *style = cell->FetchStyle();
+	auto *tcp = style->FetchTableCellProperties();
 	
 	ods::attr::Border border;
 	
 	ods::LineStyle line_style(ods::line::Style::Dotted);
 	border.line_style(&line_style);
 	
-	ods::Length width(2.0, ods::Measure::Mm);
+	ods::Length width(2.0, ods::Unit::Mm);
 	border.width(&width);
 	
 	QColor color(0, 0, 255);
@@ -798,17 +777,16 @@ ReadBorders()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 
@@ -852,14 +830,14 @@ CreateImage()
 	
 	// Optional stuff:
 	
-	ods::Length xy(50, ods::Measure::Px);
+	ods::Length xy(50, ods::Unit::Px);
 	draw_frame->x(&xy); // X offset from the cell the draw_frame is bound to
 	draw_frame->y(&xy); // Y offset from the cell
 	
-	ods::Length width(sz.width() / 2, ods::Measure::Px);
+	ods::Length width(sz.width() / 2, ods::Unit::Px);
 	draw_frame->width(&width);
 	
-	ods::Length height(sz.height() / 2, ods::Measure::Px);
+	ods::Length height(sz.height() / 2, ods::Unit::Px);
 	draw_frame->height(&height);
 	
 	auto *svg_desc = (ods::inst::SvgDesc*) draw_frame->Get(ods::Id::SvgDesc);
@@ -887,17 +865,16 @@ ReadImage()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(3);
@@ -1005,17 +982,16 @@ ReadDate()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -1142,17 +1118,16 @@ ReadTime()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -1277,17 +1252,16 @@ ReadBoolean()
 	if (full_path.isEmpty())
 		return;
 	
-	auto *book = ods::Book::FromFile(full_path);
-	util::AutoDelete<ods::Book*> ad(book);
-	auto err = book->error_msg();
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
 	
-	if (!err.isEmpty())
-	{
+	if (!err.isEmpty()) {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
 		return;
 	}
 	
+	util::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);

@@ -1,5 +1,6 @@
 #include "OfficeDocumentStyles.hpp"
 
+#include "NumberCurrencyStyle.hpp"
 #include "OfficeAutomaticStyles.hpp"
 #include "OfficeFontFaceDecls.hpp"
 #include "OfficeMasterStyles.hpp"

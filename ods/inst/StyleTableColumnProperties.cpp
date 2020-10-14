@@ -14,8 +14,8 @@ ods::Tag *tag) : Abstract(parent, parent->ns(), ods::id::StyleTableColumnPropert
 	if (tag != nullptr)
 		Init(tag);
 
-	mtl_line("func: %p", (void*)func());
-	mtl_line("tcp func: %p", (void*) ods::id::StyleTableColumnProperties);
+//	mtl_line("func: %p", (void*)func());
+//	mtl_line("tcp func: %p", (void*) ods::id::StyleTableColumnProperties);
 }
 
 StyleTableColumnProperties::StyleTableColumnProperties(const StyleTableColumnProperties &cloner)

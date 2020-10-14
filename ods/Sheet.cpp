@@ -452,10 +452,12 @@ Sheet::NewRow(const int insert_li, const int num, const AddMode mode)
 	} else {
 		vec->insert(vec_index, new_slave);
 		
-		if (do_replace)
+		if (do_replace) {
 			Curtail(num, insert_li + num);
-		else
-			Curtail(num, total_li - num);
+		} else {
+//mtl_trace("num: %d, total_li: %d", num, total_li);
+			//Curtail(num, total_li - num);
+		}
 	}
 	
 	return new_slave;

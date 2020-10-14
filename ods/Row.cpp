@@ -9,6 +9,7 @@
 #include "Tag.hpp"
 
 #include "inst/StyleStyle.hpp"
+#include "inst/StyleTableRowProperties.hpp"
 #include "inst/StyleTextProperties.hpp"
 
 namespace ods { // ods::
@@ -137,6 +138,12 @@ Row::GetCell(const int index)
 	return nullptr;
 }
 
+inst::StyleStyle*
+Row::GetStyle() const
+{
+	return Get(table_style_name_);
+}
+
 void
 Row::Init(ods::Tag *tag)
 {
@@ -249,6 +256,15 @@ ods::Cell*
 Row::NewCellInPlaceOf(const int col_index, const int ncr)
 {
 	return NewCell(col_index, ncr, AddMode::Replace);
+}
+
+inst::StyleStyle*
+Row::NewStyle()
+{
+	auto *style = book_->NewRowStyle();
+	SetStyle(style);
+	
+	return style;
 }
 
 Length*
@@ -397,21 +413,43 @@ Row::SetCellAt(ods::Cell *new_cell, const int insert_at)
 }
 
 void
+Row::SetOptimalHeight()
+{
+	Length *size = QueryOptimalHeight();
+	
+	if (size == nullptr)
+		return;
+	
+	inst::StyleStyle *style = GetStyle();
+	
+	if (style == nullptr)
+		style = NewStyle();
+	
+	inst::StyleTableRowProperties *trp = style->GetTableRowProperties();
+	
+	if (trp == nullptr)
+		trp = style->NewTableRowProperties();
+	
+	trp->SetOptimal(size);
+}
+
+void
 Row::SetStyle(const ods::Row *p)
 {
-	if (p != nullptr)
-		table_style_name_ = p->table_style_name_;
-	else
+	if (p == nullptr)
 		table_style_name_.clear();
+	else
+		table_style_name_ = p->table_style_name_;
 }
 
 void
 Row::SetStyle(inst::StyleStyle *p)
 {
-	if (p != nullptr)
-		table_style_name_ = *p->style_name();
-	else
+	if (p == nullptr)
 		table_style_name_.clear();
+	else
+		table_style_name_ = *p->style_name();
+		
 }
 
 void

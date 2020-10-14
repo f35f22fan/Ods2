@@ -41,6 +41,29 @@ NumberCurrencyStyle::Clone(Abstract *parent) const
 	return p;
 }
 
+NumberCurrencySymbol*
+NumberCurrencyStyle::FetchCurrencySymbol()
+{
+	auto *p = (ods::inst::NumberCurrencySymbol*)
+		Get(ods::Id::NumberCurrencySymbol);
+	
+	if (p == nullptr)
+		p = NewCurrencySymbol();
+	
+	return p;
+}
+
+NumberNumber*
+NumberCurrencyStyle::FetchNumber()
+{
+	auto *p = (ods::inst::NumberNumber*) Get(ods::Id::NumberNumber);
+	
+	if (p == nullptr)
+		p = NewNumber();
+	
+	return p;
+}
+
 void
 NumberCurrencyStyle::Init(ods::Tag *tag)
 {

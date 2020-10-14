@@ -2,6 +2,7 @@
 
 #include "Abstract.hpp"
 #include "decl.hxx"
+#include "../Length.hpp"
 
 #include "../err.hpp"
 
@@ -33,6 +34,9 @@ public:
 	
 	inst::SvgTitle*
 	NewSvgTitle();
+	
+	void
+	SetSize(int w, int h, ods::Unit m);
 	
 	Length*
 	width() const { return svg_width_; }

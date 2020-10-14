@@ -6,9 +6,9 @@ set(CMAKE_AUTOMOC ON)
 include_directories(${Ods2_SOURCE_DIR})
 link_directories(${CMAKE_BINARY_DIR}/lib)
 
-if (NOT MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif (NOT MSVC)
+#if (NOT MSVC)
+#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#endif (NOT MSVC)
 
 # Set some Win32 Specific Settings
 if(WIN32)
@@ -22,11 +22,10 @@ find_package(Qt5Test REQUIRED)
 set(src_files
 	examples1.cc examples1.hh
 	examples2.cc examples2.hh
+	Invoice.cpp Invoice.hpp
+	InvoiceItem.cpp InvoiceItem.hpp
 	main.cpp
-
-	util/Invoice.cpp util/Invoice.hpp
-	util/Item.cpp util/Item.hpp
-	util/util.cc util/util.hh
+    util.cc util.hh
 )
 
 foreach(f IN LISTS src_files)
