@@ -23,7 +23,7 @@ public:
 	Clone(inst::Abstract *parent = nullptr) const override;
 	
 	ods::Cell*
-	GetCell(const int index);
+	GetCell(const int place);
 	
 	int
 	GetColumnIndex(const ods::Cell *cell) const;
@@ -31,11 +31,8 @@ public:
 	inst::StyleStyle*
 	GetStyle() const;
 	
-	ods::Cell*
-	NewCellAt(const int col_index, const int number_columns_repeated = 1);
-	
-	ods::Cell*
-	NewCellInPlaceOf(const int col_index, const int ncr);
+	Cell*
+	NewCellAt(const int place, const int ncr = 1, const int ncs = 1);
 	
 	inst::StyleStyle*
 	NewStyle();
@@ -51,6 +48,8 @@ public:
 	
 	int
 	number_rows_spanned() const { return num_rows_spanned_; }
+	
+	void Print() const;
 	
 	int
 	QueryCellStart(const Cell *cell) const;
@@ -78,19 +77,21 @@ public:
 	
 private:
 	
-	Cell* At(const int logical_index, int &starts_at, int &total_li, int &vec_index);
-	void Curtail(const int by_how_much, const int from_where);
+	Cell* At(const int place, int &vec_index);
+	void DeleteRegion(ods::Cell *cell, const int vec_index);
+	void MarkDeleteRegion(int from, int remaining);
+	void MarkCoveredCellsAfter(ods::Cell *cell, const int vec_index);
 	void Init(ods::Tag *tag);
 	void InitDefault();
-	Cell* NewCell(const int insert_li, const int nrr, const AddMode mode);
 	void Scan(ods::Tag *tag);
-	void SetCellAt(ods::Cell *new_cell, const int insert_at);
 	
 	QVector<ods::Cell*> cells_;
 	ods::Sheet *sheet_ = nullptr;
 	int number_rows_repeated_ = 1;
 	int num_rows_spanned_ = 1;
 	QString table_style_name_;
+	
+	friend class Cell;
 };
 
 } // ods::

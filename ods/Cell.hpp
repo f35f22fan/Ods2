@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cell.hxx"
 #include "currency.hxx"
 #include "decl.hxx"
 #include "err.hpp"
@@ -14,6 +15,9 @@
 #include <tuple>
 
 namespace ods { // ods::
+
+const u8 CoveredBit = 1u << 0;
+const u8 SelectedBit = 1u << 1;
 
 class ODS_API Cell : public inst::Abstract
 {
@@ -50,11 +54,32 @@ public:
 	virtual inst::Abstract*
 	Clone(inst::Abstract *parent = nullptr) const override;
 	
+	bool
+	covered() const { return bits_ & CoveredBit; }
+	
+	void
+	covered(const bool do_set) {
+		if (do_set)
+			bits_ |= CoveredBit;
+		else
+			bits_ &= ~CoveredBit;
+	}
+	
+	void delete_region(const DeleteRegion &dr) {
+		delete_region_ = dr;
+	}
+	
+	const DeleteRegion&
+	delete_region() const { return delete_region_; }
+	
 	inst::StyleStyle*
 	FetchStyle();
 	
 	ods::Formula*
 	formula() const { return formula_; }
+	
+	QString
+	FullName() const override;
 	
 	// returns the text value of first TextP
 	QString*
@@ -62,6 +87,9 @@ public:
 	
 	inst::StyleStyle*
 	GetStyle() const;
+	
+	bool
+	has_delete_region() const { return delete_region_.start != -1; }
 	
 	bool
 	has_formula() const { return formula_ != nullptr; }
@@ -94,12 +122,6 @@ public:
 	bool
 	is_value_set() const { return office_value_type_ != ods::value::Type::None; }
 	
-	int
-	ncr() const { return number_columns_repeated_; }
-	
-	void
-	ncr(const int n) { number_columns_repeated_ = n; }
-	
 	ods::Formula*
 	NewFormula();
 	
@@ -112,23 +134,18 @@ public:
 	inst::StyleStyle*
 	NewStyle();
 	
-	int
-	number_columns_repeated() const { return number_columns_repeated_; }
+	int number_columns_repeated() const { return ncr_; }
+	void number_columns_repeated(const int n) { ncr_ = n; }
+	int ncr() const { return ncr_; }
+	void ncr(const int n) { ncr_ = n; }
 	
-	void
-	number_columns_repeated(const int n) { number_columns_repeated_ = n; }
+	int number_columns_spanned() const { return ncs_; }
+	void number_columns_spanned(const int n);
+	int ncs() const { return ncs_; }
+	void ncs(const int n) { number_columns_spanned(n); }
 	
-	int
-	number_columns_spanned() const { return number_columns_spanned_; }
-	
-	void
-	number_columns_spanned(const int n) { number_columns_spanned_ = n; }
-	
-	int
-	number_rows_spanned() const { return number_rows_spanned_; }
-	
-	void
-	number_rows_spanned(const int n) { number_rows_spanned_ = n; }
+	int number_rows_spanned() const { return nrs_; }
+	void number_rows_spanned(const int n) { nrs_ = n; }
 	
 	QString
 	QueryAddress() const;
@@ -148,6 +165,15 @@ public:
 	
 	ods::Row*
 	row() const { return row_; }
+	
+	bool selected() const { return bits_ & SelectedBit; }
+	
+	void selected(const bool do_set) {
+		if (do_set)
+			bits_ |= SelectedBit;
+		else
+			bits_ &= ~SelectedBit;
+	}
 	
 	void
 	SetBoolean(const bool flag);
@@ -197,6 +223,9 @@ public:
 	QByteArray
 	TypeAndValueString() const;
 	
+	const char*
+	TypeToString() const { return ods::TypeToString(office_value_type_); }
+	
 	QString
 	ValueToString() const;
 	
@@ -206,12 +235,9 @@ public:
 	void
 	value_type_set(const ods::value::Type kType) { office_value_type_ = kType; }
 	
-	const char*
-	TypeToString() const { return ods::TypeToString(office_value_type_); }
-	
 	void
 	WriteData(QXmlStreamWriter &xml) override;
-
+	
 private:
 	
 	void* CloneValue() const;
@@ -234,6 +260,10 @@ private:
 		office_value_type_ = kType;
 	}
 	
+	QString
+	ToSchemaString() const;
+	friend class Row;
+	
 	void
 	WriteValue(QXmlStreamWriter &xml);
 	
@@ -241,9 +271,9 @@ private:
 	void *value_data_ = nullptr;
 	ods::value::Type office_value_type_ = ods::value::Type::None;
 	
-	int number_columns_repeated_ = 1;
-	int number_columns_spanned_ = 1;
-	int number_rows_spanned_ = 1;
+	int ncr_ = 1; // number columns repeated
+	int ncs_ = 1; // number columns spanned
+	int nrs_ = 1; // number rows spanned
 	
 	// table:style-name="ce3" office:value-type="percentage" office:value="0.9"
 	// office:currency="USD", office:date-value="1983-12-30"
@@ -251,6 +281,9 @@ private:
 	ods::Formula *formula_ = nullptr;
 	QString table_style_name_;
 	QString office_currency_;
+	
+	u8 bits_ = 0;
+	ods::DeleteRegion delete_region_ = {-1, -1, -1};
 };
 
 } // ods::

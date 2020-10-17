@@ -254,6 +254,9 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 	row = sheet_->NewRowAt(++last_row_index);
 	auto *area_cell = row->NewCellAt(0);
 	area_cell->SetRowColSpan(6, 5);
+	auto *area_style = area_cell->FetchStyle();
+	area_style->SetBorder(ods::Length(1.0, ods::Unit::Px),
+		QColor(0, 0, 0), ods::line::Style::Dotted);
 	
 	last_row_index += area_cell->number_rows_spanned() + 1;
 	row = sheet_->NewRowAt(last_row_index);
@@ -265,7 +268,7 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 	thanks_style->SetHAlignment(ods::HAlignSide::Center);
 	thanks_style->SetVAlignment(ods::VAlignSide::Middle);
 	thanks_style->SetFontStyle(ods::attr::FontStyle::Italic);
-	
+
 	return last_row_index;
 }
 

@@ -88,7 +88,7 @@ private:
 	int num_cols_ = 0;
 	
 	const int DefaultColumnCountPerSheet = 1024;
-	const int DefaultRowCountPerSheet = 0x0FFFFF; // 1048575
+	const int DefaultRowCountPerSheet = 0x0FFFFF / 2; // 1048575
 	
 	friend class inst::OfficeSpreadsheet;
 };

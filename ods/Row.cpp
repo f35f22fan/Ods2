@@ -38,25 +38,22 @@ Row::~Row()
 }
 
 Cell*
-Row::At(const int logical_index, int &starts_at, int &total_li, int &vec_index)
-{
-	total_li = 0;
-	Cell *found_obj = nullptr;
+Row::At(const int place, int &vec_index) {
+	int so_far = 0;
+	const int count = cells_.size();
 	
-	for (int i = 0; i < cells_.size(); i++)
-	{
-		auto *next = cells_[i];
-		total_li += next->ncr();
-		
-		if (found_obj == nullptr && total_li > logical_index)
-		{
-			found_obj = next;
-			starts_at = total_li - next->ncr();
+	for (int i = 0; i < count; i++) {
+		ods::Cell *cell = cells_[i];
+		so_far += cell->ncr();
+//		mtl_line("place: %d, so_far: %d, i=%d", place, so_far, i);
+		if (so_far > place) {
 			vec_index = i;
+//			mtl_line("vec_index=%d", vec_index);
+			return cell;
 		}
 	}
 	
-	return found_obj;
+	return nullptr;
 }
 
 inst::Abstract*
@@ -81,49 +78,8 @@ Row::Clone(inst::Abstract *parent) const
 	return p;
 }
 
-void
-Row::Curtail(const int by_how_much, const int from_where)
-{
-	if (by_how_much <= 0 || from_where < 0)
-	{
-		mtl_warn("by_how_much: %d, from_where: %d", by_how_much, from_where);
-		return;
-	}
-	
-	//mtl_line("Curtail by %d from %d", by_how_much, from_where);
-	int next_off = 0;
-	const int max = cells_.size();
-	
-	for (int i = 0; i < max; i++)
-	{
-		ods::Cell *cell = cells_[i];
-		const int ncr = cell->ncr();
-		next_off += ncr;
-		
-		if (next_off > from_where)
-		{
-			int diff = ncr - by_how_much;
-			
-			if (diff == 0) // done
-			{
-				cells_.removeAt(i);
-				delete cell;
-				return;
-			} else if (diff < 0) {
-				cells_.removeAt(i);
-				delete cell;
-				Curtail(by_how_much - ncr, from_where + ncr);
-				return;
-			} else { // diff > 0
-				cell->ncr(diff);
-				return;
-			}
-		}
-	}
-}
-
 ods::Cell*
-Row::GetCell(const int index)
+Row::GetCell(const int place)
 {
 	int start = 0;
 	
@@ -131,7 +87,7 @@ Row::GetCell(const int index)
 	{
 		start += cell->ncr();
 		
-		if (start > index)
+		if (start > place)
 			return cell;
 	}
 	
@@ -171,91 +127,134 @@ Row::InitDefault()
 	cells_.append(cell);
 }
 
-Cell*
-Row::NewCell(const int insert_li, const int ncr, const AddMode mode)
+void
+Row::DeleteRegion(ods::Cell *cell, const int vec_index)
 {
-	if (ncr <= 0)
-	{
-		mtl_warn();
-		return nullptr;
+	const ods::DeleteRegion &dr = cell->delete_region();
+	
+	if (dr.count == cell->ncr()) {
+		delete cell;
+		cells_.remove(dr.vec_index);
+		return;
 	}
 	
-	int vec_index = 0;
-	int total_li = 0;
-	int next_obj_starts_at = 0;
-	Cell *next_cell = At(insert_li, next_obj_starts_at, total_li, vec_index);
+	const int ncr = cell->ncr();
+	const int region_len = dr.start + dr.count;
 	
-	if (next_cell == nullptr)
-	{
-		mtl_warn("no next_obj at li %d, obj_vec size: %d", insert_li, cells_.size());
-		return nullptr;
-	}
-	
-	int need_to_cut = ncr;
-	Cell *new_obj = new Cell(this);
-	new_obj->ncr(ncr);
-	const bool do_replace = (mode == AddMode::Replace);
-	
-	int new_obj_start_offset = insert_li - next_obj_starts_at;
-	int orig_next_obj_ncr = next_cell->ncr();
-	
-	if (new_obj_start_offset > 0)
-	{
-		// split
-		next_cell->ncr(new_obj_start_offset);
-		cells_.insert(vec_index + 1, new_obj);
-		
-		if (do_replace)
-		{
-			int skip = new_obj_start_offset + ncr;
-			int next_row_left = orig_next_obj_ncr - skip;
-			
-			if (next_row_left >= 0)
-			{
-				if (next_row_left > 0)
-				{
-					auto *sh = (Cell*)next_cell->Clone();
-					sh->ncr(next_row_left);
-					
-					cells_.insert(vec_index + 2, sh);
-				}
-				
-				return new_obj;
-			} else { // next_row_left < 0
-				need_to_cut = -next_row_left;
-				Curtail(need_to_cut, insert_li + ncr);
-			}
-		} else {
-			// insert remaining million!
-			int new_num = orig_next_obj_ncr - ncr - new_obj_start_offset;
-			auto *sh = (Cell*)next_cell->Clone();
-			sh->ncr(new_num);
-			cells_.insert(vec_index + 2, sh);
-			//Curtail(ncr, total_li - ncr);
-		}
+	if (dr.start > 0 && region_len < ncr) {
+		Cell *cell2 = static_cast<Cell*>(cell->Clone());
+		cell2->ncr(dr.start);
+		cells_.insert(vec_index, cell2);
+		cell->ncr(ncr - region_len);
 	} else {
-		cells_.insert(vec_index, new_obj);
-		if (do_replace)
-		{
-			Curtail(ncr, insert_li + ncr);
+		cell->ncr(ncr - dr.count);
+	}
+	
+	cell->delete_region({-1, -1, -1});
+}
+
+void
+Row::MarkDeleteRegion(int from, int remaining)
+{
+	const int cell_count = cells_.size();
+	int so_far = 0;
+	const int till = from + remaining;
+	
+	for (int i = 0; i < cell_count; i++) {
+		auto *cell = cells_[i];
+		const int cell_start = so_far;
+		so_far += cell->ncr();
+		const int cell_end = so_far;
+		
+		if (till < cell_start || from > cell_end)
+			continue;
+		
+		int range_start = std::max(from, cell_start);
+		int range_end = std::min(till, cell_end);
+//		printf("\n(%d, %d) - (%d, %d) = (%d, %d)\n",
+//			cell_start, cell_end, from, till, range_start, range_end);
+		
+		if (range_end - range_start <= 0)
+			continue;
+		
+		ods::DeleteRegion region;
+		region.vec_index = i;
+		region.start = range_start - cell_start;
+		region.count = range_end - range_start;
+		cell->delete_region(region);
+//		printf("DeleteRegion [%d, %d] (%d, %d)\n",
+//			region.start, region.count, range_start, range_end);
+	}
+}
+
+void
+Row::MarkCoveredCellsAfter(ods::Cell *cell, const int vec_index)
+{
+	const int vec_size = cells_.size();
+	const bool more_cells_follow = vec_index < vec_size - 1;
+	
+	if (!more_cells_follow || cell->ncs() <= 1)
+		return;
+	
+//	mtl_line("make %d cells covered", cell->ncs() - 1);
+	int remaining = cell->ncs() - 1;
+	
+	for (int i = vec_index + 1; i < vec_size; i++) {
+		auto *next = cells_[i];
+		int x = next->ncr() - remaining;
+		
+		if (x <= 0) {
+			next->covered(true);
+//			auto ba = next->ValueToString().toLocal8Bit();
+//			mtl_line("Covered cell: %s", ba.data());
+			remaining -= next->ncr();
 		} else {
-			Curtail(ncr, total_li - ncr);
+			Cell *cloned = static_cast<Cell*>(next->Clone());
+			cloned->ncr(remaining);
+			cloned->covered(true);
+//			auto ba = cloned->ValueToString().toLocal8Bit();
+//			mtl_line("Covered cell: %s", ba.data());
+			cells_.insert(i, cloned);
+			next->ncr(x);
+			remaining = 0;
+		}
+		
+		if (remaining <= 0)
+			break;
+	}
+}
+
+Cell*
+Row::NewCellAt(const int place, const int ncr, const int ncs)
+{
+	MarkDeleteRegion(place, ncr);
+	int total = 0;
+	
+	for (int i = cells_.size() - 1; i >= 0; i--) {
+		auto *cell = cells_[i];
+		total += cell->ncr();
+		
+		if (cell->has_delete_region()) {
+			DeleteRegion(cell, i);
 		}
 	}
 	
-	return new_obj;
-}
+	int vec_index;
+	if (place == total - ncr) {
+		vec_index = cells_.size();
+	} else if (At(place, vec_index) == nullptr) {
+		mtl_trace("place: %d, total: %d", place, total);
+		return nullptr;
+	}
 
-ods::Cell*
-Row::NewCellAt(const int col_index, const int ncr)
-{
-	return NewCell(col_index, ncr, AddMode::Insert);
-}
-
-ods::Cell*
-Row::NewCellInPlaceOf(const int col_index, const int ncr)
-{
-	return NewCell(col_index, ncr, AddMode::Replace);
+	auto *cell = new Cell(this);
+	cell->ncr(ncr);
+	cell->ncs(ncs);
+	cell->selected(true);
+	cells_.insert(vec_index, cell);
+	MarkCoveredCellsAfter(cell, vec_index);
+	
+	return cell;
 }
 
 inst::StyleStyle*
@@ -265,6 +264,19 @@ Row::NewStyle()
 	SetStyle(style);
 	
 	return style;
+}
+
+void
+Row::Print() const
+{
+	int count = 0;
+	for (auto *cell: cells_) {
+		auto ba = cell->ToSchemaString().toLocal8Bit();
+		printf("%s ", ba.data());
+		count += cell->ncr();
+	}
+	
+	printf("{%d}\n", count);
 }
 
 Length*
@@ -325,89 +337,6 @@ Row::Scan(ods::Tag *tag)
 			cells_.append(new ods::Cell(this, next));
 		} else {
 			Scan(next);
-		}
-	}
-}
-
-void
-Row::SetCellAt(ods::Cell *new_cell, const int insert_at)
-{
-	// !! Don't forget to Append(new_cell)
-	int prev_cell_up_to = 0;
-	ods::Cell *prev_cell = nullptr;
-	int prev_cell_index = 0;
-	
-	for (; prev_cell_index < cells_.size(); prev_cell_index++)
-	{
-		ods::Cell *next = cells_[prev_cell_index];
-		prev_cell_up_to += next->ncr();
-//mtl_line("insert at:%d, current up to:%d", insert_at, prev_cell_up_to);
-		
-		if (prev_cell_up_to > insert_at)
-		{
-			prev_cell = next;
-			break;
-		}
-	}
-	
-	if (prev_cell == nullptr)
-	{
-//		mtl_line("At zero, cells count: %d, insert_at: %d",
-//			cells_.size(), insert_at);
-		cells_.insert(insert_at, new_cell);
-		const int by_how_much = new_cell->ncr();
-		const int from_where = insert_at + new_cell->ncr();
-		Curtail(by_how_much, from_where);
-		return;
-	}
-	
-	const int new_cell_ncr = new_cell->ncr();
-	const int prev_ncr = prev_cell->ncr();
-	const int prev_cell_starts_at = prev_cell_up_to - prev_ncr;
-	
-//mtl_line("prev_cell_index: %d, up_to: %d, starts at: %d",
-//		prev_cell_index, prev_cell_up_to, prev_cell_starts_at);
-	
-	if (prev_cell_starts_at == insert_at)
-	{
-//mtl_line("CASE 1");
-		// 1.1 Shrink prev_cell's num_cols_repeated (NCR) accordingly.
-		// If prev_cell's NCR <= 0 - delete it.
-		
-		int diff = prev_ncr - new_cell_ncr;
-		
-		if (diff == 0)
-		{
-			cells_.removeAt(prev_cell_index);
-			delete prev_cell;
-		} else if (diff < 0) {
-			Curtail(new_cell_ncr, prev_cell_up_to);
-		} else {
-			prev_cell->ncr(diff);
-		}
-		
-		cells_.insert(prev_cell_index, new_cell);
-		return;
-	} else { // (prev_cell_up_to > insert_at)
-		const int ncr_before = insert_at - prev_cell_starts_at;
-//mtl_line("CASE 2, cut_ncr_to: %d", ncr_before);
-		prev_cell->ncr(ncr_before);
-		const int new_cell_index = prev_cell_index + 1;
-		cells_.insert(new_cell_index, new_cell);
-		
-		int ncr_after = prev_cell_up_to - (insert_at + new_cell_ncr);
-		
-		if (ncr_after == 0)
-		{
-//mtl_line("Done!");
-		} else if (ncr_after > 0) {
-//mtl_line();
-			auto *rem_cell = (ods::Cell*)prev_cell->Clone();
-			rem_cell->ncr(ncr_after);
-			const int rem_index = new_cell_index + 1;
-			cells_.insert(rem_index, rem_cell);
-		} else {
-			mtl_warn("ncr_after: %d", ncr_after);
 		}
 	}
 }

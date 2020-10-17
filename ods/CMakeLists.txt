@@ -11,9 +11,9 @@ set(CMAKE_AUTOMOC ON)
 include_directories(${Ods2_SOURCE_DIR})
 link_directories(${Ods2_BINARY_DIR}/lib)
 
-if (NOT MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif (NOT MSVC)
+# if (NOT MSVC)
+# 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# endif (NOT MSVC)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
@@ -21,7 +21,7 @@ find_package(Qt5Gui REQUIRED)
 set(lib_files
 	Attr.cpp Attr.hpp
 	Book.cpp Book.hpp
-	Cell.cpp Cell.hpp
+	Cell.cpp Cell.hpp cell.hxx
 	cmp_num.hh
 	country.hxx
 	currency.hxx

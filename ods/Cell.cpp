@@ -103,9 +103,9 @@ Cell::Clone(inst::Abstract *parent) const
 	p->value_data_ = CloneValue();
 	p->office_value_type_ = office_value_type_;
 	
-	p->number_columns_repeated_ = number_columns_repeated_;
-	p->number_columns_spanned_ = number_columns_spanned_;
-	p->number_rows_spanned_ = number_rows_spanned_;
+	p->ncr_ = ncr_;
+	p->ncs_ = ncs_;
+	p->nrs_ = nrs_;
 	
 	p->office_currency_ = office_currency_;
 	
@@ -142,6 +142,15 @@ Cell::FetchStyle()
 	return style;
 }
 
+QString
+Cell::FullName() const
+{
+	if (covered())
+		return prefix_->With(ods::ns::kCoveredTableCell);
+	
+	return prefix_->With(tag_name_);
+}
+
 QString*
 Cell::GetFirstString() const
 {
@@ -164,9 +173,9 @@ void
 Cell::Init(ods::Tag *tag)
 {
 	ReadValue(tag);
-	tag->Copy(ns_->table(), ods::ns::kNumberColumnsRepeated, number_columns_repeated_);
-	tag->Copy(ns_->table(), ods::ns::kNumberColumnsSpanned, number_columns_spanned_);
-	tag->Copy(ns_->table(), ods::ns::kNumberRowsSpanned, number_rows_spanned_);
+	tag->Copy(ns_->table(), ods::ns::kNumberColumnsRepeated, ncr_);
+	tag->Copy(ns_->table(), ods::ns::kNumberColumnsSpanned, ncs_);
+	tag->Copy(ns_->table(), ods::ns::kNumberRowsSpanned, nrs_);
 	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
 	
 	QString str;
@@ -224,6 +233,32 @@ Cell::NewStyle()
 	auto *style = book_->NewCellStyle();
 	SetStyle(style);
 	return style;
+}
+
+void
+Cell::number_columns_spanned(const int n)
+{
+	ncs_ = n;
+	
+//	if (ncs_ == 1)
+//		return;
+	
+	// Unlikely event:
+	// If ncs_ was 3 and was set to 1
+	// setting the adjacent 2 cells to non-covered
+	// isn't supported, yet.
+	
+	QVector<Cell*> &cells = row_->cells();
+	const int cell_count = cells.size();
+	
+	for (int i = 0; i < cell_count; i++) {
+		Cell *next = cells[i];
+		
+		if (next == this) {
+			row_->MarkCoveredCellsAfter(this, i);
+			return;
+		}
+	}
 }
 
 QString
@@ -576,6 +611,27 @@ Cell::SetStyle(Abstract *inst)
 	}
 }
 
+QString
+Cell::ToSchemaString() const
+{
+	QString s;
+	if (covered()) {
+		s = QLatin1String("C ") + QString::number(ncr_);
+	} else if (ncs_ > 1) {
+		s = QLatin1String("S ") + QString::number(ncs_);
+	} else {
+		s = QLatin1String("R ") + QString::number(ncr_);
+	}
+	
+	s = QChar('[') + s + QChar(']');
+	
+	if (selected()) {
+		return QString(MTL_COLOR_RED) + s + QString(MTL_COLOR_DEFAULT);
+	}
+	
+	return s;
+}
+
 QByteArray
 Cell::TypeAndValueString() const
 {
@@ -622,9 +678,19 @@ Cell::ValueToString() const
 void
 Cell::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->table(), ods::ns::kNumberColumnsRepeated, number_columns_repeated_, 1);
-	Write(xml, ns_->table(), ods::ns::kNumberColumnsSpanned, number_columns_spanned_, 1);
-	Write(xml, ns_->table(), ods::ns::kNumberRowsSpanned, number_rows_spanned_, 1);
+	Write(xml, ns_->table(), ods::ns::kNumberColumnsRepeated, ncr_, 1);
+	Write(xml, ns_->table(), ods::ns::kNumberColumnsSpanned, ncs_, 1);
+	
+	{
+		// Workaround for MS Office (2019): if ncs_ > 1
+		// one must print out the nrs_ too, otherwise MS Office
+		// will treat ncs_ as 1 regardless of its real value
+		
+		int force_if_needed = (ncs_ != 1) ? -1 : 1;
+		
+		Write(xml, ns_->table(), ods::ns::kNumberRowsSpanned, nrs_, force_if_needed);
+	}
+	
 	Write(xml, ns_->table(), ods::ns::kStyleName, table_style_name_);
 	
 	if (is_value_set())

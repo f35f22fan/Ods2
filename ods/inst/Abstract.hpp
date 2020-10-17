@@ -66,7 +66,7 @@ public:
 	void
 	DeleteNodes();
 	
-	QString
+	virtual QString
 	FullName() const;
 	
 	id::func
