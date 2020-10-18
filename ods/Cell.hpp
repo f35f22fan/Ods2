@@ -16,9 +16,6 @@
 
 namespace ods { // ods::
 
-const u8 CoveredBit = 1u << 0;
-const u8 SelectedBit = 1u << 1;
-
 class ODS_API Cell : public inst::Abstract
 {
 public:
@@ -55,14 +52,14 @@ public:
 	Clone(inst::Abstract *parent = nullptr) const override;
 	
 	bool
-	covered() const { return bits_ & CoveredBit; }
+	covered() const { return bits_ & ods::CoveredBit; }
 	
 	void
 	covered(const bool do_set) {
 		if (do_set)
-			bits_ |= CoveredBit;
+			bits_ |= ods::CoveredBit;
 		else
-			bits_ &= ~CoveredBit;
+			bits_ &= ~ods::CoveredBit;
 	}
 	
 	void delete_region(const DeleteRegion &dr) {
@@ -262,7 +259,6 @@ private:
 	
 	QString
 	ToSchemaString() const;
-	friend class Row;
 	
 	void
 	WriteValue(QXmlStreamWriter &xml);
@@ -284,6 +280,7 @@ private:
 	
 	u8 bits_ = 0;
 	ods::DeleteRegion delete_region_ = {-1, -1, -1};
+	friend class Row;
 };
 
 } // ods::

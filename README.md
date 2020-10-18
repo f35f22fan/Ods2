@@ -14,4 +14,3 @@ Licensed under the GPLv3, see LICENSE for details.
 
 #### TBD
  - [ ] Test/fix to work on windows
- - [ ] Make sure generated files work with MS Office 2015+

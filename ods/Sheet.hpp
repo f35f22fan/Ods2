@@ -28,29 +28,32 @@ public:
 	int
 	CountRows() const;
 	
+	void
+	DeleteRowRegion(ods::Row *row, const int vec_index);
+	
 	inst::TableTableColumn*
-	GetColumn(const int col_num) const;
+	GetColumn(const int place) const;
 	
 	inst::StyleStyle*
 	GetDefaultCellStyle(const Cell *cell) const;
 	
 	ods::Row*
-	GetRow(const int index);
+	GetRow(const int place);
+	
+	void
+	MarkRowDeleteRegion(int from, int remaining);
 	
 	const QString&
 	name() const { return table_name_; }
 	
 	inst::TableTableColumn*
-	NewColumnAt(const int index, const int nrr = 1);
+	NewColumnAt(const int index, const int ncr = 1);
 	
 	inst::TableTableColumn*
 	NewColumnInPlaceOf(const int index, const int nrr = 1);
 	
 	ods::Row*
-	NewRowAt(const int row_index, const int nrr = 1);
-	
-	ods::Row*
-	NewRowInPlaceOf(const int row_index, const int nrr = 1);
+	NewRowAt(const int place, const int nrr = 1);
 	
 	int
 	num_cols() const { return num_cols_; }
@@ -66,15 +69,13 @@ public:
 	
 private:
 	
-	Row* At(const int logical_index, int &starts_at,	int &total_li, int &vec_index);
+	Row* At(const int place, int &vec_index);
 	inst::TableTableColumn* ColumnAt(const int logical_index, int &starts_at,
 		int &total_li, int &vec_index);
-	void Curtail(const int by_how_much, const int from_where);
 	void CurtailCols(const int by_how_much, const int from_where);
 	void Init(ods::Tag *sheet_tag);
 	void InitDefault();
 	void name(const QString &name) { table_name_ = name; }
-	Row* NewRow(const int insert_li, const int nrr, const AddMode mode);
 	
 	inst::TableTableColumn* NewColumn(const int insert_li, const int num,
 		const AddMode mode);
@@ -88,7 +89,7 @@ private:
 	int num_cols_ = 0;
 	
 	const int DefaultColumnCountPerSheet = 1024;
-	const int DefaultRowCountPerSheet = 0x0FFFFF / 2; // 1048575
+	const int DefaultRowCountPerSheet = 0x0FFFFF; // 1048575
 	
 	friend class inst::OfficeSpreadsheet;
 };

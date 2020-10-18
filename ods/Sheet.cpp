@@ -41,26 +41,22 @@ Sheet::~Sheet()
 }
 
 Row*
-Sheet::At(const int logical_index, int &starts_at, int &total_li, int &vec_index)
+Sheet::At(const int place, int &vec_index)
 {
-	total_li = 0;
-	Row *found_obj = nullptr;
-	auto *vec = &rows_;
+	int so_far = 0;
+	const int count = rows_.size();
 	
-	for (int i = 0; i < vec->size(); i++)
-	{
-		auto *next = (*vec)[i];
-		total_li += next->num();
+	for (int i = 0; i < count; i++) {
+		ods::Row *row = rows_[i];
+		so_far += row->num();
 		
-		if (found_obj == nullptr && total_li > logical_index)
-		{
-			found_obj = next;
-			starts_at = total_li - next->num();
+		if (so_far > place) {
 			vec_index = i;
+			return row;
 		}
 	}
 	
-	return found_obj;
+	return nullptr;
 }
 
 inst::Abstract*
@@ -136,47 +132,6 @@ Sheet::CountRows() const
 }
 
 void
-Sheet::Curtail(const int by_how_much, const int from_where)
-{
-	if (by_how_much <= 0 || from_where < 0)
-	{
-		mtl_warn("by_how_much: %d, from_where: %d", by_how_much, from_where);
-		return;
-	}
-	
-	int next_off = 0;
-	auto *vec = &rows_;
-	const int max = vec->size();
-	
-	for (int i = 0; i < max; i++)
-	{
-		auto *slave = (*vec)[i];
-		const int num = slave->num();
-		next_off += num;
-		
-		if (next_off > from_where)
-		{
-			int diff = num - by_how_much;
-			
-			if (diff == 0) // done
-			{
-				vec->removeAt(i);
-				delete slave;
-				return;
-			} else if (diff < 0) {
-				vec->removeAt(i);
-				delete slave;
-				Curtail(by_how_much - num, from_where + num);
-				return;
-			} else { // diff > 0
-				slave->num(diff);
-				return;
-			}
-		}
-	}
-}
-
-void
 Sheet::CurtailCols(const int by_how_much, const int from_where)
 {
 	if (by_how_much <= 0 || from_where < 0)
@@ -216,8 +171,65 @@ Sheet::CurtailCols(const int by_how_much, const int from_where)
 	}
 }
 
+
+void
+Sheet::DeleteRowRegion(ods::Row *row, const int vec_index)
+{
+	const ods::DeleteRegion &dr = row->delete_region();
+	
+	if (dr.count == row->num()) {
+		delete row;
+		rows_.remove(dr.vec_index);
+		return;
+	}
+	
+	const int num = row->num();
+	const int region_len = dr.start + dr.count;
+	
+	if (dr.start > 0 && region_len < num) {
+		Row *row2 = static_cast<Row*>(row->Clone());
+		row2->num(dr.start);
+		rows_.insert(vec_index, row2);
+		row->num(num - region_len);
+	} else {
+		row->num(num - dr.count);
+	}
+	
+	row->delete_region({-1, -1, -1});
+}
+
+void
+Sheet::MarkRowDeleteRegion(int from, int remaining)
+{
+	const int row_count = rows_.size();
+	int so_far = 0;
+	const int till = from + remaining;
+	
+	for (int i = 0; i < row_count; i++) {
+		ods::Row *row = rows_[i];
+		const int row_start = so_far;
+		so_far += row->num();
+		const int row_end = so_far;
+		
+		if (till < row_start || from > row_end)
+			continue;
+		
+		int range_start = std::max(from, row_start);
+		int range_end = std::min(till, row_end);
+		
+		if (range_end - range_start <= 0)
+			continue;
+		
+		ods::DeleteRegion region;
+		region.vec_index = i;
+		region.start = range_start - row_start;
+		region.count = range_end - range_start;
+		row->delete_region(region);
+	}
+}
+
 inst::TableTableColumn*
-Sheet::GetColumn(const int col_num) const
+Sheet::GetColumn(const int place) const
 {
 	int next_col = 0;
 	
@@ -225,7 +237,7 @@ Sheet::GetColumn(const int col_num) const
 	{
 		next_col += next->num();
 		
-		if (next_col > col_num)
+		if (next_col > place)
 			return next;
 	}
 	
@@ -247,7 +259,7 @@ Sheet::GetDefaultCellStyle(const ods::Cell *cell) const
 }
 
 ods::Row*
-Sheet::GetRow(const int index)
+Sheet::GetRow(const int place)
 {
 	int start = 0;
 	
@@ -255,7 +267,7 @@ Sheet::GetRow(const int index)
 	{
 		start += r->num();
 		
-		if (start > index)
+		if (start > place)
 			return r;
 	}
 	
@@ -364,9 +376,9 @@ Sheet::NewColumn(const int insert_li, const int num, const AddMode mode)
 }
 
 inst::TableTableColumn*
-Sheet::NewColumnAt(const int index, const int nrr)
+Sheet::NewColumnAt(const int index, const int ncr)
 {
-	return NewColumn(index, nrr, AddMode::Insert);
+	return NewColumn(index, ncr, AddMode::Insert);
 }
 
 inst::TableTableColumn*
@@ -376,91 +388,34 @@ Sheet::NewColumnInPlaceOf(const int index, const int nrr)
 }
 
 ods::Row*
-Sheet::NewRowAt(const int row_index, const int nrr)
+Sheet::NewRowAt(const int place, const int nrr)
 {
-	return NewRow(row_index, nrr, AddMode::Insert);
-}
-
-ods::Row*
-Sheet::NewRowInPlaceOf(const int row_index, const int nrr)
-{
-	return NewRow(row_index, nrr, AddMode::Replace);
-}
-
-Row*
-Sheet::NewRow(const int insert_li, const int num, const AddMode mode)
-{
-	if (num <= 0)
-	{
-		mtl_warn();
-		return nullptr;
-	}
+	MarkRowDeleteRegion(place, nrr);
+	int total = 0;
 	
-	int vec_index = 0;
-	int total_li = 0;
-	int next_slave_starts_at = 0;
-	auto *next_slave = At(insert_li, next_slave_starts_at, total_li, vec_index);
-	
-	if (next_slave == nullptr)
-	{
-		mtl_warn("no next_slave at li %d", insert_li);
-		return nullptr;
-	}
-	
-	int need_to_cut = num;
-	auto *new_slave = new Row(this);
-	new_slave->num(num);
-	const bool do_replace = (mode == AddMode::Replace);
-	
-	int new_slave_start_offset = insert_li - next_slave_starts_at;
-	int orig_next_slave_num = next_slave->num();
-	auto *vec = &rows_;
-	
-	if (new_slave_start_offset > 0)
-	{
-		// split
-		next_slave->num(new_slave_start_offset);
-		vec->insert(vec_index + 1, new_slave);
+	for (int i = rows_.size() - 1; i >= 0; i--) {
+		ods::Row *row = rows_[i];
+		total += row->num();
 		
-		if (do_replace)
-		{
-			int skip = new_slave_start_offset + num;
-			int next_slave_left = orig_next_slave_num - skip;
-			
-			if (next_slave_left >= 0)
-			{
-				if (next_slave_left > 0)
-				{
-					auto *sh = (Row*)next_slave->Clone();
-					sh->num(next_slave_left);
-					vec->insert(vec_index + 2, sh);
-				}
-				
-				return new_slave;
-			} else { // next_slave_left < 0
-				need_to_cut = -next_slave_left;
-				Curtail(need_to_cut, insert_li + num);
-			}
-		} else {
-			// insert remaining million!
-			int new_num = orig_next_slave_num - num - new_slave_start_offset;
-			auto *sh = (Row*)next_slave->Clone();
-			sh->num(new_num);
-			vec->insert(vec_index + 2, sh);
-			//Curtail(num, total_li - num);
-		}
-	} else {
-		vec->insert(vec_index, new_slave);
-		
-		if (do_replace) {
-			Curtail(num, insert_li + num);
-		} else {
-//mtl_trace("num: %d, total_li: %d", num, total_li);
-			//Curtail(num, total_li - num);
+		if (row->has_delete_region()) {
+			DeleteRowRegion(row, i);
 		}
 	}
 	
-	return new_slave;
+	int vec_index;
+	if (place == total - nrr) {
+		vec_index = rows_.size();
+	} else if (At(place, vec_index) == nullptr) {
+		mtl_trace("place: %d, total: %d", place, total);
+		return nullptr;
+	}
+
+	auto *row = new Row(this);
+	row->num(nrr);
+	row->selected(true);
+	rows_.insert(vec_index, row);
+	
+	return row;
 }
 
 int

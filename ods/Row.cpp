@@ -71,8 +71,7 @@ Row::Clone(inst::Abstract *parent) const
 	}
 	
 	p->sheet_ = sheet_;
-	p->number_rows_repeated_ = number_rows_repeated_;
-	p->num_rows_spanned_ = num_rows_spanned_;
+	p->nrr_ = nrr_;
 	p->table_style_name_ = table_style_name_;
 	
 	return p;
@@ -103,8 +102,7 @@ Row::GetStyle() const
 void
 Row::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->table(), ods::ns::kNumberRowsRepeated, number_rows_repeated_);
-	tag->Copy(ns_->table(), ods::ns::kNumberRowsSpanned, num_rows_spanned_);
+	tag->Copy(ns_->table(), ods::ns::kNumberRowsRepeated, nrr_);
 	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
 	Scan(tag);
 }
@@ -128,7 +126,7 @@ Row::InitDefault()
 }
 
 void
-Row::DeleteRegion(ods::Cell *cell, const int vec_index)
+Row::DeleteCellRegion(ods::Cell *cell, const int vec_index)
 {
 	const ods::DeleteRegion &dr = cell->delete_region();
 	
@@ -196,7 +194,6 @@ Row::MarkCoveredCellsAfter(ods::Cell *cell, const int vec_index)
 	if (!more_cells_follow || cell->ncs() <= 1)
 		return;
 	
-//	mtl_line("make %d cells covered", cell->ncs() - 1);
 	int remaining = cell->ncs() - 1;
 	
 	for (int i = vec_index + 1; i < vec_size; i++) {
@@ -205,15 +202,11 @@ Row::MarkCoveredCellsAfter(ods::Cell *cell, const int vec_index)
 		
 		if (x <= 0) {
 			next->covered(true);
-//			auto ba = next->ValueToString().toLocal8Bit();
-//			mtl_line("Covered cell: %s", ba.data());
 			remaining -= next->ncr();
 		} else {
 			Cell *cloned = static_cast<Cell*>(next->Clone());
 			cloned->ncr(remaining);
 			cloned->covered(true);
-//			auto ba = cloned->ValueToString().toLocal8Bit();
-//			mtl_line("Covered cell: %s", ba.data());
 			cells_.insert(i, cloned);
 			next->ncr(x);
 			remaining = 0;
@@ -235,7 +228,7 @@ Row::NewCellAt(const int place, const int ncr, const int ncs)
 		total += cell->ncr();
 		
 		if (cell->has_delete_region()) {
-			DeleteRegion(cell, i);
+			DeleteCellRegion(cell, i);
 		}
 	}
 	
@@ -381,16 +374,31 @@ Row::SetStyle(inst::StyleStyle *p)
 		
 }
 
+QString
+Row::ToSchemaString() const
+{
+	QString s;
+	if (covered()) {
+		s = QLatin1String("C ") + QString::number(nrr_);
+	} else {
+		s = QLatin1String("R ") + QString::number(nrr_);
+	}
+	
+	s = QChar('[') + s + QChar(']');
+	
+	if (selected()) {
+		return QString(MTL_COLOR_RED) + s + QString(MTL_COLOR_DEFAULT);
+	}
+	
+	return s;
+}
+
 void
 Row::WriteData(QXmlStreamWriter &xml)
 {
-	if (number_rows_repeated_ != 1)
+	if (nrr_ != 1)
 		xml.writeAttribute(ns_->table()->With(ods::ns::kNumberRowsRepeated),
-			QString::number(number_rows_repeated_));
-	
-	if (num_rows_spanned_ != 1)
-		xml.writeAttribute(ns_->table()->With(ods::ns::kNumberRowsSpanned),
-			QString::number(num_rows_spanned_));
+			QString::number(nrr_));
 	
 	if (!table_style_name_.isEmpty())
 		xml.writeAttribute(ns_->table()->With(ods::ns::kStyleName),

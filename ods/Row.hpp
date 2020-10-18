@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cell.hxx"
 #include "decl.hxx"
 #include "err.hpp"
 #include "global.hxx"
@@ -22,6 +23,24 @@ public:
 	virtual inst::Abstract*
 	Clone(inst::Abstract *parent = nullptr) const override;
 	
+	bool
+	covered() const { return bits_ & ods::CoveredBit; }
+	
+	void
+	covered(const bool do_set) {
+		if (do_set)
+			bits_ |= CoveredBit;
+		else
+			bits_ &= ~CoveredBit;
+	}
+	
+	void delete_region(const DeleteRegion &dr) {
+		delete_region_ = dr;
+	}
+	
+	const DeleteRegion&
+	delete_region() const { return delete_region_; }
+	
 	ods::Cell*
 	GetCell(const int place);
 	
@@ -31,6 +50,9 @@ public:
 	inst::StyleStyle*
 	GetStyle() const;
 	
+	bool
+	has_delete_region() const { return delete_region_.start != -1; }
+	
 	Cell*
 	NewCellAt(const int place, const int ncr = 1, const int ncs = 1);
 	
@@ -38,16 +60,13 @@ public:
 	NewStyle();
 	
 	int
-	num() const { return number_rows_repeated_; }
+	num() const { return nrr_; }
 	
 	void
-	num(const int n) { number_rows_repeated_ = n; }
+	num(const int n) { nrr_ = n; }
 	
 	int
-	number_rows_repeated() const { return number_rows_repeated_; }
-	
-	int
-	number_rows_spanned() const { return num_rows_spanned_; }
+	number_rows_repeated() const { return nrr_; }
 	
 	void Print() const;
 	
@@ -59,6 +78,15 @@ public:
 	
 	int
 	QueryStart() const;
+	
+	bool selected() const { return bits_ & SelectedBit; }
+	
+	void selected(const bool do_set) {
+		if (do_set)
+			bits_ |= SelectedBit;
+		else
+			bits_ &= ~SelectedBit;
+	}
 	
 	void
 	SetOptimalHeight();
@@ -78,18 +106,20 @@ public:
 private:
 	
 	Cell* At(const int place, int &vec_index);
-	void DeleteRegion(ods::Cell *cell, const int vec_index);
+	void DeleteCellRegion(ods::Cell *cell, const int vec_index);
 	void MarkDeleteRegion(int from, int remaining);
 	void MarkCoveredCellsAfter(ods::Cell *cell, const int vec_index);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void Scan(ods::Tag *tag);
+	QString ToSchemaString() const;
 	
 	QVector<ods::Cell*> cells_;
 	ods::Sheet *sheet_ = nullptr;
-	int number_rows_repeated_ = 1;
-	int num_rows_spanned_ = 1;
+	int nrr_ = 1;
 	QString table_style_name_;
+	u8 bits_ = 0;
+	ods::DeleteRegion delete_region_ = {-1, -1, -1};
 	
 	friend class Cell;
 };
