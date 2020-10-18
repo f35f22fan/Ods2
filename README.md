@@ -13,4 +13,4 @@ is in sample/Invoice.cpp
 Licensed under the GPLv3, see LICENSE for details.
 
 #### TBD
- - [ ] Test/fix to work on windows
+ - [ ] Test building process on windows

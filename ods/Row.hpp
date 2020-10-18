@@ -34,13 +34,6 @@ public:
 			bits_ &= ~CoveredBit;
 	}
 	
-	void delete_region(const DeleteRegion &dr) {
-		delete_region_ = dr;
-	}
-	
-	const DeleteRegion&
-	delete_region() const { return delete_region_; }
-	
 	ods::Cell*
 	GetCell(const int place);
 	
@@ -49,9 +42,6 @@ public:
 	
 	inst::StyleStyle*
 	GetStyle() const;
-	
-	bool
-	has_delete_region() const { return delete_region_.start != -1; }
 	
 	Cell*
 	NewCellAt(const int place, const int ncr = 1, const int ncs = 1);
@@ -79,15 +69,6 @@ public:
 	int
 	QueryStart() const;
 	
-	bool selected() const { return bits_ & SelectedBit; }
-	
-	void selected(const bool do_set) {
-		if (do_set)
-			bits_ |= SelectedBit;
-		else
-			bits_ &= ~SelectedBit;
-	}
-	
 	void
 	SetOptimalHeight();
 	
@@ -104,6 +85,15 @@ public:
 	WriteData(QXmlStreamWriter &xml) override;
 	
 private:
+	void delete_region(const DeleteRegion &dr) {
+		delete_region_ = dr;
+	}
+	
+	const DeleteRegion&
+	delete_region() const { return delete_region_; }
+	
+	bool
+	has_delete_region() const { return delete_region_.start != -1; }
 	
 	Cell* At(const int place, int &vec_index);
 	void DeleteCellRegion(ods::Cell *cell, const int vec_index);
@@ -114,6 +104,15 @@ private:
 	void Scan(ods::Tag *tag);
 	QString ToSchemaString() const;
 	
+	bool selected() const { return bits_ & SelectedBit; }
+	
+	void selected(const bool do_set) {
+		if (do_set)
+			bits_ |= SelectedBit;
+		else
+			bits_ &= ~SelectedBit;
+	}
+	
 	QVector<ods::Cell*> cells_;
 	ods::Sheet *sheet_ = nullptr;
 	int nrr_ = 1;
@@ -122,6 +121,7 @@ private:
 	ods::DeleteRegion delete_region_ = {-1, -1, -1};
 	
 	friend class Cell;
+	friend class Sheet;
 };
 
 } // ods::

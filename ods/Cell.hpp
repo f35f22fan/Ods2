@@ -163,15 +163,6 @@ public:
 	ods::Row*
 	row() const { return row_; }
 	
-	bool selected() const { return bits_ & SelectedBit; }
-	
-	void selected(const bool do_set) {
-		if (do_set)
-			bits_ |= SelectedBit;
-		else
-			bits_ &= ~SelectedBit;
-	}
-	
 	void
 	SetBoolean(const bool flag);
 	
@@ -240,6 +231,16 @@ private:
 	void* CloneValue() const;
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
+	
+	bool selected() const { return bits_ & SelectedBit; }
+	
+	void selected(const bool do_set) {
+		if (do_set)
+			bits_ |= SelectedBit;
+		else
+			bits_ &= ~SelectedBit;
+	}
+	
 	void Set(const QString &stype, const QString &value);
 	
 	void

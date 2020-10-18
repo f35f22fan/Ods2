@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Abstract.hpp"
+#include "../cell.hxx"
 #include "decl.hxx"
 #include "../err.hpp"
 
@@ -27,18 +28,18 @@ public:
 	GetStyle() const;
 	
 	int
-	num() const { return table_number_columns_repeated_; }
+	num() const { return ncr_; }
 	
 	void
-	num(const int n) { table_number_columns_repeated_ = n; }
+	num(const int n) { ncr_ = n; }
 	
 	int
-	number_columns_repeated() const { return table_number_columns_repeated_; }
+	number_columns_repeated() const { return ncr_; }
 	
 	void
 	number_columns_repeated(const int n)
 	{
-		table_number_columns_repeated_ = n;
+		ncr_ = n;
 	}
 
 	Length* // caller must not delete returned value
@@ -55,11 +56,36 @@ public:
 	
 private:
 	
+	void delete_region(const DeleteRegion &dr) {
+		delete_region_ = dr;
+	}
+	
+	const DeleteRegion&
+	delete_region() const { return delete_region_; }
+	
+	bool
+	has_delete_region() const { return delete_region_.start != -1; }
+	
 	void Init(Tag *tag);
+	QString ToSchemaString() const;
+	
+	bool selected() const { return bits_ & SelectedBit; }
+	
+	void selected(const bool do_set) {
+		if (do_set)
+			bits_ |= SelectedBit;
+		else
+			bits_ &= ~SelectedBit;
+	}
 	
 	QString table_style_name_;
-	int table_number_columns_repeated_ = 1;
+	int ncr_ = 1;
 	QString table_default_cell_style_name_;
+	
+	u8 bits_ = 0;
+	ods::DeleteRegion delete_region_ = {-1, -1, -1};
+	
+	friend class ods::Sheet;
 };
 
 } // ods::inst::

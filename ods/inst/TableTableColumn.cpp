@@ -33,7 +33,7 @@ TableTableColumn::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->table_style_name_ = table_style_name_;
-	p->table_number_columns_repeated_ = table_number_columns_repeated_;
+	p->ncr_ = ncr_;
 	p->table_default_cell_style_name_ = table_default_cell_style_name_;
 	
 	return p;
@@ -72,7 +72,7 @@ void
 TableTableColumn::Init(Tag *tag)
 {
 	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
-	tag->Copy(ns_->table(), ods::ns::kNumberColumnsRepeated, table_number_columns_repeated_);
+	tag->Copy(ns_->table(), ods::ns::kNumberColumnsRepeated, ncr_);
 	tag->Copy(ns_->table(), ods::ns::kDefaultCellStyleName,
 		table_default_cell_style_name_);
 }
@@ -107,13 +107,27 @@ TableTableColumn::SetWidth(Length *length)
 	tcp->SetColumnWidth(length);
 }
 
+
+QString
+TableTableColumn::ToSchemaString() const
+{
+	QString s = QLatin1String("R ") + QString::number(ncr_);
+	s = QChar('[') + s + QChar(']');
+	
+	if (selected()) {
+		return QString(MTL_COLOR_RED) + s + QString(MTL_COLOR_DEFAULT);
+	}
+	
+	return s;
+}
+
 void
 TableTableColumn::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->table(), ods::ns::kStyleName, table_style_name_);
 	
 	Write(xml, ns_->table(), ods::ns::kNumberColumnsRepeated,
-		table_number_columns_repeated_, 1);
+		ncr_, 1);
 	
 	Write(xml, ns_->table(), ods::ns::kDefaultCellStyleName,
 		table_default_cell_style_name_);

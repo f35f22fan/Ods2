@@ -41,7 +41,7 @@ Sheet::~Sheet()
 }
 
 Row*
-Sheet::At(const int place, int &vec_index)
+Sheet::RowAt(const int place, int &vec_index)
 {
 	int so_far = 0;
 	const int count = rows_.size();
@@ -87,26 +87,22 @@ Sheet::Clone(inst::Abstract *parent) const
 }
 
 inst::TableTableColumn*
-Sheet::ColumnAt(const int logical_index, int &starts_at, int &total_li, int &vec_index)
+Sheet::ColumnAt(const int place, int &vec_index)
 {
-	total_li = 0;
-	inst::TableTableColumn *found_obj = nullptr;
-	auto *vec = &columns_;
+	int so_far = 0;
+	const int count = columns_.size();
 	
-	for (int i = 0; i < vec->size(); i++)
-	{
-		auto *next = (*vec)[i];
-		total_li += next->num();
+	for (int i = 0; i < count; i++) {
+		inst::TableTableColumn *col = columns_[i];
+		so_far += col->num();
 		
-		if (found_obj == nullptr && total_li > logical_index)
-		{
-			found_obj = next;
-			starts_at = total_li - next->num();
+		if (so_far > place) {
 			vec_index = i;
+			return col;
 		}
 	}
 	
-	return found_obj;
+	return nullptr;
 }
 
 int
@@ -132,45 +128,30 @@ Sheet::CountRows() const
 }
 
 void
-Sheet::CurtailCols(const int by_how_much, const int from_where)
+Sheet::DeleteColumnRegion(inst::TableTableColumn *col, const int vec_index)
 {
-	if (by_how_much <= 0 || from_where < 0)
-	{
-		mtl_warn("by_how_much: %d, from_where: %d", by_how_much, from_where);
+	const ods::DeleteRegion &dr = col->delete_region();
+	
+	if (dr.count == col->num()) {
+		delete col;
+		columns_.remove(dr.vec_index);
 		return;
 	}
 	
-	int next_off = 0;
-	auto *vec = &columns_;
-	const int max = vec->size();
+	const int num = col->num();
+	const int region_len = dr.start + dr.count;
 	
-	for (int i = 0; i < max; i++)
-	{
-		auto *slave = (*vec)[i];
-		const int num = slave->num();
-		next_off += num;
-		if (next_off > from_where)
-		{
-			int diff = num - by_how_much;
-			
-			if (diff == 0) // done
-			{
-				vec->removeAt(i);
-				delete slave;
-				return;
-			} else if (diff < 0) {
-				vec->removeAt(i);
-				delete slave;
-				CurtailCols(by_how_much - num, from_where + num);
-				return;
-			} else { // diff > 0
-				slave->num(diff);
-				return;
-			}
-		}
+	if (dr.start > 0 && region_len < num) {
+		auto *col2 = static_cast<inst::TableTableColumn*>(col->Clone());
+		col2->num(dr.start);
+		columns_.insert(vec_index, col2);
+		col->num(num - region_len);
+	} else {
+		col->num(num - dr.count);
 	}
+	
+	col->delete_region({-1, -1, -1});
 }
-
 
 void
 Sheet::DeleteRowRegion(ods::Row *row, const int vec_index)
@@ -196,6 +177,36 @@ Sheet::DeleteRowRegion(ods::Row *row, const int vec_index)
 	}
 	
 	row->delete_region({-1, -1, -1});
+}
+
+void
+Sheet::MarkColumnDeleteRegion(int from, int remaining)
+{
+	const int col_count = columns_.size();
+	int so_far = 0;
+	const int till = from + remaining;
+	
+	for (int i = 0; i < col_count; i++) {
+		inst::TableTableColumn *col = columns_[i];
+		const int col_start = so_far;
+		so_far += col->num();
+		const int col_end = so_far;
+		
+		if (till < col_start || from > col_end)
+			continue;
+		
+		int range_start = std::max(from, col_start);
+		int range_end = std::min(till, col_end);
+		
+		if (range_end - range_start <= 0)
+			continue;
+		
+		ods::DeleteRegion region;
+		region.vec_index = i;
+		region.start = range_start - col_start;
+		region.count = range_end - range_start;
+		col->delete_region(region);
+	}
 }
 
 void
@@ -296,95 +307,34 @@ Sheet::InitDefault()
 }
 
 inst::TableTableColumn*
-Sheet::NewColumn(const int insert_li, const int num, const AddMode mode)
+Sheet::NewColumnAt(const int place, const int ncr)
 {
-	if (num <= 0)
-	{
-		mtl_warn();
-		return nullptr;
-	}
+	MarkColumnDeleteRegion(place, ncr);
+	int total = 0;
 	
-	int vec_index = 0;
-	int total_li = 0;
-	int next_slave_starts_at = 0;
-	auto *next_slave = ColumnAt(insert_li, next_slave_starts_at, total_li, vec_index);
-	
-	if (next_slave == nullptr)
-	{
-		mtl_warn("no next_slave at li %d", insert_li);
-		return nullptr;
-	}
-	
-	int need_to_cut = num;
-	auto *new_slave = new inst::TableTableColumn(this);
-	new_slave->num(num);
-	const bool do_replace = (mode == AddMode::Replace);
-	
-	int new_slave_start_offset = insert_li - next_slave_starts_at;
-	int orig_next_slave_num = next_slave->num();
-	auto *vec = &columns_;
-	
-	if (new_slave_start_offset > 0)
-	{
-		next_slave->num(new_slave_start_offset);
-		vec->insert(vec_index + 1, new_slave);
+	for (int i = columns_.size() - 1; i >= 0; i--) {
+		inst::TableTableColumn *col = columns_[i];
+		total += col->num();
 		
-		// split
-		if (do_replace)
-		{
-			
-			int skip = new_slave_start_offset + num;
-			int next_slave_left = orig_next_slave_num - skip;
-			
-			if (next_slave_left >= 0)
-			{
-				if (next_slave_left > 0)
-				{
-					auto *sh = (inst::TableTableColumn*)next_slave->Clone();
-					sh->num(next_slave_left);
-					vec->insert(vec_index + 2, sh);
-				}
-				
-				return new_slave;
-			} else { // next_slave_left < 0
-				need_to_cut = -next_slave_left;
-				CurtailCols(need_to_cut, insert_li + num);
-			}
-		} else {
-			// insert remaining million!
-			int new_num = orig_next_slave_num - num - new_slave_start_offset;
-			auto *sh = (inst::TableTableColumn*)next_slave->Clone();
-			sh->num(new_num);
-//			mtl_line("orig_next_slave_num: %d, num: %d,\
-// new_slave_start_offset: %d, new_num: %d",
-//				orig_next_slave_num, num, new_slave_start_offset, new_num);
-			vec->insert(vec_index + 2, sh);
-//			CurtailCols(num, total_li - num);
-//			mtl_line("Curtail, by_how_much: %d, from where: %d, total_li: %d",
-//				num, total_li - num, total_li);
+		if (col->has_delete_region()) {
+			DeleteColumnRegion(col, i);
 		}
-	} else {
-		vec->insert(vec_index, new_slave);
-		
-		if (do_replace)
-			CurtailCols(num, insert_li + num);
-		else
-			CurtailCols(num, total_li - num);
 	}
 	
-	return new_slave;
-}
+	int vec_index;
+	if (place == total - ncr) {
+		vec_index = columns_.size();
+	} else if (ColumnAt(place, vec_index) == nullptr) {
+		mtl_trace("place: %d, total: %d", place, total);
+		return nullptr;
+	}
 
-inst::TableTableColumn*
-Sheet::NewColumnAt(const int index, const int ncr)
-{
-	return NewColumn(index, ncr, AddMode::Insert);
-}
-
-inst::TableTableColumn*
-Sheet::NewColumnInPlaceOf(const int index, const int nrr)
-{
-	return NewColumn(index, nrr, AddMode::Replace);
+	auto *col = new inst::TableTableColumn(this);
+	col->num(ncr);
+	col->selected(true);
+	columns_.insert(vec_index, col);
+	
+	return col;
 }
 
 ods::Row*
@@ -405,7 +355,7 @@ Sheet::NewRowAt(const int place, const int nrr)
 	int vec_index;
 	if (place == total - nrr) {
 		vec_index = rows_.size();
-	} else if (At(place, vec_index) == nullptr) {
+	} else if (RowAt(place, vec_index) == nullptr) {
 		mtl_trace("place: %d, total: %d", place, total);
 		return nullptr;
 	}

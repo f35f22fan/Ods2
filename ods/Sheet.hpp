@@ -28,9 +28,6 @@ public:
 	int
 	CountRows() const;
 	
-	void
-	DeleteRowRegion(ods::Row *row, const int vec_index);
-	
 	inst::TableTableColumn*
 	GetColumn(const int place) const;
 	
@@ -40,17 +37,11 @@ public:
 	ods::Row*
 	GetRow(const int place);
 	
-	void
-	MarkRowDeleteRegion(int from, int remaining);
-	
 	const QString&
 	name() const { return table_name_; }
 	
 	inst::TableTableColumn*
-	NewColumnAt(const int index, const int ncr = 1);
-	
-	inst::TableTableColumn*
-	NewColumnInPlaceOf(const int index, const int nrr = 1);
+	NewColumnAt(const int place, const int ncr = 1);
 	
 	ods::Row*
 	NewRowAt(const int place, const int nrr = 1);
@@ -69,12 +60,14 @@ public:
 	
 private:
 	
-	Row* At(const int place, int &vec_index);
-	inst::TableTableColumn* ColumnAt(const int logical_index, int &starts_at,
-		int &total_li, int &vec_index);
-	void CurtailCols(const int by_how_much, const int from_where);
+	Row* RowAt(const int place, int &vec_index);
+	inst::TableTableColumn* ColumnAt(const int place, int &vec_index);
+	void DeleteRowRegion(ods::Row *row, const int vec_index);
+	void DeleteColumnRegion(inst::TableTableColumn *col, const int vec_index);
 	void Init(ods::Tag *sheet_tag);
 	void InitDefault();
+	void MarkColumnDeleteRegion(int from, int remaining);
+	void MarkRowDeleteRegion(int from, int remaining);
 	void name(const QString &name) { table_name_ = name; }
 	
 	inst::TableTableColumn* NewColumn(const int insert_li, const int num,
