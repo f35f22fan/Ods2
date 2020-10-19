@@ -3,7 +3,6 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
 
 link_directories(${Ods2_BINARY_DIR}/lib)
 

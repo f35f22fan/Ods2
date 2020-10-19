@@ -22,9 +22,10 @@ ELSE (WIN32)
 	endif(ZLIB_FOUND)
 ENDIF (WIN32)
 
-#if(WIN32)
+if(WIN32)
+	set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.12.9\\5.12.9\\mingw73_64\\")
 #    set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.7.1\\5.7\\msvc2015_64\\")
-#endif (WIN32)
+endif (WIN32)
 
 set(LIBRARY_OUTPUT_PATH "${Ods2_BINARY_DIR}/lib")
 

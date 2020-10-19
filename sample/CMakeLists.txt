@@ -1,14 +1,14 @@
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
+# Disable automoc for .hh files:
+cmake_policy(SET CMP0100 OLD)
+
 include_directories(${Ods2_SOURCE_DIR})
 link_directories(${CMAKE_BINARY_DIR}/lib)
-
-#if (NOT MSVC)
-#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-#endif (NOT MSVC)
 
 # Set some Win32 Specific Settings
 if(WIN32)
