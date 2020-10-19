@@ -67,18 +67,6 @@ StyleStyle::DeriveCellStyle()
 	return p;
 }
 
-StyleTableCellProperties*
-StyleStyle::FetchTableCellProperties()
-{
-	auto *tcp = (ods::inst::StyleTableCellProperties*)
-		Get(ods::Id::StyleTableCellProperties);
-	
-	if (tcp == nullptr)
-		tcp = NewTableCellProperties();
-	
-	return tcp;
-}
-
 NumberCurrencyStyle*
 StyleStyle::FetchNumberCurrencyStyle()
 {
@@ -87,6 +75,44 @@ StyleStyle::FetchNumberCurrencyStyle()
 	
 	if (tcp == nullptr)
 		tcp = NewCurrencyStyle();
+	
+	return tcp;
+}
+
+inst::StyleTableCellProperties*
+StyleStyle::FetchStyleTableCellProperties()
+{
+	auto *p = (StyleTableCellProperties*)Get(Id::StyleTableCellProperties);
+	
+	if (p == nullptr) {
+		p = new StyleTableCellProperties(this);
+		Append(p);
+	}
+	
+	return p;
+}
+
+StyleTextProperties*
+StyleStyle::FetchStyleTextProperties()
+{
+	auto *p = (StyleTextProperties*)Get(Id::StyleTextProperties);
+	
+	if (p == nullptr) {
+		p = new StyleTextProperties(this);
+		Append(p);
+	}
+	
+	return p;
+}
+
+StyleTableCellProperties*
+StyleStyle::FetchTableCellProperties()
+{
+	auto *tcp = (ods::inst::StyleTableCellProperties*)
+		Get(ods::Id::StyleTableCellProperties);
+	
+	if (tcp == nullptr)
+		tcp = NewTableCellProperties();
 	
 	return tcp;
 }
@@ -327,15 +353,14 @@ void
 StyleStyle::SetBackgroundColor(const QColor &color)
 {
 	// set background color:
-	auto *stcp = GetStyleTableCellProperties(ods::AddIfNeeded::Yes);
+	auto *stcp = FetchStyleTableCellProperties();
 	stcp->SetBackgroundColor(color);
 }
 
 void
 StyleStyle::SetBoldText(const bool bold)
 {
-	ods::inst::StyleTextProperties *tp = GetStyleTextProperties
-		(ods::AddIfNeeded::Yes);
+	ods::inst::StyleTextProperties *tp = FetchStyleTextProperties();
 
 	// set font weight:
 	auto *font_weight = new ods::attr::FoFontWeight();
@@ -389,9 +414,7 @@ StyleStyle::SetFamily(const style::Family f)
 void
 StyleStyle::SetFontStyle(const ods::attr::FontStyle font_style)
 {
-	ods::inst::StyleTextProperties *tp = GetStyleTextProperties
-		(ods::AddIfNeeded::Yes);
-	
+	ods::inst::StyleTextProperties *tp = FetchStyleTextProperties();
 	auto *fo_font_style = new ods::attr::FoFontStyle(font_style);
 	tp->SetFontStyle(fo_font_style);
 }

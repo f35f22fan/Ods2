@@ -70,9 +70,6 @@ private:
 	void MarkRowDeleteRegion(int from, int remaining);
 	void name(const QString &name) { table_name_ = name; }
 	
-	inst::TableTableColumn* NewColumn(const int insert_li, const int num,
-		const AddMode mode);
-	
 	void Scan(ods::Tag *tag);
 	
 	QString table_name_;

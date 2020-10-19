@@ -84,12 +84,6 @@ public:
 	inst::Abstract*
 	GetAnyStyle(const QString &style_name) const;
 	
-	virtual StyleTableCellProperties*
-	GetStyleTableCellProperties(const AddIfNeeded ain);
-	
-	virtual StyleTextProperties*
-	GetStyleTextProperties(const AddIfNeeded ain);
-	
 	ods::Id
 	id() const { return id_; }
 	

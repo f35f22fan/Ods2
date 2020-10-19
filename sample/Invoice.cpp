@@ -78,8 +78,7 @@ Invoice::CreateSellerHeader()
 	}
 	
 	ods::inst::StyleStyle *style = cell->FetchStyle();
-	ods::inst::StyleTextProperties *tp = style->GetStyleTextProperties
-		(ods::AddIfNeeded::Yes);
+	ods::inst::StyleTextProperties *tp = style->FetchStyleTextProperties();
 	
 	// set font weight:
 	auto *font_weight = new ods::attr::FoFontWeight();

@@ -30,19 +30,6 @@ const double kPointsInACm = 28.3464567;
 const double kInchesInACm = 0.393701;
 const double kCmInAnInch = 2.54;
 
-enum class AddMode: uint8_t
-{
-	None = 0,
-	Insert = 1,
-	Replace = 2,
-};
-
-enum class ReplaceExisting: uint8_t
-{
-	Yes,
-	No
-};
-
 enum class AddIfNeeded: uint8_t
 {
 	Yes,

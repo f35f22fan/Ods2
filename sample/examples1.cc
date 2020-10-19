@@ -94,8 +94,7 @@ CreateFont()
 	auto *cell = row->NewCellAt(col);
 	cell->SetFirstString("Row2Cel0");
 	auto *style = cell->FetchStyle();
-	ods::inst::StyleTextProperties *tp = style->GetStyleTextProperties
-		(ods::AddIfNeeded::Yes);
+	ods::inst::StyleTextProperties *tp = style->FetchStyleTextProperties();
 
 	// set font style:
 	auto *font_style = new ods::attr::FoFontStyle();
@@ -157,8 +156,7 @@ ReadFont()
 		return;
 	}
 	
-	ods::inst::StyleTextProperties *tp = style->GetStyleTextProperties
-		(ods::AddIfNeeded::No);
+	auto *tp = (ods::inst::StyleTextProperties*)style->Get(ods::Id::StyleTextProperties);
 	
 	if (tp == nullptr)
 	{
@@ -251,7 +249,7 @@ CreateColorsAndUnderline()
 	}
 	
 	// set text color:
-	auto *tp = style->GetStyleTextProperties(ods::AddIfNeeded::Yes);
+	auto *tp = style->FetchStyleTextProperties();
 	tp->SetColor(new QColor(0, 0, 255));
 	
 	// set text underline color:
@@ -270,7 +268,7 @@ CreateColorsAndUnderline()
 	tp->SetTextUnderlineWidth(tuw);
 	
 	// set background color:
-	auto *stcp = style->GetStyleTableCellProperties(ods::AddIfNeeded::Yes);
+	auto *stcp = style->FetchStyleTableCellProperties();
 	stcp->SetBackgroundColor(QColor(255, 255, 0));
 	
 	auto ba = cell->TypeAndValueString();
@@ -309,7 +307,7 @@ ReadColorsAndUnderline()
 		return;
 	}
 	
-	ods::inst::StyleTextProperties *tp = style->GetStyleTextProperties(ods::AddIfNeeded::No);
+	auto *tp = (ods::inst::StyleTextProperties*) style->Get(ods::Id::StyleTextProperties);
 	
 	if (tp == nullptr)
 	{
@@ -376,8 +374,7 @@ ReadColorsAndUnderline()
 		mtl_line("Text underline width: %s", ba.data());
 	}
 	
-	ods::inst::StyleTableCellProperties *tcp = style->GetStyleTableCellProperties
-		(ods::AddIfNeeded::No);
+	auto *tcp = (ods::inst::StyleTableCellProperties*)style->Get(ods::Id::StyleTableCellProperties);
 	
 	if (tcp == nullptr)
 	{

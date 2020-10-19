@@ -7,8 +7,11 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
-# Disable automoc for .hh files:
-cmake_policy(SET CMP0100 OLD)
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0") 
+    # Disable automoc for .hh files:
+    cmake_policy(SET CMP0100 OLD)
+endif()
 
 include_directories(${Ods2_SOURCE_DIR})
 link_directories(${Ods2_BINARY_DIR}/lib)

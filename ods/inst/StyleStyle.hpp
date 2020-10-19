@@ -34,11 +34,17 @@ public:
 	style::Family
 	family() const { return style_family_; }
 	
-	StyleTableCellProperties*
-	FetchTableCellProperties();
-	
 	NumberCurrencyStyle*
 	FetchNumberCurrencyStyle();
+	
+	inst::StyleTableCellProperties*
+	FetchStyleTableCellProperties();
+	
+	StyleTextProperties*
+	FetchStyleTextProperties();
+	
+	StyleTableCellProperties*
+	FetchTableCellProperties();
 	
 	NumberBooleanStyle*
 	GetBooleanStyle() const;

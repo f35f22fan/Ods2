@@ -157,32 +157,6 @@ Abstract::GetStyleRecursive(const QString &name)
 	return nullptr;
 }
 
-inst::StyleTableCellProperties*
-Abstract::GetStyleTableCellProperties(const AddIfNeeded ain)
-{
-	auto *p = (StyleTableCellProperties*)Get(Id::StyleTableCellProperties);
-	
-	if (p != nullptr || ain == AddIfNeeded::No)
-		return p;
-	
-	p = new StyleTableCellProperties(this);
-	Append(p);
-	return p;
-}
-
-StyleTextProperties*
-Abstract::GetStyleTextProperties(const AddIfNeeded ain)
-{
-	auto *p = (StyleTextProperties*)Get(Id::StyleTextProperties);
-	
-	if (p != nullptr || ain == AddIfNeeded::No)
-		return p;
-	
-	p = new StyleTextProperties(this);
-	Append(p);
-	return p;
-}
-
 bool
 Abstract::Is(const Id id1, const Id id2) const
 {
