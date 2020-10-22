@@ -29,7 +29,7 @@ NumberNumber::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
-	p->loext_min_decimal_places_ = loext_min_decimal_places_;
+	//p->loext_min_decimal_places_ = loext_min_decimal_places_;
 	p->number_decimal_places_ = number_decimal_places_;
 	p->number_min_integer_digits_ = number_min_integer_digits_;
 	p->number_grouping_ = number_grouping_;
@@ -40,7 +40,7 @@ NumberNumber::Clone(Abstract *parent) const
 void
 NumberNumber::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->loext(), ods::ns::kMinDecimalPlaces, loext_min_decimal_places_);
+	//tag->Copy(ns_->loext(), ods::ns::kMinDecimalPlaces, loext_min_decimal_places_);
 	tag->Copy(ns_->number(), ods::ns::kDecimalPlaces, number_decimal_places_);
 	tag->Copy(ns_->number(), ods::ns::kMinIntegerDigits, number_min_integer_digits_);
 	
@@ -56,9 +56,9 @@ NumberNumber::Init(ods::Tag *tag)
 void
 NumberNumber::WriteData(QXmlStreamWriter &xml)
 {
-	if (loext_min_decimal_places_ != -1)
-		Write(xml, ns_->loext(), ods::ns::kMinDecimalPlaces,
-			QString::number(loext_min_decimal_places_));
+//	if (loext_min_decimal_places_ != -1)
+//		Write(xml, ns_->loext(), ods::ns::kMinDecimalPlaces,
+//			QString::number(loext_min_decimal_places_));
 	
 	if (number_decimal_places_ != -1)
 		Write(xml, ns_->number(), ods::ns::kDecimalPlaces,

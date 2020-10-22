@@ -27,10 +27,6 @@ ReadFile();
 void
 Save(ods::Book *book, const char *file_name = nullptr);
 
-void
-SetPercentage(ods::inst::StyleStyle *style, const int min_integer_digits,
-	const int min_decimal_places);
-
 template <class A_Type> class AutoDelete {
 public:
 	AutoDelete(A_Type x) : x_(x) {}

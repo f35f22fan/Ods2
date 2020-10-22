@@ -27,8 +27,7 @@ CreateCurrency()
 	{
 		nn->grouping(1);
 		nn->min_integer_digits(5);
-		nn->decimal_places(4);
-		nn->min_decimal_places(3);
+		nn->decimal_places(3);
 		// This makes 49.2 to be displayed as "$00,049.200"
 		// If nn->grouping(0) then "$00049.200" will be displayed.
 		// -1 means value not set.
@@ -119,10 +118,8 @@ ReadCurrency()
 	
 	if (nn != nullptr)
 	{
-		mtl_line("grouping: %d, min_integer_digits: %d, \
-decimal_places: %d, min_decimal_places: %d",
-		nn->grouping(), nn->min_integer_digits(),
-		nn->decimal_places(), nn->min_decimal_places());
+		mtl_line("grouping: %d, min_integer_digits: %d, decimal_places: %d",
+		nn->grouping(), nn->min_integer_digits(), nn->decimal_places());
 	} else {
 		mtl_line("no nn");
 	}
@@ -147,15 +144,13 @@ CreateFormula()
 	auto *cell2 = row->NewCellAt(2);
 	ods::Formula *formula = cell2->NewFormula();
 	formula->Add(ods::Grouping::Open);
-	formula->Add(ods::Grouping::Open);
 	formula->Add(3.0);
 	formula->Add(ods::Op::Subtract);
 	formula->Add(2.0);
 	formula->Add(ods::Grouping::Close);
-	formula->Add(ods::Grouping::Close);
 	formula->Add(ods::Op::Multiply);
 	formula->Add(1.5);
-	
+	// = (3.0 - 2.0) * 1.5
 	ods::formula::Value result;
 	formula->Eval(result);
 	

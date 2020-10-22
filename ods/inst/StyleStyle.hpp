@@ -37,6 +37,9 @@ public:
 	NumberCurrencyStyle*
 	FetchNumberCurrencyStyle();
 	
+	NumberPercentageStyle*
+	FetchPercentageStyle();
+	
 	inst::StyleTableCellProperties*
 	FetchStyleTableCellProperties();
 	
@@ -127,6 +130,9 @@ public:
 	
 	void
 	SetParentStyleName(const QString &s);
+	
+	void
+	SetPercentage(const int min_integer_digits, const int decimal_places);
 	
 	virtual QString*
 	style_name() override { return &style_name_; }

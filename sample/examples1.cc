@@ -439,7 +439,6 @@ ReadCellSpan()
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
-	
 	auto *cell = row->GetCell(0);
 	
 	mtl_line("Cell at 0:0: num_cols_spanned: %d, num_rows_spanned:%d",
@@ -460,39 +459,21 @@ CreatePercentage()
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
 	auto *row = sheet->NewRowAt(0);
+
 	auto *cell = row->NewCellAt(0);
 	cell->SetPercentage(0.83); // 83%
+	ods::inst::StyleStyle *style = cell->FetchStyle();
+	style->SetPercentage(3, 4); // Display as "083.0000%"
 	
-	ods::inst::StyleStyle *style = cell->GetStyle();
-	
-	// First example is complex and extra careful:
-	{
-		if (style == nullptr)
-		{
-			style = cell->NewStyle();
-		} else {
-			// Just in case, derive new style to avoid 
-			// changing other cells' appearance
-			// if this style is used by other cells too
-			style = style->DeriveCellStyle();
-			cell->SetStyle(style);
-		}
-		
-		util::SetPercentage(style, 3, 4); // Display as "083.0000%"
-	}
-	
-	// Next examples show an easier way:
 	cell = row->NewCellAt(1);
-	style = book->NewCellStyle();
-	cell->SetStyle(style);
+	style = cell->FetchStyle();
 	cell->SetPercentage(1.33); // 130%
-	util::SetPercentage(style, 4, 2); // Display as "0133.00%"
+	style->SetPercentage(4, 2); // Display as "0133.00%"
 	
 	cell = row->NewCellAt(2);
-	style = book->NewCellStyle();
-	cell->SetStyle(style);
+	style = cell->FetchStyle();
 	cell->SetPercentage(0.5); // 50%
-	util::SetPercentage(style, 0, 0); // Display as "50%"
+	style->SetPercentage(0, 0); // Display as "50%"
 	
 	util::Save(book);
 }

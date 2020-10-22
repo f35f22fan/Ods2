@@ -3,6 +3,7 @@
 #include "NumberBooleanStyle.hpp"
 #include "NumberCurrencyStyle.hpp"
 #include "NumberDateStyle.hpp"
+#include "NumberNumber.hpp"
 #include "NumberPercentageStyle.hpp"
 #include "NumberText.hpp"
 #include "NumberTimeStyle.hpp"
@@ -77,6 +78,17 @@ StyleStyle::FetchNumberCurrencyStyle()
 		tcp = NewCurrencyStyle();
 	
 	return tcp;
+}
+
+NumberPercentageStyle*
+StyleStyle::FetchPercentageStyle()
+{
+	auto *p = (NumberPercentageStyle*) Get(Id::NumberPercentageStyle);
+	
+	if (p == nullptr)
+		p = NewPercentageStyle();
+	
+	return p;
 }
 
 inst::StyleTableCellProperties*
@@ -467,6 +479,20 @@ void
 StyleStyle::SetParentStyleName(const QString &s)
 {
 	style_parent_style_name_ = s;
+}
+
+void
+StyleStyle::SetPercentage(const int min_integer_digits, const int decimal_places)
+{
+	ods::inst::NumberPercentageStyle *percent_style = FetchPercentageStyle();
+	auto *ns = percent_style->FetchNumberStyle();
+	ns->min_integer_digits(min_integer_digits);
+	ns->decimal_places(decimal_places);
+	// For example:
+	// min_integer_digits=3 and decimal_places=4 makes 0.83 display as "083.0000%"
+	// Note: Calligra Sheets doesn't fully support percentage formatting
+	
+	percent_style->FetchNumberText()->SetFirstString(QLatin1String("%"));
 }
 
 void

@@ -148,10 +148,10 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 	
 	auto *nn = ncs->FetchNumber();
 	{
+		nn->min_integer_digits(2);
+		nn->decimal_places(3);
 		nn->grouping(1);
-		//nn->min_integer_digits(2);
-		nn->decimal_places(4);
-		nn->min_decimal_places(2);
+		// If nn->grouping(0) then"$00,049.200" will be displayed as "$00049.200".
 		// -1 means value not set.
 		// Note: Calligra Sheets doesn't display currency formatting properly
 	}

@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 //	CellSpan();
 //	ReadCellSpan();
 	
-//	CreatePercentage(); // doesn't display properly in Excel 2016
+	CreatePercentage();
 //	ReadPercentage();
 	
 //	CreateHAlignment();
@@ -35,13 +35,13 @@ main(int argc, char *argv[])
 //	CreateBorders();
 //	ReadBorders();
 	
-//	CreateImage(); // doesn't work in Excel 2016
+//	CreateImage();
 //	ReadImage();
 	
 //	CreateDate();
 //	ReadDate();
 	
-//	CreateCurrency(); // not displayed properly in Excel 2016 or LibreOffice
+//	CreateCurrency();
 //	ReadCurrency();
 	
 //	CreateTime();
@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 //  CreateFormula();
 //  ReadFormula();
 	
-	new sample::Invoice();
+//	new sample::Invoice();
 	
 	return 0;
 }

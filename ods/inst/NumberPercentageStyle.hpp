@@ -23,7 +23,16 @@ public:
 	//<== Style Interface
 	
 	inst::NumberNumber*
-	GetNumberStyle();
+	FetchNumberStyle();
+	
+	inst::NumberText*
+	FetchNumberText();
+	
+	inst::NumberNumber*
+	GetNumberStyle() const;
+	
+	inst::NumberText*
+	GetNumberText() const;
 	
 	inst::NumberNumber*
 	NewNumberStyle();

@@ -245,10 +245,7 @@ Formula::Eval(ods::formula::Value &result)
 	QString s = str_;
 	
 	if (str_.startsWith(ods::formula::Prefix))
-	{
-		int count = str_.size() - formula::Prefix.size();
-		s = s.right(count);
-	}
+		s = s.mid(formula::Prefix.size());
 	
 	QVector<formula::Node*> vec;
 	CreateNodes(s, vec);

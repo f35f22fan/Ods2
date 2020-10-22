@@ -139,8 +139,8 @@ PrintPercentage(ods::Cell *cell)
 		return;
 	}
 	
-	mtl_line("Min integer digits: %d, min decimal places: %d",
-		ns->min_integer_digits(), ns->min_decimal_places());
+	mtl_line("min integer digits: %d, decimal places: %d",
+		ns->min_integer_digits(), ns->decimal_places());
 	
 }
 
@@ -209,47 +209,17 @@ void
 Save(ods::Book *book, const char *file_name)
 {
 	const char *fn = (file_name == nullptr) ? "out.ods" : file_name;
-	QFile as(QDir::home().filePath(fn));
+	QFile file(QDir::home().filePath(fn));
 	QString err;
-	book->Save(as, &err);
+	book->Save(file, &err);
 	
-	if (!err.isEmpty()) {
+	if (err.isEmpty()) {
+		auto ba = file.fileName().toLocal8Bit();
+		mtl_line("Saved to: %s", ba.data());
+	} else {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());
-		return;
 	}
-}
-
-void
-SetPercentage(ods::inst::StyleStyle *style, const int min_integer_digits,
-	const int min_decimal_places)
-{
-	auto *percent_style = style->GetPercentageStyle();
-	
-	if (percent_style == nullptr)
-		percent_style = style->NewPercentageStyle();
-	
-	auto *nn = percent_style->GetNumberStyle();
-	
-	if (nn == nullptr)
-		nn = percent_style->NewNumberStyle();
-	
-	{
-		nn->decimal_places(0); // needed for some reason
-		nn->min_integer_digits(min_integer_digits);
-		nn->min_decimal_places(min_decimal_places);
-		// For example:
-		// min_decimal_places=4 && min_integer_digits=3 makes 0.83 be
-		// displayed as "083.0000%"
-		// Note: Calligra Sheets doesn't display percentage formatting properly
-	}
-	
-	auto *nt = (ods::inst::NumberText*)percent_style->Get(ods::Id::NumberText);
-	
-	if (nt == nullptr)
-		nt = percent_style->NewNumberText();
-	
-	nt->SetFirstString(QLatin1String("%"));
 }
 
 } // util::

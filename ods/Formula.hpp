@@ -16,7 +16,6 @@ namespace ods { // ods::
 class ODS_API Formula
 {
 public:
-	Formula(ods::Cell *cell);
 	virtual ~Formula();
 	
 	void
@@ -34,20 +33,20 @@ public:
 	Formula*
 	Clone(ods::Cell *cell = nullptr) const;
 	
-	static Formula*
-	FromString(const QString &s, ods::Cell *parent);
-	
 	ods::value::Error
 	error() const { return error_; }
 	
 	void
 	error(const ods::value::Error e) { error_ = e; }
 	
-	bool
-	has_error() const { return error_ != value::Error::None; }
-	
 	void
 	Eval(formula::Value &result);
+	
+	static Formula*
+	FromString(const QString &s, ods::Cell *parent);
+	
+	bool
+	has_error() const { return error_ != value::Error::None; }
 	
 	const QString&
 	str() const { return str_; }
@@ -59,6 +58,7 @@ private:
 	NO_ASSIGN_COPY_MOVE(Formula);
 	
 	Formula();
+	Formula(ods::Cell *cell);
 	
 	formula::CellRef*
 	CreateCellRef(const QString &address);
@@ -88,6 +88,7 @@ private:
 	QString str_;
 	ods::Cell *cell_ = nullptr;
 	value::Error error_ = value::Error::None;
+	friend class ods::Cell;
 	
 	// ((C5+B5)/A5)*(C4+B4*A3)+B3-C3
 	// ((10+0.5)/3)*(4.5+2.4*22.3)+8-6

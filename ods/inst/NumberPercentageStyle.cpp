@@ -39,10 +39,47 @@ NumberPercentageStyle::Clone(Abstract *parent) const
 }
 
 inst::NumberNumber*
-NumberPercentageStyle::GetNumberStyle()
+NumberPercentageStyle::FetchNumberStyle()
 {
 	auto *p = Get(Id::NumberNumber);
-	return (p == nullptr) ? nullptr : (inst::NumberNumber*) p;
+	
+	if (p == nullptr)
+		return NewNumberStyle();
+	
+	return (inst::NumberNumber*) p;
+}
+
+inst::NumberText*
+NumberPercentageStyle::FetchNumberText()
+{
+	auto *p = Get(Id::NumberText);
+	
+	if (p == nullptr) 
+		return NewNumberText();
+		
+	return (inst::NumberText*) p;
+}
+
+inst::NumberNumber*
+NumberPercentageStyle::GetNumberStyle() const
+{
+	auto *p = Get(Id::NumberNumber);
+	
+	if (p == nullptr)
+		return nullptr;
+	
+	return (inst::NumberNumber*) p;
+}
+
+inst::NumberText*
+NumberPercentageStyle::GetNumberText() const
+{
+	auto *p = Get(Id::NumberText);
+	
+	if (p == nullptr)
+		return nullptr;
+	
+	return (inst::NumberText*) p;
 }
 
 void
