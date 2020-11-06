@@ -1,18 +1,17 @@
 #pragma once
 
-#include "../decl.hxx"
-#include "../err.hpp"
-#include "../ods.hxx"
-
 #include "decl.hxx"
+#include "err.hpp"
+#include "ods.hxx"
 
 namespace ods { // ods::
-namespace formula { // ods::formula::
 
 class CellRef
 {
 public:
 	virtual ~CellRef();
+	
+	CellRef* Clone();
 
 	int
 	col() const { return col_; }
@@ -48,6 +47,5 @@ private:
 	ods::Sheet *sheet_ = nullptr;
 };
 
-} // ods::formula::
 } // ods::
 

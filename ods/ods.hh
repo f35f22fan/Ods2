@@ -3,22 +3,20 @@
 #include "decl.hxx"
 #include "global.hxx"
 #include "ods.hxx"
+#include "op.hh"
 #include "style.hxx"
 #include "value.hxx"
 
 namespace ods { // ods::
 
+QString ToString(const Brace p);
+Brace FromString(const QString &s);
+
 ODS_API void
 ApplyBool(const QString &str, ods::Bool &b);
 
-ODS_API QChar
-CharFromOp(const ods::Op);
-
-ODS_API ods::Op // error => ods::Op::NONE
-CharToOp(const QChar sign);
-
-//ODS_API ods::CellRef* // error => nullptr
-//CreateCellRef(const QStringRef &s, ods::Book *book);
+CellRef*
+CreateCellRef(Sheet *default_sheet, QStringRef address);
 
 double
 DPI();
@@ -26,8 +24,11 @@ DPI();
 void
 DPI(const double dpi);
 
-//ODS_API ods::Cell* // error => nullptr
-//FindCell(ods::CellRef *ref, ods::Cell *source);
+int
+FindNonAscii(const QStringRef &s, const int from = 0);
+
+int // error = -1
+FindNonWhitespace(const QStringRef &str, const int from = 0);
 
 ODS_API QString
 FontSizeToString(const double size, const style::FontSizeType tp);
@@ -38,16 +39,10 @@ ColumnLettersToNumber(const QStringRef &letters);
 ODS_API QString
 ColumnNumberToLetters(const int kColumn);
 
-bool
-higher_priority(const ods::Op op, const Op than_op);
-
-int
-priority(const Op op);
-
-ODS_API value::Type
+ODS_API ValueType
 TypeFromString(const QString &ods_type);
 
 ODS_API const char* // nullptr if not found
-TypeToString(const value::Type value_type);
+TypeToString(const ValueType value_type);
 
 } // ods::

@@ -7,6 +7,12 @@
 
 namespace ods { // ods::
 
+enum class Brace : u8 {
+	None,
+	Open,
+	Close
+};
+
 enum class Bool : u8 {
 	None,
 	True,
@@ -41,21 +47,6 @@ enum class Place : uint8_t
 	ContentFile,
 	StylesFile,
 	None
-};
-
-enum class Grouping : quint8
-{
-	Open,
-	Close
-};
-
-enum class Op : quint8
-{
-	None,
-	Add,
-	Subtract,
-	Multiply,
-	Divide,
 };
 
 } // ods::

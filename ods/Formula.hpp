@@ -1,97 +1,75 @@
 #pragma once
 
-#include "decl.hxx"
-#include "err.hpp"
+#include "Cell.hpp"
 #include "formula.hxx"
+#include "FormulaNode.hpp"
+#include "Function.hpp"
 #include "global.hxx"
-#include "ods.hxx"
-#include "value.hxx"
+#include "op.hh"
+#include "Value.hpp"
 
-#include "formula/decl.hxx"
+#include <QVector>
 
-#include <QDateTime>
+namespace ods {
 
-namespace ods { // ods::
+// this helps detect cyclic references inside formulas.
+const u8 EvaluatingBit = 1u << 0;
 
-class ODS_API Formula
-{
-public:
-	virtual ~Formula();
-	
-	void
-	Add(ods::Cell *cell, ods::Sheet *sheet = nullptr);
-	
-	void
-	Add(const double d);
-	
-	void
-	Add(const ods::Grouping g);
-	
-	void
-	Add(const ods::Op op);
-	
-	Formula*
-	Clone(ods::Cell *cell = nullptr) const;
-	
-	ods::value::Error
-	error() const { return error_; }
-	
-	void
-	error(const ods::value::Error e) { error_ = e; }
-	
-	void
-	Eval(formula::Value &result);
-	
-	static Formula*
-	FromString(const QString &s, ods::Cell *parent);
-	
-	bool
-	has_error() const { return error_ != value::Error::None; }
-	
-	const QString&
-	str() const { return str_; }
-	
-	QString
-	toString() const;
-
-private:
-	NO_ASSIGN_COPY_MOVE(Formula);
-	
-	Formula();
-	Formula(ods::Cell *cell);
-	
-	formula::CellRef*
-	CreateCellRef(const QString &address);
-	
-	void
-	CreateNodes(const QString &str, QVector<formula::Node*> &vec);
-	
-	bool
-	EnclosedInParentheses(QVector<formula::Node*> &vec, const int start,
-		int *real_start, int *real_end) const;
-	
-	void
-	Eval3Nodes(QVector<formula::Node*> &vec, const int start, formula::Value &result);
-	
-	void
-	EvalDeepest(QVector<formula::Node*> &vec, formula::Value &result);
-	
-	void
-	PrintNodes(QVector<formula::Node*> &vec);
-	
-	void
-	SeekInParentheses(QVector<formula::Node*> &vec, int &start, int &end, bool &has_parentheses);
-	
-	int
-	SeekValue(const QString &str, const int start_char_index, formula::Value &value);
-	
-	QString str_;
-	ods::Cell *cell_ = nullptr;
-	value::Error error_ = value::Error::None;
-	friend class ods::Cell;
-	
-	// ((C5+B5)/A5)*(C4+B4*A3)+B3-C3
-	// ((10+0.5)/3)*(4.5+2.4*22.3)+8-6
+struct Group { // for getting the deepest group in parenthesis.
+	int start;
+	int count;
 };
 
-} // ods::
+class ODS_API Formula {
+public:
+	virtual ~Formula();
+	Formula* Clone();
+	
+	void Add(const double d);
+	void Add(const ods::Op op);
+	void AddCloseBrace();
+	void AddOpenBrace();
+	void Add(Function f);
+	void Add(ods::Cell *cell, Sheet *sheet = nullptr);
+	
+	const Value& Eval();
+	
+	static Formula*
+	FromString(const QString &str, ods::Cell *cell);
+	
+	bool has_error() const { return value_.has_error(); }
+	bool ok() const { return value_.ok(); }
+	const QString& raw_str() const { return raw_str_; }
+	void raw_str(const QString &s) { raw_str_ = s; }
+	const ods::Value& value() const { return value_; }
+	
+private:
+	Formula(ods::Cell *cell);
+	
+	static Address *CellAddressOrRange(QStringRef s, int &skip, Sheet *default_sheet);
+	Group GetDeepestGroup() const;
+	void PrintNodes() const;
+	bool ProcessFormulaString(QString s);
+	bool ProcessNext(QStringRef s, int &resume_at, QVector<FormulaNode> &vec);
+	QString ToXmlString() const;
+	
+	void EvaluateNodes();
+	bool evaluating() const { return bits_ & ods::EvaluatingBit; }
+	void evaluating(const bool flag) {
+		if (flag)
+			bits_ |= ods::EvaluatingBit;
+		else
+			bits_ &= ~ods::EvaluatingBit;
+	}
+	
+	QVector<FormulaNode> nodes_;
+	QString raw_str_;
+	ods::Value value_;
+	ods::Cell *cell_ = nullptr;
+	ods::Sheet *default_sheet_ = nullptr;
+	u8 bits_ = 0;
+	friend class ods::Cell;
+	friend class ods::Function;
+};
+
+}

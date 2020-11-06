@@ -23,7 +23,7 @@ public:
 	GetSheet(const int index) const;
 	
 	ods::Sheet*
-	GetSheet(const QString &name) const;
+	GetSheet(const QStringRef name) const;
 	
 	ods::Sheet*
 	NewSheet(const QString &name);

@@ -241,7 +241,7 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 		total_formula->Add(line_total_cells[i]);
 		
 		if (i < kCount - 1)
-			total_formula->Add(ods::Op::Add);
+			total_formula->Add(ods::Op::Plus);
 	}
 	
 	row = sheet_->NewRowAt(++last_row_index);

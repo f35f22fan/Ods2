@@ -272,13 +272,13 @@ Sheet::GetDefaultCellStyle(const ods::Cell *cell) const
 ods::Row*
 Sheet::GetRow(const int place)
 {
-	int start = 0;
+	int at = 0;
 	
 	for (ods::Row *r: rows_)
 	{
-		start += r->num();
+		at += r->num();
 		
-		if (start > place)
+		if (at > place)
 			return r;
 	}
 	
@@ -416,7 +416,7 @@ Sheet::SetName(const QString &name)
 	
 	auto *spreadsheet = (inst::OfficeSpreadsheet*)parent_;
 	
-	if (spreadsheet->GetSheet(name) != nullptr)
+	if (spreadsheet->GetSheet(name.midRef(0)) != nullptr)
 		return false;
 	
 	table_name_ = name;

@@ -1,16 +1,10 @@
 #pragma once
 
+#include "types.hxx"
+
 namespace ods { // ods::
-namespace value { // ods::value::
 
-enum class Error : uint8_t
-{
-	None,
-	BadEvaluation,
-	BadFormulaString,
-};
-
-enum class Type : uint8_t
+enum class ValueType: u8
 {
 	Bool = 1,
 	Currency,
@@ -22,4 +16,4 @@ enum class Type : uint8_t
 	String, // string support implemented as TextP
 };
 
-}} // ods:::value::
+}

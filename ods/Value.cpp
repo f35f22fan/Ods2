@@ -1,14 +1,10 @@
 #include "Value.hpp"
 
 #include "CellRef.hpp"
-
-#include "../Cell.hpp"
-#include "../Duration.hpp"
-
-#include <QDateTime>
+#include "Cell.hpp"
+#include "Duration.hpp"
 
 namespace ods { // ods::
-namespace formula { // ods::formula::
 
 Value::Value() {}
 
@@ -38,47 +34,48 @@ Value::Clear()
 	}
 	
 	data_ = nullptr;
-	type_ = value::Type::None;
+	type_ = ValueType::None;
 }
 
 Value*
 Value::Clone() const
 {
 	auto *p = new Value();
-	p->Copy(this);
+	p->Copy(*this);
 	return p;
 }
 
 void
-Value::Copy(const formula::Value *rhs)
+Value::Copy(const ods::Value &rhs)
 {
-	if (rhs->is_date())
-		SetDate(rhs->as_date());
-	else if (rhs->is_double())
-		SetDouble(*rhs->as_double());
-	else if (rhs->is_string())
-		SetString(rhs->as_string());
-	else if (rhs->is_time())
-		SetTime(rhs->as_time());
-	else if (rhs->is_none()) {
+	if (rhs.is_date())
+		SetDate(*rhs.as_date());
+	else if (rhs.is_double())
+		SetDouble(*rhs.as_double());
+	else if (rhs.is_string())
+		SetString(*rhs.as_string());
+	else if (rhs.is_time())
+		SetTime(*rhs.as_time());
+	else if (rhs.is_none()) {
 		mtl_warn();
 	} else {
 		it_happened();
 	}
 	
-	error_ = rhs->error_;
+	error_ = rhs.error_;
 }
 
 void
-Value::Operation(formula::CellRef *cell_ref, const ods::Op op)
+Value::Operation(CellRef *cell_ref, const ods::Op op)
 {
-	formula::Value formula_value;
+mtl_trace("To be rewritten");
+	Value formula_value;
 	formula_value.SetValue(cell_ref);
 	
 	if (formula_value.has_error())
 	{
 		mtl_warn();
-		error_ = value::Error::BadEvaluation;
+		error_ = "Operation error";
 		return;
 	}
 	
@@ -86,12 +83,12 @@ Value::Operation(formula::CellRef *cell_ref, const ods::Op op)
 }
 
 void
-Value::Operation(formula::Value *value, const ods::Op op)
+Value::Operation(Value *value, const ods::Op op)
 {
 	if (value == nullptr)
 	{
 		mtl_warn("nullptr");
-		error_ = value::Error::BadEvaluation;
+		error_ = "Operation(): value = nullptr";
 		return;
 	}
 	
@@ -108,7 +105,7 @@ Value::Operation(formula::Value *value, const ods::Op op)
 		else if (value->is_time())
 			mtl_line();
 		
-		error_ = value::Error::BadEvaluation;
+		error_ = "Operation(): !value->is_double()";
 		return;
 	}
 	
@@ -120,7 +117,7 @@ Value::Operation(formula::Value *value, const ods::Op op)
 			SetDouble(0.0);
 		} else {
 			mtl_warn();
-			error_ = value::Error::BadEvaluation;
+			error_ = "Operation(): !self->is_double()";
 			return;
 		}
 	}
@@ -129,12 +126,12 @@ Value::Operation(formula::Value *value, const ods::Op op)
 	auto *p = as_double();
 	double r;
 	
-	if (op == Op::Add)
+	if (op == Op::Plus)
 	{
 		r = *p + d;
 		//mtl_line("%.2f + %.2f = %.2f", *p, d, r);
 		*p = r;
-	} else if (op == Op::Subtract) {
+	} else if (op == Op::Minus) {
 		r = *p - d;
 		//mtl_line("%.2f - %.2f = %.2f", *p, d, r);
 		*p = r;
@@ -148,66 +145,53 @@ Value::Operation(formula::Value *value, const ods::Op op)
 		*p = r;
 	} else {
 		it_happened();
-		error_ = value::Error::BadEvaluation;
+		error_ = "Unprocessed ods::Op";
 	}
 	
 }
 
 void
-Value::SetDate(const QDateTime *p)
+Value::SetDate(const QDateTime &p)
 {
 	Clear();
-	
-	if (p == nullptr)
-		return;
-	
-	type_ = value::Type::Date;
-	data_ = new QDateTime(*p);
+	type_ = ValueType::Date;
+	data_ = new QDateTime(p);
 }
 
 void
 Value::SetDouble(const double p)
 {
 	Clear();
-	
-	type_ = value::Type::Double;
+	type_ = ValueType::Double;
 	data_ = new double();
 	*(double*)data_ = p;
 }
 
 void
-Value::SetString(const QString *p)
+Value::SetString(const QString &p)
 {
 	Clear();
-	
-	if (p == nullptr)
-		return;
-	
-	type_ = value::Type::String;
-	data_ = new QString(*p);
+	type_ = ValueType::String;
+	data_ = new QString(p);
 }
 
 void
-Value::SetTime(const ods::Duration *p)
+Value::SetTime(const ods::Duration &p)
 {
 	Clear();
-	
-	if (p == nullptr)
-		return;
-	
-	type_ = value::Type::Duration;
-	data_ = p->Clone();
+	type_ = ValueType::Duration;
+	data_ = p.Clone();
 }
 
 void
-Value::SetValue(formula::CellRef *cell_ref)
+Value::SetValue(CellRef *cell_ref)
 {
 	auto *cell = cell_ref->GetCell();
 	
 	if (cell == nullptr || !cell->is_any_double())
 	{
 		mtl_warn();
-		error_ = value::Error::BadEvaluation;
+		error_ = "cell == nullptr || !cell->is_any_double()";
 		return;
 	}
 	
@@ -215,9 +199,9 @@ Value::SetValue(formula::CellRef *cell_ref)
 }
 
 void
-Value::SetValue(formula::Value *value)
+Value::SetValue(const Value &value)
 {
 	Copy(value);
 }
 
-}} // ods::formula::
+} // ods::

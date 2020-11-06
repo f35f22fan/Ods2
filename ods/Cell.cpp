@@ -15,7 +15,7 @@
 #include "StringOrInst.hpp"
 #include "StringOrTag.hpp"
 
-#include "formula/Value.hpp"
+#include "Formula.hpp"
 
 #include "inst/DrawFrame.hpp"
 #include "inst/DrawImage.hpp"
@@ -52,6 +52,8 @@ Cell::Cell(const Cell &cloner)
 Cell::~Cell()
 {
 	ClearValue(true);
+	delete formula_;
+	formula_ = nullptr;
 }
 
 void
@@ -89,7 +91,7 @@ Cell::ClearValue(const bool delete_data)
 	}
 	
 	value_data_ = nullptr;
-	office_value_type_ = ods::value::Type::None;
+	office_value_type_ = ods::ValueType::None;
 }
 
 inst::Abstract*
@@ -355,7 +357,7 @@ Cell::QueryDesiredHeight() const
 	QFontMetrics fm(font);
 	// fm.width(..) returns pixels
 	// need to translate to points:
-	double width = length::PxToPt(fm.width(value), ods::DPI());
+	double width = length::PxToPt(fm.horizontalAdvance(value), ods::DPI());
 	int line_count = width / col_width->toPt();
 	int int_col_width = int(col_width->toPt());
 	
@@ -464,7 +466,7 @@ Cell::ReadValue(ods::Tag *tag)
 	} else if (is_string()) {
 		// do nothing
 	} else {
-		office_value_type_ = ods::value::Type::None;
+		office_value_type_ = ods::ValueType::None;
 	}
 }
 
@@ -494,7 +496,7 @@ Cell::SetBoolean(const bool flag)
 {
 	ClearValue(true);
 	value_data_ = new bool(flag);
-	office_value_type_ = ods::value::Type::Bool;
+	office_value_type_ = ods::ValueType::Bool;
 }
 
 void
@@ -508,7 +510,7 @@ void
 Cell::SetCurrency(const double d, const Currency &c)
 {
 	SetDouble(d);
-	office_value_type_ = ods::value::Type::Currency;
+	office_value_type_ = ods::ValueType::Currency;
 	office_currency_ = c.str;
 }
 
@@ -519,7 +521,7 @@ Cell::SetDate(const QDateTime *p)
 	
 	if (p != nullptr)
 	{
-		office_value_type_ = ods::value::Type::Date;
+		office_value_type_ = ods::ValueType::Date;
 		value_data_ = new QDateTime(*p);
 	}
 }
@@ -528,7 +530,7 @@ void
 Cell::SetDouble(const double d)
 {
 	ClearValue(true);
-	office_value_type_ = ods::value::Type::Double;
+	office_value_type_ = ods::ValueType::Double;
 	value_data_ = new double();
 	*as_double() = d;
 }
@@ -540,7 +542,7 @@ Cell::SetDuration(const ods::Duration *p)
 	
 	if (p != nullptr)
 	{
-		office_value_type_ = ods::value::Type::Duration;
+		office_value_type_ = ods::ValueType::Duration;
 		value_data_ = p->Clone();
 	}
 }
@@ -561,7 +563,7 @@ Cell::SetFirstString(const QString &s, bool change_value_type)
 	}
 	
 	if (change_value_type)
-		office_value_type_ = ods::value::Type::String;
+		office_value_type_ = ods::ValueType::String;
 }
 
 void
@@ -579,7 +581,7 @@ void
 Cell::SetPercentage(const double d)
 {
 	SetDouble(d);
-	office_value_type_ = ods::value::Type::Percentage;
+	office_value_type_ = ods::ValueType::Percentage;
 }
 
 void
@@ -741,7 +743,7 @@ Cell::WriteValue(QXmlStreamWriter &xml)
 	}
 	
 	if (formula_ != nullptr)
-		Write(xml, ns_->table(), ods::ns::kFormula, formula_->toString());
+		Write(xml, ns_->table(), ods::ns::kFormula, formula_->ToXmlString());
 }
 
 } // ods::

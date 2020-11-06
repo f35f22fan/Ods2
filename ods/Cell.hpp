@@ -62,13 +62,6 @@ public:
 			bits_ &= ~ods::CoveredBit;
 	}
 	
-	void delete_region(const DeleteRegion &dr) {
-		delete_region_ = dr;
-	}
-	
-	const DeleteRegion&
-	delete_region() const { return delete_region_; }
-	
 	inst::StyleStyle*
 	FetchStyle();
 	
@@ -96,37 +89,37 @@ public:
 		is_percentage(); }
 	
 	bool
-	is_boolean() const { return office_value_type_ == ods::value::Type::Bool; }
+	is_boolean() const { return office_value_type_ == ods::ValueType::Bool; }
 	
 	bool
-	is_currency() const { return office_value_type_ == ods::value::Type::Currency; }
+	is_currency() const { return office_value_type_ == ods::ValueType::Currency; }
 	
 	bool
-	is_date() const { return office_value_type_ == ods::value::Type::Date; }
+	is_date() const { return office_value_type_ == ods::ValueType::Date; }
 	
 	bool
-	is_double() const { return office_value_type_ == ods::value::Type::Double; }
+	is_double() const { return office_value_type_ == ods::ValueType::Double; }
 
 	bool
-	is_duration() const { return office_value_type_ == ods::value::Type::Duration; }
+	is_duration() const { return office_value_type_ == ods::ValueType::Duration; }
 	
 	bool
-	is_percentage() const { return office_value_type_ == ods::value::Type::Percentage; }
+	is_percentage() const { return office_value_type_ == ods::ValueType::Percentage; }
 	
 	bool
-	is_string() const { return office_value_type_ == ods::value::Type::String; }
+	is_string() const { return office_value_type_ == ods::ValueType::String; }
 	
 	bool
-	is_value_set() const { return office_value_type_ != ods::value::Type::None; }
-	
-	ods::Formula*
-	NewFormula();
+	is_value_set() const { return office_value_type_ != ods::ValueType::None; }
 	
 	inst::DrawFrame*
 	NewDrawFrame();
 	
 	std::tuple<inst::DrawFrame*, inst::DrawImage*, QSize>
 	NewDrawFrame(const QString &full_path);
+	
+	ods::Formula*
+	NewFormula();
 	
 	inst::StyleStyle*
 	NewStyle();
@@ -217,11 +210,11 @@ public:
 	QString
 	ValueToString() const;
 	
-	ods::value::Type
+	ods::ValueType
 	value_type() const { return office_value_type_; }
 	
 	void
-	value_type_set(const ods::value::Type kType) { office_value_type_ = kType; }
+	value_type_set(const ods::ValueType kType) { office_value_type_ = kType; }
 	
 	void
 	WriteData(QXmlStreamWriter &xml) override;
@@ -229,6 +222,14 @@ public:
 private:
 	
 	void* CloneValue() const;
+	
+	void delete_region(const DeleteRegion &dr) {
+		delete_region_ = dr;
+	}
+	
+	const DeleteRegion&
+	delete_region() const { return delete_region_; }
+	
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
 	
@@ -251,7 +252,7 @@ private:
 	}
 	
 	void
-	SetValue(void *value, const ods::value::Type kType)
+	SetValue(void *value, const ods::ValueType kType)
 	{
 		ClearValue(true);
 		value_data_ = value;
@@ -266,7 +267,7 @@ private:
 	
 	ods::Row *row_ = nullptr;
 	void *value_data_ = nullptr;
-	ods::value::Type office_value_type_ = ods::value::Type::None;
+	ods::ValueType office_value_type_ = ods::ValueType::None;
 	
 	int ncr_ = 1; // number columns repeated
 	int ncs_ = 1; // number columns spanned

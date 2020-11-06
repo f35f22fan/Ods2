@@ -1,29 +1,41 @@
 #include "CellRef.hpp"
 
-#include "../Cell.hpp"
-#include "../Row.hpp"
-#include "../Sheet.hpp"
+#include "Cell.hpp"
+#include "Row.hpp"
+#include "Sheet.hpp"
 
 namespace ods { // ods::
-namespace formula { // ods::formula::
 
 CellRef::CellRef() {}
 
 CellRef::~CellRef() {}
+
+CellRef*
+CellRef::Clone()
+{
+	auto *p = new CellRef();
+	p->row_ = row_;
+	p->col_ = col_;
+	p->sheet_ = sheet_;
+	
+	return p;
+}
 
 ods::Cell*
 CellRef::GetCell() const
 {
 	if (sheet_ == nullptr)
 	{
-		mtl_warn();
+		mtl_trace();
 		return nullptr;
 	}
 	
 	ods::Row *row = sheet_->GetRow(row_);
 	
-	if (row == nullptr)
+	if (row == nullptr) {
+		mtl_trace();
 		return nullptr;
+	}
 	
 	return row->GetCell(col_);
 }
@@ -39,5 +51,4 @@ CellRef::New(ods::Sheet *sheet, const int row, const int col)
 	return p;
 }
 
-} // ods::formula::
 } // ods::

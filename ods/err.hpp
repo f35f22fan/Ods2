@@ -22,12 +22,12 @@
 
 #ifdef _MSC_VER
 #define mtl_line(fmt, ...) fprintf(stdout, \
-	"%s[%s %s %.3d]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
-	__FUNCTION__, __LINE__, MTL_COLOR_DEFAULT, __VA_ARGS__)
+	"%s[%s:%.3d]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
+	__LINE__, MTL_COLOR_DEFAULT, __VA_ARGS__)
 #else
 #define mtl_line(fmt, args...) fprintf(stdout, \
-	"%s[%s %s %.3d]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
-	__FUNCTION__, __LINE__, MTL_COLOR_DEFAULT, ##args)
+	"%s[%s:%.3d]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
+	__LINE__, MTL_COLOR_DEFAULT, ##args)
 #endif
 
 #ifdef _MSC_VER
@@ -98,3 +98,45 @@
 #define NO_MOVE(TypeName)	\
 	TypeName(TypeName&&) = delete;
 
+
+#define CHECK_TRUE(x) {\
+	if (!x) {\
+		mtl_trace();\
+		return false;\
+	}\
+}
+
+#define CHECK_TRUE_RET_NULL(x) {\
+	if (!x) {\
+		mtl_trace();\
+		return nullptr;\
+	}\
+}
+
+#define CHECK_TRUE_RET_VOID(x) {\
+	if (!x) {\
+		mtl_trace();\
+		return;\
+	}\
+}
+
+#define CHECK_PTR(x) {\
+	if (x == nullptr) {\
+		mtl_trace();\
+		return false;\
+	}\
+}
+
+#define CHECK_PTR_RET_VOID(x) {\
+	if (x == nullptr) {\
+		mtl_trace();\
+		return;\
+	}\
+}
+
+#define CHECK_PTR_RET_NULL(x) {\
+	if (x == nullptr) {\
+		mtl_trace();\
+		return nullptr;\
+	}\
+}

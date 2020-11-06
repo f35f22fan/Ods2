@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 //	CellSpan();
 //	ReadCellSpan();
 	
-	CreatePercentage();
+//	CreatePercentage();
 //	ReadPercentage();
 	
 //	CreateHAlignment();
@@ -50,8 +50,10 @@ main(int argc, char *argv[])
 //	CreateBoolean();
 //	ReadBoolean();
 	
-//  CreateFormula();
-//  ReadFormula();
+//	CreateFormula();
+	ReadFormula();
+	
+//	CreateCalc();
 	
 //	new sample::Invoice();
 	

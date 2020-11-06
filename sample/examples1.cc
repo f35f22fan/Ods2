@@ -1250,10 +1250,9 @@ ReadBoolean()
 		
 		if (cell->is_boolean())
 		{
-			QString s = *cell->as_boolean() ? QLatin1String("true")
-				: QLatin1String("false");
-			auto ba = s.toLocal8Bit();
-			mtl_line("Cell boolean value: %s", ba.data());
+			bool yes = *cell->as_boolean();
+			const char *s = yes ? "true" : "false";
+			mtl_line("Cell boolean value: %s", s);
 		} else {
 			mtl_warn("Cell type not boolean");
 		}

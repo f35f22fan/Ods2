@@ -3,6 +3,7 @@
 # .hh, .cc:  namespace with functions
 # .cpp, hpp: classes
 # .hxx:      (const) declarations
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
@@ -21,6 +22,14 @@ find_package(Qt5 COMPONENTS Core Gui REQUIRED)
 set(lib_files
 	Attr.cpp Attr.hpp
 	Book.cpp Book.hpp
+	
+	Address.cpp Address.hpp
+	CellRef.cpp CellRef.hpp
+	Formula.cpp Formula.hpp formula.hxx
+	FormulaNode.cpp FormulaNode.hpp
+	Function.cpp Function.hpp
+	op.cc op.hh
+	
 	Cell.cpp Cell.hpp cell.hxx
 	cmp_num.hh
 	country.hxx
@@ -30,7 +39,6 @@ set(lib_files
 	DurationInfo.cpp DurationInfo.hpp
 	err.hpp
 	filename.hxx
-	Formula.cpp Formula.hpp formula.hxx
 	global.hxx
 	HAlign.cpp HAlign.hpp
 	id.cc id.hh
@@ -50,7 +58,7 @@ set(lib_files
 	Tag.cpp Tag.hpp
 	types.hxx
 	VAlign.cpp VAlign.hpp
-	value.hxx
+	Value.cpp Value.hpp value.hxx
 	
 	attr/Border.cpp attr/Border.hpp
 	attr/decl.hxx
@@ -60,9 +68,9 @@ set(lib_files
 	attr/StyleTextUnderlineColor.cpp attr/StyleTextUnderlineColor.hpp
 	attr/StyleTextUnderlineWidth.cpp attr/StyleTextUnderlineWidth.hpp
 	
-	formula/CellRef.cpp formula/CellRef.hpp
-	formula/Node.cpp formula/Node.hpp formula/node.hxx
-	formula/Value.cpp formula/Value.hpp
+#	formula/CellRef.cpp formula/CellRef.hpp
+#	formula/Node.cpp formula/Node.hpp formula/node.hxx
+#	formula/Value.cpp formula/Value.hpp
 
 	inst/Abstract.cpp inst/Abstract.hpp
 	inst/decl.hxx

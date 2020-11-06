@@ -29,8 +29,6 @@
 #include <ods/attr/StyleTextUnderlineColor.hpp>
 #include <ods/attr/StyleTextUnderlineWidth.hpp>
 
-#include <ods/formula/Value.hpp>
-
 #include <ods/inst/Abstract.hpp>
 #include <ods/inst/DrawFrame.hpp>
 #include <ods/inst/DrawImage.hpp>

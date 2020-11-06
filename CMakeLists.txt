@@ -7,8 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-message("Source dir: " ${Ods2_SOURCE_DIR})
-
 #only build zlib on windows because unix has it by default
 IF(WIN32)
 	include_directories(${Ods2_SOURCE_DIR}/zlib)
