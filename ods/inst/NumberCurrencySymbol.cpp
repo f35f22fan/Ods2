@@ -1,5 +1,6 @@
 #include "NumberCurrencySymbol.hpp"
 
+#include "../currency.hh"
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Tag.hpp"
@@ -59,16 +60,18 @@ NumberCurrencySymbol::Init(ods::Tag *tag)
 void
 NumberCurrencySymbol::SetSymbol(const ods::Currency &c)
 {
+	const CurrencyInfo info = ods::currency::info(c);
+	
 	for (auto *x: nodes_)
 	{
 		if (x->is_string())
 		{
-			x->SetString(c.symbol);
+			x->SetString(info.symbol);
 			return;
 		}
 	}
 	
-	Append(c.symbol);
+	Append(info.symbol);
 }
 
 void

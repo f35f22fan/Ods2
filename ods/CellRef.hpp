@@ -19,8 +19,11 @@ public:
 	void
 	col(const int n) { col_ = n; }
 	
+	static ods::Cell*
+	FetchCell(ods::Sheet *sheet, const int row, const int col);
+	
 	ods::Cell*
-	GetCell() const;
+	GetCell() const { return FetchCell(sheet_, row_, col_); }
 
 	static CellRef*
 	New(ods::Sheet *sheet, const int row, const int col);

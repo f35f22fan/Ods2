@@ -28,12 +28,13 @@ set(lib_files
 	Formula.cpp Formula.hpp formula.hxx
 	FormulaNode.cpp FormulaNode.hpp
 	Function.cpp Function.hpp
+	function.cc function.hh
 	op.cc op.hh
 	
 	Cell.cpp Cell.hpp cell.hxx
 	cmp_num.hh
 	country.hxx
-	currency.hxx
+	currency.cc currency.hh currency.hxx
 	decl.hxx
 	Duration.cpp Duration.hpp
 	DurationInfo.cpp DurationInfo.hpp
@@ -58,7 +59,6 @@ set(lib_files
 	Tag.cpp Tag.hpp
 	types.hxx
 	VAlign.cpp VAlign.hpp
-	Value.cpp Value.hpp value.hxx
 	
 	attr/Border.cpp attr/Border.hpp
 	attr/decl.hxx
@@ -67,10 +67,6 @@ set(lib_files
 	attr/StyleBorderLineWidth.cpp attr/StyleBorderLineWidth.hpp
 	attr/StyleTextUnderlineColor.cpp attr/StyleTextUnderlineColor.hpp
 	attr/StyleTextUnderlineWidth.cpp attr/StyleTextUnderlineWidth.hpp
-	
-#	formula/CellRef.cpp formula/CellRef.hpp
-#	formula/Node.cpp formula/Node.hpp formula/node.hxx
-#	formula/Value.cpp formula/Value.hpp
 
 	inst/Abstract.cpp inst/Abstract.hpp
 	inst/decl.hxx

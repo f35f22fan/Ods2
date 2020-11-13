@@ -6,13 +6,11 @@
 #include "err.hpp"
 #include "global.hxx"
 #include "ods.hh"
-#include "value.hxx"
 
 #include "inst/Abstract.hpp"
 #include "inst/decl.hxx"
 
 #include <QDateTime>
-#include <tuple>
 
 namespace ods { // ods::
 
@@ -39,11 +37,11 @@ public:
 	double*
 	as_double() const { return (double*) value_data_; }
 
-	ods::Duration*
-	as_duration() const { return (ods::Duration*) value_data_; }
-	
 	double*
 	as_percentage() const { return as_double(); }
+	
+	ods::Duration*
+	as_time() const { return (ods::Duration*) value_data_; }
 	
 	void
 	ClearValue(const bool delete_data = true);
@@ -101,7 +99,7 @@ public:
 	is_double() const { return office_value_type_ == ods::ValueType::Double; }
 
 	bool
-	is_duration() const { return office_value_type_ == ods::ValueType::Duration; }
+	is_time() const { return office_value_type_ == ods::ValueType::Time; }
 	
 	bool
 	is_percentage() const { return office_value_type_ == ods::ValueType::Percentage; }
@@ -163,7 +161,7 @@ public:
 	SetBooleanFromString(const QString &s);
 
 	void
-	SetCurrency(const double d, const Currency &c);
+	SetCurrency(const Currency &c);
 
 	void
 	SetDate(const QDateTime *p);

@@ -2,8 +2,28 @@
 
 #include "err.hpp"
 
-namespace ods::op {
+namespace ods {
+int priority(const ods::Op op)
+{
+	switch (op) {
+	case Op::Equals: return 3;
+	case Op::Less:
+	case Op::LessOrEqual:
+	case Op::Greater:
+	case Op::GreaterOrEqual: return 4;
+	case Op::Minus:
+	case Op::Plus: return 5;
+	case Op::Multiply:
+	case Op::Percent:
+	case Op::Divide: return 6;
+	case Op::Exponent: return 7;
+	}
+	
+	mtl_trace();
+	return -1;
+}
 
+namespace op {
 Op
 From(const QString &s) {
 	return From(s.midRef(0));
@@ -11,8 +31,8 @@ From(const QString &s) {
 
 Op
 From(const QStringRef &s) {
-	if (s == op_str::Tilde)
-		return Op::Tilde;
+	if (s == op_str::RefConcat)
+		return Op::RefConcat;
 	if (s == op_str::Less)
 		return Op::Less;
 	if (s == op_str::LessOrEqual)
@@ -31,16 +51,16 @@ From(const QStringRef &s) {
 		return Op::Multiply;
 	if (s == op_str::Divide)
 		return Op::Divide;
-	if (s == op_str::Xor)
-		return Op::Xor;
+	if (s == op_str::Exponent)
+		return Op::Exponent;
 	if (s == op_str::Equals)
 		return Op::Equals;
-	if (s == op_str::Starfish)
-		return Op::Starfish;
+	if (s == op_str::Diamond)
+		return Op::Diamond;
 	if (s == op_str::Percent)
 		return Op::Percent;
-	if (s == op_str::Exclamation)
-		return Op::Exclamation;
+	if (s == op_str::RefIntersection)
+		return Op::RefIntersection;
 	if (s == op_str::Colon)
 		return Op::Colon;
 	
@@ -50,8 +70,8 @@ From(const QStringRef &s) {
 QString
 ToString(const Op op)
 {
-	if (op == Op::Tilde)
-		return op_str::Tilde;
+	if (op == Op::RefConcat)
+		return op_str::RefConcat;
 	if (op == Op::Less)
 		return op_str::Less;
 	if (op == Op::LessOrEqual)
@@ -70,20 +90,20 @@ ToString(const Op op)
 		return op_str::Multiply;
 	if (op == Op::Divide)
 		return op_str::Divide;
-	if (op == Op::Xor)
-		return op_str::Xor;
+	if (op == Op::Exponent)
+		return op_str::Exponent;
 	if (op == Op::Equals)
 		return op_str::Equals;
-	if (op == Op::Starfish)
-		return op_str::Starfish;
+	if (op == Op::Diamond)
+		return op_str::Diamond;
 	if (op == Op::Percent)
 		return op_str::Percent;
-	if (op == Op::Exclamation)
-		return op_str::Exclamation;
+	if (op == Op::RefIntersection)
+		return op_str::RefIntersection;
 	if (op == Op::Colon)
 		return op_str::Colon;
 	
 	mtl_trace();
 	return QString();
 }
-}
+}}

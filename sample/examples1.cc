@@ -1111,15 +1111,15 @@ ReadTime()
 	auto *row = sheet->GetRow(0);
 	auto *cell = row->GetCell(0);
 	
-	if (!cell->is_duration())
+	if (!cell->is_time())
 	{
-		mtl_warn("Cell type not duration");
+		mtl_warn("Cell type is not \"time\"");
 		return;
 	}
 	
-	ods::Duration *dt = cell->as_duration();
+	ods::Duration *dt = cell->as_time();
 	auto ba = dt->toString().toLocal8Bit();
-	mtl_line("Duration: %s", ba.data());
+	mtl_line("Time: %s", ba.data());
 	
 	// Now query time formatting rules,
 	// should print a string like "Hours:Minutes:Seconds"

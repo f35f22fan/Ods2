@@ -1,19 +1,35 @@
 #pragma once
 
-#include <QtGlobal>
 #include <QString>
+
+#include "global.hxx"
+#include "types.hxx"
 
 namespace ods { // ods::
 
-struct Currency {
-	QString str;
-	QString symbol;
+enum class CurrencyId : u16 {
+	None,
+	USD,
+	EUR,
+	GBP,
+	CNY,
+	RUB,
+	JPY,
+	XBT,
+	ETH,
 };
 
-namespace currency {
-const auto USD = Currency { QLatin1String("USD"), "$" };
-const auto EUR = Currency { QLatin1String("EUR"), "€" };
-const auto GB_POUND = Currency { QLatin1String("GBP"), "₤" };
-const auto RENMINBI = Currency { QLatin1String("CNY"), "¥" };
-const auto RUS_RUBLE = Currency { QLatin1String("RUB"), "₽" };
-}}
+struct ODS_API Currency {
+	CurrencyId id;
+	double qtty;
+
+	Currency* Clone();
+	bool valid() const { return id != CurrencyId::None; }
+};
+
+struct ODS_API CurrencyInfo {
+	const char * const str;
+	const char * const symbol;
+};
+
+}

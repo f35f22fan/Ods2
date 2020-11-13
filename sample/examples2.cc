@@ -2,7 +2,7 @@
 
 #include "util.hh"
 #include <ods/ods>
-#include <ods/op.hh>
+#include <float.h>
 
 void
 CreateCurrency()
@@ -14,7 +14,8 @@ CreateCurrency()
 	auto *row = sheet->NewRowAt(0);
 	auto *cell = row->NewCellAt(0);
 	
-	cell->SetCurrency(49.2, ods::currency::USD);
+	ods::Currency usd = ods::currency::USD(49.2);
+	cell->SetCurrency(usd);
 	
 	// other currency info and formatting rules:
 	ods::inst::StyleStyle *style = cell->FetchStyle();
@@ -23,7 +24,7 @@ CreateCurrency()
 	
 	cs->language(ods::lang::English.str);
 	cs->country(ods::country::USA);
-	cs->SetSymbol(ods::currency::USD);
+	cs->SetSymbol(usd);
 	auto *nn = ncs->FetchNumber();
 	{
 		nn->grouping(1);
@@ -205,7 +206,6 @@ ReadFormula()
 	
 	ods::Formula *f = cell->formula();
 	const ods::Value &value = f->Eval();
-	
 	if (value.has_error()) {
 		auto ba = value.error().toLocal8Bit();
 		mtl_warn("Formula error: %s", ba.data());
@@ -220,6 +220,10 @@ ReadFormula()
 	} else {
 		mtl_warn("Formula value of a non-double type");
 	}
+	
+//	QByteArray assembled = f->ToXmlString().toLocal8Bit();
+//	mtl_line("Assembled formula: \"%s\"", assembled.data());
+	
 }
 
 void

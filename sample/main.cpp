@@ -51,6 +51,7 @@ main(int argc, char *argv[])
 //	ReadBoolean();
 	
 //	CreateFormula();
+	
 	ReadFormula();
 	
 //	CreateCalc();

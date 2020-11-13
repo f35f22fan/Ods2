@@ -2,6 +2,7 @@
 
 #include "Attr.hpp"
 #include "Book.hpp"
+#include "currency.hh"
 #include "Duration.hpp"
 #include "Formula.hpp"
 #include "Length.hpp"
@@ -84,8 +85,8 @@ Cell::ClearValue(const bool delete_data)
 			delete as_double();
 		else if (is_date())
 			delete as_date();
-		else if (is_duration())
-			delete as_duration();
+		else if (is_time())
+			delete as_time();
 		else if (is_boolean())
 			delete as_boolean();
 	}
@@ -124,8 +125,8 @@ Cell::CloneValue() const
 		return new double(*as_double());
 	else if (is_date())
 		return new QDateTime(*as_date());
-	else if (is_duration())
-		return new ods::Duration(*as_duration());
+	else if (is_time())
+		return new ods::Duration(*as_time());
 	else if (is_boolean())
 		return new bool(*as_boolean());
 	mtl_trace();
@@ -268,6 +269,7 @@ Cell::QueryAddress() const
 {
 	QString s = ods::ColumnNumberToLetters(QueryStart());
 	// row + 1 because .ods indexing starts at 1
+	// [.B1] means col 1 and row 0
 	s.append(QString::number(row_->QueryStart() + 1));
 	return s;
 }
@@ -446,7 +448,7 @@ Cell::ReadValue(ods::Tag *tag)
 		
 		auto dt = QDateTime::fromString(custom_attr->value(), Qt::ISODate);
 		SetValue(new QDateTime(dt), office_value_type_);
-	} else if (is_duration()) {
+	} else if (is_time()) {
 		auto *custom_attr = tag->Get(ns->office(), ods::ns::kTimeValue);
 
 		if (custom_attr == nullptr)
@@ -507,11 +509,12 @@ Cell::SetBooleanFromString(const QString &s)
 }
 
 void
-Cell::SetCurrency(const double d, const Currency &c)
+Cell::SetCurrency(const Currency &c)
 {
-	SetDouble(d);
+	SetDouble(c.qtty);
 	office_value_type_ = ods::ValueType::Currency;
-	office_currency_ = c.str;
+	CurrencyInfo info = ods::currency::info(c);
+	office_currency_ = info.str;
 }
 
 void
@@ -542,7 +545,7 @@ Cell::SetDuration(const ods::Duration *p)
 	
 	if (p != nullptr)
 	{
-		office_value_type_ = ods::ValueType::Duration;
+		office_value_type_ = ods::ValueType::Time;
 		value_data_ = p->Clone();
 	}
 }
@@ -666,8 +669,8 @@ Cell::ValueToString() const
 		return QString::number(*as_double(), 'f', FLT_DIG);
 	if (is_date())
 		return as_date()->toString(Qt::ISODate);
-	if (is_duration())
-		return as_duration()->toString();
+	if (is_time())
+		return as_time()->toString();
 	if (is_boolean())
 		return *as_boolean() ? QLatin1String("true") : QLatin1String("false");
 	if (is_string())
@@ -724,8 +727,8 @@ Cell::WriteValue(QXmlStreamWriter &xml)
 		auto *dt = as_date();
 		QString date_value = dt->toString(Qt::ISODate);
 		Write(xml, ns_->office(), ods::ns::kDateValue, date_value);
-	} else if (is_duration()) {
-		auto *dd = as_duration();
+	} else if (is_time()) {
+		auto *dd = as_time();
 		
 		if (dd->IsValid())
 		{

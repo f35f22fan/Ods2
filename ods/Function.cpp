@@ -4,6 +4,7 @@
 #include "err.hpp"
 #include "Formula.hpp"
 #include "FormulaNode.hpp"
+#include "function.hh"
 #include "ods.hh"
 
 #include <QRegularExpression>
@@ -11,8 +12,26 @@
 
 namespace ods {
 
-Function::Function() {}
-Function::~Function() {}
+Function::Function() {
+	params_ = new QVector<QVector<FormulaNode*>*>();
+}
+
+Function::~Function() {
+	
+	if (params_ != nullptr) {
+		for (QVector<FormulaNode*> *next: *params_) {
+			for (auto k : *next) {
+				delete k;
+			}
+			delete next;
+		}
+		delete params_;
+		params_ = nullptr;
+	}
+	
+	delete value_;
+	value_ = nullptr;
+}
 Function::Function(const Function &src)
 {
 	DeepCopy(*this, src);
@@ -30,66 +49,39 @@ void
 Function::DeepCopy(ods::Function &dest, const ods::Function &src)
 {
 	dest.meta_ = src.meta_;
-	dest.params_.clear();
+	dest.params_->clear();
 	
-	for (auto &item: src.params_)
-		dest.params_.append(item);
+	for (QVector<ods::FormulaNode*> *subvec: *src.params_) {
+		auto *v = new QVector<ods::FormulaNode*>();
+		for (auto next: *subvec) {
+			v->append(next->Clone());
+		}
+		dest.params_->append(v);
+	}
 }
 
-const ods::Value&
+bool
 Function::Eval()
 {
-	if (meta_ == nullptr) {
-		mtl_trace();
-		return value_;
-	}
+	value_.Clear();
+	QVector<ods::Value*> values;
+	ods::AutoDeleteVec ad(values);
 	
-	const auto id = meta_->id;
-	
-	switch (id) {
-	case FunctionId::Sum: Sum(); break;
-		
-	default: {
-		mtl_trace();
-	}
-	}
-	
-	return value_;
-}
-
-void
-Function::Sum()
-{
-	double d = 0.0;
-	
-	for (int i = 0; i < params_.size(); i++) {
-		const FormulaNode &node = params_[i];
-		
-		if (node.is_address()) {
-			ods::Address *a = node.as_address();
-			if (a->cell_range()) {
-				mtl_warn("Cell range not implemented yet");
-				return;
-			} else {
-				CellRef *cell_ref = a->cell();
-				ods::Cell *cell = cell_ref->GetCell();
-				
-				if (cell == nullptr) {
-					mtl_trace();
-					return;
-				}
-				
-				if (cell->is_any_double()) {
-					d += *cell->as_double();
-				} else {
-					mtl_trace("Cell value isn't a double");
-					return;
-				}
-			}
+	for (int i = 0; i < params_->size(); i++) {
+		QVector<FormulaNode*> *subvec = (*params_)[i];
+		while (subvec->size() > 1) {
+			CHECK_TRUE(function::EvalDeepestGroup(*subvec));
 		}
 	}
 	
-	value_.SetDouble(d);
+	CHECK_PTR(meta_);
+	function::PrintValuesInOneLine(values);
+	switch (meta_->id) {
+	case FunctionId::Sum: return function::Sum(values, value_);
+	case FunctionId::Max: return function::Max(values, value_);
+	case FunctionId::Min: return function::Min(values, value_);
+	default: { mtl_trace();	return false; }
+	}
 }
 
 QString
@@ -100,145 +92,122 @@ Function::toString() const {
 	}
 	
 	QString s = meta_->name;
-	s += " {" + QString::number(params_.size()) + '}';
+	
+	QString func = (params_ == nullptr) ? QString() :
+		QString::number(params_->size());
+	s += " {" + func + '}';
+	
 	return s;
 }
 
-int
-Function::TryNew(QStringRef s, Formula *host, Function &retval)
+QString
+Function::toXmlString() const {
+	QString s = meta_->name;
+	s.append('(');
+	const int count = params_->size();
+	
+	for (int i = 0; i < count; i++) {
+		QVector<ods::FormulaNode*>* vec = (*params_)[i];
+		QString expression;
+		for (ods::FormulaNode *node: *vec) {
+			expression.append(node->toString());
+		}
+		
+		if (i < count - 1) {
+			expression.append(';');
+		}
+		
+		s.append(expression);
+	}
+	
+	s.append(')');
+	return s;
+}
+
+Function*
+Function::TryNew(QStringRef s, int &skip, ods::Sheet *default_sheet)
 {
-	QStringRef original_str = s;
 	int end_of_func_name = ods::FindNonAscii(s);
 	
 	if (end_of_func_name == -1) // not found, error!
-		return -1;
-	
+		return nullptr;
+
 	const QString name = s.mid(0, end_of_func_name).toString().toUpper();
-	const FunctionMeta *fi = FindFunctionMeta(name);
+	const FunctionMeta *func_meta = function::FindFunctionMeta(name);
 	
-	if (fi == nullptr)
-		return -1; // not a function
-	
-	retval.meta_ = fi;
-	mtl_line("Found function by name: \"%s\"", fi->name);
+	if (func_meta == nullptr)
+		return nullptr; // not a function
+#ifdef DEBUG_FORMULA
+	mtl_line("Found function by name: \"%s\"", func_meta->name);
+#endif
 	
 	// now decode the params.
 	QStringRef params = s.mid(end_of_func_name);
 	int parenthesis_loc = params.indexOf('(');
 	
 	if (parenthesis_loc == -1)
-		return -1;
+		return nullptr;
 	
-	int at2 = ods::FindNonWhitespace(params, parenthesis_loc + 1);
+	int past_whitespaces = ods::FindNonWhitespace(params, parenthesis_loc + 1);
 	
-	if (at2 == -1) {
+	if (past_whitespaces == -1) {
 		mtl_trace();
-		return -1;
+		return nullptr;
 	}
 	
-	s = params.mid(at2);
-	auto ba = s.toLocal8Bit();
-	mtl_line("Function params: \"%s\"", ba.data());
-	int at3 = 0;
+	s = params.mid(past_whitespaces);
+	QVector<QVector<ods::FormulaNode*>*> *param_nodes
+		= new QVector<QVector<ods::FormulaNode*>*>();
+	int params_total = 0, chunk = 0;
+	u8 settings = ParsingFunctionParams;
+	auto *new_vec = new QVector<FormulaNode*>();
+	param_nodes->append(new_vec);
 	
-	static const QRegularExpression number_regex =
-		QRegularExpression("\\d+(\\.\\d+)?");
-	QRegularExpressionMatch number_match;
-	ods::Function next_function;
-	int next_func_skip;
-	
-	while (at3 < s.size()) {
-		QStringRef next = s.mid(at3);
-		if (next.startsWith(')')) {
-			at3++;
-			const int total = end_of_func_name + at2 + at3;
-			auto ba = original_str.mid(0, total).toLocal8Bit();
-			mtl_line("RETURNING from FUNC \"%s\" (length: %d)", ba.data(), total);
-			return total;
-		} else if (next.startsWith('[')) {
-			Address *pa = Formula::CellAddressOrRange(next.mid(1),
-				at3, host->default_sheet_);
-			if (pa != nullptr) {
-				auto pm = FormulaNode::Address(pa);
-				retval.params_.append(pm);
-				at3++; // accounting for '['
-				auto addr_ba = pm.as_address()->toString().toLocal8Bit();
-				mtl_line("Address: \"%s\"", addr_ba.data());
-			} else {
-				mtl_trace();
-				return -1;
-			}
-		} else if (next.startsWith(';')) {
-			// param separator, skip and continue
-			mtl_line("Separator ;");
-			at3++;
-		} else if ((next.toString().indexOf(number_regex, 0, &number_match)) == 0) {
-			QString number_str = number_match.captured(0);
-			bool ok;
-			double d = number_str.toDouble(&ok);
-			
-			if (!ok) {
-				mtl_trace();
-				return -1;
-			}
-			
-			retval.params_.append(FormulaNode::Number(d));
-			auto ba = number_str.toLocal8Bit();
-			mtl_line("Number: \"%s\"", ba.data());
-			at3 += number_str.size();
-		} else if ((next_func_skip = ods::Function::TryNew(next, host, next_function)) != -1) {
-			// add function to params:
-			auto p = FormulaNode::Function(new ods::Function(next_function));
-			retval.params_.append(p);
-			at3 += next_func_skip;
-		} else {
-			auto ba = next.toLocal8Bit();
-			mtl_warn("Don't know what to do with: \"%s\"", ba.data());
-			return -1;
+	while (Formula::DecodeNext(s, chunk, *new_vec,
+		default_sheet, settings))
+	{
+#ifdef DEBUG_FORMULA
+		mtl_line("DecodeNext()");
+#endif
+		s = s.mid(chunk);
+		params_total += chunk;
+		chunk = 0;
+
+		if (settings & ReachedFunctionEnd) {
+#ifdef DEBUG_FORMULA
+			mtl_line("End of function %s()", func_meta->name);
+#endif
+			break;
 		}
 		
-		at3 = ods::FindNonWhitespace(s, at3);
-		auto ba = s.mid(at3).toLocal8Bit();
-		mtl_line("Now: \"%s\"", ba.data());
-	}
-	
-	return -1;
-}
-
-namespace function {
-int Min(QStringRef s, int start_at)
-{
-	mtl_trace();
-	return -1;
-}
-
-int Sum(QStringRef s, int start_at)
-{
-	mtl_trace();
-	return -1;
-}
-} // function::
-
-const FunctionMeta*
-FindFunctionMeta(const QString &name)
-{
-	for (const FunctionMeta &fi: GetSupportedFunctions()) {
-		if (name == fi.name) {
-			return &fi;
+		if (settings & ReachedParamSeparator) {
+			new_vec = new QVector<FormulaNode*>();
+			param_nodes->append(new_vec);
+			settings &= ~ReachedParamSeparator;
 		}
 	}
+//"SUM([.B1]+0.3;20.9;-2.4+3*MAX(18;7);[.B2];[.C1:.C2];MIN([.A1];5))*(-3+2)"
+//"SUM([.B1]+0.3;20.9;-2.4+3*MAX(18;7);[.B2];[.C1:.C2];MIN([.A1];5))*(-3+2)"
+	if (!(settings & ReachedFunctionEnd) && param_nodes != nullptr) {
+mtl_line();
+
+		for (QVector<FormulaNode*> *next: *param_nodes) {
+			for (auto k : *next) {
+				delete k;
+			}
+			delete next;
+		}
+
+		return nullptr;
+	} else {
+		settings &= ~ReachedFunctionEnd;
+	}
 	
-	return nullptr;
+	skip += end_of_func_name + past_whitespaces + params_total;
+	Function *f = new Function();
+	f->meta_ = func_meta;
+	f->params_ = param_nodes;
+	return f;
 }
-
-const QVector<FunctionMeta>&
-GetSupportedFunctions() {
-	static QVector<FunctionMeta> v = {
-		FunctionMeta {"MIN", FunctionId::Min, function::Min},
-		FunctionMeta {"SUM", FunctionId::Sum, function::Sum},
-	};
-	return v;
-}
-
 
 } // ods::function::

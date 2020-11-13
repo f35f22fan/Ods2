@@ -84,10 +84,10 @@ Row::GetCell(const int place)
 	
 	for (ods::Cell *cell: cells_)
 	{
-		start += cell->ncr();
-		
-		if (start > place)
+		if (start >= place)
 			return cell;
+		
+		start += cell->ncr();
 	}
 	
 	return nullptr;
@@ -300,7 +300,7 @@ Row::QueryCellStart(const Cell *cell) const
 	
 	for (auto *next: cells_)
 	{
-		if (next == cell)
+		if (next >= cell)
 			return index;
 		
 		index += next->ncr();

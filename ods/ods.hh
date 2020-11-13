@@ -5,29 +5,41 @@
 #include "ods.hxx"
 #include "op.hh"
 #include "style.hxx"
-#include "value.hxx"
 
 namespace ods { // ods::
 
-QString ToString(const Brace p);
-Brace FromString(const QString &s);
+template <class VecType> class AutoDeleteVec {
+public:
+	AutoDeleteVec(VecType &x) : vec_(x) {}
+	~AutoDeleteVec() {
+		for (auto *item : vec_) {
+			delete item;
+		}
+	}
+	
+private:
+	VecType &vec_;
+};
+
+ODS_API QString ToString(const Brace p);
+ODS_API Brace FromString(const QString &s);
 
 ODS_API void
 ApplyBool(const QString &str, ods::Bool &b);
 
-CellRef*
+ODS_API CellRef*
 CreateCellRef(Sheet *default_sheet, QStringRef address);
 
-double
+ODS_API double
 DPI();
 
-void
+ODS_API void
 DPI(const double dpi);
 
-int
+ODS_API int
 FindNonAscii(const QStringRef &s, const int from = 0);
 
-int // error = -1
+ODS_API int // error = -1
 FindNonWhitespace(const QStringRef &str, const int from = 0);
 
 ODS_API QString

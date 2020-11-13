@@ -1,9 +1,12 @@
 #include "Address.hpp"
 
 #include "Book.hpp"
+#include "Cell.hpp"
 #include "CellRef.hpp"
 #include "ods.hh"
 #include "Sheet.hpp"
+
+#include <algorithm> // std::swap(..)
 
 namespace ods {
 
@@ -23,7 +26,6 @@ Address::DeepCopy(Address &dest, const Address &src) {
 	dest.default_sheet_ = src.default_sheet_;
 	dest.start_index_ = src.start_index_;
 	dest.end_index_ = src.end_index_;
-	dest.orig_str_ = src.orig_str_;
 	
 	if (src.cell_ != nullptr)
 		dest.cell_ = src.cell_->Clone();
@@ -42,8 +44,33 @@ Address::Cell(Sheet *default_sheet, QStringRef cell)
 {
 	Address *address = new Address(default_sheet);
 	address->cell_ = ods::CreateCellRef(default_sheet, cell);
-	address->orig_str_ = cell.toString();
 	return address;
+}
+
+QString
+Address::CellToString(const ods::CellRef *cell_ref) const
+{
+	if (cell_ref == nullptr) {
+		mtl_trace("CELL_REF = NULLPTR ==========");
+		return QString();
+	}
+	
+	ods::Cell *cell = cell_ref->GetCell();
+	if (cell == nullptr) {
+		mtl_trace();
+		return QString();
+	}
+	ods::Sheet *sheet = cell_ref->sheet();
+	if (sheet == nullptr) {
+		mtl_trace("SHEET == NULLPTR ============");
+		return QString();
+	}
+	QString s = QLatin1String(".") + cell->QueryAddress();
+	
+	if (sheet != default_sheet_)
+		s = sheet->name() + s;
+	
+	return s;
 }
 
 Address*
@@ -55,20 +82,63 @@ Address::Clone()
 	return p;
 }
 
+bool
+Address::GenCells(QVector<ods::Cell*> &cells)
+{
+	CHECK_PTR(end_cell_);
+	ods::Sheet *sheet = cell_->sheet();
+	int start, end;
+	
+	if (cell_->col() == end_cell_->col()) {
+		start = cell_->row();
+		end = end_cell_->row();
+		
+		if (start > end)
+			std::swap(start, end);
+		
+		for (int i = start; i <= end; i++) {
+			ods::Cell *p = CellRef::FetchCell(sheet, i, cell_->col());
+			CHECK_PTR(p);
+			cells.append(p);
+		}
+	} else {
+		start = cell_->col();
+		end = end_cell_->col();
+		
+		if (start > end)
+			std::swap(start, end);
+		
+		for (int i = start; i <= end; i++) {
+			ods::Cell *p = CellRef::FetchCell(sheet, cell_->row(), i);
+			CHECK_PTR(p);
+			cells.append(p);
+		}
+	}
+	
+	return true;
+}
+
 Address*
 Address::Range(Sheet *default_sheet, QStringRef start, QStringRef end)
 {
 	Address *address = new Address(default_sheet);
 	address->cell_ = ods::CreateCellRef(default_sheet, start);
 	address->end_cell_ = ods::CreateCellRef(default_sheet, end);
-	address->orig_str_ = start.toString() + QChar(':') + end.toString();
 	return address;
 }
 
 QString
 Address::toString() const
 {
-	return orig_str_;
+	QString s = "[";
+	s.append(CellToString(cell_));
+	if (is_cell_range()) {
+		s.append(':');
+		s.append(CellToString(end_cell_));
+	}
+	s.append(']');
+	
+	return s;
 }
 
 }

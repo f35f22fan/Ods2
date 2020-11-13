@@ -276,10 +276,10 @@ Sheet::GetRow(const int place)
 	
 	for (ods::Row *r: rows_)
 	{
-		at += r->num();
-		
-		if (at > place)
+		if (at >= place)
 			return r;
+		
+		at += r->num();
 	}
 	
 	return nullptr;

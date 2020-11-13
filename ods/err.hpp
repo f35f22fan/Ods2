@@ -22,12 +22,12 @@
 
 #ifdef _MSC_VER
 #define mtl_line(fmt, ...) fprintf(stdout, \
-	"%s[%s:%.3d]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
-	__LINE__, MTL_COLOR_DEFAULT, __VA_ARGS__)
+	"%s[%s:%.3d %s]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
+	__LINE__, __FUNCTION__, MTL_COLOR_DEFAULT, __VA_ARGS__)
 #else
 #define mtl_line(fmt, args...) fprintf(stdout, \
-	"%s[%s:%.3d]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
-	__LINE__, MTL_COLOR_DEFAULT, ##args)
+	"%s[%s:%.3d %s]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
+	__LINE__, __FUNCTION__, MTL_COLOR_DEFAULT, ##args)
 #endif
 
 #ifdef _MSC_VER
@@ -62,22 +62,22 @@
 
 #ifdef _MSC_VER
 #define mtl_warn(fmt, ...) fprintf(stderr, \
-	"%s[Warning %s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
-	__LINE__, __VA_ARGS__, MTL_COLOR_DEFAULT)
+	"%s[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
+	__LINE__, __FUNCTION__, __VA_ARGS__, MTL_COLOR_DEFAULT)
 #else
 #define mtl_warn(fmt, args...) fprintf(stderr, \
-	"%s[Warning %s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
-	__LINE__, ##args, MTL_COLOR_DEFAULT)
+	"%s[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
+	__LINE__, __FUNCTION__, ##args, MTL_COLOR_DEFAULT)
 #endif
 
 #ifdef _MSC_VER
 #define mtl_trace(fmt, ...) fprintf(stderr, \
-	"%s[Trace %s %s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
-	__FUNCTION__, __LINE__, __VA_ARGS__, MTL_COLOR_DEFAULT)
+	"%s[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_GREEN, SRC_FILE_NAME, \
+	__LINE__, __FUNCTION__, __VA_ARGS__, MTL_COLOR_DEFAULT)
 #else
 #define mtl_trace(fmt, args...) fprintf(stderr, \
-	"%s[Trace %s %s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
-	__FUNCTION__, __LINE__, ##args, MTL_COLOR_DEFAULT)
+	"%s[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_GREEN, SRC_FILE_NAME, \
+	__LINE__, __FUNCTION__, ##args, MTL_COLOR_DEFAULT)
 #endif
 
 #define mtl_status(status) fprintf (stderr, "%s[%s %.3d] %s%s\n", \
@@ -98,6 +98,26 @@
 #define NO_MOVE(TypeName)	\
 	TypeName(TypeName&&) = delete;
 
+#define RET_IF_EQUAL(x, y) {\
+	if (x == y) {\
+		mtl_trace();\
+		return false;\
+	}\
+}
+
+#define RET_IF_EQUAL_VOID(x, y) {\
+	if (x == y) {\
+		mtl_trace();\
+		return;\
+	}\
+}
+
+#define RET_IF_EQUAL_NULL(x, y) {\
+	if (x == y) {\
+		mtl_trace();\
+		return nullptr;\
+	}\
+}
 
 #define CHECK_TRUE(x) {\
 	if (!x) {\
@@ -106,14 +126,14 @@
 	}\
 }
 
-#define CHECK_TRUE_RET_NULL(x) {\
+#define CHECK_TRUE_NULL(x) {\
 	if (!x) {\
 		mtl_trace();\
 		return nullptr;\
 	}\
 }
 
-#define CHECK_TRUE_RET_VOID(x) {\
+#define CHECK_TRUE_VOID(x) {\
 	if (!x) {\
 		mtl_trace();\
 		return;\
@@ -127,14 +147,14 @@
 	}\
 }
 
-#define CHECK_PTR_RET_VOID(x) {\
+#define CHECK_PTR_VOID(x) {\
 	if (x == nullptr) {\
 		mtl_trace();\
 		return;\
 	}\
 }
 
-#define CHECK_PTR_RET_NULL(x) {\
+#define CHECK_PTR_NULL(x) {\
 	if (x == nullptr) {\
 		mtl_trace();\
 		return nullptr;\

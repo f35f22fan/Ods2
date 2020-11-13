@@ -141,7 +141,7 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 
 	auto *cs = ncs->FetchCurrencySymbol();
 	{
-		cs->SetSymbol(ods::currency::EUR);
+		cs->SetSymbol(ods::currency::EUR(0.0));
 		cs->language(ods::lang::German.str);
 		cs->country(ods::country::Germany);
 	}
@@ -200,7 +200,8 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 		qtty_cell->SetStyle(style);
 		
 		auto *price_cell = row->NewCellAt(++next_col);
-		price_cell->SetCurrency(item->unit_price(), ods::currency::EUR);
+		ods::Currency eur = ods::currency::EUR(item->unit_price());
+		price_cell->SetCurrency(eur);
 		price_cell->SetStyle(currency_style);
 		
 		auto *line_total_cell = row->NewCellAt(++next_col);

@@ -22,22 +22,13 @@ CellRef::Clone()
 }
 
 ods::Cell*
-CellRef::GetCell() const
+CellRef::FetchCell(ods::Sheet *sheet, const int row_index, const int col)
 {
-	if (sheet_ == nullptr)
-	{
-		mtl_trace();
-		return nullptr;
-	}
+	CHECK_PTR_NULL(sheet);
+	ods::Row *row = sheet->GetRow(row_index);
+	CHECK_PTR_NULL(row);
 	
-	ods::Row *row = sheet_->GetRow(row_);
-	
-	if (row == nullptr) {
-		mtl_trace();
-		return nullptr;
-	}
-	
-	return row->GetCell(col_);
+	return row->GetCell(col);
 }
 
 CellRef*

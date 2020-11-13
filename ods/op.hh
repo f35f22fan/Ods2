@@ -6,9 +6,8 @@
 #include <QString>
 
 namespace ods {
-
 namespace op_str {
-const QString Tilde = QLatin1String("~");
+const QString RefConcat = QLatin1String("~");
 const QString Less = QLatin1String("<");
 const QString LessOrEqual = QLatin1String("<=");
 const QString Greater = QLatin1String(">");
@@ -18,14 +17,14 @@ const QString Plus = QLatin1String("+");
 const QString Minus = QLatin1String("-");
 const QString Multiply = QLatin1String("*");
 const QString Divide = QLatin1String("/");
-const QString Xor = QLatin1String("^");
+const QString Exponent = QLatin1String("^");
 const QString Equals = QLatin1String("=");
-const QString Starfish = QLatin1String("<>");
+const QString Diamond = QLatin1String("<>");
 const QString Percent = QLatin1String("%");
-const QString Exclamation = QLatin1String("!");
+const QString RefIntersection = QLatin1String("!");
 const QString Colon = QLatin1String(":");
 
-const QString Regex = Tilde + QChar('|') + Minus
+const QString Regex = RefConcat + QChar('|') + Minus
 	+ QLatin1String("|\\") + Plus
 	+ QChar('|') + Divide
 	+ QLatin1String("|\\") + Multiply;
@@ -33,7 +32,7 @@ const QString Regex = Tilde + QChar('|') + Minus
 
 enum class Op : u8 {
 	None,
-	Tilde,
+	RefConcat,
 	Less,
 	LessOrEqual,
 	Greater,
@@ -43,11 +42,11 @@ enum class Op : u8 {
 	Minus,
 	Multiply,
 	Divide,
-	Xor,
+	Exponent,
 	Equals,
-	Starfish,
+	Diamond,
 	Percent,
-	Exclamation,
+	RefIntersection,
 	Colon
 };
 
@@ -55,4 +54,8 @@ namespace op {
 Op From(const QString &s);
 Op From(const QStringRef &s);
 QString ToString(const Op op);
-}} // namespaces
+} // ods::op::
+
+int priority(const ods::Op op);
+
+} // ods::

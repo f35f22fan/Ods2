@@ -13,6 +13,8 @@
 
 namespace ods { // ods::
 
+static double dpi = -1.0;
+
 void
 ApplyBool(const QString &str, ods::Bool &b)
 {
@@ -28,63 +30,6 @@ ApplyBool(const QString &str, ods::Bool &b)
 			b = ods::Bool::None;
 		}
 	}
-}
-
-static double dpi = -1.0;
-
-double
-DPI()
-{
-	return dpi; 
-}
-
-void
-DPI(const double dpi_param)
-{
-	dpi = dpi_param;
-}
-
-int
-FindNonAscii(const QStringRef &s, const int from)
-{
-	for (int i = from; i < s.size(); i++) {
-		QChar c = s.at(i);
-		bool is_letter = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-		
-		if (!is_letter)
-			return i;
-	}
-	
-	return -1;
-}
-
-int
-FindNonWhitespace(const QStringRef &str, const int from)
-{
-	for (int i = from; i < str.size(); i++) {
-		const QChar c = str.at(i);
-		
-		if (c != ' ' && c != '\t' && c != '\x0B'
-			&& c != '\r' && c != '\n' && c != '\f')
-			return i;
-	}
-	
-	return -1;
-}
-
-QString
-FontSizeToString(const double size, const style::FontSizeType size_type)
-{
-	QString str = QString::number(size);
-	
-	if (size_type == style::FontSizeType::Pt)
-		str += QLatin1String("pt");
-	else if (size_type == style::FontSizeType::Cm)
-		str += QLatin1String("cm");
-	else if (size_type == style::FontSizeType::In)
-		str += QLatin1String("in");
-	
-	return str;
 }
 
 int
@@ -197,13 +142,69 @@ CreateCellRef(ods::Sheet *default_sheet, QStringRef address)
 	const int col = ods::ColumnLettersToNumber(letters);
 	auto digits = cell_name.right(count - index);
 	bool ok;
-	const int row = digits.toInt(&ok);
+	// "- 1" because e.g. "1" in [.B1] is row 0
+	const int row = digits.toInt(&ok) - 1;
 	
 	if (ok)
 		return CellRef::New(sheet, row, col);
 	
 	mtl_trace();
 	return nullptr;
+}
+
+double
+DPI()
+{
+	return dpi; 
+}
+
+void
+DPI(const double dpi_param)
+{
+	dpi = dpi_param;
+}
+
+int
+FindNonAscii(const QStringRef &s, const int from)
+{
+	for (int i = from; i < s.size(); i++) {
+		QChar c = s.at(i);
+		bool is_letter = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+		
+		if (!is_letter)
+			return i;
+	}
+	
+	return -1;
+}
+
+int
+FindNonWhitespace(const QStringRef &str, const int from)
+{
+	for (int i = from; i < str.size(); i++) {
+		const QChar c = str.at(i);
+		
+		if (c != ' ' && c != '\t' && c != '\x0B'
+			&& c != '\r' && c != '\n' && c != '\f')
+			return i;
+	}
+	
+	return -1;
+}
+
+QString
+FontSizeToString(const double size, const style::FontSizeType size_type)
+{
+	QString str = QString::number(size);
+	
+	if (size_type == style::FontSizeType::Pt)
+		str += QLatin1String("pt");
+	else if (size_type == style::FontSizeType::Cm)
+		str += QLatin1String("cm");
+	else if (size_type == style::FontSizeType::In)
+		str += QLatin1String("in");
+	
+	return str;
 }
 
 ods::ValueType
@@ -223,7 +224,7 @@ TypeFromString(const QString &value_type)
 	if (value_type == ods::ns::kDate)
 		return ods::ValueType::Date;
 	if (value_type == ods::ns::kTime)
-		return ods::ValueType::Duration;
+		return ods::ValueType::Time;
 	if (value_type == ods::ns::kBoolean)
 		return ods::ValueType::Bool;
 	
@@ -241,7 +242,7 @@ TypeToString(const ods::ValueType value_type)
 	case ods::ValueType::Currency: return ods::ns::kCurrency;
 	case ods::ValueType::Percentage: return ods::ns::kPercentage;
 	case ods::ValueType::Date: return ods::ns::kDate;
-	case ods::ValueType::Duration: return ods::ns::kTime;
+	case ods::ValueType::Time: return ods::ns::kTime;
 	case ods::ValueType::Bool: return ods::ns::kBoolean;
 	case ods::ValueType::None: return "[not set]";
 	default: it_happened(); return "";

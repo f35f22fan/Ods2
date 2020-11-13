@@ -7,10 +7,11 @@
 #include <ods/Book.hpp>
 #include <ods/Cell.hpp>
 #include <ods/country.hxx>
-#include <ods/currency.hxx>
+#include <ods/currency.hh>
 #include <ods/Duration.hpp>
 #include <ods/err.hpp>
 #include <ods/Formula.hpp>
+#include <ods/FormulaNode.hpp>
 #include <ods/HAlign.hpp>
 #include <ods/id.hh>
 #include <ods/lang.hxx>
