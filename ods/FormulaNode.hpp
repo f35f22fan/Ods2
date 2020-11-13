@@ -14,7 +14,7 @@
 
 namespace ods {
 
-class FormulaNode {
+class ODS_API FormulaNode {
 public:
 	FormulaNode();
 	FormulaNode(const FormulaNode &rhs);
@@ -22,6 +22,7 @@ public:
 	virtual ~FormulaNode();
 	
 	bool ApplyMinus(); // Op "-" + number "3" => number "-3";
+	void Clear();
 	FormulaNode* Clone();
 	
 	ods::Address* as_address() const { return data_.address; }
@@ -92,8 +93,9 @@ public:
 	}
 	
 	QString toString() const;
+	QString toCompactString() const;
 private:
-	void Clear();
+	
 	static void DeepCopy(FormulaNode &dest, const FormulaNode &src);
 	
 // time, date, currency,

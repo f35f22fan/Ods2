@@ -25,6 +25,8 @@ public:
 	void AddOpenBrace();
 	void Add(Function f);
 	void Add(ods::Cell *cell, Sheet *sheet = nullptr);
+	
+	const QString& error() const { return error_; }
 	FormulaNode *Eval();
 	
 	bool evaluating() const { return bits_ & ods::EvaluatingBit; }

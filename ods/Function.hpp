@@ -21,7 +21,7 @@ public:
 	
 	Function* Clone();
 	
-	bool Eval();
+	FormulaNode* Eval();
 	
 	const FunctionMeta*
 	meta() const { return meta_; }

@@ -8,7 +8,7 @@
 
 namespace ods::function {
 
-bool
+/* bool
 Apply(ods::Value &lhs, const ods::Op op, const ods::Value &rhs)
 {
 	if (lhs.is_double() && rhs.is_double()) {
@@ -32,7 +32,7 @@ Apply(ods::Value &lhs, const ods::Op op, const ods::Value &rhs)
 	}
 	mtl_trace("Both sides not numbers");
 	return false;
-}
+} */
 
 bool
 EvalDeepestGroup(QVector<FormulaNode*> &input)
@@ -74,15 +74,9 @@ mtl_line();
 		if (node->is_function()) {
 			Function *f = node->as_function();
 mtl_line();
-			const ods::Value &value = f->Eval();
-			if (value.is_none()) {
-				mtl_trace();
-				return false;
-			}
-			
-			auto *new_node = FormulaNode::From(value);
-			CHECK_PTR(new_node);
-			ret.append(new_node);
+			ods::FormulaNode *value = f->Eval();
+			CHECK_PTR(value);
+			ret.append(value);
 			delete node;
 		} else {
 			ret.append(input[i]);
@@ -96,8 +90,8 @@ mtl_line();
 	CHECK_TRUE((ret.size() == 1));
 	auto *node = ret[0];
 	input.insert(input.begin() + start, node);
-	auto ba = node->toString().toLocal8Bit();
-	mtl_line("========================RESULT: %s", ba.data());
+	auto ba = node->toCompactString().toLocal8Bit();
+	mtl_line("===============RESULT: %s", ba.data());
 	return true;
 }
 
@@ -134,7 +128,7 @@ EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes)
 }
 
 bool
-ExtractCellValue(ods::Cell *cell, ods::Value &result)
+ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 {
 	CHECK_PTR(cell);
 	
@@ -144,8 +138,9 @@ ExtractCellValue(ods::Cell *cell, ods::Value &result)
 			mtl_trace("Cyclic formula reference!");
 			return false;
 		}
-		
-		result = f->Eval();
+		ods::FormulaNode *value = f->Eval();
+		if (value != nullptr)
+			result = *value;
 	} else if (cell->is_any_double()) {
 		double d = *cell->as_double();
 		result.SetDouble(d);
@@ -158,7 +153,7 @@ ExtractCellValue(ods::Cell *cell, ods::Value &result)
 }
 
 bool
-ExtractValue(ods::FormulaNode *node, QVector<ods::Value*> &result)
+ExtractValue(ods::FormulaNode *node, QVector<ods::FormulaNode*> &result)
 {
 	if (node->is_address()) {
 		auto *address = node->as_address();
@@ -170,7 +165,7 @@ ExtractValue(ods::FormulaNode *node, QVector<ods::Value*> &result)
 			CHECK_TRUE(address->GenCells(cells));
 			
 			for (auto *cell : cells) {
-				auto *val = new ods::Value();
+				auto *val = new ods::FormulaNode();
 				if (ExtractCellValue(cell, *val)) {
 					result.append(val);
 				} else {
@@ -183,7 +178,7 @@ ExtractValue(ods::FormulaNode *node, QVector<ods::Value*> &result)
 		} else {
 			auto *cell_ref = address->cell();
 			ods::Cell *cell = cell_ref->GetCell();
-			auto *val = new ods::Value();
+			auto *val = new ods::FormulaNode();
 			if (ExtractCellValue(cell, *val)) {
 				result.append(val);
 				return true;
@@ -194,18 +189,18 @@ ExtractValue(ods::FormulaNode *node, QVector<ods::Value*> &result)
 		}
 	} else if (node->is_double()) {
 		double d = node->as_double();
-		auto *v = new ods::Value();
+		auto *v = new ods::FormulaNode();
 		v->SetDouble(d);
 		result.append(v);
 	} else if (node->is_function()) {
 		ods::Function *f = node->as_function();
-		auto *val = new ods::Value(f->Eval());
-		if (val->is_none()) {
-			delete val;
+		ods::FormulaNode *value = f->Eval();
+		CHECK_PTR(value);
+		if (value->is_none()) {
 			mtl_trace();
 			return false;
 		}
-		result.append(val);
+		result.append(value->Clone());
 	} else {
 		mtl_trace();
 		return false;
@@ -305,7 +300,7 @@ void PrintNodesInOneLine(const QVector<FormulaNode *> &v, const char *msg)
 	QString s;
 	QString separator = QString(MTL_COLOR_GREEN) + "|" + MTL_COLOR_DEFAULT;
 	for (ods::FormulaNode *node : v) {
-		s.append(node->toString()).append(separator);
+		s.append(node->toCompactString()).append(separator);
 	}
 	
 	auto ba = s.toLocal8Bit();
@@ -347,84 +342,63 @@ void PrintNodes(const QVector<FormulaNode*> &nodes)
 	}
 }
 
-void PrintValuesInOneLine(const QVector<ods::Value*> &v, const char *msg)
-{
-	QString s;
-	QString separator = QString(MTL_COLOR_GREEN) + "|" + MTL_COLOR_DEFAULT;
-	for (ods::Value *value : v) {
-		s.append(value->toString()).append(separator);
-	}
-	
-	auto ba = s.toLocal8Bit();
-	auto sep_ba = separator.toLocal8Bit();
-	mtl_line("%s%s %s", sep_ba.data(), ba.data(), msg);
-}
 //===================Formula Functions==============================
 
-bool Max(const QVector<ods::Value*> &values, ods::Value &result)
+FormulaNode* Max(const QVector<ods::FormulaNode*> &values, ods::FormulaNode *result)
 {
 	double max;
 	bool initialize = true;
 	
-	for (ods::Value *value: values) {
-		if (!value->is_double()) {
-			mtl_trace("Value not a double!");
-			return false;
-		}
+	for (ods::FormulaNode *value: values) {
+		CHECK_TRUE_NULL(value->is_double());
 		if (initialize) {
 			initialize = false;
-			max = *value->as_double();
+			max = value->as_double();
 		} else {
-			double d = *value->as_double();
+			double d = value->as_double();
 			if (d > max)
 				max = d;
 		}
 	}
 	
 	mtl_line("%.2f", max);
-	result.SetDouble(max);
-	return true;
+	result->SetDouble(max);
+	return result;
 }
 
-bool Min(const QVector<ods::Value*> &values, ods::Value &result)
+FormulaNode* Min(const QVector<FormulaNode *> &values, FormulaNode *result)
 {
 	double min;
 	bool initialize = true;
 	
-	for (ods::Value *value: values) {
-		if (!value->is_double()) {
-			mtl_trace("Value not a double!");
-			return false;
-		}
+	for (ods::FormulaNode *value: values) {
+		CHECK_TRUE_NULL(value->is_double());
 		if (initialize) {
 			initialize = false;
-			min = *value->as_double();
+			min = value->as_double();
 		} else {
-			double d = *value->as_double();
+			double d = value->as_double();
 			if (d < min)
 				min = d;
 		}
 	}
 	
 	mtl_line("%.2f", min);
-	result.SetDouble(min);
-	return true;
+	result->SetDouble(min);
+	return result;
 }
 
-bool Sum(const QVector<ods::Value*> &values, ods::Value &result)
+FormulaNode* Sum(const QVector<ods::FormulaNode*> &values, ods::FormulaNode *result)
 {
 	double d = 0;
 	
-	for (ods::Value *value: values) {
-		if (!value->is_double()) {
-			mtl_trace("Value not a double!");
-			return false;
-		}
-		d += *value->as_double();
+	for (ods::FormulaNode *value: values) {
+		CHECK_TRUE_NULL(value->is_double());
+		d += value->as_double();
 	}
 	
 	mtl_line("%.2f", d);
-	result.SetDouble(d);
-	return true;
+	result->SetDouble(d);
+	return result;
 }
 }

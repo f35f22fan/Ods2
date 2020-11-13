@@ -32,6 +32,7 @@ Function::~Function() {
 	delete value_;
 	value_ = nullptr;
 }
+
 Function::Function(const Function &src)
 {
 	DeepCopy(*this, src);
@@ -60,27 +61,31 @@ Function::DeepCopy(ods::Function &dest, const ods::Function &src)
 	}
 }
 
-bool
+FormulaNode*
 Function::Eval()
 {
-	value_.Clear();
-	QVector<ods::Value*> values;
+	if (value_ != nullptr)
+		value_->Clear();
+	else
+		value_ = new FormulaNode();
+	
+	QVector<ods::FormulaNode*> values;
 	ods::AutoDeleteVec ad(values);
 	
 	for (int i = 0; i < params_->size(); i++) {
 		QVector<FormulaNode*> *subvec = (*params_)[i];
 		while (subvec->size() > 1) {
-			CHECK_TRUE(function::EvalDeepestGroup(*subvec));
+			CHECK_TRUE_NULL(function::EvalDeepestGroup(*subvec));
 		}
 	}
 	
-	CHECK_PTR(meta_);
-	function::PrintValuesInOneLine(values);
+	CHECK_PTR_NULL(meta_);
+	function::PrintNodesInOneLine(values);
 	switch (meta_->id) {
 	case FunctionId::Sum: return function::Sum(values, value_);
 	case FunctionId::Max: return function::Max(values, value_);
 	case FunctionId::Min: return function::Min(values, value_);
-	default: { mtl_trace();	return false; }
+	default: { mtl_trace();	return nullptr; }
 	}
 }
 

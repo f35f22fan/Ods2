@@ -204,21 +204,26 @@ ReadFormula()
 		return;
 	}
 	
-	ods::Formula *f = cell->formula();
-	const ods::Value &value = f->Eval();
-	if (value.has_error()) {
-		auto ba = value.error().toLocal8Bit();
-		mtl_warn("Formula error: %s", ba.data());
+	ods::Formula *formula = cell->formula();
+	const ods::FormulaNode *value = formula->Eval();
+	if (value == nullptr || formula->has_error()) {
+		if (value == nullptr)
+			mtl_line("value = nullptr");
+		else {
+			auto ba = formula->error().toLocal8Bit();
+			mtl_warn("Formula error: %s", ba.data());
+		}
 		return;
 	}
 	
-	if (value.is_double()) {
-		double num = *value.as_double();
+	if (value->is_double()) {
+		double num = value->as_double();
 		mtl_line("Formula value: %.2f", num);
-	} else if (value.is_none()) {
+	} else if (value->is_none()) {
 		mtl_warn("Value not set");
 	} else {
-		mtl_warn("Formula value of a non-double type");
+		auto ba = value->toString().toLocal8Bit();
+		mtl_warn("Unknown formula value type: %s", ba.data());
 	}
 	
 //	QByteArray assembled = f->ToXmlString().toLocal8Bit();
@@ -243,38 +248,40 @@ CreateCalc() {
 	QString form_str = "of:=SUM([.B1];20.9;[.B2];[.C1:.C2];MIN([.A1];5))";
 	//"of:=(3.0 - 2.0)*4 + [.A2]*SUM([.A1:.B1])";
 	
-	ods::Formula *f = ods::Formula::FromString(form_str, result_cell);
-	f->Eval();
-	const ods::Value &value = f->value();
-	
-	if (value.ok()) {
-		if (value.is_double()) {
-			mtl_line("Double: %.3f", *value.as_double());
+	ods::Formula *formula = ods::Formula::FromString(form_str, result_cell);
+	ods::FormulaNode *value = formula->Eval();
+	if (formula->has_error() || value == nullptr) {
+		if (value == nullptr) {
+			mtl_line("value == nullptr");
 		} else {
-			mtl_line("Some other value");
+			auto ba = formula->error().toLocal8Bit();
+			mtl_line("Formula has an error: %s", ba.data());
 		}
-	} else if (value.has_error()) {
-		auto ba = value.error().toLocal8Bit();
-		mtl_line("An error occured: %s", ba.data());
-	} else if (value.is_none()) {
+		
+	}
+	
+	if (value->is_double()) {
+		mtl_line("Double: %.3f", value->as_double());
+	} else if (value->is_none()) {
 		mtl_line("Value is none");
 	} else {
-		it_happened();
+		auto ba = value->toString().toLocal8Bit();
+		mtl_line("Some other value: %s", ba.data());
 	}
 	if (true)
 		return;
 	
 	
-	ods::Formula *formula = result_cell->NewFormula();
-	formula->AddOpenBrace();
-	formula->Add(3.0);
-	formula->Add(ods::Op::Minus);
-	formula->Add(2.0);
-	formula->AddCloseBrace();
-	formula->Add(ods::Op::Multiply);
-	formula->Add(1.5);
+	ods::Formula *new_form = result_cell->NewFormula();
+	new_form->AddOpenBrace();
+	new_form->Add(3.0);
+	new_form->Add(ods::Op::Minus);
+	new_form->Add(2.0);
+	new_form->AddCloseBrace();
+	new_form->Add(ods::Op::Multiply);
+	new_form->Add(1.5);
 	
-	auto ba = formula->raw_str().toLocal8Bit();
+	auto ba = new_form->raw_str().toLocal8Bit();
 	mtl_line("%s", ba.data());
 //	// = (3.0 - 2.0) * 1.5
 //	ods::formula::Value result;

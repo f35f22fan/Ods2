@@ -242,7 +242,9 @@ FormulaNode::OperationMultDivide(const ods::Op op, FormulaNode *rhs)
 			}
 			return true;
 		} else if (rhs->is_function()) {
-			const ods::Value &rhs_value = rhs->as_function()->Eval();
+			auto *f = rhs->as_function();
+			CHECK_TRUE(f->Eval());
+			const ods::FormulaNode &rhs_value = *f->value();
 			if (rhs_value.is_none()) {
 				mtl_trace();
 				return false;
@@ -324,13 +326,15 @@ FormulaNode::OperationPlusMinus(const ods::Op op, FormulaNode *rhs)
 			return true;
 		}
 	} else if (is_function()) {
-		ods::Value val = as_function()->Eval();
+		auto *f = as_function();
+		CHECK_TRUE(f->Eval());
+		const ods::FormulaNode &val = *f->value();
 		if (val.is_none()) {
 			mtl_trace();
 			return false;
 		}
 		if (val.is_double()) {
-			SetDouble(*val.as_double());
+			SetDouble(val.as_double());
 			return Operation(op, rhs);
 		}
 	} else if (is_address()) {
@@ -393,6 +397,18 @@ FormulaNode::toString() const
 		it_happened();
 		return "Shouldn't happen!!";
 	}
+}
+
+QString
+FormulaNode::toCompactString() const
+{
+	if (is_double())
+		return QString::number(as_double());
+	else if (is_currency())
+		return QString::number(as_currency()->qtty);
+	else if (is_percentage())
+		return QString::number(as_percentage());
+	return toString();
 }
 
 }
