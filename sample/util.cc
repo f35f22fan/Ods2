@@ -25,7 +25,7 @@ FindFile(const QString &file_name)
 void
 PrintBorder(ods::Cell *cell, const int row, const int col_index)
 {
-	mtl_line("Cell at %d:%d...", row, col_index);
+	mtl_info("Cell at %d:%d...", row, col_index);
 	
 	if (cell == nullptr)
 	{
@@ -54,57 +54,57 @@ PrintBorder(ods::Cell *cell, const int row, const int col_index)
 	
 	if (next == nullptr)
 	{
-		mtl_line("border is null");
+		mtl_info("border is null");
 	} else {
 		auto ba = next->toString().toLocal8Bit();
-		mtl_line("border: %s", ba.data());
+		mtl_info("border: %s", ba.data());
 	}
 	
 	next = tcp->border_left();
 	
 	if (next == nullptr)
 	{
-		mtl_line("border left is null");
+		mtl_info("border left is null");
 	} else {
 		auto ba = next->toString().toLocal8Bit();
-		mtl_line("border left: %s", ba.data());
+		mtl_info("border left: %s", ba.data());
 	}
 	
 	next = tcp->border_top();
 	
 	if (next == nullptr)
 	{
-		mtl_line("border top is null");
+		mtl_info("border top is null");
 	} else {
 		auto ba = next->toString().toLocal8Bit();
-		mtl_line("border top: %s", ba.data());
+		mtl_info("border top: %s", ba.data());
 	}
 	
 	next = tcp->border_right();
 	
 	if (next == nullptr)
 	{
-		mtl_line("border right is null");
+		mtl_info("border right is null");
 	} else {
 		auto ba = next->toString().toLocal8Bit();
-		mtl_line("border right: %s", ba.data());
+		mtl_info("border right: %s", ba.data());
 	}
 	
 	next = tcp->border_bottom();
 	
 	if (next == nullptr)
 	{
-		mtl_line("border bottom is null");
+		mtl_info("border bottom is null");
 	} else {
 		auto ba = next->toString().toLocal8Bit();
-		mtl_line("border bottom: %s", ba.data());
+		mtl_info("border bottom: %s", ba.data());
 	}
 }
 
 void
 PrintPercentage(ods::Cell *cell)
 {
-	mtl_line("Cell column index: %d", cell->QueryStart());
+	mtl_info("Cell column index: %d", cell->QueryStart());
 	
 	if (!cell->is_percentage())
 	{
@@ -113,7 +113,7 @@ PrintPercentage(ods::Cell *cell)
 	}
 	
 	double value = *cell->as_percentage();
-	mtl_line("Cell percentage is: %f", value);
+	mtl_info("Cell percentage is: %f", value);
 	
 	auto *style = cell->GetStyle();
 	
@@ -139,7 +139,7 @@ PrintPercentage(ods::Cell *cell)
 		return;
 	}
 	
-	mtl_line("min integer digits: %d, decimal places: %d",
+	mtl_info("min integer digits: %d, decimal places: %d",
 		ns->min_integer_digits(), ns->decimal_places());
 	
 }
@@ -172,19 +172,19 @@ PrintWidth(ods::inst::TableTableColumn *col)
 		{
 			if (soi->is_string())
 			{
-				mtl_line("[String]");
+				mtl_info("[String]");
 				qDebug() << *soi->as_string();
 			} else if (soi->is_inst()) {
-				mtl_line("[Inst]");
+				mtl_info("[Inst]");
 				ods::inst::Abstract *p = soi->as_inst();
-				mtl_line("func: %p", (void*)p->func());
-				mtl_line("tcp func: %p", (void*) ods::id::StyleTableColumnProperties);
+				mtl_info("func: %p", (void*)p->func());
+				mtl_info("tcp func: %p", (void*) ods::id::StyleTableColumnProperties);
 
 				auto ba = p->FullName().toLocal8Bit();
-				mtl_line("Full name: %s", ba.data());
+				mtl_info("Full name: %s", ba.data());
 
 			} else {
-				mtl_line("[OTHER]");
+				mtl_info("[OTHER]");
 			}
 		}
 
@@ -202,7 +202,7 @@ PrintWidth(ods::inst::TableTableColumn *col)
 	}
 	
 	auto ba = width->toString().toLocal8Bit();
-	mtl_line("Column width: %s", ba.data());
+	mtl_info("Column width: %s", ba.data());
 }
 
 void
@@ -215,7 +215,7 @@ Save(ods::Book *book, const char *file_name)
 	
 	if (err.isEmpty()) {
 		auto ba = file.fileName().toLocal8Bit();
-		mtl_line("Saved to: %s", ba.data());
+		mtl_info("Saved to: %s", ba.data());
 	} else {
 		auto ba = err.toLocal8Bit();
 		mtl_warn("%s", ba.data());

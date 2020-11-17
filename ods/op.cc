@@ -5,7 +5,9 @@
 namespace ods {
 int priority(const ods::Op op)
 {
+	// Greatest number has highest priority.
 	switch (op) {
+	case Op::Ampersand: // this op's priority is just a guess!
 	case Op::Equals: return 3;
 	case Op::Less:
 	case Op::LessOrEqual:

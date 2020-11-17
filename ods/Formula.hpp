@@ -13,6 +13,7 @@ namespace ods {
 
 // This helps detect cyclic references inside formulas
 const u8 EvaluatingBit = 1u << 0;
+const u8 TriggerSaveOriginalNodes = 1u << 1;
 
 class ODS_API Formula {
 public:
@@ -23,9 +24,12 @@ public:
 	void Add(const ods::Op op);
 	void AddCloseBrace();
 	void AddOpenBrace();
-	void Add(Function f);
-	void Add(ods::Cell *cell, Sheet *sheet = nullptr);
+	void Add(Function *f);
+	void Add(ods::Cell *cell);
+	void Add(const QString &s);
+	void AddCellRange(Cell *start, Cell *end);
 	
+	ods::Sheet* default_sheet() const { return default_sheet_; }
 	const QString& error() const { return error_; }
 	FormulaNode *Eval();
 	
@@ -36,13 +40,15 @@ public:
 	
 	bool has_error() const { return !error_.isEmpty(); }
 	bool ok() const { return error_.isEmpty(); }
-	const QString& raw_str() const { return raw_str_; }
-	void raw_str(const QString &s) { raw_str_ = s; }
+	
+	void PrintNodes(const char *msg = "") { function::PrintNodes(nodes_, msg); }
+	void PrintNodesInOneLine(const char *msg = "") { function::PrintNodesInOneLine(nodes_, msg); }
+	
+	void RemoveAllNodes();
 	
 	// This method segfaults if called from inside
 	// the dtor of ~Formula():
-	QString ToXmlString() const;
-	FormulaNode* value() const { return value_; }
+	QString ToXmlString();
 	
 private:
 	Formula(ods::Cell *cell);
@@ -54,7 +60,7 @@ private:
 	DecodeNext(QStringRef s, int &resume_at, QVector<FormulaNode *> &vec, Sheet *default_sheet,
 		u8 &settings);
 	
-	void EvaluateNodes();
+	FormulaNode *EvaluateNodes();
 	void evaluating(const bool flag) {
 		if (flag)
 			bits_ |= ods::EvaluatingBit;
@@ -62,13 +68,15 @@ private:
 			bits_ &= ~ods::EvaluatingBit;
 	}
 	
+	void SaveOriginalNodes(QVector<FormulaNode*> &nodes);
+	
 	QVector<FormulaNode*> nodes_;
-	QString raw_str_;
+	QVector<FormulaNode*> original_nodes_;
+	QString str_to_evaluate_;
 	QString error_;
-	FormulaNode *value_ = nullptr;
 	ods::Cell *cell_ = nullptr;
 	ods::Sheet *default_sheet_ = nullptr;
-	u8 bits_ = 0;
+	u8 bits_ = ods::TriggerSaveOriginalNodes;
 	friend class ods::Cell;
 	friend class ods::Function;
 };

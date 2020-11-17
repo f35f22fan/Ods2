@@ -37,7 +37,7 @@ public:
 	ods::Currency* as_currency() const { return data_.currency; }
 	double as_percentage() const { return data_.percentage; }
 	bool as_bool() const { return data_.flag; }
-	QString as_string() const { return data_.string; }
+	QString* as_string() const { return data_.s; }
 	
 	// takes ownership of pointer arguments:
 	static FormulaNode* Address(ods::Address *a);
@@ -70,30 +70,46 @@ public:
 	bool is_string() const { return type_ == Type::String; }
 	
 	bool Operation(const ods::Op op, FormulaNode *rhs);
+	bool OperationAmpersand(const ods::Op op, FormulaNode *rhs);
 	bool OperationPlusMinus(const ods::Op op, FormulaNode *rhs);
 	bool OperationMultDivide(const ods::Op op, FormulaNode *rhs);
 	void
 	SetAddress(ods::Address *a) {
+		Clear();
 		data_.address = a;
 		type_ = Type::Address;
 	}
 	
+	void
+	SetCurrency(ods::Currency *c) {
+		Clear();
+		data_.currency = c;
+		type_ = Type::Currency;
+	}
+	
 	void SetDouble(double d) {
+		Clear();
 		data_.number = d;
 		type_ = Type::Double;
 	}
 	
 	void SetPercentage(double d) {
+		Clear();
 		data_.percentage = d;
 		type_ = Type::Percentage;
+	}
+	
+	void SetString(const QString &str) {
+		Clear();
+		data_.s = new QString(str);
+		type_ = Type::String;
 	}
 	
 	bool is_cell_range() const {
 		return is_address() && as_address()->is_cell_range();
 	}
 	
-	QString toString() const;
-	QString toCompactString() const;
+	QString toString(const ToStringArgs args = ToStringArgs::None) const;
 private:
 	
 	static void DeepCopy(FormulaNode &dest, const FormulaNode &src);
@@ -116,6 +132,7 @@ private:
 		String
 	};
 	
+	// each data type must be properly copied in DeepCopy(..)
 	union Data {
 		ods::Address *address;
 		ods::Function *function;
@@ -127,7 +144,7 @@ private:
 		ods::Currency *currency;
 		double percentage;
 		bool flag;
-		QString string;
+		QString *s;
 		Data() { memset(this, 0, sizeof(Data)); }
 		~Data() {}
 	};

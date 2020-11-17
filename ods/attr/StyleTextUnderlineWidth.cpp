@@ -35,7 +35,7 @@ StyleTextUnderlineWidth::FromString(const QString &s)
 		p->SetBold();
 		return p;
 	} else {
-		tbd();
+		it_happened();
 	}
 	
 	return nullptr;
@@ -48,7 +48,7 @@ StyleTextUnderlineWidth::toString()
 	{
 	case TextUnderlineWidth::Auto: return AutoStr;
 	case TextUnderlineWidth::Bold: return BoldStr;
-	default: tbd(); return QLatin1String();
+	default: it_happened(); return QLatin1String();
 	}
 }
 

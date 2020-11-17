@@ -5,7 +5,7 @@
 
 namespace ods {
 namespace currency {
-ODS_API CurrencyInfo info(const Currency &c);
+ODS_API CurrencyInfo info(const CurrencyId &id);
 
 ODS_API Currency USD(double d);
 ODS_API Currency EUR(double d);
@@ -13,6 +13,9 @@ ODS_API Currency GBP(double d);
 ODS_API Currency CNY(double d);
 ODS_API Currency RUB(double d);
 ODS_API Currency JPY(double d);
+
+ods::Currency*
+Query(const QString &country, const QString &symbol);
 
 }
 }

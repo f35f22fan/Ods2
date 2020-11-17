@@ -8,36 +8,9 @@
 
 namespace ods::function {
 
-/* bool
-Apply(ods::Value &lhs, const ods::Op op, const ods::Value &rhs)
-{
-	if (lhs.is_double() && rhs.is_double()) {
-		double d1 = *lhs.as_double();
-		double d2 = *rhs.as_double();
-		double result;
-		if (op == Op::Plus) {
-			result = d1 + d2;
-		} else if (op == Op::Minus) {
-			result = d1 - d2;
-		} else if (op == Op::Multiply) {
-			result = d1 * d2;
-		} else if (op == Op::Divide) {
-			result = d1 / d2;
-		} else {
-			mtl_trace("Operation not implemented");
-			return false;
-		}
-		lhs.SetDouble(result);
-		return true;
-	}
-	mtl_trace("Both sides not numbers");
-	return false;
-} */
-
 bool
 EvalDeepestGroup(QVector<FormulaNode*> &input)
 {
-mtl_line();
 	int start = -1, count = -1;
 	bool remove_braces = false;
 	
@@ -73,9 +46,12 @@ mtl_line();
 		
 		if (node->is_function()) {
 			Function *f = node->as_function();
-mtl_line();
 			ods::FormulaNode *value = f->Eval();
 			CHECK_PTR(value);
+#ifdef DEBUG_FORMULA_EVAL
+			auto val_ba = value->toString().toLocal8Bit();
+			mtl_info("Function value: %s", val_ba.data());
+#endif
 			ret.append(value);
 			delete node;
 		} else {
@@ -84,14 +60,9 @@ mtl_line();
 	}
 	
 	input.erase(input.begin() + start, input.begin() + start + count);
-	PrintNodes(input);
-	
 	CHECK_TRUE(EvalNodesByOpPrecedence(ret));
 	CHECK_TRUE((ret.size() == 1));
-	auto *node = ret[0];
-	input.insert(input.begin() + start, node);
-	auto ba = node->toCompactString().toLocal8Bit();
-	mtl_line("===============RESULT: %s", ba.data());
+	input.insert(input.begin() + start, ret[0]);
 	return true;
 }
 
@@ -101,15 +72,20 @@ EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes)
 	int iter = 0;
 	while (nodes.size() > 1)
 	{
-		if (iter++ > 10)
-			break;
-		mtl_line("nodes count: %d", nodes.size());
+		if (iter++ > 300) {
+			mtl_trace();
+			return false;
+		}
+		
+#ifdef DEBUG_FORMULA_EVAL
 		PrintNodesInOneLine(nodes, "EvalNodesByOpPrecedence() while() start");
+#endif
 		const int op_index = FindHighestPriorityOp(nodes);
 		RET_IF_EQUAL(op_index, -1);
 		RET_IF_EQUAL(op_index, nodes.size() - 1);
-		mtl_line("op_index: %d", op_index);
-		
+#ifdef DEBUG_FORMULA_EVAL
+		mtl_info("op_index: %d", op_index);
+#endif
 		if (ProcessIfInfixPlusOrMinus(nodes, op_index))
 			continue;
 		
@@ -123,7 +99,6 @@ EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes)
 		// + 2 instead of + 1 because the last element is not included
 		nodes.erase(nodes.begin() + op_index, nodes.begin() + op_index + 2);
 	}
-	PrintNodesInOneLine(nodes, "End of EvalNodesByOpPrecedence() func end");
 	return true;
 }
 
@@ -153,59 +128,41 @@ ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 }
 
 bool
-ExtractValue(ods::FormulaNode *node, QVector<ods::FormulaNode*> &result)
+ExtractAddressValues(ods::FormulaNode *node, QVector<ods::FormulaNode*> &result)
 {
-	if (node->is_address()) {
-		auto *address = node->as_address();
+	auto *address = node->as_address();
+	
+	if (address->is_cell_range()) {
+#ifdef DEBUG_FORMULA_EVAL
+		auto ba = address->toString().toLocal8Bit();
+		mtl_info("Cell Address Range: %s", ba.data());
+#endif
+		QVector<ods::Cell*> cells;
+		CHECK_TRUE(address->GenCells(cells));
 		
-		if (address->is_cell_range()) {
-			auto ba = address->toString().toLocal8Bit();
-			mtl_line("Cell Address Range: %s", ba.data());
-			QVector<ods::Cell*> cells;
-			CHECK_TRUE(address->GenCells(cells));
-			
-			for (auto *cell : cells) {
-				auto *val = new ods::FormulaNode();
-				if (ExtractCellValue(cell, *val)) {
-					result.append(val);
-				} else {
-					delete val;
-					mtl_trace();
-					return false;
-				}
-			}
-			return true;
-		} else {
-			auto *cell_ref = address->cell();
-			ods::Cell *cell = cell_ref->GetCell();
+		for (auto *cell : cells) {
 			auto *val = new ods::FormulaNode();
 			if (ExtractCellValue(cell, *val)) {
 				result.append(val);
-				return true;
 			} else {
 				delete val;
+				mtl_trace();
 				return false;
 			}
 		}
-	} else if (node->is_double()) {
-		double d = node->as_double();
-		auto *v = new ods::FormulaNode();
-		v->SetDouble(d);
-		result.append(v);
-	} else if (node->is_function()) {
-		ods::Function *f = node->as_function();
-		ods::FormulaNode *value = f->Eval();
-		CHECK_PTR(value);
-		if (value->is_none()) {
-			mtl_trace();
+		return true;
+	} else {
+		auto *cell_ref = address->cell();
+		ods::Cell *cell = cell_ref->GetCell();
+		auto *val = new ods::FormulaNode();
+		if (ExtractCellValue(cell, *val)) {
+			result.append(val);
+			return true;
+		} else {
+			delete val;
 			return false;
 		}
-		result.append(value->Clone());
-	} else {
-		mtl_trace();
-		return false;
 	}
-	
 	return true;
 }
 
@@ -234,6 +191,18 @@ FindHighestPriorityOp(QVector<FormulaNode*> &vec)
 }
 
 const FunctionMeta*
+FindFunctionMeta(const FunctionId id)
+{
+	for (const FunctionMeta &fi: GetSupportedFunctions()) {
+		if (id == fi.id) {
+			return &fi;
+		}
+	}
+	
+	return nullptr;
+}
+
+const FunctionMeta*
 FindFunctionMeta(const QString &name)
 {
 	for (const FunctionMeta &fi: GetSupportedFunctions()) {
@@ -245,14 +214,96 @@ FindFunctionMeta(const QString &name)
 	return nullptr;
 }
 
+bool
+FlattenOutArgs(QVector<ods::FormulaNode*> &vec)
+{
+	int count = vec.size();
+	for (int i = 0; i < count; i++) {
+		ods::FormulaNode *node = vec[i];
+		
+		if (node->is_function()) {
+			Function *f = node->as_function();
+			ods::FormulaNode *value = f->Eval();
+			CHECK_PTR(value);
+			delete f;
+			vec[i] = value;
+		} else if (node->is_address()) {
+			CHECK_TRUE(ExtractAddressValues(node, vec));
+			vec.erase(vec.begin() + i);
+			i--;
+			count--;
+		} else { // must not be processed
+//			auto ba = node->toString().toLocal8Bit();
+//			mtl_trace("node: \"%s\"", ba.data());
+//			return false;
+		}
+	}
+	
+	return true;
+}
+
 const QVector<FunctionMeta>&
 GetSupportedFunctions() {
 	static QVector<FunctionMeta> v = {
 		FunctionMeta {"SUM", FunctionId::Sum},
 		FunctionMeta {"MAX", FunctionId::Max},
 		FunctionMeta {"MIN", FunctionId::Min},
+		FunctionMeta {"PRODUCT", FunctionId::Product},
 	};
 	return v;
+}
+
+void PrintNodes(const QVector<FormulaNode*> &nodes, const char *msg)
+{
+	if (strlen(msg) == 0)
+		mtl_info("Formula nodes (%d): %s", nodes.size(), msg);
+	else
+		mtl_info("%s", msg);
+	
+	for (int i = 0; i < nodes.size(); i++) {
+		const FormulaNode *node = nodes[i];
+		QString s;
+		QString type;
+		if (node->is_address()) {
+			type = QLatin1String("Address");
+			s = node->as_address()->toString();
+		} else if (node->is_function()) {
+			type = QLatin1String("Function");
+			s = node->as_function()->toString();
+		} else if (node->is_double()) {
+			type = QLatin1String("Number");
+			s = QString::number(node->as_double());
+		} else if (node->is_op()) {
+			type = QLatin1String("Op");
+			s = ods::op::ToString(node->as_op());
+		} else if (node->is_brace()) {
+			type = QLatin1String("Brace");
+			s = ods::ToString(node->as_brace());
+		} else if (node->is_string()) {
+			type = QLatin1String("String");
+			s = *node->as_string();
+		} else if (node->is_none()) {
+			type = QLatin1String("None");
+			s = QLatin1String("[!!]");
+		}
+		
+		auto ba = s.toLocal8Bit();
+		auto type_ba = type.toLocal8Bit();
+		printf("(%d) %s: \"%s\"\n", i+1, type_ba.data(), ba.data());
+	}
+}
+
+void PrintNodesInOneLine(const QVector<FormulaNode *> &v, const char *msg)
+{
+	QString s;
+	QString separator = QString(MTL_COLOR_GREEN) + "|" + MTL_COLOR_DEFAULT;
+	for (ods::FormulaNode *node : v) {
+		s.append(node->toString()).append(separator);
+	}
+	
+	auto ba = s.toLocal8Bit();
+	auto sep_ba = separator.toLocal8Bit();
+	mtl_info("%s%s %s", sep_ba.data(), ba.data(), msg);
 }
 
 bool
@@ -263,8 +314,8 @@ ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes,
 	const ods::Op op = op_node->as_op();
 	
 	if (op != Op::Minus && op != Op::Plus) {
-		auto ba = ods::op::ToString(op).toLocal8Bit();
-		mtl_warn("Don't know what to do with %s", ba.data());
+//		auto ba = ods::op::ToString(op).toLocal8Bit();
+//		mtl_warn("Don't know what to do with %s", ba.data());
 		return false;
 	}
 	
@@ -295,56 +346,9 @@ ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes,
 	return true;
 }
 
-void PrintNodesInOneLine(const QVector<FormulaNode *> &v, const char *msg)
-{
-	QString s;
-	QString separator = QString(MTL_COLOR_GREEN) + "|" + MTL_COLOR_DEFAULT;
-	for (ods::FormulaNode *node : v) {
-		s.append(node->toCompactString()).append(separator);
-	}
-	
-	auto ba = s.toLocal8Bit();
-	auto sep_ba = separator.toLocal8Bit();
-	mtl_line("%s%s %s", sep_ba.data(), ba.data(), msg);
-}
-
-void PrintNodes(const QVector<FormulaNode*> &nodes)
-{
-	mtl_line("Formula nodes:");
-	
-	for (int i = 0; i < nodes.size(); i++) {
-		const FormulaNode *node = nodes[i];
-		QString s;
-		QString type;
-		if (node->is_address()) {
-			type = "Address";
-			s = node->as_address()->toString();
-		} else if (node->is_function()) {
-			type = "Function";
-			s = node->as_function()->toString();
-		} else if (node->is_double()) {
-			type = "Number";
-			s = QString::number(node->as_double());
-		} else if (node->is_op()) {
-			type = "Op";
-			s = ods::op::ToString(node->as_op());
-		} else if (node->is_brace()) {
-			type = "Brace";
-			s = ods::ToString(node->as_brace());
-		} else if (node->is_none()) {
-			type = "None";
-			s = "[!!]";
-		}
-		
-		auto ba = s.toLocal8Bit();
-		auto type_ba = type.toLocal8Bit();
-		printf("(%d) %s: \"%s\"\n", i+1, type_ba.data(), ba.data());
-	}
-}
-
 //===================Formula Functions==============================
 
-FormulaNode* Max(const QVector<ods::FormulaNode*> &values, ods::FormulaNode *result)
+FormulaNode* Max(const QVector<ods::FormulaNode*> &values)
 {
 	double max;
 	bool initialize = true;
@@ -361,12 +365,15 @@ FormulaNode* Max(const QVector<ods::FormulaNode*> &values, ods::FormulaNode *res
 		}
 	}
 	
-	mtl_line("%.2f", max);
+#ifdef DEBUG_FORMULA_EVAL
+	mtl_info("%.2f", max);
+#endif
+	auto *result = new ods::FormulaNode();
 	result->SetDouble(max);
 	return result;
 }
 
-FormulaNode* Min(const QVector<FormulaNode *> &values, FormulaNode *result)
+FormulaNode* Min(const QVector<FormulaNode *> &values)
 {
 	double min;
 	bool initialize = true;
@@ -382,22 +389,61 @@ FormulaNode* Min(const QVector<FormulaNode *> &values, FormulaNode *result)
 				min = d;
 		}
 	}
-	
-	mtl_line("%.2f", min);
+#ifdef DEBUG_FORMULA_EVAL
+	mtl_info("%.2f", min);
+#endif
+	auto *result = new ods::FormulaNode();
 	result->SetDouble(min);
 	return result;
 }
 
-FormulaNode* Sum(const QVector<ods::FormulaNode*> &values, ods::FormulaNode *result)
+FormulaNode* Sum(const QVector<ods::FormulaNode*> &values)
 {
 	double d = 0;
 	
-	for (ods::FormulaNode *value: values) {
-		CHECK_TRUE_NULL(value->is_double());
-		d += value->as_double();
+	for (ods::FormulaNode *node: values) {
+		
+		if (!node->is_any_double()) {
+			auto ba = node->toString().toLocal8Bit();
+			mtl_info("Node is non double: \"%s\"", ba.data());
+		}
+		
+		CHECK_TRUE_NULL(node->is_any_double());
+		d += node->as_any_double();
 	}
+#ifdef DEBUG_FORMULA_EVAL
+	mtl_info("%.2f", d);
+#endif
+	auto *result = new ods::FormulaNode();
+	result->SetDouble(d);
+	return result;
+}
+
+FormulaNode* Product(const QVector<ods::FormulaNode*> &values)
+{
+	double d = 0;
 	
-	mtl_line("%.2f", d);
+	for (int i = 0; i < values.size(); i++) {
+		ods::FormulaNode *node = values[i];
+		
+		if (!node->is_any_double()) {
+			auto ba = node->toString().toLocal8Bit();
+			mtl_info("Node is non double: \"%s\"", ba.data());
+			return nullptr;
+		}
+		
+		//CHECK_TRUE_NULL(node->is_any_double());
+		
+		if (i == 0) {
+			d = node->as_any_double();
+		} else {
+			d *= node->as_any_double();
+		}
+	}
+#ifdef DEBUG_FORMULA_EVAL
+	mtl_info("%.2f", d);
+#endif
+	auto *result = new ods::FormulaNode();
 	result->SetDouble(d);
 	return result;
 }

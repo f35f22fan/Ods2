@@ -1,5 +1,7 @@
 #include "FormulaNode.hpp"
 
+#include "Cell.hpp"
+#include "CellRef.hpp"
 #include "Duration.hpp"
 #include "ods.hh"
 
@@ -74,6 +76,13 @@ FormulaNode::as_any_double() const
 void
 FormulaNode::Clear()
 {
+	if (is_none())
+		return;
+	
+	if (is_any_double()) {
+		type_ = Type::None;
+		return;
+	}
 	if (is_address())
 		delete as_address();
 	else if (is_function())
@@ -82,6 +91,8 @@ FormulaNode::Clear()
 		delete as_time();
 	else if (is_currency())
 		delete as_currency();
+	else if (is_string())
+		delete as_string();
 	
 	type_ = Type::None;
 }
@@ -114,13 +125,13 @@ FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 	else if (src.is_percentage())
 		dest.data_.percentage = src.data_.percentage;
 	else if (src.is_currency())
-		dest.data_.currency = src.data_.currency;
+		dest.data_.currency = src.data_.currency->Clone();
 	else if (src.is_date())
 		dest.data_.date = src.data_.date;
 	else if (src.is_string())
-		dest.data_.string = src.data_.string;
+		dest.data_.s = new QString(*src.data_.s);
 	else if (src.is_time())
-		dest.data_.time = src.data_.time;
+		dest.data_.time = src.data_.time->Clone();
 	else {
 		mtl_trace();
 	}
@@ -189,31 +200,6 @@ FormulaNode::Date(const QDateTime &date)
 	return p;
 }
 
-/*FormulaNode*
-FormulaNode::From(const ods::Value &v)
-{
-	if (v.is_double())
-		return FormulaNode::Double(*v.as_double());
-	if (v.is_currency())
-		return FormulaNode::Currency(v.as_currency()->Clone());
-	if (v.is_date())
-		return FormulaNode::Date(*v.as_date());
-	if (v.is_string())
-		return FormulaNode::String(*v.as_string());
-	if (v.is_time())
-		return FormulaNode::Time(v.as_time()->Clone());
-	if (v.is_percentage())
-		return FormulaNode::Percentage(*v.as_percentage());
-	if (v.is_bool())
-		return FormulaNode::Bool(*v.as_bool());
-	if (v.is_none()) {
-		mtl_trace();
-		return nullptr;
-	}
-	it_happened();
-	return nullptr;
-} */
-
 bool
 FormulaNode::Operation(const ods::Op op, FormulaNode *rhs)
 {
@@ -223,7 +209,19 @@ FormulaNode::Operation(const ods::Op op, FormulaNode *rhs)
 	if (op == Op::Multiply || op == Op::Divide)
 		return OperationMultDivide(op, rhs);
 	
+	if (op == Op::Ampersand)
+		return OperationAmpersand(op, rhs);
+	
+	mtl_trace();
 	return false;
+}
+
+bool
+FormulaNode::OperationAmpersand(const ods::Op op, FormulaNode *rhs)
+{
+	QString s = toString() + rhs->toString();
+	SetString(s);
+	return true;
 }
 
 bool
@@ -243,14 +241,12 @@ FormulaNode::OperationMultDivide(const ods::Op op, FormulaNode *rhs)
 			return true;
 		} else if (rhs->is_function()) {
 			auto *f = rhs->as_function();
-			CHECK_TRUE(f->Eval());
-			const ods::FormulaNode &rhs_value = *f->value();
-			if (rhs_value.is_none()) {
-				mtl_trace();
-				return false;
-			}
-			if (rhs_value.is_any_double()) {
-				rhs_double = rhs_value.as_any_double();
+			const ods::FormulaNode *rhs_value = f->Eval();
+			ods::AutoDelete ad(rhs_value);
+			CHECK_TRUE((rhs_value != nullptr));
+			CHECK_TRUE((!rhs_value->is_none()))
+			if (rhs_value->is_any_double()) {
+				rhs_double = rhs_value->as_any_double();
 				if (mult) {
 					SetDouble(as_double() * rhs_double);
 				} else {
@@ -294,56 +290,82 @@ FormulaNode::OperationMultDivide(const ods::Op op, FormulaNode *rhs)
 bool
 FormulaNode::OperationPlusMinus(const ods::Op op, FormulaNode *rhs)
 {
-	const bool is_any_double = rhs->is_any_double();
-	double rhs_double = is_any_double ? rhs->as_any_double() : 0;
 	const bool plus = (op == ods::Op::Plus);
 	
 	if (is_double()) {
-		if (is_any_double) {
+		if (rhs->is_any_double()) {
 			if (plus) {
-				double result = as_double() + rhs_double; 
+				double result = as_double() + rhs->as_any_double(); 
 				SetDouble(result);
 				
 			} else
-				SetDouble(as_double() - rhs_double);
+				SetDouble(as_double() - rhs->as_any_double());
 			return true;
+		} else if (rhs->is_address()) {
+			QVector<FormulaNode*> values;
+			CHECK_TRUE(function::ExtractAddressValues(rhs, values));
+			if (values.size() != 1) {
+				mtl_warn("Don't know what to do when values count = %d", values.size());
+				return false;
+			}
+			return OperationPlusMinus(op, values[0]);
 		}
 	} else if (is_currency()) {
 		ods::Currency *c = as_currency();
-		if (is_any_double) {
+		if (rhs->is_any_double()) {
 			if (plus)
-				c->qtty += rhs_double;
+				c->qtty += rhs->as_any_double();
 			else
-				c->qtty -= rhs_double;
+				c->qtty -= rhs->as_any_double();
 			return true;
 		}
 	} else if (is_percentage()) {
-		if (is_any_double) {
+		if (rhs->is_any_double()) {
 			if (plus)
-				SetPercentage(as_percentage() + rhs_double);
+				SetPercentage(as_percentage() + rhs->as_any_double());
 			else
-				SetPercentage(as_percentage() - rhs_double);
+				SetPercentage(as_percentage() - rhs->as_any_double());
 			return true;
 		}
 	} else if (is_function()) {
 		auto *f = as_function();
-		CHECK_TRUE(f->Eval());
-		const ods::FormulaNode &val = *f->value();
-		if (val.is_none()) {
-			mtl_trace();
-			return false;
-		}
-		if (val.is_double()) {
-			SetDouble(val.as_double());
+		const ods::FormulaNode *val = f->Eval();
+		ods::AutoDelete ad(val);
+		CHECK_TRUE(((val != nullptr) && (!val->is_none())))
+		if (val->is_double()) {
+			SetDouble(val->as_double());
 			return Operation(op, rhs);
 		}
 	} else if (is_address()) {
-		QVector<FormulaNode*> nodes;
-		mtl_warn("TBD");
-		//function::ExtractValue
+		ods::Address *address = as_address();
+		if (address->is_cell_range()) {
+			mtl_warn("Cell range not implemented");
+			return false;
+		}
+		
+		ods::Cell *cell = address->cell()->GetCell();
+		CHECK_PTR(cell);
+		FormulaNode result;
+		CHECK_TRUE(function::ExtractCellValue(cell, result));
+		if (cell->is_double()) {
+			SetDouble(*cell->as_double());
+		} else if (cell->is_currency()) {
+			ods::Currency *c = cell->QueryCurrencyObject();
+			CHECK_PTR(c);
+			SetCurrency(c);
+		} else if (cell->is_percentage()) {
+			SetPercentage(*cell->as_percentage());
+		} else {
+			mtl_trace();
+			return false;
+		}
+		
+		return OperationPlusMinus(op, rhs);
 	}
 	
-	mtl_warn("TBD");
+	auto self_ba = toString().toLocal8Bit();
+	auto rhs_ba = rhs->toString().toLocal8Bit();
+	mtl_warn("TBD: this: \"%s\", rhs: \"%s\"", self_ba.data(), rhs_ba.data());
 	return false;
 }
 
@@ -361,7 +383,7 @@ FormulaNode::String(const QString &s)
 {
 	auto *p = new FormulaNode();
 	p->type_ = Type::String;
-	p->data_.string = s;
+	p->data_.s = new QString(s);
 	return p;
 }
 
@@ -375,40 +397,35 @@ FormulaNode::Time(ods::Duration *d)
 }
 
 QString
-FormulaNode::toString() const
+FormulaNode::toString(const ods::ToStringArgs args) const
 {
 	if (is_address())
 		return data_.address->toString();
 	else if (is_function())
 		return data_.function->toXmlString();
 	else if (is_double())
-		return QString::number(as_double(), 'f', FLT_DIG);
-	else if (is_currency())
-		return QString::number(as_currency()->qtty, 'f', FLT_DIG);
-	else if (is_percentage())
-		return QString::number(as_percentage(), 'f', FLT_DIG);
-	else if (is_op())
-		return ods::op::ToString(data_.op);
-	else if (is_brace())
-		return ods::ToString(data_.brace);
-	else if (is_none())
-		return QLatin1String("[none!!]");
-	else {
-		it_happened();
-		return "Shouldn't happen!!";
-	}
-}
-
-QString
-FormulaNode::toCompactString() const
-{
-	if (is_double())
 		return QString::number(as_double());
 	else if (is_currency())
 		return QString::number(as_currency()->qtty);
 	else if (is_percentage())
 		return QString::number(as_percentage());
-	return toString();
+	else if (is_op())
+		return ods::op::ToString(data_.op);
+	else if (is_brace())
+		return ods::ToString(data_.brace);
+	else if (is_string()) {
+		if (args == ToStringArgs::IncludeQuotMarks) {
+			const QChar quot = QChar('\"');
+			return quot + *as_string() + quot;
+		}
+		return *as_string();
+			
+	} else if (is_none())
+		return QLatin1String("[none!!]");
+	else {
+		it_happened();
+		return "Shouldn't happen!!";
+	}
 }
 
 }

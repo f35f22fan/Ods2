@@ -2,6 +2,7 @@
 
 #include "Attr.hpp"
 #include "Book.hpp"
+#include "CellRef.hpp"
 #include "currency.hh"
 #include "Duration.hpp"
 #include "Formula.hpp"
@@ -16,10 +17,10 @@
 #include "StringOrInst.hpp"
 #include "StringOrTag.hpp"
 
-#include "Formula.hpp"
-
 #include "inst/DrawFrame.hpp"
 #include "inst/DrawImage.hpp"
+#include "inst/NumberCurrencyStyle.hpp"
+#include "inst/NumberCurrencySymbol.hpp"
 #include "inst/OfficeAutomaticStyles.hpp"
 #include "inst/OfficeDocumentContent.hpp"
 #include "inst/StyleFontFace.hpp"
@@ -230,6 +231,16 @@ Cell::NewFormula()
 	return formula_;
 }
 
+ods::CellRef*
+Cell::NewRef()
+{
+	ods::Sheet *sheet = row_->sheet();
+	int row_index = sheet->QueryRowStart(row_);
+	int col = row_->QueryCellStart(this);
+	return CellRef::New(sheet, row_index, col);
+	
+}
+
 inst::StyleStyle*
 Cell::NewStyle()
 {
@@ -272,6 +283,23 @@ Cell::QueryAddress() const
 	// [.B1] means col 1 and row 0
 	s.append(QString::number(row_->QueryStart() + 1));
 	return s;
+}
+
+ods::Currency*
+Cell::QueryCurrencyObject()
+{
+	auto *style = GetStyle();
+	CHECK_PTR_NULL(style);
+	auto ncs = style->GetCurrencyStyle();
+	CHECK_PTR_NULL(ncs);
+	auto *cs = (ods::inst::NumberCurrencySymbol*)
+		ncs->Get(ods::Id::NumberCurrencySymbol);
+	const QString country = cs->country();
+	const QString symbol = cs->GetSymbol();
+	ods::Currency *c = ods::currency::Query(country, symbol);
+	CHECK_PTR_NULL(c);
+	c->qtty = *as_currency();
+	return c;
 }
 
 Length*
@@ -513,7 +541,7 @@ Cell::SetCurrency(const Currency &c)
 {
 	SetDouble(c.qtty);
 	office_value_type_ = ods::ValueType::Currency;
-	CurrencyInfo info = ods::currency::info(c);
+	CurrencyInfo info = ods::currency::info(c.id);
 	office_currency_ = info.str;
 }
 
@@ -745,8 +773,9 @@ Cell::WriteValue(QXmlStreamWriter &xml)
 		it_happened();
 	}
 	
-	if (formula_ != nullptr)
+	if (formula_ != nullptr) {
 		Write(xml, ns_->table(), ods::ns::kFormula, formula_->ToXmlString());
+	}
 }
 
 } // ods::

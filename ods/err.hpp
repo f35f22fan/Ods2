@@ -13,31 +13,27 @@
 	#define MTL_COLOR_DEFAULT	"\x1B[0m"
 	#define MTL_COLOR_GREEN		"\x1B[32m"
 	#define MTL_COLOR_RED		"\e[0;91m"
+    #define MTL_COLOR_YELLOW    "\e[93m"
+    #define MTL_BLINK_START     "\e[5m"
+    #define MTL_BLINK_END       "\e[25m"
 #else
 	#define MTL_COLOR_BLUE		""
 	#define MTL_COLOR_DEFAULT	""
 	#define MTL_COLOR_GREEN		""
 	#define MTL_COLOR_RED		""
+    #define MTL_COLOR_YELLOW    ""
+    #define MTL_BLINK_START     ""
+    #define MTL_BLINK_END       ""
 #endif
 
 #ifdef _MSC_VER
-#define mtl_line(fmt, ...) fprintf(stdout, \
+#define mtl_info(fmt, ...) fprintf(stdout, \
 	"%s[%s:%.3d %s]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
 	__LINE__, __FUNCTION__, MTL_COLOR_DEFAULT, __VA_ARGS__)
 #else
-#define mtl_line(fmt, args...) fprintf(stdout, \
+#define mtl_info(fmt, args...) fprintf(stdout, \
 	"%s[%s:%.3d %s]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
 	__LINE__, __FUNCTION__, MTL_COLOR_DEFAULT, ##args)
-#endif
-
-#ifdef _MSC_VER
-#define fix_me(fmt, ...) fprintf(stdout, \
-	"%sFIXME [%s %.3d] " fmt "%s\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
-	__LINE__, __VA_ARGS__, MTL_COLOR_DEFAULT)
-#else
-#define fix_me(fmt, args...) fprintf(stdout, \
-	"%sFIXME [%s %.3d] " fmt "%s\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
-	__LINE__, ##args, MTL_COLOR_DEFAULT)
 #endif
 
 #ifdef _MSC_VER
@@ -47,16 +43,6 @@
 #else
 #define it_happened(fmt, args...) fprintf(stdout, \
 	"%sIT HAPPENED [%s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
-	__LINE__, ##args, MTL_COLOR_DEFAULT)
-#endif
-
-#ifdef _MSC_VER
-#define tbd(fmt, ...) fprintf(stdout, \
-	"%sTBD [%s %.3d] " fmt "%s\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
-	__LINE__, __VA_ARGS__, MTL_COLOR_DEFAULT)
-#else
-#define tbd(fmt, args...) fprintf(stdout, \
-	"%sTBD [%s %.3d] " fmt "%s\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
 	__LINE__, ##args, MTL_COLOR_DEFAULT)
 #endif
 
@@ -83,12 +69,6 @@
 #define mtl_status(status) fprintf (stderr, "%s[%s %.3d] %s%s\n", \
 	MTL_COLOR_RED, SRC_FILE_NAME, \
 	__LINE__, strerror(status), MTL_COLOR_DEFAULT)
-
-#define mtl_errno fprintf (stderr, "[%s %.3d] %m\n", __LINE__, __FUNCTION__)
-
-#define mtl_qline(qstr) qDebug().nospace() << MTL_COLOR_BLUE << "[" << \
-	SRC_FILE_NAME << ' ' << __FUNCTION__ << ' ' << __LINE__ << "] " << \
-	qstr << MTL_COLOR_DEFAULT
 
 #define NO_ASSIGN_COPY_MOVE(TypeName)	\
 	TypeName(const TypeName&) = delete;		\
@@ -137,6 +117,13 @@
 	if (!x) {\
 		mtl_trace();\
 		return;\
+	}\
+}
+
+#define CHECK_TRUE_QSTR(x) {\
+	if (!x) {\
+		mtl_trace();\
+		return QString();\
 	}\
 }
 

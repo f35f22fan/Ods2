@@ -8,6 +8,15 @@
 
 namespace ods { // ods::
 
+template <class A_Type> class AutoDelete {
+public:
+	AutoDelete(A_Type x) : x_(x) {}
+	virtual ~AutoDelete() { delete x_; }
+	
+private:
+	A_Type x_ = nullptr;
+};
+
 template <class VecType> class AutoDeleteVec {
 public:
 	AutoDeleteVec(VecType &x) : vec_(x) {}
@@ -35,6 +44,10 @@ DPI();
 
 ODS_API void
 DPI(const double dpi);
+
+/** Returns the index of the last single quote, not past it. **/
+int
+FindEndOfSingleQuotedString(const QStringRef &s);
 
 ODS_API int
 FindNonAscii(const QStringRef &s, const int from = 0);

@@ -12,6 +12,8 @@
 #include <ods/err.hpp>
 #include <ods/Formula.hpp>
 #include <ods/FormulaNode.hpp>
+#include <ods/Function.hpp>
+#include <ods/function.hh>
 #include <ods/HAlign.hpp>
 #include <ods/id.hh>
 #include <ods/lang.hxx>

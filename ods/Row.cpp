@@ -300,7 +300,7 @@ Row::QueryCellStart(const Cell *cell) const
 	
 	for (auto *next: cells_)
 	{
-		if (next >= cell)
+		if (next == cell)
 			return index;
 		
 		index += next->ncr();

@@ -68,7 +68,7 @@ Invoice::CreateSellerHeader()
 	
 	if (!file.exists()) {
 		auto ba = kName.toLocal8Bit();
-		mtl_line("If there was %s "
+		mtl_info("If there was %s "
 			"in your home dir, I'd use it as the \"company logo\" "
 			"in the invoice.", ba.data());
 	} else {
@@ -234,7 +234,16 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 	total_style->SetBorder(ods::Length(1.0, ods::Unit::Px), QColor(0, 0, 0),
 		ods::line::Style::Solid, ods::BorderAll);
 	
+	// Option 1: use the Sum(cell_range) function:
 	ods::Formula *total_formula = total_cell->NewFormula();
+	ods::Function *function = ods::Function::SUM();
+	ods::Cell *start_cell = line_total_cells[0];
+	ods::Cell *end_cell = line_total_cells[line_total_cells.size() - 1];
+	auto *cell_range = sheet_->NewAddress(start_cell, end_cell);
+	function->AddArg(cell_range);
+	total_formula->Add(function);
+	
+	/* // Option 2: Sum up all cells:
 	const auto kCount = line_total_cells.size();
 	
 	for(int i = 0; i < kCount; i++)
@@ -243,7 +252,7 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 		
 		if (i < kCount - 1)
 			total_formula->Add(ods::Op::Plus);
-	}
+	} */
 	
 	row = sheet_->NewRowAt(++last_row_index);
 	auto *notes_cell = row->NewCellAt(0);
@@ -366,13 +375,6 @@ Invoice::Init()
 		qDebug() << "CreateTable() failed";
 		return;
 	}
-	/*
-	last_index = CreateNotes(last_index);
-	
-	if (last_index == -1) {
-		qDebug() << "CreateNotes() failed";
-		return;
-	} */
 	
 	auto path = QDir(QDir::homePath()).filePath("Invoice.ods");
 	QFile target(path);

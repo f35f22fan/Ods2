@@ -7,6 +7,11 @@
 
 namespace ods { // ods::
 
+enum class ToStringArgs {
+	None,
+	IncludeQuotMarks
+};
+
 enum class ValueType: u8
 {
 	Bool = 1,

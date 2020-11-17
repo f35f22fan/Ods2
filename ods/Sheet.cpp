@@ -1,5 +1,6 @@
 #include "Sheet.hpp"
 
+#include "Address.hpp"
 #include "Book.hpp"
 #include "Cell.hpp"
 #include "Ns.hpp"
@@ -304,6 +305,15 @@ Sheet::InitDefault()
 	auto *row = new ods::Row(this);
 	row->num(DefaultRowCountPerSheet);
 	rows_.append(row);
+}
+
+ods::Address*
+Sheet::NewAddress(ods::Cell *cell, ods::Cell *end_cell)
+{
+	if (end_cell == nullptr)
+		return ods::Address::Cell(this, cell->NewRef());
+	
+	return ods::Address::CellRange(this, cell->NewRef(), end_cell->NewRef());
 }
 
 inst::TableTableColumn*

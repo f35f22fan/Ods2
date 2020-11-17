@@ -40,6 +40,9 @@ public:
 	const QString&
 	name() const { return table_name_; }
 	
+	ods::Address*
+	NewAddress(ods::Cell *cell, ods::Cell *end_cell = nullptr);
+	
 	inst::TableTableColumn*
 	NewColumnAt(const int place, const int ncr = 1);
 	

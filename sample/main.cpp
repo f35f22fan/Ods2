@@ -50,11 +50,9 @@ main(int argc, char *argv[])
 //	CreateBoolean();
 //	ReadBoolean();
 	
-//	CreateFormula();
-	
-	ReadFormula();
-	
-//	CreateCalc();
+	CreateFormula();
+//	ReadFormula();
+//	ReadFormulaCustom();
 	
 //	new sample::Invoice();
 	

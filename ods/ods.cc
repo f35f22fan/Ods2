@@ -86,18 +86,10 @@ ColumnNumberToLetters(const int column)
 CellRef*
 CreateCellRef(ods::Sheet *default_sheet, QStringRef address)
 {
-	if (address.isEmpty()) {
-		mtl_trace();
-		return nullptr;
-	}
-	
-	int dot = address.indexOf('.');
-	
-	if (dot == -1) {
-		mtl_trace();
-		return nullptr;
-	}
-	
+	CHECK_TRUE_NULL(!address.isEmpty());
+	int dot = address.lastIndexOf('.');
+	CHECK_TRUE_NULL((dot != -1));
+
 	auto sheet_name = address.left(dot);
 	
 	if (sheet_name.startsWith('$'))
@@ -106,11 +98,20 @@ CreateCellRef(ods::Sheet *default_sheet, QStringRef address)
 		mtl_warn();
 	}
 	
+	// Must remove starting and ending single quote
+	// if it's a single quoted string
+	const QChar SingleQuote('\'');
+	if (sheet_name.startsWith(SingleQuote)) {
+		sheet_name = sheet_name.mid(1, sheet_name.size() - 2);
+	}
+	
 	auto *book = default_sheet->book();
 	auto *sp = book->spreadsheet();
 	auto *sheet = sp->GetSheet(sheet_name);
 	
 	if (sheet == nullptr) {
+//		auto ba = sheet_name.toLocal8Bit();
+//		mtl_warn("Couldn't find sheet by name: \"%s\"", ba.data());
 		// it means the address didn't have a sheet name,
 		// e.g. ".A2" which means one should use the "current" sheet.
 		sheet = default_sheet;
@@ -126,17 +127,13 @@ CreateCellRef(ods::Sheet *default_sheet, QStringRef address)
 		QChar c = cell_name.at(i);
 		index++;
 		
-		if (c.isDigit())
-		{
+		if (c.isDigit()) {
 			found = true;
 			break;
 		}
 	}
 	
-	if (!found) {
-		mtl_trace();
-		return nullptr;
-	}
+	CHECK_TRUE_NULL(found);
 	
 	auto letters = cell_name.left(index);
 	const int col = ods::ColumnLettersToNumber(letters);
@@ -162,6 +159,28 @@ void
 DPI(const double dpi_param)
 {
 	dpi = dpi_param;
+}
+
+int
+FindEndOfSingleQuotedString(const QStringRef &s)
+{
+	const QChar SingleQuote('\'');
+	const int start_at = 1; // skip first single quote
+	
+	for (int i = start_at; i < s.size(); i++) {
+		QChar c = s.at(i);
+		
+		if (c == SingleQuote) {
+			if (i == start_at)
+				return i; // empty string
+			// else check if it's not preceded by a backslash
+			if (s.at(i - 1) != '\\') {
+				return i;
+			}
+		}
+	}
+	
+	return -1;
 }
 
 int

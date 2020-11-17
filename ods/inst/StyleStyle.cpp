@@ -184,13 +184,8 @@ NumberPercentageStyle*
 StyleStyle::GetPercentageStyle() const
 {
 	auto *ds = GetDataStyle();
-	
-	if (ds == nullptr)
-	{
-		mtl_line();
-		return nullptr;
-	}
-	
+	CHECK_PTR_NULL(ds);
+
 	if (ds->Is(Id::NumberPercentageStyle))
 		return (inst::NumberPercentageStyle*) ds;
 	

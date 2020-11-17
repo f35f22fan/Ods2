@@ -26,13 +26,13 @@ Abstract*
 NumberCurrencySymbol::Clone(Abstract *parent) const
 {
 	auto *p = new NumberCurrencySymbol(*this);
-	
+
 	if (parent != nullptr)
 		p->parent(parent);
-	
+
 	p->number_language_ = number_language_;
 	p->number_country_ = number_country_;
-	
+
 	return p;
 }
 
@@ -44,7 +44,7 @@ NumberCurrencySymbol::GetSymbol()
 		if (x->is_string())
 			return *x->as_string();
 	}
-	
+
 	return QLatin1String();
 }
 
@@ -53,15 +53,15 @@ NumberCurrencySymbol::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->number(), ods::ns::kLanguage, number_language_);
 	tag->Copy(ns_->number(), ods::ns::kCountry, number_country_);
-	
+
 	ScanString(tag);
 }
 
 void
 NumberCurrencySymbol::SetSymbol(const ods::Currency &c)
 {
-	const CurrencyInfo info = ods::currency::info(c);
-	
+	const CurrencyInfo info = ods::currency::info(c.id);
+
 	for (auto *x: nodes_)
 	{
 		if (x->is_string())
@@ -70,7 +70,7 @@ NumberCurrencySymbol::SetSymbol(const ods::Currency &c)
 			return;
 		}
 	}
-	
+
 	Append(info.symbol);
 }
 
@@ -79,7 +79,7 @@ NumberCurrencySymbol::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->number(), ods::ns::kLanguage, number_language_);
 	Write(xml, ns_->number(), ods::ns::kCountry, number_country_);
-	
+
 	WriteNodes(xml);
 }
 

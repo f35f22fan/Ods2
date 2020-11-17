@@ -27,7 +27,8 @@ const QString Colon = QLatin1String(":");
 const QString Regex = RefConcat + QChar('|') + Minus
 	+ QLatin1String("|\\") + Plus
 	+ QChar('|') + Divide
-	+ QLatin1String("|\\") + Multiply;
+	+ QLatin1String("|\\") + Multiply + QChar('|')
+	+ Ampersand;
 }
 
 enum class Op : u8 {

@@ -144,7 +144,7 @@ ReadFont()
 	
 	if (cell == nullptr)
 	{
-		mtl_line("No cell");
+		mtl_info("No cell");
 		return;
 	}
 	
@@ -168,60 +168,60 @@ ReadFont()
 	
 	if (font_style == nullptr)
 	{
-		mtl_line("No font style");
+		mtl_info("No font style");
 	} else {
 		if (font_style->is_italic())
-			mtl_line("Font style is italic");
+			mtl_info("Font style is italic");
 		else if (font_style->is_normal())
-			mtl_line("Font style is normal");
+			mtl_info("Font style is normal");
 		// etc..
 		
 		auto ba = font_style->toString().toLocal8Bit();
-		mtl_line("Font style toString(): %s", ba.data());
+		mtl_info("Font style toString(): %s", ba.data());
 	}
 	
 	ods::attr::FoFontWeight *font_weight = tp->font_weight();
 	
 	if (font_weight == nullptr)
 	{
-		mtl_line("No font weight");
+		mtl_info("No font weight");
 	} else {
 		if (font_weight->is_bold())
-			mtl_line("Font weight is bold");
+			mtl_info("Font weight is bold");
 		else if (font_weight->is_normal())
-			mtl_line("Font weight is normal");
+			mtl_info("Font weight is normal");
 		// etc..
 		
 		auto ba = font_weight->toString().toLocal8Bit();
-		mtl_line("Font weight toString(): %s", ba.data());
+		mtl_info("Font weight toString(): %s", ba.data());
 	}
 	
 	ods::Length *font_size = tp->font_size();
 	
 	if (font_size == nullptr)
 	{
-		mtl_line("No font size");
+		mtl_info("No font size");
 	} else {
-		mtl_line("Font size value: %f", font_size->size());
+		mtl_info("Font size value: %f", font_size->size());
 		
 		if (font_size->is_cm())
-			mtl_line("Font size as cm");
+			mtl_info("Font size as cm");
 		else if (font_size->is_in())
-			mtl_line("Font size as in");
+			mtl_info("Font size as in");
 		// etc..
 		
 		auto ba = font_size->toString().toLocal8Bit();
-		mtl_line("Font size toString(): %s", ba.data());
+		mtl_info("Font size toString(): %s", ba.data());
 	}
 	
 	ods::inst::StyleFontFace *font_face = tp->font_face();
 	
 	if (font_face == nullptr)
 	{
-		mtl_line("No font face");
+		mtl_info("No font face");
 	} else {
 		auto ba = font_face->font_family().toLocal8Bit();
-		mtl_line("Font family: \"%s\"", ba.data());
+		mtl_info("Font family: \"%s\"", ba.data());
 	}
 }
 
@@ -272,7 +272,7 @@ CreateColorsAndUnderline()
 	stcp->SetBackgroundColor(QColor(255, 255, 0));
 	
 	auto ba = cell->TypeAndValueString();
-	mtl_line("Cell type and value: %s", ba.data());
+	mtl_info("Cell type and value: %s", ba.data());
 	
 	util::Save(book);
 }
@@ -319,26 +319,26 @@ ReadColorsAndUnderline()
 	
 	if (color == nullptr)
 	{
-		mtl_line("No text color");
+		mtl_info("No text color");
 	} else {
 		auto ba = color->name().toLocal8Bit();
-		mtl_line("Text color: %s", ba.data());
+		mtl_info("Text color: %s", ba.data());
 	}
 	
 	ods::attr::StyleTextUnderlineColor *tuc = tp->text_underline_color();
 	
 	if (tuc == nullptr)
 	{
-		mtl_line("No text underline color attribute");
+		mtl_info("No text underline color attribute");
 	} else {
 		QColor *c = tuc->color();
 		
 		if (c == nullptr)
 		{
-			mtl_line("No text underline color attribute");
+			mtl_info("No text underline color attribute");
 		} else {
 			auto ba = c->name().toLocal8Bit();
-			mtl_line("Text underline color: %s", ba.data());
+			mtl_info("Text underline color: %s", ba.data());
 		}
 	}
 	
@@ -346,48 +346,48 @@ ReadColorsAndUnderline()
 	
 	if (tus == nullptr)
 	{
-		mtl_line("No text underline style attribute");
+		mtl_info("No text underline style attribute");
 	} else {
-		mtl_line("==>Text underline style properties");
-		mtl_line("Is none: %s", tus->is_none() ? "true" : "false");
-		mtl_line("Is dash: %s", tus->is_dash() ? "true" : "false");
-		mtl_line("Is dot dash: %s", tus->is_dot_dash() ? "true" : "false");
-		mtl_line("Is dot dot dash: %s", tus->is_dot_dot_dash() ? "true" : "false");
-		mtl_line("Is dotted: %s", tus->is_dotted() ? "true" : "false");
-		mtl_line("Is long dash: %s", tus->is_long_dash() ? "true" : "false");
-		mtl_line("Is solid: %s", tus->is_solid() ? "true" : "false");
-		mtl_line("Is wave: %s", tus->is_wave() ? "true" : "false");
-		mtl_line("Is valid: %s", tus->is_valid() ? "true" : "false");
+		mtl_info("==>Text underline style properties");
+		mtl_info("Is none: %s", tus->is_none() ? "true" : "false");
+		mtl_info("Is dash: %s", tus->is_dash() ? "true" : "false");
+		mtl_info("Is dot dash: %s", tus->is_dot_dash() ? "true" : "false");
+		mtl_info("Is dot dot dash: %s", tus->is_dot_dot_dash() ? "true" : "false");
+		mtl_info("Is dotted: %s", tus->is_dotted() ? "true" : "false");
+		mtl_info("Is long dash: %s", tus->is_long_dash() ? "true" : "false");
+		mtl_info("Is solid: %s", tus->is_solid() ? "true" : "false");
+		mtl_info("Is wave: %s", tus->is_wave() ? "true" : "false");
+		mtl_info("Is valid: %s", tus->is_valid() ? "true" : "false");
 		
 		auto ba = tus->toString().toLocal8Bit();
-		mtl_line("toString(): %s", ba.data());
-		mtl_line("<==Text underline style properties");
+		mtl_info("toString(): %s", ba.data());
+		mtl_info("<==Text underline style properties");
 	}
 	
 	ods::attr::StyleTextUnderlineWidth *tuw = tp->text_underline_width();
 	
 	if (tuw == nullptr)
 	{
-		mtl_line("No text underline width");
+		mtl_info("No text underline width");
 	} else {
 		auto ba = tuw->toString().toLocal8Bit();
-		mtl_line("Text underline width: %s", ba.data());
+		mtl_info("Text underline width: %s", ba.data());
 	}
 	
 	auto *tcp = (ods::inst::StyleTableCellProperties*)style->Get(ods::Id::StyleTableCellProperties);
 	
 	if (tcp == nullptr)
 	{
-		mtl_line("No table cell properties");
+		mtl_info("No table cell properties");
 	} else {
 		QColor *bg = tcp->background_color();
 		
 		if (bg == nullptr)
 		{
-			mtl_line("No background color");
+			mtl_info("No background color");
 		} else {
 			auto ba = bg->name().toLocal8Bit();
-			mtl_line("Background color: %s", ba.data());
+			mtl_info("Background color: %s", ba.data());
 		}
 	}
 }
@@ -441,11 +441,11 @@ ReadCellSpan()
 	auto *row = sheet->GetRow(0);
 	auto *cell = row->GetCell(0);
 	
-	mtl_line("Cell at 0:0: num_cols_spanned: %d, num_rows_spanned:%d",
+	mtl_info("Cell at 0:0: num_cols_spanned: %d, num_rows_spanned:%d",
 		cell->number_columns_spanned(), cell->number_rows_spanned());
 	
 	cell = row->GetCell(5);
-	mtl_line("Cell at 0:5: num_cols_repeated: %d",
+	mtl_info("Cell at 0:5: num_cols_repeated: %d",
 		cell->number_columns_repeated());
 	
 }
@@ -601,13 +601,13 @@ ReadHAlignment()
 	}
 	
 	if (ha->is_left())
-		mtl_line("Align left");
+		mtl_info("Align left");
 	else if (ha->is_center())
-		mtl_line("Align center");
+		mtl_info("Align center");
 	else if (ha->is_right())
-		mtl_line("Align right");
+		mtl_info("Align right");
 	else
-		mtl_line("Align invalid");
+		mtl_info("Align invalid");
 }
 
 void
@@ -701,13 +701,13 @@ ReadVAlignment()
 	}
 	
 	if (va->is_bottom())
-		mtl_line("Align bottom");
+		mtl_info("Align bottom");
 	else if (va->is_middle())
-		mtl_line("Align middle");
+		mtl_info("Align middle");
 	else if (va->is_top())
-		mtl_line("Align top");
+		mtl_info("Align top");
 	else
-		mtl_line("Vertical align invalid");
+		mtl_info("Vertical align invalid");
 	
 }
 
@@ -896,10 +896,10 @@ ReadImage()
 	
 	if (QFile::copy(from_path, to_path))
 	{
-		mtl_line("Image coppied successfully from:\n%s\nTo:\n%s",
+		mtl_info("Image coppied successfully from:\n%s\nTo:\n%s",
 			from.data(), to.data());
 	} else {
-		mtl_line("Failed to copy image from:\n%s\nTo:\n%s",
+		mtl_info("Failed to copy image from:\n%s\nTo:\n%s",
 			from.data(), to.data());
 	}
 }
@@ -983,11 +983,11 @@ ReadDate()
 	
 	QDateTime *dt = cell->as_date();
 	auto ba = dt->toString(Qt::ISODate).toLocal8Bit();
-	mtl_line("Date: %s", ba.data());
+	mtl_info("Date: %s", ba.data());
 	
 	// Now query date formatting rules,
 	// should print a string like "Day.Month.Year Hours:Minutes:Seconds"
-	mtl_line("Formatting:");
+	mtl_info("Formatting:");
 	
 	ods::inst::StyleStyle *style = cell->GetStyle();
 	
@@ -1119,7 +1119,7 @@ ReadTime()
 	
 	ods::Duration *dt = cell->as_time();
 	auto ba = dt->toString().toLocal8Bit();
-	mtl_line("Time: %s", ba.data());
+	mtl_info("Time: %s", ba.data());
 	
 	// Now query time formatting rules,
 	// should print a string like "Hours:Minutes:Seconds"
@@ -1252,7 +1252,7 @@ ReadBoolean()
 		{
 			bool yes = *cell->as_boolean();
 			const char *s = yes ? "true" : "false";
-			mtl_line("Cell boolean value: %s", s);
+			mtl_info("Cell boolean value: %s", s);
 		} else {
 			mtl_warn("Cell type not boolean");
 		}

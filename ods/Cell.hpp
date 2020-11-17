@@ -122,6 +122,9 @@ public:
 	inst::StyleStyle*
 	NewStyle();
 	
+	ods::CellRef*
+	NewRef();
+	
 	int number_columns_repeated() const { return ncr_; }
 	void number_columns_repeated(const int n) { ncr_ = n; }
 	int ncr() const { return ncr_; }
@@ -137,6 +140,9 @@ public:
 	
 	QString
 	QueryAddress() const;
+	
+	ods::Currency*
+	QueryCurrencyObject();
 	
 	Length* // caller must delete returned value
 	QueryDesiredHeight() const;

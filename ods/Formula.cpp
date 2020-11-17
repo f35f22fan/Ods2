@@ -17,52 +17,62 @@ Formula::Formula(ods::Cell *p) : cell_(p) {
 	default_sheet_ = row->sheet();
 }
 Formula::~Formula() {
-	for (FormulaNode *k: nodes_) {
-		delete k;
-	}
-	nodes_.clear();
-	
-	delete value_;
-	value_ = nullptr;
+	RemoveAllNodes();
 }
 
 void
 Formula::Add(const double d) {
-	raw_str_.append(QString::number(d));
 	nodes_.append(FormulaNode::Double(d));
+	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
 Formula::Add(const ods::Op op)
 {
-	raw_str_.append(op::ToString(op));
+	nodes_.append(FormulaNode::Op(op));
+	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
 Formula::AddCloseBrace()
 {
-	raw_str_.append(")");
+	nodes_.append(FormulaNode::Brace(Brace::Close));
+	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
 Formula::AddOpenBrace()
 {
-	raw_str_.append("(");
+	nodes_.append(FormulaNode::Brace(Brace::Open));
+	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
-Formula::Add(Function f) {
-	raw_str_.append(f.toString());
+Formula::Add(Function *f) {
+	nodes_.append(FormulaNode::Function(f));
+	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
-Formula::Add(ods::Cell *cell, ods::Sheet *sheet) {
-	if (sheet == nullptr)
-		raw_str_ += QLatin1String("[.");
-	else
-		raw_str_ += QLatin1String("[\'") + sheet->name() + QLatin1String("\'.");
-	
-	raw_str_ += cell->QueryAddress() + QChar(']');
+Formula::Add(ods::Cell *cell)
+{
+	auto *a = default_sheet_->NewAddress(cell);
+	nodes_.append(FormulaNode::Address(a));
+	bits_ |= ods::TriggerSaveOriginalNodes;
+}
+
+void
+Formula::Add(const QString &s) {
+	nodes_.append(FormulaNode::String(s));
+	bits_ |= ods::TriggerSaveOriginalNodes;
+}
+
+void
+Formula::AddCellRange(Cell *start, Cell *end)
+{
+	auto *a = default_sheet_->NewAddress(start, end);
+	nodes_.append(FormulaNode::Address(a));
+	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 Formula*
@@ -73,7 +83,7 @@ Formula::Clone() {
 		p->nodes_.append(node->Clone());
 	}
 	
-	p->raw_str_ = raw_str_;
+	p->str_to_evaluate_ = str_to_evaluate_;
 	
 	return p;
 }
@@ -93,24 +103,184 @@ Address*
 Formula::CellAddressOrRange(QStringRef s, int &skip,
 	ods::Sheet *default_sheet)
 {
-	int end = s.indexOf(']');
+	const QChar SingleQuote('\'');
+	int end;
+	const bool StartsWithSingleQuote = s.startsWith(SingleQuote);
+	int end_of_single_quoted_string = -1;
+	
+	if (StartsWithSingleQuote) {
+		end_of_single_quoted_string = ods::FindEndOfSingleQuotedString(s);
+		if (end_of_single_quoted_string == -1)
+			return nullptr;
+		end_of_single_quoted_string++;
+		end = s.indexOf(']', end_of_single_quoted_string);
+	} else {
+		end = s.indexOf(']');
+	}
 	
 	if (end == -1)
 		return nullptr;
 	
 	s = s.mid(0, end);
-	int colon = s.indexOf(':');
+	int search_from = StartsWithSingleQuote ? end_of_single_quoted_string : 0;
+	int colon = s.indexOf(':', search_from);
 	skip += end + 1;
 	
 	if (colon != -1) {
 		QStringRef start_cell = s.mid(0, colon);
 		const int pos = colon + 1;
 		QStringRef end_cell = s.mid(pos, end - pos);
-		return Address::Range(default_sheet, start_cell, end_cell);
+		return Address::CellRange(default_sheet, start_cell, end_cell);
 	}
 	
 	QStringRef cell = s.mid(0, end);
 	return Address::Cell(default_sheet, cell);
+}
+
+bool
+Formula::DecodeNext(QStringRef s, int &resume_at, QVector<FormulaNode*> &vec,
+	ods::Sheet *default_sheet, u8 &settings)
+{
+#ifdef DEBUG_FORMULA_PARSING
+	auto proces_ba = s.toLocal8Bit();
+	mtl_info("Processing: \"%s\"", proces_ba.data());
+#endif
+	
+	const bool InsideFunctionParams = settings & ParsingFunctionParams;
+	int whitespace_count = ods::FindNonWhitespace(s);
+	
+	if (whitespace_count == -1) {
+		mtl_trace();
+		return -1;
+	}
+	
+	resume_at += whitespace_count;
+	
+	if (whitespace_count > 0) {
+		s = s.mid(whitespace_count);
+#ifdef DEBUG_FORMULA_PARSING
+		auto ba = s.toLocal8Bit();
+		mtl_info("^\\\\s removed: \"%s\", count: %d", ba.data(), whitespace_count);
+#endif
+	}
+	
+	if (s.startsWith('(')) {
+#ifdef DEBUG_FORMULA_PARSING
+		mtl_info("Brace (");
+#endif
+		if (InsideFunctionParams) {
+			it_happened();
+			return true;
+		} else {
+			vec.append(FormulaNode::Brace(Brace::Open));
+		}
+		
+		resume_at++;
+		return true;
+	}
+	
+	if (s.startsWith(')')) {
+#ifdef DEBUG_FORMULA_PARSING
+mtl_info("Brace )");
+#endif
+		if (InsideFunctionParams) {
+#ifdef DEBUG_FORMULA_PARSING
+			mtl_info("Returning from function");
+#endif
+			settings |= ReachedFunctionEnd;
+		} else {
+			vec.append(FormulaNode::Brace(Brace::Close));
+		}
+		
+		resume_at++;
+		return true;
+	}
+	
+	if (s.startsWith('[')) {
+		Address *a = CellAddressOrRange(s.mid(1), resume_at, default_sheet);
+		if (a != nullptr) {
+#ifdef DEBUG_FORMULA_PARSING
+			auto ba = a->toString().toLocal8Bit();
+			mtl_info("Address: %s", ba.data());
+#endif
+			vec.append(FormulaNode::Address(a));
+			resume_at++;
+		}
+		return a != nullptr;
+	}
+	
+	if (InsideFunctionParams && s.startsWith(';')) {
+#ifdef DEBUG_FORMULA_PARSING
+mtl_info("Param separator ;");
+#endif
+		settings |= ReachedParamSeparator;
+		resume_at++;
+		return true;
+	}
+	
+	if (s.startsWith("\"")) {
+		int end = s.indexOf("\"", 1);
+		CHECK_TRUE((end != -1));
+		QStringRef str_arg = s.mid(1, end - 1);
+		auto ba = str_arg.toLocal8Bit();
+		mtl_info("String: \"%s\"", ba.data());
+		resume_at += end + 1;
+		vec.append(FormulaNode::String(str_arg.toString()));
+		return true;
+	}
+	
+	// \d+(\.\d+)?
+	static const auto digit_regex = QRegularExpression("(?<![a-zA-Z\\.])\\d+(\\.\\d+)?(?!\\.)");
+	QRegularExpressionMatch rmatch;
+	QString as_str = s.toString();
+	int at = as_str.indexOf(digit_regex, 0, &rmatch);
+	const bool is_number = (at == 0);
+	if (is_number) {
+		QStringRef number_str = rmatch.capturedRef(0);
+		bool ok;
+		double num = number_str.toDouble(&ok);
+#ifdef DEBUG_FORMULA_PARSING
+		mtl_info("Number %.2f", num);
+#endif
+		if (ok) {
+			vec.append(FormulaNode::Double(num));
+			resume_at += number_str.size();
+			return ok;
+		} else {
+			auto ba = number_str.toString().toLocal8Bit();
+			mtl_warn("Bad number: \"%s\"", ba.data());
+			return false;
+		}
+	}
+	
+	static const auto op_regex = QRegularExpression(ods::op_str::Regex);
+	QRegularExpressionMatch regex_match;
+	at = as_str.indexOf(op_regex, 0, &regex_match);
+	
+	if (at == 0) {
+		QStringRef captured_op_str = regex_match.capturedRef(0);
+#ifdef DEBUG_FORMULA_PARSING
+		auto ba = captured_op_str.toLocal8Bit();
+		mtl_info("op \"%s\"", ba.data());
+#endif
+		Op op = ods::op::From(captured_op_str);
+		CHECK_TRUE((op != Op::None));
+		vec.append(FormulaNode::Op(op));
+		resume_at += captured_op_str.size();
+		return true;
+	}
+	
+	Function *f = Function::TryNew(s, resume_at, default_sheet);
+	if (f != nullptr) {
+#ifdef DEBUG_FORMULA_PARSING
+		auto ba = s.mid(0, resume_at).toLocal8Bit();
+		mtl_info("\"%s\"", ba.data());
+#endif
+		vec.append(FormulaNode::Function(f));
+		return true;
+	}
+	
+	return false;
 }
 
 Formula*
@@ -120,44 +290,56 @@ Formula::FromString(const QString &str, ods::Cell *cell)
 		return nullptr;
 	
 	ods::Formula *f = new ods::Formula(cell);
-	f->raw_str(str);
+	f->str_to_evaluate_ = str;
 	return f;
 }
 
 FormulaNode*
 Formula::Eval()
 {
-	CHECK_TRUE_NULL(ProcessFormulaString(raw_str_));
+	if (nodes_.isEmpty()) {
+		CHECK_TRUE_NULL(ProcessFormulaString(str_to_evaluate_));
+	}
+	
+	if (bits_ & ods::TriggerSaveOriginalNodes)
+		SaveOriginalNodes(nodes_);
+	
 	evaluating(true);
-	EvaluateNodes();
+	ods::FormulaNode *result = EvaluateNodes();
 	evaluating(false);
-	return value_;
+	return result;
 }
 
-void
+FormulaNode*
 Formula::EvaluateNodes()
 {
-	function::PrintNodes(nodes_);
+#ifdef DEBUG_FORMULA_EVAL
+	function::PrintNodes(nodes_, "From EvaluateNodes [start]");
+#endif
 	
-	while (nodes_.size() > 1) {
-		CHECK_TRUE_VOID(function::EvalDeepestGroup(nodes_));
+	if (nodes_.size() == 1) {
+		CHECK_TRUE_NULL(function::EvalDeepestGroup(nodes_));
+	} else {
+		while (nodes_.size() > 1) {
+			CHECK_TRUE_NULL(function::EvalDeepestGroup(nodes_));
+		}
 	}
-	
-	if (nodes_.size() != 1) {
-		mtl_trace();
-		return;
-	}
-	
+	CHECK_TRUE_NULL((nodes_.size() == 1));
 	FormulaNode *result = nodes_[0];
+#ifdef DEBUG_FORMULA_EVAL
 	auto ba = result->toString().toLocal8Bit();
-	mtl_line("Result is: %s", ba.data());
+	mtl_info("Formula Result: \"%s\"", ba.data());
+#endif
+	return result;
 }
 
 bool
 Formula::ProcessFormulaString(QString s)
 {
+#ifdef DEBUG_FORMULA_PARSING
 	auto ba = s.toLocal8Bit();
-	mtl_line("Breaking down into nodes: %s", ba.data());
+	mtl_info("Breaking down into nodes: %s", ba.data());
+#endif
 	s = s.trimmed();
 	const QString prefix = QLatin1String("of:=");
 	
@@ -191,155 +373,56 @@ Formula::ProcessFormulaString(QString s)
 	return false;
 }
 
-bool
-Formula::DecodeNext(QStringRef s, int &resume_at, QVector<FormulaNode*> &vec,
-	ods::Sheet *default_sheet, u8 &settings)
+void
+Formula::RemoveAllNodes()
 {
-	{
-#ifdef DEBUG_FORMULA
-		auto ba = s.toLocal8Bit();
-		mtl_line("Processing: \"%s\"", ba.data());
-#endif
+	for (auto *node: nodes_) {
+		delete node;
 	}
+	nodes_.clear();
 	
-	const bool InsideFunctionParams = settings & ParsingFunctionParams;
-	int whitespace_count = ods::FindNonWhitespace(s);
-	
-	if (whitespace_count == -1) {
-		mtl_trace();
-		return -1;
+	for (auto *node: original_nodes_) {
+		delete node;
 	}
-	
-	resume_at += whitespace_count;
-	
-	if (whitespace_count > 0) {
-		s = s.mid(whitespace_count);
-#ifdef DEBUG_FORMULA
-		auto ba = s.toLocal8Bit();
-		mtl_line("^\\\\s removed: \"%s\", count: %d", ba.data(), whitespace_count);
-#endif
+	original_nodes_.clear();
+	str_to_evaluate_.clear();
+	bits_ |= ods::TriggerSaveOriginalNodes;
+}
+
+void
+Formula::SaveOriginalNodes(QVector<FormulaNode*> &nodes)
+{
+	for (auto *node: original_nodes_) {
+		delete node;
 	}
+	original_nodes_.clear();
 	
-	if (s.startsWith('(')) {
-#ifdef DEBUG_FORMULA
-		mtl_line("Brace (");
-#endif
-		if (InsideFunctionParams) {
-			it_happened();
-			return true;
-		} else {
-			vec.append(FormulaNode::Brace(Brace::Open));
-		}
-		
-		resume_at++;
-		return true;
+	for (auto *node : nodes) {
+		original_nodes_.append(node->Clone());
 	}
-	
-	if (s.startsWith(')')) {
-#ifdef DEBUG_FORMULA
-mtl_line("Brace )");
-#endif
-		if (InsideFunctionParams) {
-#ifdef DEBUG_FORMULA
-			mtl_line("Returning from function");
-#endif
-			settings |= ReachedFunctionEnd;
-		} else {
-			vec.append(FormulaNode::Brace(Brace::Close));
-		}
-		
-		resume_at++;
-		return true;
-	}
-	
-	if (s.startsWith('[')) {
-		Address *a = CellAddressOrRange(s.mid(1), resume_at, default_sheet);
-		if (a != nullptr) {
-#ifdef DEBUG_FORMULA
-			auto ba = a->toString().toLocal8Bit();
-			mtl_line("Address: %s", ba.data());
-#endif
-			vec.append(FormulaNode::Address(a));
-			resume_at++;
-		}
-		return a != nullptr;
-	}
-	
-	if (InsideFunctionParams && s.startsWith(';')) {
-#ifdef DEBUG_FORMULA
-mtl_line("Param separator ;");
-#endif
-		settings |= ReachedParamSeparator;
-		resume_at++;
-		return true;
-	}
-	
-	// \d+(\.\d+)?
-	static const auto digit_regex = QRegularExpression("(?<![a-zA-Z\\.])\\d+(\\.\\d+)?(?!\\.)");
-	QRegularExpressionMatch rmatch;
-	QString as_str = s.toString();
-	int at = as_str.indexOf(digit_regex, 0, &rmatch);
-	
-	if (at == 0) {
-		QStringRef number_str = rmatch.capturedRef(0);
-		bool ok;
-		double num = number_str.toDouble(&ok);
-#ifdef DEBUG_FORMULA
-		mtl_line("Number %.2f", num);
-#endif
-		if (ok) {
-			vec.append(FormulaNode::Double(num));
-			resume_at += number_str.size();
-			return ok;
-		} else {
-			auto ba = number_str.toString().toLocal8Bit();
-			mtl_warn("Bad number: \"%s\"", ba.data());
-			return false;
-		}
-	}
-	
-	static const auto op_regex = QRegularExpression(ods::op_str::Regex);
-	QRegularExpressionMatch regex_match;
-	at = as_str.indexOf(op_regex, 0, &regex_match);
-	
-	if (at == 0) {
-		QStringRef captured_op_str = regex_match.capturedRef(0);
-#ifdef DEBUG_FORMULA
-		auto ba = captured_op_str.toLocal8Bit();
-		mtl_line("op \"%s\"", ba.data());
-#endif
-		Op op = ods::op::From(captured_op_str);
-		
-		if (op == Op::None) {
-			mtl_trace();
-			return false;
-		} else {
-			vec.append(FormulaNode::Op(op));
-			resume_at += captured_op_str.size();
-			return true;
-		}
-	}
-	
-	Function *f = Function::TryNew(s, resume_at, default_sheet);
-	if (f != nullptr) {
-#ifdef DEBUG_FORMULA
-		auto ba = s.mid(0, resume_at).toLocal8Bit();
-		mtl_line("\"%s\"", ba.data());
-#endif
-		vec.append(FormulaNode::Function(f));
-		return true;
-	}
-	
-	return false;
+	bits_ &= ~ods::TriggerSaveOriginalNodes;
 }
 
 QString
-Formula::ToXmlString() const
+Formula::ToXmlString()
 {
 	QString s = formula::Prefix;
 	
-	for (FormulaNode *node: nodes_) {
-		s.append(node->toString());
+	if (original_nodes_.isEmpty()) {
+		if (!nodes_.isEmpty()) {
+			SaveOriginalNodes(nodes_);
+		}
+		if (original_nodes_.isEmpty()) {
+//			auto ba = str_to_evaluate_.toLocal8Bit();
+//			mtl_info("\"%s\"", ba.data());
+			// valid but has no nodes because they
+			// get generated when Eval() gets called.
+			return str_to_evaluate_;
+		}
+	}
+	
+	for (FormulaNode *node: original_nodes_) {
+		s.append(node->toString(ods::ToStringArgs::IncludeQuotMarks));
 	}
 	
 	return s;

@@ -101,6 +101,11 @@ OfficeSpreadsheet::InitDefault()
 ods::Sheet*
 OfficeSpreadsheet::NewSheet(const QString &name)
 {
+	if (name.contains('\'')) {
+		mtl_warn("Sheet names can't contain \'");
+		return nullptr;
+	}
+	
 	if (GetSheet(name.midRef(0)) != nullptr)
 		return nullptr;
 	
