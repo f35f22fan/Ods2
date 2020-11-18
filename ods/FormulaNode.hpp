@@ -50,9 +50,8 @@ public:
 	static FormulaNode* Percentage(double d);
 	static FormulaNode* Currency(ods::Currency *c);
 	static FormulaNode* Date(const QDateTime &date);
-	static FormulaNode* String(const QString &s);
+	static FormulaNode* String(QString *s);
 	static FormulaNode* Time(ods::Duration *d);
-//	static FormulaNode* From(const ods::Value &v);
 	
 	bool is_any_double() const { return type_ == Type::Double ||
 		type_ == Type::Currency || type_ == Type::Percentage; }
@@ -99,10 +98,16 @@ public:
 		type_ = Type::Percentage;
 	}
 	
-	void SetString(const QString &str) {
+	void SetString(QString *s) {
 		Clear();
-		data_.s = new QString(str);
+		data_.s = s;
 		type_ = Type::String;
+	}
+	
+	void SetTime(ods::Duration *d) {
+		Clear();
+		data_.time = d;
+		type_ = Type::Time;
 	}
 	
 	bool is_cell_range() const {

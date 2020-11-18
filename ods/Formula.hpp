@@ -26,7 +26,7 @@ public:
 	void AddOpenBrace();
 	void Add(Function *f);
 	void Add(ods::Cell *cell);
-	void Add(const QString &s);
+	void Add(QString *s);
 	void AddCellRange(Cell *start, Cell *end);
 	
 	ods::Sheet* default_sheet() const { return default_sheet_; }

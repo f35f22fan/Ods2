@@ -16,10 +16,11 @@ const u8 ReachedParamSeparator = 1u << 3;
 
 enum class FunctionId : u16 {
 	None,
+	Concatenate,
 	Max,
 	Min,
 	Sum,
-	Product
+	Product,
 };
 
 struct FunctionMeta {
@@ -55,14 +56,15 @@ EvalDeepestGroup(QVector<FormulaNode*> &input);
 
 const QVector<FunctionMeta>&
 GetSupportedFunctions();
-
+void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str);
 void PrintNodesInOneLine(const QVector<FormulaNode*> &v, const char *msg = "");
-void PrintNodes(const QVector<FormulaNode*> &nodes, const char *msg = "");
+void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg = QString());
 bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index);
 
 // Formula functions:
-FormulaNode* Sum(const QVector<FormulaNode *> &values);
+FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Max(const QVector<FormulaNode *> &values);
 FormulaNode* Min(const QVector<FormulaNode*> &values);
 FormulaNode* Product(const QVector<FormulaNode*> &values);
+FormulaNode* Sum(const QVector<FormulaNode *> &values);
 }}

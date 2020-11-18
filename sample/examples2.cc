@@ -243,7 +243,7 @@ CreateFormula()
 		formula->Add(ods::Op::Ampersand); // concatenates strings
 		formula->Add(cell2);
 		formula->Add(ods::Op::Ampersand); // concatenate some more
-		formula->Add(QString("!!"));
+		formula->Add(new QString("!!"));
 		
 		auto *result = formula->Eval();
 		CHECK_PTR_VOID(result);
@@ -320,8 +320,44 @@ ReadFormula()
 		mtl_warn("Unknown formula value type: %s", ba.data());
 	}
 	
-//	QByteArray assembled = f->ToXmlString().toLocal8Bit();
-//	mtl_info("Assembled formula: \"%s\"", assembled.data());
+	util::Save(book);
+}
+
+void
+CreateFormulaFunctions()
+{
+	auto *book = ods::Book::New();
+	util::AutoDelete<ods::Book*> ad(book);
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->NewSheet("Formula Functions");
+	
+	int last_row = 0;
+	{ // CONCATENATE()
+// Summary: Concatenate the text strings
+// Semantics: Concatenate each text value, in order, into a
+// single text result.
+		auto *row = sheet->NewRowAt(last_row++);
+		auto *cell = row->NewCellAt(0);
+		cell->SetString("Hello");
+		auto *cell2 = row->NewCellAt(1);
+		cell2->SetString("World");
+		auto *formula_cell = row->NewCellAt(2);
+		ods::Formula *formula = formula_cell->NewFormula();
+		ods::Function *concatenate = ods::Function::CONCATENATE();
+		concatenate->AddArg(sheet->NewAddress(cell));
+		concatenate->AddArg(new QString(" "));
+		concatenate->AddArg(sheet->NewAddress(cell2));
+		concatenate->AddArg(new QString("!"));
+//		concatenate->PrintArgs();
+		formula->Add(concatenate);
+		
+		ods::FormulaNode *result = formula->Eval();
+		CHECK_PTR_VOID(result);
+		auto ba = result->toString().toLocal8Bit();
+		mtl_info("CONCATENATE(): \"%s\"", ba.data());
+	}
+	
+	
 	util::Save(book);
 }
 

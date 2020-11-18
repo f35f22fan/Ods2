@@ -62,7 +62,7 @@
 	__LINE__, __FUNCTION__, __VA_ARGS__, MTL_COLOR_DEFAULT)
 #else
 #define mtl_trace(fmt, args...) fprintf(stderr, \
-	"%s[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_GREEN, SRC_FILE_NAME, \
+	"%sTrace[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_GREEN, SRC_FILE_NAME, \
 	__LINE__, __FUNCTION__, ##args, MTL_COLOR_DEFAULT)
 #endif
 

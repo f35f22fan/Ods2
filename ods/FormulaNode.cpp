@@ -219,7 +219,9 @@ FormulaNode::Operation(const ods::Op op, FormulaNode *rhs)
 bool
 FormulaNode::OperationAmpersand(const ods::Op op, FormulaNode *rhs)
 {
-	QString s = toString() + rhs->toString();
+	QString *s = new QString();
+	s->append(toString());
+	s->append(rhs->toString());
 	SetString(s);
 	return true;
 }
@@ -373,17 +375,15 @@ FormulaNode*
 FormulaNode::Percentage(double d)
 {
 	auto *p = new FormulaNode();
-	p->type_ = Type::Percentage;
-	p->data_.percentage = d;
+	p->SetPercentage(d);
 	return p;
 }
 
 FormulaNode*
-FormulaNode::String(const QString &s)
+FormulaNode::String(QString *s)
 {
 	auto *p = new FormulaNode();
-	p->type_ = Type::String;
-	p->data_.s = new QString(s);
+	p->SetString(s);
 	return p;
 }
 
@@ -391,8 +391,7 @@ FormulaNode*
 FormulaNode::Time(ods::Duration *d)
 {
 	auto *p = new FormulaNode();
-	p->type_ = Type::Time;
-	p->data_.time = d;
+	p->SetTime(d);
 	return p;
 }
 
@@ -424,7 +423,7 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 		return QLatin1String("[none!!]");
 	else {
 		it_happened();
-		return "Shouldn't happen!!";
+		return QLatin1String("Shouldn't happen!");
 	}
 }
 

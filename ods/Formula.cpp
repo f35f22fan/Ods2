@@ -62,7 +62,7 @@ Formula::Add(ods::Cell *cell)
 }
 
 void
-Formula::Add(const QString &s) {
+Formula::Add(QString *s) {
 	nodes_.append(FormulaNode::String(s));
 	bits_ |= ods::TriggerSaveOriginalNodes;
 }
@@ -225,7 +225,8 @@ mtl_info("Param separator ;");
 		auto ba = str_arg.toLocal8Bit();
 		mtl_info("String: \"%s\"", ba.data());
 		resume_at += end + 1;
-		vec.append(FormulaNode::String(str_arg.toString()));
+		QString *p_str = new QString(str_arg.toString());
+		vec.append(FormulaNode::String(p_str));
 		return true;
 	}
 	

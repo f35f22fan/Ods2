@@ -18,13 +18,12 @@ Function::Function() {
 }
 
 Function::~Function() {
-	
 	if (args_ != nullptr) {
-		for (QVector<FormulaNode*> *next: *args_) {
-			for (auto k : *next) {
+		for (QVector<FormulaNode*> *subvec: *args_) {
+			for (auto k: *subvec) {
 				delete k;
 			}
-			delete next;
+			delete subvec;
 		}
 		delete args_;
 		args_ = nullptr;
@@ -70,7 +69,7 @@ Function::AddArg(ods::Currency *c) {
 }
 
 void
-Function::AddArg(const QString &s) {
+Function::AddArg(QString *s) {
 	AddArg(ods::FormulaNode::String(s));
 }
 
@@ -111,25 +110,20 @@ Function::Eval()
 	
 	for (int i = 0; i < args_->size(); i++) {
 		QVector<FormulaNode*> *subvec = (*args_)[i];
+		
 		while (subvec->size() > 1) {
 			CHECK_TRUE_NULL(function::EvalDeepestGroup(*subvec));
 		}
-		if (subvec->size() != 1) {
-			mtl_trace("subvec size not 1: %d", subvec->size());
-			return nullptr;
-		}
-		func_args.append((*subvec)[0]);
+		CHECK_TRUE_NULL((subvec->size() == 1));
+		FormulaNode *node = (*subvec)[0];
+		func_args.append(node);
 		subvec->clear();
 	}
 	
 #ifdef DEBUG_FORMULA_EVAL
-	mtl_info("%sInside FUNCTION %s()%s", MTL_BLINK_START, meta_->name, MTL_BLINK_END);
-	function::PrintNodesInOneLine(func_args, "From Function->Eval() [before]");
+	mtl_info("%sInside %s()%s", MTL_COLOR_YELLOW, meta_->name, MTL_COLOR_DEFAULT);
 #endif
 	function::FlattenOutArgs(func_args);
-#ifdef DEBUG_FORMULA_EVAL
-	function::PrintNodesInOneLine(func_args, "From Function->Eval() [after]");
-#endif
 	CHECK_PTR_NULL(meta_);
 	
 	switch (meta_->id) {
@@ -137,6 +131,7 @@ Function::Eval()
 	case FunctionId::Max: return function::Max(func_args);
 	case FunctionId::Min: return function::Min(func_args);
 	case FunctionId::Product: return function::Product(func_args);
+	case FunctionId::Concatenate: return function::Concatenate(func_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }
@@ -149,6 +144,31 @@ Function::New(const FunctionId id)
 	Function *f = new Function();
 	f->meta_ = func_meta;
 	return f;
+}
+
+void
+Function::PrintArgs(const QString &msg)
+{
+	if (msg.size() > 0) {
+		auto ba = msg.toLocal8Bit();
+		mtl_info("%s", ba.data());
+	} else {
+		mtl_info("%s() Args:", meta_->name);
+	}
+	CHECK_PTR_VOID(args_);
+	QString separator = QString(MTL_COLOR_GREEN) + "|" + MTL_COLOR_DEFAULT;
+	
+	for (int i = 0; i < args_->size(); i++) {
+		QVector<FormulaNode*> *subvec = (*args_)[i];
+		QString s = separator;
+		for (FormulaNode* node : *subvec) {
+			//QString node_str = function::NodeToStr(node);
+			s.append(node->toString()).append(separator);
+		}
+		auto ba = s.toLocal8Bit();
+		mtl_info("%d/%d %s", i, args_->size() - 1, ba.data());
+	}
+	
 }
 
 QString
@@ -177,7 +197,7 @@ Function::toXmlString() const {
 		QVector<ods::FormulaNode*>* vec = (*args_)[i];
 		QString expression;
 		for (ods::FormulaNode *node: *vec) {
-			expression.append(node->toString());
+			expression.append(node->toString(ods::ToStringArgs::IncludeQuotMarks));
 		}
 		
 		if (i < count - 1) {
