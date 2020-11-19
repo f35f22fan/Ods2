@@ -182,7 +182,7 @@ CreateFormula()
 		
 		auto *formula_cell = row->NewCellAt(7);
 		ods::Formula *formula2 = formula_cell->NewFormula();
-		auto *function = ods::Function::SUM();
+		auto *function = ods::Function::New(ods::FunctionId::Sum);
 		auto *cell_range = sheet->NewAddress(start_cell, end_cell);
 		function->AddArg(cell_range);
 		formula2->Add(function);
@@ -219,7 +219,7 @@ CreateFormula()
 		
 		auto *formula_cell = row3->NewCellAt(cells.size());
 		auto *formula = formula_cell->NewFormula();
-		auto *function = ods::Function::PRODUCT();
+		auto *function = ods::Function::New(ods::FunctionId::Product);
 		ods::Cell *start_cell = cells[0];
 		ods::Cell *end_cell = cells[cells.size() - 1];
 		auto *cell_range = sheet->NewAddress(start_cell, end_cell);
@@ -353,7 +353,7 @@ CreateFormulaFunctions()
 		cell2->SetString("World");
 		auto *formula_cell = row->NewCellAt(2);
 		ods::Formula *formula = formula_cell->NewFormula();
-		ods::Function *concatenate = ods::Function::CONCATENATE();
+		ods::Function *concatenate = ods::Function::New(ods::FunctionId::Concatenate);
 		concatenate->AddArg(sheet->NewAddress(cell));
 		concatenate->AddArg(new QString(" "));
 		concatenate->AddArg(sheet->NewAddress(cell2));
@@ -369,7 +369,7 @@ CreateFormulaFunctions()
 		auto *row = sheet->NewRowAt(last_row++);
 		auto *cell = row->NewCellAt(0);
 		auto *formula = cell->NewFormula();
-		auto *fn = ods::Function::NOW();
+		auto *fn = ods::Function::New(ods::FunctionId::Now);
 		formula->Add(fn);
 		ods::FormulaNode *node = formula->Eval();
 		
@@ -381,7 +381,7 @@ CreateFormulaFunctions()
 		
 		cell = row->NewCellAt(1);
 		formula = cell->NewFormula();
-		fn = ods::Function::DATE();
+		fn = ods::Function::New(ods::FunctionId::Date);
 		// y = 1969, m = 5, d = 30
 		fn->AddArg(double(1969));
 		fn->AddArg(double(5));
@@ -405,7 +405,7 @@ CreateFormulaFunctions()
 		cell0->SetDouble(28);
 		auto *cell = row->NewCellAt(1);
 		auto *formula = cell->NewFormula();
-		auto *fn = ods::Function::SUM();
+		auto *fn = ods::Function::New(ods::FunctionId::Sum);
 		fn->AddArg(sheet->NewAddress(cell0));
 		fn->AddArg(25);
 		fn->AddArg(20);
@@ -414,6 +414,61 @@ CreateFormulaFunctions()
 		CHECK_PTR_VOID(node);
 		auto ba = node->toString().toLocal8Bit();
 		mtl_info("SUM(): %s", ba.data());
+	}
+	{ // QUOTIENT(), MOD(), POWER()
+		auto *row = sheet->NewRowAt(last_row++);
+		auto *lhs = row->NewCellAt(0);
+		lhs->SetDouble(-11.7);
+		int last_col = 1;
+		auto *rhs = row->NewCellAt(last_col++);
+		rhs->SetDouble(3);
+		auto *f_cell = row->NewCellAt(last_col++);
+		auto *f = f_cell->NewFormula();
+		auto *fn = ods::Function::New(ods::FunctionId::Quotient);
+		fn->AddArg(sheet->NewAddress(lhs));
+		fn->AddArg(sheet->NewAddress(rhs));
+		f->Add(fn);
+		auto *node = f->Eval();
+		if (node == nullptr || !node->is_any_double()) {
+			mtl_warn("QUOTIENT() failed");
+		} else {
+			i64 result = i64(node->as_any_double());
+			mtl_info("QUOTIENT(): %ld", result);
+		}
+		
+		last_col++;
+		lhs = row->NewCellAt(last_col++);
+		lhs->SetDouble(7.5);
+		f_cell = row->NewCellAt(last_col++);
+		f = f_cell->NewFormula();
+		fn = ods::Function::New(ods::FunctionId::Mod);
+		fn->AddArg(sheet->NewAddress(lhs));
+		fn->AddArg(2.1);
+		f->Add(fn);
+		node = f->Eval();
+		if (node == nullptr || !node->is_any_double()) {
+			mtl_warn("MOD() failed");
+		} else {
+			double result = node->as_any_double();
+			mtl_info("MOD(): %.2f", result);
+		}
+		
+		last_col++;
+		lhs = row->NewCellAt(last_col++);
+		lhs->SetDouble(3.4);
+		f_cell = row->NewCellAt(last_col++);
+		f = f_cell->NewFormula();
+		fn = ods::Function::New(ods::FunctionId::Power);
+		f->Add(fn);
+		fn->AddArg(sheet->NewAddress(lhs));
+		fn->AddArg(4.4);
+		node = f->Eval();
+		if (node == nullptr || !node->is_any_double()) {
+			mtl_warn("POWER() failed");
+		} else {
+			double result = node->as_any_double();
+			mtl_info("POWER(): %.4f", result);
+		}
 	}
 	
 	util::Save(book);

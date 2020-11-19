@@ -99,6 +99,27 @@
 	}\
 }
 
+#define CHECK_EQUAL(x, y) {\
+	if (x != y) {\
+		mtl_trace();\
+		return false;\
+	}\
+}
+
+#define CHECK_EQUAL_VOID(x, y) {\
+	if (x != y) {\
+		mtl_trace();\
+		return;\
+	}\
+}
+
+#define CHECK_EQUAL_NULL(x, y) {\
+	if (x != y) {\
+		mtl_trace();\
+		return nullptr;\
+	}\
+}
+
 #define CHECK_TRUE(x) {\
 	if (!x) {\
 		mtl_trace();\

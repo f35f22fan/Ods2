@@ -15,14 +15,7 @@ public:
 	virtual ~Function();
 	
 	static Function* TryNew(QStringRef s, int &skip, Sheet *default_sheet);
-	
-	static Function* CONCATENATE() { return New(FunctionId::Concatenate); }
-	static Function* DATE() { return New(FunctionId::Date); }
-	static Function* MAX() { return New(FunctionId::Max); }
-	static Function* MIN() { return New(FunctionId::Min); }
-	static Function* NOW() { return New(FunctionId::Now); }
-	static Function* SUM() { return New(FunctionId::Sum); }
-	static Function* PRODUCT() { return New(FunctionId::Product); }
+	static Function* New(const FunctionId id);
 	
 	void AddArg(ods::FormulaNode *node);
 	void AddArg(ods::Address *a);
@@ -33,9 +26,7 @@ public:
 	void AddArg(QString *s);
 	void AddArg(QVector<FormulaNode*> *subvec);
 	Function* Clone();
-	const FunctionMeta*
-	meta() const { return meta_; }
-	static Function* New(const FunctionId id);
+	const FunctionMeta* meta() const { return meta_; }
 	QString toString() const;
 	QString toXmlString() const;
 	bool valid() const { return meta_ != nullptr; }

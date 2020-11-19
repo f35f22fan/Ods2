@@ -142,12 +142,15 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 {
 	switch (meta_->id) {
 	case FunctionId::Sum: return function::Sum(fn_args);
+	case FunctionId::Product: return function::Product(fn_args);
 	case FunctionId::Max: return function::Max(fn_args);
 	case FunctionId::Min: return function::Min(fn_args);
-	case FunctionId::Product: return function::Product(fn_args);
 	case FunctionId::Concatenate: return function::Concatenate(fn_args);
 	case FunctionId::Date: return function::Date(fn_args);
 	case FunctionId::Now: return function::Now();
+	case FunctionId::Quotient: return function::Quotient(fn_args);
+	case FunctionId::Mod: return function::Mod(fn_args);
+	case FunctionId::Power: return function::Power(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

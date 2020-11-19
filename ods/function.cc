@@ -6,6 +6,8 @@
 #include "Formula.hpp"
 #include "FormulaNode.hpp"
 
+#include <cmath>
+
 namespace ods::function {
 
 bool
@@ -249,6 +251,9 @@ GetSupportedFunctions() {
 	FunctionMeta {"CONCATENATE", FunctionId::Concatenate},
 	FunctionMeta {"DATE", FunctionId::Date},
 	FunctionMeta {"NOW", FunctionId::Now},
+	FunctionMeta {"QUOTIENT", FunctionId::Quotient},
+	FunctionMeta {"MOD", FunctionId::Mod},
+	FunctionMeta {"POWER", FunctionId::Power},
 	};
 	return v;
 }
@@ -434,9 +439,42 @@ FormulaNode* Min(const QVector<FormulaNode *> &values)
 	return result;
 }
 
-FormulaNode* Now() {
+FormulaNode* Mod(const QVector<FormulaNode*> &values)
+{
+	CHECK_EQUAL_NULL(values.size(), 2);
+	auto *lhs_node = values[0];
+	auto *rhs_node = values[1];
+	if (!lhs_node->is_any_double() || !rhs_node->is_any_double()) {
+		mtl_trace("Arg is not a number");
+		return nullptr;
+	}
+	double rhs = rhs_node->as_any_double();
+	RET_IF_EQUAL_NULL(rhs, 0);
+	double lhs = lhs_node->as_any_double();
+	double n = std::remainder(lhs, rhs); // ret type can be a float point value
+	return FormulaNode::Double(double(n));
+}
+
+FormulaNode* Now()
+{
 	QDateTime now = QDateTime::currentDateTime();
 	return FormulaNode::DateTime(new QDateTime(now));
+}
+
+FormulaNode* Power(const QVector<FormulaNode*> &values)
+{
+	CHECK_EQUAL_NULL(values.size(), 2);
+	auto *lhs_node = values[0];
+	auto *rhs_node = values[1];
+	if (!lhs_node->is_any_double() || !rhs_node->is_any_double()) {
+		mtl_trace("Arg is not a number");
+		return nullptr;
+	}
+	double rhs = rhs_node->as_any_double();
+	RET_IF_EQUAL_NULL(rhs, 0);
+	double lhs = lhs_node->as_any_double();
+	double n = std::pow(lhs, rhs); // ret type can be a float point value
+	return FormulaNode::Double(double(n));
 }
 
 FormulaNode* Product(const QVector<ods::FormulaNode*> &values)
@@ -466,6 +504,22 @@ FormulaNode* Product(const QVector<ods::FormulaNode*> &values)
 	auto *result = new ods::FormulaNode();
 	result->SetDouble(d);
 	return result;
+}
+
+FormulaNode* Quotient(const QVector<FormulaNode*> &values)
+{
+	CHECK_EQUAL_NULL(values.size(), 2);
+	auto *lhs_node = values[0];
+	auto *rhs_node = values[1];
+	if (!lhs_node->is_any_double() || !rhs_node->is_any_double()) {
+		mtl_trace("Arg is not a number");
+		return nullptr;
+	}
+	double rhs = rhs_node->as_any_double();
+	RET_IF_EQUAL_NULL(rhs, 0);
+	double lhs = lhs_node->as_any_double();
+	i64 n = lhs / rhs;
+	return FormulaNode::Double(double(n));
 }
 
 FormulaNode* Sum(const QVector<ods::FormulaNode*> &values)

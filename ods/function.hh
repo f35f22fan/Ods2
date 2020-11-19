@@ -19,7 +19,10 @@ enum class FunctionId : u16 {
 	Date,
 	Max,
 	Min,
+	Mod,
 	Now,
+	Power,
+	Quotient,
 	Sum,
 	Product,
 };
@@ -67,7 +70,10 @@ FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Max(const QVector<FormulaNode *> &values);
 FormulaNode* Min(const QVector<FormulaNode*> &values);
+FormulaNode* Mod(const QVector<FormulaNode*> &values);
 FormulaNode* Now();
+FormulaNode* Power(const QVector<FormulaNode*> &values);
 FormulaNode* Product(const QVector<FormulaNode*> &values);
+FormulaNode* Quotient(const QVector<FormulaNode*> &values);
 FormulaNode* Sum(const QVector<FormulaNode *> &values);
 }}

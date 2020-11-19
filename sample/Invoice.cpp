@@ -236,7 +236,7 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 	
 	// Option 1: use the Sum(cell_range) function:
 	ods::Formula *total_formula = total_cell->NewFormula();
-	ods::Function *function = ods::Function::SUM();
+	ods::Function *function = ods::Function::New(ods::FunctionId::Sum);
 	ods::Cell *start_cell = line_total_cells[0];
 	ods::Cell *end_cell = line_total_cells[line_total_cells.size() - 1];
 	auto *cell_range = sheet_->NewAddress(start_cell, end_cell);
