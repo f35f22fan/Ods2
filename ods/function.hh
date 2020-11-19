@@ -12,13 +12,14 @@ namespace ods {
 const u8 ParsingFunctionParams = 1u << 1;
 const u8 ReachedFunctionEnd = 1u << 2;
 const u8 ReachedParamSeparator = 1u << 3;
-//const u8 AppendToPastArgument = 1u << 4;
 
 enum class FunctionId : u16 {
 	None,
 	Concatenate,
+	Date,
 	Max,
 	Min,
+	Now,
 	Sum,
 	Product,
 };
@@ -63,8 +64,10 @@ bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index)
 
 // Formula functions:
 FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values);
+FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Max(const QVector<FormulaNode *> &values);
 FormulaNode* Min(const QVector<FormulaNode*> &values);
+FormulaNode* Now();
 FormulaNode* Product(const QVector<FormulaNode*> &values);
 FormulaNode* Sum(const QVector<FormulaNode *> &values);
 }}

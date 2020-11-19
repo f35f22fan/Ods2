@@ -76,9 +76,6 @@ FormulaNode::as_any_double() const
 void
 FormulaNode::Clear()
 {
-	if (is_none())
-		return;
-	
 	if (is_any_double()) {
 		type_ = Type::None;
 		return;
@@ -87,10 +84,14 @@ FormulaNode::Clear()
 		delete as_address();
 	else if (is_function())
 		delete as_function();
-	else if (is_time())
-		delete as_time();
 	else if (is_currency())
 		delete as_currency();
+	else if (is_date_time())
+		delete as_date_time();
+	else if (is_date())
+		delete as_date();
+	else if (is_time())
+		delete as_time();
 	else if (is_string())
 		delete as_string();
 	
@@ -126,8 +127,10 @@ FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 		dest.data_.percentage = src.data_.percentage;
 	else if (src.is_currency())
 		dest.data_.currency = src.data_.currency->Clone();
+	else if (src.is_date_time())
+		dest.data_.date_time = new QDateTime(*src.data_.date_time);
 	else if (src.is_date())
-		dest.data_.date = src.data_.date;
+		dest.data_.date = new QDate(*src.data_.date);
 	else if (src.is_string())
 		dest.data_.s = new QString(*src.data_.s);
 	else if (src.is_time())
@@ -192,12 +195,21 @@ FormulaNode::Currency(ods::Currency *c)
 }
 
 FormulaNode*
-FormulaNode::Date(const QDateTime &date)
+FormulaNode::Date(QDate *date)
 {
 	auto *p = new FormulaNode();
 	p->type_ = Type::Date;
 	p->data_.date = date;
 	return p;
+}
+
+FormulaNode*
+FormulaNode::DateTime(QDateTime *p)
+{
+	auto *node = new FormulaNode();
+	node->type_ = Type::DateTime;
+	node->data_.date_time = p;
+	return node;
 }
 
 bool
@@ -418,7 +430,10 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 			return quot + *as_string() + quot;
 		}
 		return *as_string();
-			
+	} else if (is_date()) {
+		return as_date()->toString();
+	} else if (is_date_time()) {
+		return as_date_time()->toString();
 	} else if (is_none())
 		return QLatin1String("[none!!]");
 	else {

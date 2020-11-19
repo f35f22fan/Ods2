@@ -27,13 +27,4 @@ ReadFile();
 void
 Save(ods::Book *book, const char *file_name = nullptr);
 
-template <class A_Type> class AutoDelete {
-public:
-	AutoDelete(A_Type x) : x_(x) {}
-	virtual ~AutoDelete() { delete x_; }
-	
-private:
-	A_Type x_ = nullptr;
-};
-
 } // util::

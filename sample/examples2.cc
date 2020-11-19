@@ -8,7 +8,7 @@ void
 CreateCurrency()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");
 	auto *row = sheet->NewRowAt(0);
@@ -56,7 +56,7 @@ ReadCurrency()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(2);
@@ -133,7 +133,7 @@ void
 CreateFormula()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");
 	
@@ -276,7 +276,7 @@ ReadFormula()
 	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
-	const int row_index = 2;
+	int row_index = 2;
 	auto *row = sheet->GetRow(row_index);
 	
 	if (row == nullptr)
@@ -320,6 +320,16 @@ ReadFormula()
 		mtl_warn("Unknown formula value type: %s", ba.data());
 	}
 	
+	{
+		auto *row = sheet->GetRow(++row_index);
+		auto *cell = row->GetCell(0);
+		CHECK_TRUE_VOID((cell->has_formula()));
+		ods::Formula *f = cell->formula();
+		auto *node = f->Eval();
+		auto ba = node->toString().toLocal8Bit();
+		mtl_info("NOW() is: %s", ba.data());
+	}
+	
 	util::Save(book);
 }
 
@@ -327,7 +337,7 @@ void
 CreateFormulaFunctions()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Formula Functions");
 	
@@ -348,7 +358,6 @@ CreateFormulaFunctions()
 		concatenate->AddArg(new QString(" "));
 		concatenate->AddArg(sheet->NewAddress(cell2));
 		concatenate->AddArg(new QString("!"));
-//		concatenate->PrintArgs();
 		formula->Add(concatenate);
 		
 		ods::FormulaNode *result = formula->Eval();
@@ -356,7 +365,56 @@ CreateFormulaFunctions()
 		auto ba = result->toString().toLocal8Bit();
 		mtl_info("CONCATENATE(): \"%s\"", ba.data());
 	}
+	{ // DATE(), NOW()
+		auto *row = sheet->NewRowAt(last_row++);
+		auto *cell = row->NewCellAt(0);
+		auto *formula = cell->NewFormula();
+		auto *fn = ods::Function::NOW();
+		formula->Add(fn);
+		ods::FormulaNode *node = formula->Eval();
+		
+		if (node->is_date_time()) {
+			QDateTime *dt = node->as_date_time();
+			auto ba = dt->toString().toLocal8Bit();
+			mtl_info("NOW(): %s", ba.data());
+		}
+		
+		cell = row->NewCellAt(1);
+		formula = cell->NewFormula();
+		fn = ods::Function::DATE();
+		// y = 1969, m = 5, d = 30
+		fn->AddArg(double(1969));
+		fn->AddArg(double(5));
+		fn->AddArg(double(30));
+		formula->Add(fn);
+		node = formula->Eval();
+		CHECK_PTR_VOID(node);
+		
+		if (node->is_date()) {
+			QDate *date = node->as_date();
+			auto ba = date->toString().toLocal8Bit();
+			mtl_info("DATE(): %s", ba.data());
+		} else {
+			mtl_warn("Node is not a date!");
+		}
+	}
 	
+	{ // SUM()
+		auto *row = sheet->NewRowAt(last_row++);
+		auto *cell0 = row->NewCellAt(0);
+		cell0->SetDouble(28);
+		auto *cell = row->NewCellAt(1);
+		auto *formula = cell->NewFormula();
+		auto *fn = ods::Function::SUM();
+		fn->AddArg(sheet->NewAddress(cell0));
+		fn->AddArg(25);
+		fn->AddArg(20);
+		formula->Add(fn);
+		ods::FormulaNode *node = formula->Eval();
+		CHECK_PTR_VOID(node);
+		auto ba = node->toString().toLocal8Bit();
+		mtl_info("SUM(): %s", ba.data());
+	}
 	
 	util::Save(book);
 }

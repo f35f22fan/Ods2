@@ -10,6 +10,7 @@
 #include "op.hh"
 #include "ods.hxx"
 
+#include <QDate>
 #include <QDateTime>
 
 namespace ods {
@@ -33,7 +34,8 @@ public:
 	ods::Op as_op() const { return data_.op; }
 	ods::Brace as_brace() const { return data_.brace; }
 	ods::Duration* as_time() const { return data_.time; }
-	QDateTime as_date() const { return data_.date; }
+	QDate* as_date() const { return data_.date; }
+	QDateTime* as_date_time() const { return data_.date_time; }
 	ods::Currency* as_currency() const { return data_.currency; }
 	double as_percentage() const { return data_.percentage; }
 	bool as_bool() const { return data_.flag; }
@@ -49,7 +51,8 @@ public:
 	static FormulaNode* Bool(bool b);
 	static FormulaNode* Percentage(double d);
 	static FormulaNode* Currency(ods::Currency *c);
-	static FormulaNode* Date(const QDateTime &date);
+	static FormulaNode* Date(QDate *date);
+	static FormulaNode* DateTime(QDateTime *p);
 	static FormulaNode* String(QString *s);
 	static FormulaNode* Time(ods::Duration *d);
 	
@@ -63,6 +66,7 @@ public:
 	bool is_brace() const { return type_ == Type::Brace; }
 	bool is_time() const { return type_ == Type::Time; }
 	bool is_date() const { return type_ == Type::Date; }
+	bool is_date_time() const { return type_ == Type::DateTime; }
 	bool is_currency() const { return type_ == Type::Currency; }
 	bool is_percentage() const { return type_ == Type::Percentage; }
 	bool is_bool() const { return type_ == Type::Bool; }
@@ -72,34 +76,40 @@ public:
 	bool OperationAmpersand(const ods::Op op, FormulaNode *rhs);
 	bool OperationPlusMinus(const ods::Op op, FormulaNode *rhs);
 	bool OperationMultDivide(const ods::Op op, FormulaNode *rhs);
+	
 	void
 	SetAddress(ods::Address *a) {
-		Clear();
 		data_.address = a;
 		type_ = Type::Address;
 	}
 	
 	void
 	SetCurrency(ods::Currency *c) {
-		Clear();
 		data_.currency = c;
 		type_ = Type::Currency;
 	}
 	
+	void SetDate(QDate *d) {
+		data_.date = d;
+		type_ = Type::Date;
+	}
+	
+	void SetDateTime(QDateTime *d) {
+		data_.date_time = d;
+		type_ = Type::DateTime;
+	}
+	
 	void SetDouble(double d) {
-		Clear();
 		data_.number = d;
 		type_ = Type::Double;
 	}
 	
 	void SetPercentage(double d) {
-		Clear();
 		data_.percentage = d;
 		type_ = Type::Percentage;
 	}
 	
 	void SetString(QString *s) {
-		Clear();
 		data_.s = s;
 		type_ = Type::String;
 	}
@@ -131,6 +141,7 @@ private:
 		// New:
 		Time,
 		Date,
+		DateTime,
 		Currency,
 		Percentage,
 		Bool,
@@ -145,7 +156,8 @@ private:
 		ods::Op op;
 		ods::Brace brace;
 		ods::Duration *time;
-		QDateTime date;
+		QDate *date;
+		QDateTime *date_time;
 		ods::Currency *currency;
 		double percentage;
 		bool flag;

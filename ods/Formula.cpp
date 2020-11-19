@@ -23,34 +23,29 @@ Formula::~Formula() {
 void
 Formula::Add(const double d) {
 	nodes_.append(FormulaNode::Double(d));
-	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
 Formula::Add(const ods::Op op)
 {
 	nodes_.append(FormulaNode::Op(op));
-	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
 Formula::AddCloseBrace()
 {
 	nodes_.append(FormulaNode::Brace(Brace::Close));
-	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
 Formula::AddOpenBrace()
 {
 	nodes_.append(FormulaNode::Brace(Brace::Open));
-	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
 Formula::Add(Function *f) {
 	nodes_.append(FormulaNode::Function(f));
-	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
@@ -58,13 +53,11 @@ Formula::Add(ods::Cell *cell)
 {
 	auto *a = default_sheet_->NewAddress(cell);
 	nodes_.append(FormulaNode::Address(a));
-	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
 Formula::Add(QString *s) {
 	nodes_.append(FormulaNode::String(s));
-	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 void
@@ -72,14 +65,15 @@ Formula::AddCellRange(Cell *start, Cell *end)
 {
 	auto *a = default_sheet_->NewAddress(start, end);
 	nodes_.append(FormulaNode::Address(a));
-	bits_ |= ods::TriggerSaveOriginalNodes;
 }
 
 Formula*
 Formula::Clone() {
+mtl_trace();
 	Formula *p = new Formula(cell_);
 	
 	for (FormulaNode *node : nodes_) {
+mtl_trace();
 		p->nodes_.append(node->Clone());
 	}
 	
@@ -137,8 +131,61 @@ Formula::CellAddressOrRange(QStringRef s, int &skip,
 	return Address::Cell(default_sheet, cell);
 }
 
+Formula*
+Formula::FromString(const QString &str, ods::Cell *cell)
+{
+	if (str.isEmpty())
+		return nullptr;
+	
+	ods::Formula *f = new ods::Formula(cell);
+	f->str_to_evaluate_ = str;
+	return f;
+}
+
+FormulaNode*
+Formula::Eval()
+{
+	if (nodes_.isEmpty()) {
+		CHECK_TRUE_NULL(ProcessFormulaString(str_to_evaluate_, nodes_));
+	}
+	
+	QVector<FormulaNode*> cloned_vec;
+	for (auto *item: nodes_) {
+		cloned_vec.append(item->Clone());
+	}
+	ods::AutoDeleteVec adv(cloned_vec);
+	evaluating(true);
+	ods::FormulaNode *result = EvaluateNodes(cloned_vec);
+	evaluating(false);
+
+	return result;
+}
+
+FormulaNode*
+Formula::EvaluateNodes(QVector<FormulaNode *> &nodes)
+{
+#ifdef DEBUG_FORMULA_EVAL
+	function::PrintNodes(nodes, "From EvaluateNodes [start]");
+#endif
+	
+	if (nodes.size() == 1) {
+		CHECK_TRUE_NULL(function::EvalDeepestGroup(nodes));
+	} else {
+		while (nodes.size() > 1) {
+			CHECK_TRUE_NULL(function::EvalDeepestGroup(nodes));
+		}
+	}
+	CHECK_TRUE_NULL((nodes.size() == 1));
+	FormulaNode *result = nodes[0];
+#ifdef DEBUG_FORMULA_EVAL
+	auto ba = result->toString().toLocal8Bit();
+	mtl_info("Formula Result: \"%s\"", ba.data());
+#endif
+	return result->Clone();
+}
+
 bool
-Formula::DecodeNext(QStringRef s, int &resume_at, QVector<FormulaNode*> &vec,
+Formula::ParseNext(QStringRef s, int &resume_at, QVector<FormulaNode*> &vec,
 	ods::Sheet *default_sheet, u8 &settings)
 {
 #ifdef DEBUG_FORMULA_PARSING
@@ -284,58 +331,8 @@ mtl_info("Param separator ;");
 	return false;
 }
 
-Formula*
-Formula::FromString(const QString &str, ods::Cell *cell)
-{
-	if (str.isEmpty())
-		return nullptr;
-	
-	ods::Formula *f = new ods::Formula(cell);
-	f->str_to_evaluate_ = str;
-	return f;
-}
-
-FormulaNode*
-Formula::Eval()
-{
-	if (nodes_.isEmpty()) {
-		CHECK_TRUE_NULL(ProcessFormulaString(str_to_evaluate_));
-	}
-	
-	if (bits_ & ods::TriggerSaveOriginalNodes)
-		SaveOriginalNodes(nodes_);
-	
-	evaluating(true);
-	ods::FormulaNode *result = EvaluateNodes();
-	evaluating(false);
-	return result;
-}
-
-FormulaNode*
-Formula::EvaluateNodes()
-{
-#ifdef DEBUG_FORMULA_EVAL
-	function::PrintNodes(nodes_, "From EvaluateNodes [start]");
-#endif
-	
-	if (nodes_.size() == 1) {
-		CHECK_TRUE_NULL(function::EvalDeepestGroup(nodes_));
-	} else {
-		while (nodes_.size() > 1) {
-			CHECK_TRUE_NULL(function::EvalDeepestGroup(nodes_));
-		}
-	}
-	CHECK_TRUE_NULL((nodes_.size() == 1));
-	FormulaNode *result = nodes_[0];
-#ifdef DEBUG_FORMULA_EVAL
-	auto ba = result->toString().toLocal8Bit();
-	mtl_info("Formula Result: \"%s\"", ba.data());
-#endif
-	return result;
-}
-
 bool
-Formula::ProcessFormulaString(QString s)
+Formula::ProcessFormulaString(QString s, QVector<FormulaNode*> &nodes)
 {
 #ifdef DEBUG_FORMULA_PARSING
 	auto ba = s.toLocal8Bit();
@@ -357,7 +354,7 @@ Formula::ProcessFormulaString(QString s)
 	QStringRef str_ref = s.midRef(0);
 	u8 settings = 0;
 	
-	while (DecodeNext(str_ref, chunk, nodes_, default_sheet_, settings)) {
+	while (ParseNext(str_ref, chunk, nodes, default_sheet_, settings)) {
 		str_ref = str_ref.mid(chunk);
 		resume_at += chunk;
 		chunk = 0;
@@ -381,48 +378,22 @@ Formula::RemoveAllNodes()
 		delete node;
 	}
 	nodes_.clear();
-	
-	for (auto *node: original_nodes_) {
-		delete node;
-	}
-	original_nodes_.clear();
 	str_to_evaluate_.clear();
-	bits_ |= ods::TriggerSaveOriginalNodes;
-}
-
-void
-Formula::SaveOriginalNodes(QVector<FormulaNode*> &nodes)
-{
-	for (auto *node: original_nodes_) {
-		delete node;
-	}
-	original_nodes_.clear();
-	
-	for (auto *node : nodes) {
-		original_nodes_.append(node->Clone());
-	}
-	bits_ &= ~ods::TriggerSaveOriginalNodes;
 }
 
 QString
 Formula::ToXmlString()
 {
-	QString s = formula::Prefix;
-	
-	if (original_nodes_.isEmpty()) {
-		if (!nodes_.isEmpty()) {
-			SaveOriginalNodes(nodes_);
-		}
-		if (original_nodes_.isEmpty()) {
-//			auto ba = str_to_evaluate_.toLocal8Bit();
-//			mtl_info("\"%s\"", ba.data());
-			// valid but has no nodes because they
-			// get generated when Eval() gets called.
-			return str_to_evaluate_;
-		}
+	if (nodes_.isEmpty()) {
+//		auto ba = str_to_evaluate_.toLocal8Bit();
+//		mtl_info("\"%s\"", ba.data());
+		// valid but has no nodes because they
+		// get generated when Eval() gets called.
+		return str_to_evaluate_;
 	}
 	
-	for (FormulaNode *node: original_nodes_) {
+	QString s = formula::Prefix;
+	for (FormulaNode *node: nodes_) {
 		s.append(node->toString(ods::ToStringArgs::IncludeQuotMarks));
 	}
 	

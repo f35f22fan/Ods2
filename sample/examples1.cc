@@ -21,7 +21,7 @@ void
 SetColumnWidths()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");
@@ -72,7 +72,7 @@ ReadColumnWidths()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	util::PrintWidth(sheet->GetColumn(0));
@@ -85,7 +85,7 @@ void
 CreateFont()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");
 	auto *row = sheet->NewRowAt(0);
@@ -136,7 +136,7 @@ ReadFont()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -229,7 +229,7 @@ void
 CreateColorsAndUnderline()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");
 	auto *row = sheet->NewRowAt(0);
@@ -294,7 +294,7 @@ ReadColorsAndUnderline()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -396,7 +396,7 @@ void
 CellSpan()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");
 	auto *row = sheet->NewRowAt(0);
@@ -435,7 +435,7 @@ ReadCellSpan()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -454,7 +454,7 @@ void
 CreatePercentage()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
@@ -495,7 +495,7 @@ ReadPercentage()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -519,7 +519,7 @@ void
 CreateHAlignment()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
@@ -562,7 +562,7 @@ ReadHAlignment()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -614,7 +614,7 @@ void
 CreateVAlignment()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
@@ -662,7 +662,7 @@ ReadVAlignment()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -715,7 +715,7 @@ void
 CreateBorders()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
@@ -764,7 +764,7 @@ ReadBorders()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 
@@ -784,7 +784,7 @@ void
 CreateImage()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
@@ -852,7 +852,7 @@ ReadImage()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(3);
@@ -908,7 +908,7 @@ void
 CreateDate()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
@@ -969,7 +969,7 @@ ReadDate()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -1051,7 +1051,7 @@ void
 CreateTime()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
@@ -1105,7 +1105,7 @@ ReadTime()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
@@ -1187,7 +1187,7 @@ void
 CreateBoolean()
 {
 	auto *book = ods::Book::New();
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
 	auto *sheet = spr->NewSheet("Sheet name");
@@ -1239,7 +1239,7 @@ ReadBoolean()
 		return;
 	}
 	
-	util::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);

@@ -13,7 +13,6 @@ namespace ods {
 
 // This helps detect cyclic references inside formulas
 const u8 EvaluatingBit = 1u << 0;
-const u8 TriggerSaveOriginalNodes = 1u << 1;
 
 class ODS_API Formula {
 public:
@@ -54,13 +53,13 @@ private:
 	Formula(ods::Cell *cell);
 	
 	static Address *CellAddressOrRange(QStringRef s, int &skip, Sheet *default_sheet);
-	bool ProcessFormulaString(QString s);
+	bool ProcessFormulaString(QString s, QVector<FormulaNode *> &nodes);
 	
 	static bool
-	DecodeNext(QStringRef s, int &resume_at, QVector<FormulaNode *> &vec, Sheet *default_sheet,
+	ParseNext(QStringRef s, int &resume_at, QVector<FormulaNode *> &vec, Sheet *default_sheet,
 		u8 &settings);
 	
-	FormulaNode *EvaluateNodes();
+	FormulaNode *EvaluateNodes(QVector<FormulaNode*> &nodes);
 	void evaluating(const bool flag) {
 		if (flag)
 			bits_ |= ods::EvaluatingBit;
@@ -71,12 +70,11 @@ private:
 	void SaveOriginalNodes(QVector<FormulaNode*> &nodes);
 	
 	QVector<FormulaNode*> nodes_;
-	QVector<FormulaNode*> original_nodes_;
 	QString str_to_evaluate_;
 	QString error_;
 	ods::Cell *cell_ = nullptr;
 	ods::Sheet *default_sheet_ = nullptr;
-	u8 bits_ = ods::TriggerSaveOriginalNodes;
+	u8 bits_ = 0;
 	friend class ods::Cell;
 	friend class ods::Function;
 };

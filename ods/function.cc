@@ -247,6 +247,8 @@ GetSupportedFunctions() {
 	FunctionMeta {"MIN", FunctionId::Min},
 	FunctionMeta {"PRODUCT", FunctionId::Product},
 	FunctionMeta {"CONCATENATE", FunctionId::Concatenate},
+	FunctionMeta {"DATE", FunctionId::Date},
+	FunctionMeta {"NOW", FunctionId::Now},
 	};
 	return v;
 }
@@ -365,6 +367,24 @@ FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values)
 	return result;
 }
 
+FormulaNode* Date(const QVector<ods::FormulaNode*> &values)
+{
+	CHECK_TRUE_NULL((values.size() == 3));
+	
+	int arr[3] = {};
+	
+	for (int i = 0; i < 3; i++) {
+		FormulaNode *node = values[i];
+		CHECK_TRUE_NULL((node->is_double()));
+		arr[i] = node->as_double();
+	}
+	
+	auto *result = new ods::FormulaNode();
+	QDate *d = new QDate(arr[0], arr[1], arr[2]);
+	result->SetDate(d);
+	return result;
+}
+
 FormulaNode* Max(const QVector<ods::FormulaNode*> &values)
 {
 	double max;
@@ -412,6 +432,11 @@ FormulaNode* Min(const QVector<FormulaNode *> &values)
 	auto *result = new ods::FormulaNode();
 	result->SetDouble(min);
 	return result;
+}
+
+FormulaNode* Now() {
+	QDateTime now = QDateTime::currentDateTime();
+	return FormulaNode::DateTime(new QDateTime(now));
 }
 
 FormulaNode* Product(const QVector<ods::FormulaNode*> &values)

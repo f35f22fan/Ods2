@@ -94,19 +94,28 @@ Function::DeepCopy(ods::Function &dest, const ods::Function &src)
 	dest.args_->clear();
 	
 	for (QVector<ods::FormulaNode*> *subvec: *src.args_) {
-		auto *v = new QVector<ods::FormulaNode*>();
-		for (auto next: *subvec) {
-			v->append(next->Clone());
+		if (subvec->isEmpty())
+			continue;
+		
+		auto *new_vec = new QVector<ods::FormulaNode*>();
+		for (auto *item: *subvec) {
+			auto *cloned = item->Clone();
+			new_vec->append(cloned);
 		}
-		dest.args_->append(v);
+		dest.args_->append(new_vec);
 	}
 }
 
 FormulaNode*
 Function::Eval()
 {
-	QVector<ods::FormulaNode*> func_args;
-	ods::AutoDeleteVec ad(func_args);
+	QVector<ods::FormulaNode*> fn_args;
+	
+	if (args_->isEmpty()) { // function takes no params
+		return ExecOpenFormulaFunction(fn_args);
+	}
+	
+	ods::AutoDeleteVec ad(fn_args);
 	
 	for (int i = 0; i < args_->size(); i++) {
 		QVector<FormulaNode*> *subvec = (*args_)[i];
@@ -116,22 +125,29 @@ Function::Eval()
 		}
 		CHECK_TRUE_NULL((subvec->size() == 1));
 		FormulaNode *node = (*subvec)[0];
-		func_args.append(node);
+		fn_args.append(node);
 		subvec->clear();
 	}
-	
 #ifdef DEBUG_FORMULA_EVAL
 	mtl_info("%sInside %s()%s", MTL_COLOR_YELLOW, meta_->name, MTL_COLOR_DEFAULT);
 #endif
-	function::FlattenOutArgs(func_args);
+	function::FlattenOutArgs(fn_args);
 	CHECK_PTR_NULL(meta_);
 	
+	return ExecOpenFormulaFunction(fn_args);
+}
+
+FormulaNode*
+Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
+{
 	switch (meta_->id) {
-	case FunctionId::Sum: return function::Sum(func_args);
-	case FunctionId::Max: return function::Max(func_args);
-	case FunctionId::Min: return function::Min(func_args);
-	case FunctionId::Product: return function::Product(func_args);
-	case FunctionId::Concatenate: return function::Concatenate(func_args);
+	case FunctionId::Sum: return function::Sum(fn_args);
+	case FunctionId::Max: return function::Max(fn_args);
+	case FunctionId::Min: return function::Min(fn_args);
+	case FunctionId::Product: return function::Product(fn_args);
+	case FunctionId::Concatenate: return function::Concatenate(fn_args);
+	case FunctionId::Date: return function::Date(fn_args);
+	case FunctionId::Now: return function::Now();
 	default: { mtl_trace();	return nullptr; }
 	}
 }
@@ -147,7 +163,7 @@ Function::New(const FunctionId id)
 }
 
 void
-Function::PrintArgs(const QString &msg)
+Function::PrintArgs(const QString &msg) const
 {
 	if (msg.size() > 0) {
 		auto ba = msg.toLocal8Bit();
@@ -162,7 +178,6 @@ Function::PrintArgs(const QString &msg)
 		QVector<FormulaNode*> *subvec = (*args_)[i];
 		QString s = separator;
 		for (FormulaNode* node : *subvec) {
-			//QString node_str = function::NodeToStr(node);
 			s.append(node->toString()).append(separator);
 		}
 		auto ba = s.toLocal8Bit();
@@ -248,13 +263,12 @@ Function::TryNew(QStringRef s, int &skip, ods::Sheet *default_sheet)
 	int params_total = 0, chunk = 0;
 	u8 settings = ParsingFunctionParams;
 	auto *new_vec = new QVector<FormulaNode*>();
-	param_nodes->append(new_vec);
 	
-	while (Formula::DecodeNext(s, chunk, *new_vec,
+	while (Formula::ParseNext(s, chunk, *new_vec,
 		default_sheet, settings))
 	{
 #ifdef DEBUG_FORMULA_PARSING
-		mtl_info("DecodeNext()");
+		mtl_info("ParseNext()");
 #endif
 		s = s.mid(chunk);
 		params_total += chunk;
@@ -268,26 +282,31 @@ Function::TryNew(QStringRef s, int &skip, ods::Sheet *default_sheet)
 		}
 		
 		if (settings & ReachedParamSeparator) {
-			new_vec = new QVector<FormulaNode*>();
 			param_nodes->append(new_vec);
+			new_vec = new QVector<FormulaNode*>();
 			settings &= ~ReachedParamSeparator;
 		}
 	}
 //"SUM([.B1]+0.3;20.9;-2.4+3*MAX(18;7);[.B2];[.C1:.C2];MIN([.A1];5))*(-3+2)"
 //"SUM([.B1]+0.3;20.9;-2.4+3*MAX(18;7);[.B2];[.C1:.C2];MIN([.A1];5))*(-3+2)"
 	if (!(settings & ReachedFunctionEnd) && param_nodes != nullptr) {
-mtl_info();
-
+		mtl_trace();
 		for (QVector<FormulaNode*> *next: *param_nodes) {
 			for (auto k : *next) {
 				delete k;
 			}
 			delete next;
 		}
-
 		return nullptr;
 	} else {
 		settings &= ~ReachedFunctionEnd;
+	}
+	
+	if (new_vec->isEmpty()) {
+		delete new_vec;
+		new_vec = nullptr;
+	} else {
+		param_nodes->append(new_vec);
 	}
 	
 	skip += end_of_func_name + past_whitespaces + params_total;
