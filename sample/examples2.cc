@@ -471,6 +471,40 @@ CreateFormulaFunctions()
 		}
 	}
 	
+	{ // IF()
+		CHECK_PTR_VOID(sheet);
+		auto *row = sheet->NewRowAt(last_row++);
+		CHECK_PTR_VOID(row);
+		auto *f_cell = row->NewCellAt(3);
+		CHECK_PTR_VOID(f_cell);
+		auto *f = f_cell->NewFormula();
+		auto *fn = ods::Function::New(ods::FunctionId::If);
+		f->Add(fn);
+		
+		auto *cell0 = row->NewCellAt(0);
+		cell0->SetDouble(25.0);
+		auto *condition = new QVector<ods::FormulaNode*>();
+		ods::Address *a = sheet->NewAddress(cell0);
+		condition->append(ods::FormulaNode::Address(a));
+		condition->append(ods::FormulaNode::Op(ods::Op::Equals));
+		condition->append(ods::FormulaNode::Double(10.0));
+		
+		fn->AddArg(condition);
+		auto *true_value = ods::FormulaNode::String(new QString("Cell0 = 10"));
+		fn->AddArg(true_value);
+		auto *false_value = ods::FormulaNode::String(new QString("Cell0 != 10"));
+		fn->AddArg(false_value);
+		
+		auto *node = f->Eval();
+		
+		if (node == nullptr) {
+			mtl_warn("IF() failed");
+		} else {
+			auto ba = node->toString().toLocal8Bit();
+			mtl_info("IF(): %s", ba.data());
+		}
+	}
+	
 	util::Save(book);
 }
 

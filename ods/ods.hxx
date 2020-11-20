@@ -7,7 +7,7 @@
 
 namespace ods { // ods::
 
-enum class ToStringArgs {
+enum class ToStringArgs: u8 {
 	None,
 	IncludeQuotMarks
 };

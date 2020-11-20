@@ -28,7 +28,7 @@ const QString Regex = RefConcat + QChar('|') + Minus
 	+ QLatin1String("|\\") + Plus
 	+ QChar('|') + Divide
 	+ QLatin1String("|\\") + Multiply + QChar('|')
-	+ Ampersand;
+	+ Ampersand + QChar('|') + Equals;
 }
 
 enum class Op : u8 {

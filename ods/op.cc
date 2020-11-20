@@ -108,4 +108,5 @@ ToString(const Op op)
 	mtl_trace();
 	return QString();
 }
+
 }}

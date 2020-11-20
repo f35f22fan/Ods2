@@ -151,6 +151,7 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Quotient: return function::Quotient(fn_args);
 	case FunctionId::Mod: return function::Mod(fn_args);
 	case FunctionId::Power: return function::Power(fn_args);
+	case FunctionId::If: return function::If(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

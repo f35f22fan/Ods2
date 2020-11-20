@@ -254,6 +254,7 @@ GetSupportedFunctions() {
 	FunctionMeta {"QUOTIENT", FunctionId::Quotient},
 	FunctionMeta {"MOD", FunctionId::Mod},
 	FunctionMeta {"POWER", FunctionId::Power},
+	FunctionMeta {"IF", FunctionId::If},
 	};
 	return v;
 }
@@ -357,6 +358,13 @@ ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes,
 	return true;
 }
 
+bool IsNearlyEqual(double x, double y)
+{
+	const double epsilon = 1e-5;
+	return std::abs(x - y) <= epsilon * std::abs(x);
+	// see Knuth section 4.2.2 pages 217-218
+}
+
 //============Standard Formula Functions===============
 
 FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values)
@@ -389,6 +397,32 @@ FormulaNode* Date(const QVector<ods::FormulaNode*> &values)
 	result->SetDate(d);
 	return result;
 }
+
+FormulaNode* If(const QVector<FormulaNode*> &values)
+{
+	CHECK_EQUAL_NULL(values.size(), 3);
+	FormulaNode *condition = values[0];
+	FormulaNode *true_node = values[1];
+	FormulaNode *false_node = values[2];
+	
+	// Treat as 'false' zero, empty string or bool=false,
+	bool flag = true;
+	
+	if (condition->is_bool()) {
+		flag = condition->as_bool();
+	} else if (condition->is_any_double()) {
+		const double d = condition->as_double();
+		if (IsNearlyEqual(d, 0.0)) {
+			flag = false;
+		}
+	} else if (condition->is_string()) {
+		QString *s = condition->as_string();
+		flag = !s->isEmpty();
+	}
+
+	return flag ? true_node->Clone() : false_node->Clone();
+}
+
 
 FormulaNode* Max(const QVector<ods::FormulaNode*> &values)
 {

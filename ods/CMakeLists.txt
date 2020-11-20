@@ -26,6 +26,7 @@ set(lib_files
 	Address.cpp Address.hpp
 	CellRef.cpp CellRef.hpp
 	Formula.cpp Formula.hpp formula.hxx
+	FormulaError.cpp FormulaError.hpp
 	FormulaNode.cpp FormulaNode.hpp
 	Function.cpp Function.hpp
 	function.cc function.hh

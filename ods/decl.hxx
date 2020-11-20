@@ -10,6 +10,7 @@ class CellRef;
 class Duration;
 class DurationInfo;
 class Formula;
+class FormulaError;
 class FormulaNode;
 class Function;
 class HAlign;

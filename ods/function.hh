@@ -17,6 +17,7 @@ enum class FunctionId : u16 {
 	None,
 	Concatenate,
 	Date,
+	If,
 	Max,
 	Min,
 	Mod,
@@ -58,8 +59,8 @@ FlattenOutArgs(QVector<ods::FormulaNode*> &vec);
 bool
 EvalDeepestGroup(QVector<FormulaNode*> &input);
 
-const QVector<FunctionMeta>&
-GetSupportedFunctions();
+const QVector<FunctionMeta>& GetSupportedFunctions();
+bool IsNearlyEqual(double x, double y);
 void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str);
 void PrintNodesInOneLine(const QVector<FormulaNode*> &v, const char *msg = "");
 void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg = QString());
@@ -68,6 +69,7 @@ bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index)
 // Formula functions:
 FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
+FormulaNode* If(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Max(const QVector<FormulaNode *> &values);
 FormulaNode* Min(const QVector<FormulaNode*> &values);
 FormulaNode* Mod(const QVector<FormulaNode*> &values);

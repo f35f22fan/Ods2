@@ -11,6 +11,7 @@
 #include <ods/Duration.hpp>
 #include <ods/err.hpp>
 #include <ods/Formula.hpp>
+#include <ods/FormulaError.hpp>
 #include <ods/FormulaNode.hpp>
 #include <ods/Function.hpp>
 #include <ods/function.hh>

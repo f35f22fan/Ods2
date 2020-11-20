@@ -74,42 +74,54 @@ public:
 	
 	bool Operation(const ods::Op op, FormulaNode *rhs);
 	bool OperationAmpersand(const ods::Op op, FormulaNode *rhs);
+	bool OperationEquals(const ods::Op op, FormulaNode *rhs);
 	bool OperationPlusMinus(const ods::Op op, FormulaNode *rhs);
 	bool OperationMultDivide(const ods::Op op, FormulaNode *rhs);
 	
-	void
-	SetAddress(ods::Address *a) {
+	void SetAddress(ods::Address *a) {
+		Clear();
 		data_.address = a;
 		type_ = Type::Address;
 	}
 	
-	void
-	SetCurrency(ods::Currency *c) {
+	void SetBool(const bool flag) {
+		Clear();
+		data_.flag = flag;
+		type_ = Type::Bool;
+	}
+	
+	void SetCurrency(ods::Currency *c) {
+		Clear();
 		data_.currency = c;
 		type_ = Type::Currency;
 	}
 	
 	void SetDate(QDate *d) {
+		Clear();
 		data_.date = d;
 		type_ = Type::Date;
 	}
 	
 	void SetDateTime(QDateTime *d) {
+		Clear();
 		data_.date_time = d;
 		type_ = Type::DateTime;
 	}
 	
 	void SetDouble(double d) {
+		Clear();
 		data_.number = d;
 		type_ = Type::Double;
 	}
 	
 	void SetPercentage(double d) {
+		Clear();
 		data_.percentage = d;
 		type_ = Type::Percentage;
 	}
 	
 	void SetString(QString *s) {
+		Clear();
 		data_.s = s;
 		type_ = Type::String;
 	}

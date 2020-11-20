@@ -224,7 +224,11 @@ FormulaNode::Operation(const ods::Op op, FormulaNode *rhs)
 	if (op == Op::Ampersand)
 		return OperationAmpersand(op, rhs);
 	
-	mtl_trace();
+	if (op == Op::Equals)
+		return OperationEquals(op, rhs);
+	
+	auto ba = ods::op::ToString(op).toLocal8Bit();
+	mtl_trace("Op: \"%s\"", ba.data());
 	return false;
 }
 
@@ -236,6 +240,73 @@ FormulaNode::OperationAmpersand(const ods::Op op, FormulaNode *rhs)
 	s->append(rhs->toString());
 	SetString(s);
 	return true;
+}
+
+bool
+FormulaNode::OperationEquals(const ods::Op op, FormulaNode *rhs)
+{
+	if (is_address()) {
+		ods::Address *address = as_address();
+		if (address->is_cell_range()) {
+			mtl_warn("Cell range not implemented");
+			return false;
+		}
+	
+		ods::Cell *cell = address->cell()->GetCell();
+		CHECK_PTR(cell);
+		CHECK_TRUE(function::ExtractCellValue(cell, *this));
+		return OperationEquals(op, rhs);
+	}
+	
+	if (rhs->is_address()) {
+		ods::Address *address = rhs->as_address();
+		if (address->is_cell_range()) {
+			mtl_warn("Cell range not implemented");
+			return false;
+		}
+	
+		ods::Cell *cell = address->cell()->GetCell();
+		CHECK_PTR(cell);
+		CHECK_TRUE(function::ExtractCellValue(cell, *rhs));
+		return OperationEquals(op, rhs);
+	}
+	
+	if (is_function()) {
+		auto *node = as_function()->Eval();
+		CHECK_PTR(node);
+		bool flag = node->OperationEquals(op, rhs);
+		delete node;
+		return flag;
+	}
+	
+	if (rhs->is_function()) {
+		auto *node = rhs->as_function()->Eval();
+		CHECK_PTR(node);
+		bool flag = OperationEquals(op, node);
+		delete node;
+		return flag;
+	}
+	
+	if (is_any_double()) {
+		if (rhs->is_any_double()) {
+			const double lhs = as_any_double();
+			const double rhs_val = rhs->as_any_double();
+			bool flag = function::IsNearlyEqual(lhs, rhs_val);
+#ifdef DEBUG_FORMULA_EVAL
+mtl_info("lhs: %.2f, rhs: %.2f, eq: %s", lhs, rhs_val, (flag ? "true" : "false"));
+#endif
+			Clear();
+			SetBool(flag);
+			return true;
+		} else {
+it_happened();
+			return false;
+		}
+	}
+	
+	mtl_warn("TBD");
+	SetBool(true);
+	return false;
 }
 
 bool
@@ -359,21 +430,7 @@ FormulaNode::OperationPlusMinus(const ods::Op op, FormulaNode *rhs)
 		
 		ods::Cell *cell = address->cell()->GetCell();
 		CHECK_PTR(cell);
-		FormulaNode result;
-		CHECK_TRUE(function::ExtractCellValue(cell, result));
-		if (cell->is_double()) {
-			SetDouble(*cell->as_double());
-		} else if (cell->is_currency()) {
-			ods::Currency *c = cell->QueryCurrencyObject();
-			CHECK_PTR(c);
-			SetCurrency(c);
-		} else if (cell->is_percentage()) {
-			SetPercentage(*cell->as_percentage());
-		} else {
-			mtl_trace();
-			return false;
-		}
-		
+		CHECK_TRUE(function::ExtractCellValue(cell, *this));
 		return OperationPlusMinus(op, rhs);
 	}
 	
@@ -434,6 +491,8 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 		return as_date()->toString();
 	} else if (is_date_time()) {
 		return as_date_time()->toString();
+	} else if (is_bool()) {
+		return as_bool() ? QLatin1String("true") : QLatin1String("false");
 	} else if (is_none())
 		return QLatin1String("[none!!]");
 	else {
