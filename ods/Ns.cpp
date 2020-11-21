@@ -23,7 +23,7 @@ Ns::AddToVec()
 	v_.append(office_);
 	v_.append(number_);
 	v_.append(text_);
-	
+	v_.append(calcext_);
 	v_.append(anim_);
 	v_.append(chart_);
 	v_.append(config_);
@@ -58,6 +58,12 @@ Ns::Default()
 		ods::UriId::Config,
 		QLatin1String("config"),
 		QLatin1String("urn:oasis:names:tc:opendocument:xmlns:config:1.0"));
+	
+	calcext_ = Prefix::Create(
+		ods::UriId::Calcext,
+		QLatin1String("calcext"),
+		QLatin1String("urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"));
+	
 	db_ = Prefix::Create(
 		ods::UriId::Database,
 		QLatin1String("db"),

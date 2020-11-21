@@ -242,6 +242,8 @@ TypeFromString(const QString &value_type)
 		return ods::ValueType::Percentage;
 	if (value_type == ods::ns::kDate)
 		return ods::ValueType::Date;
+	if (value_type == ods::ns::kDateTime)
+		return ods::ValueType::DateTime;
 	if (value_type == ods::ns::kTime)
 		return ods::ValueType::Time;
 	if (value_type == ods::ns::kBoolean)
@@ -261,6 +263,7 @@ TypeToString(const ods::ValueType value_type)
 	case ods::ValueType::Currency: return ods::ns::kCurrency;
 	case ods::ValueType::Percentage: return ods::ns::kPercentage;
 	case ods::ValueType::Date: return ods::ns::kDate;
+	case ods::ValueType::DateTime: return ods::ns::kDateTime;
 	case ods::ValueType::Time: return ods::ns::kTime;
 	case ods::ValueType::Bool: return ods::ns::kBoolean;
 	case ods::ValueType::None: return "[not set]";

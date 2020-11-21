@@ -16,6 +16,8 @@ const u8 ReachedParamSeparator = 1u << 3;
 enum class FunctionId : u16 {
 	None,
 	Concatenate,
+	Count,
+	CountA,
 	Date,
 	If,
 	Max,
@@ -68,6 +70,8 @@ bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index)
 
 // Formula functions:
 FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values);
+FormulaNode* Count(const QVector<ods::FormulaNode*> &values);
+FormulaNode* CountA(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
 FormulaNode* If(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Max(const QVector<FormulaNode *> &values);

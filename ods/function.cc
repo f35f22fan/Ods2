@@ -6,6 +6,9 @@
 #include "Formula.hpp"
 #include "FormulaNode.hpp"
 
+#include <QDate>
+#include <QDateTime>
+
 #include <cmath>
 
 namespace ods::function {
@@ -112,13 +115,19 @@ ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 			return false;
 		}
 		ods::FormulaNode *value = f->Eval();
-		if (value != nullptr)
-			result = *value;
+		CHECK_PTR(value);
+		result = *value;
 	} else if (cell->is_any_double()) {
 		double d = *cell->as_double();
 		result.SetDouble(d);
 	} else if (cell->is_string()) {
 		result.SetString(new QString(*cell->GetFirstString()));
+	} else if (cell->is_date()) {
+		result.SetDate(new QDate(*cell->as_date()));
+	} else if (cell->is_date_time()) {
+		result.SetDateTime(new QDateTime(*cell->as_date_time()));
+	} else if (cell->is_empty()) {
+		result.SetNone();
 	} else {
 		mtl_warn("Cell not a number");
 		return false;
@@ -219,12 +228,13 @@ FlattenOutArgs(QVector<ods::FormulaNode*> &vec)
 {
 	for (int i = 0; i < vec.size(); i++) {
 		ods::FormulaNode *node = vec[i];
-
+		CHECK_PTR(node);
+		
 		if (node->is_function()) {
 			Function *f = node->as_function();
 			ods::FormulaNode *value = f->Eval();
-			delete f;
 			CHECK_PTR(value);
+			delete node;
 			vec[i] = value;
 		} else if (node->is_address()) {
 			QVector<FormulaNode*> ext;
@@ -255,6 +265,8 @@ GetSupportedFunctions() {
 	FunctionMeta {"MOD", FunctionId::Mod},
 	FunctionMeta {"POWER", FunctionId::Power},
 	FunctionMeta {"IF", FunctionId::If},
+	FunctionMeta {"COUNT", FunctionId::Count},
+	FunctionMeta {"COUNTA", FunctionId::CountA},
 	};
 	return v;
 }
@@ -380,6 +392,34 @@ FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values)
 	return result;
 }
 
+FormulaNode* Count(const QVector<ods::FormulaNode*> &values)
+{
+	int total = 0;
+	
+	for (ods::FormulaNode *value: values) {
+		if (value->is_any_double())
+			total++;
+	}
+	
+	auto *result = new ods::FormulaNode();
+	result->SetDouble(double(total));
+	return result;
+}
+
+FormulaNode* CountA(const QVector<ods::FormulaNode*> &values)
+{
+	int total = 0;
+	
+	for (ods::FormulaNode *value: values) {
+		if (!value->is_none())
+			total++;
+	}
+	
+	auto *result = new ods::FormulaNode();
+	result->SetDouble(double(total));
+	return result;
+}
+
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values)
 {
 	CHECK_TRUE_NULL((values.size() == 3));
@@ -422,7 +462,6 @@ FormulaNode* If(const QVector<FormulaNode*> &values)
 
 	return flag ? true_node->Clone() : false_node->Clone();
 }
-
 
 FormulaNode* Max(const QVector<ods::FormulaNode*> &values)
 {

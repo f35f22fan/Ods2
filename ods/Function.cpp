@@ -54,6 +54,11 @@ Function::AddArg(double d) {
 }
 
 void
+Function::AddArg(ods::Op op) {
+	AddArg(ods::FormulaNode::Op(op));
+}
+
+void
 Function::AddArg(Function *f) {
 	AddArg(ods::FormulaNode::Function(f));
 }
@@ -83,15 +88,23 @@ Function*
 Function::Clone()
 {
 	auto *p = new Function();
-	DeepCopy(*p, *this);
+	
+	if (DeepCopy(*p, *this))
+		return p;
 	return p;
+//	delete p;
+//	return nullptr;
 }
 
-void
+bool
 Function::DeepCopy(ods::Function &dest, const ods::Function &src)
 {
 	dest.meta_ = src.meta_;
 	dest.args_->clear();
+	
+	if(src.args_ == nullptr) {
+		return false;
+	}
 	
 	for (QVector<ods::FormulaNode*> *subvec: *src.args_) {
 		if (subvec->isEmpty())
@@ -104,6 +117,8 @@ Function::DeepCopy(ods::Function &dest, const ods::Function &src)
 		}
 		dest.args_->append(new_vec);
 	}
+	
+	return true;
 }
 
 FormulaNode*
@@ -131,7 +146,7 @@ Function::Eval()
 #ifdef DEBUG_FORMULA_EVAL
 	mtl_info("%sInside %s()%s", MTL_COLOR_YELLOW, meta_->name, MTL_COLOR_DEFAULT);
 #endif
-	function::FlattenOutArgs(fn_args);
+	CHECK_TRUE_NULL(function::FlattenOutArgs(fn_args));
 	CHECK_PTR_NULL(meta_);
 	
 	return ExecOpenFormulaFunction(fn_args);
@@ -152,6 +167,8 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Mod: return function::Mod(fn_args);
 	case FunctionId::Power: return function::Power(fn_args);
 	case FunctionId::If: return function::If(fn_args);
+	case FunctionId::Count: return function::Count(fn_args);
+	case FunctionId::CountA: return function::CountA(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

@@ -63,6 +63,7 @@ const char * const kCurrencySymbol		= "currency-symbol";
 const char * const kDataStyleName		= "data-style-name";
 const char * const kDate				= "date";
 const char * const kDateStyle			= "date-style";
+const char * const kDateTime			= "date-time";
 const char * const kDateValue			= "date-value";
 const char * const kDay					= "day";
 const char * const kDecimalPlaces		= "decimal-places";

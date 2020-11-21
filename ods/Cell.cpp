@@ -4,18 +4,17 @@
 #include "Book.hpp"
 #include "CellRef.hpp"
 #include "currency.hh"
-#include "Duration.hpp"
 #include "Formula.hpp"
 #include "Length.hpp"
 #include "Ns.hpp"
 #include "ns.hxx"
+#include "ods.hh"
 #include "Row.hpp"
 #include "Sheet.hpp"
-#include "Tag.hpp"
-
-#include "ods.hh"
 #include "StringOrInst.hpp"
 #include "StringOrTag.hpp"
+#include "Tag.hpp"
+#include "Time.hpp"
 
 #include "inst/DrawFrame.hpp"
 #include "inst/DrawImage.hpp"
@@ -127,7 +126,7 @@ Cell::CloneValue() const
 	else if (is_date())
 		return new QDateTime(*as_date());
 	else if (is_time())
-		return new ods::Duration(*as_time());
+		return new ods::Time(*as_time());
 	else if (is_boolean())
 		return new bool(*as_boolean());
 	mtl_trace();
@@ -181,12 +180,14 @@ Cell::Init(ods::Tag *tag)
 	tag->Copy(ns_->table(), ods::ns::kNumberColumnsSpanned, ncs_);
 	tag->Copy(ns_->table(), ods::ns::kNumberRowsSpanned, nrs_);
 	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
-	
+	 // calcext:value-type="time"
 	QString str;
-	tag->Copy(ns_->office(), ods::ns::kValueType, str);
-	
-	if (!str.isEmpty())
-		office_value_type_ = ods::TypeFromString(str);
+	if (office_value_type_ == ValueType::None) {
+		tag->Copy(ns_->office(), ods::ns::kValueType, str);
+		
+		if (!str.isEmpty())
+			office_value_type_ = ods::TypeFromString(str);
+	}
 	
 	tag->Copy(ns_->office(), ods::ns::kCurrency, office_currency_);
 	
@@ -466,27 +467,28 @@ Cell::ReadValue(ods::Tag *tag)
 			}
 		}
 	} else if (is_date()) {
+		// office:value-type="date" can be represented as
+		// a date or date-time, so check for ":" to guess which one.
+		
 		auto *custom_attr = tag->Get(ns->office(), ods::ns::kDateValue);
+		CHECK_PTR_VOID(custom_attr);
 		
-		if (custom_attr == nullptr)
-		{
-			mtl_warn("custom_attr == nullptr");
-			return;
+		const QString str = custom_attr->value();
+		if (str.indexOf(':') != -1) {
+			auto dt = QDateTime::fromString(str, Qt::ISODate);
+			SetDateTime(new QDateTime(dt));
+		} else {
+			auto dt = QDate::fromString(str, Qt::ISODate);
+			SetDate(new QDate(dt));
 		}
-		
-		auto dt = QDateTime::fromString(custom_attr->value(), Qt::ISODate);
-		SetValue(new QDateTime(dt), office_value_type_);
 	} else if (is_time()) {
 		auto *custom_attr = tag->Get(ns->office(), ods::ns::kTimeValue);
-
-		if (custom_attr == nullptr)
-		{
-			mtl_warn("custom_attr == nullptr");
-			return;
+		CHECK_PTR_VOID(custom_attr);
+		auto *t = new ods::Time();
+		if (!t->Parse(custom_attr->value())) {
+			auto ba = custom_attr->value().toLocal8Bit();
+			mtl_trace("Failed to parse: \"%s\"", ba.data());
 		}
-		
-		auto *t = new ods::Duration();
-		t->Decode(custom_attr->value());
 		SetValue(t, office_value_type_);
 	} else if (is_boolean()) {
 		auto *custom_attr = tag->Get(ns->office(), ods::ns::kBooleanValue);
@@ -546,14 +548,25 @@ Cell::SetCurrency(const Currency &c)
 }
 
 void
-Cell::SetDate(const QDateTime *p)
+Cell::SetDate(QDate *p)
 {
 	ClearValue(true);
 	
 	if (p != nullptr)
 	{
 		office_value_type_ = ods::ValueType::Date;
-		value_data_ = new QDateTime(*p);
+		value_data_ = p;
+	}
+}
+
+void
+Cell::SetDateTime(QDateTime *p)
+{
+	ClearValue(true);
+	
+	if (p != nullptr) {
+		office_value_type_ = ods::ValueType::DateTime;
+		value_data_ = p;
 	}
 }
 
@@ -562,20 +575,7 @@ Cell::SetDouble(const double d)
 {
 	ClearValue(true);
 	office_value_type_ = ods::ValueType::Double;
-	value_data_ = new double();
-	*as_double() = d;
-}
-
-void
-Cell::SetDuration(const ods::Duration *p)
-{
-	ClearValue(true);
-	
-	if (p != nullptr)
-	{
-		office_value_type_ = ods::ValueType::Time;
-		value_data_ = p->Clone();
-	}
+	value_data_ = new double(d);
 }
 
 void
@@ -601,11 +601,7 @@ void
 Cell::SetFormula(ods::Formula *p)
 {
 	delete formula_;
-	
-	if (p == nullptr)
-		formula_ = nullptr;
-	else
-		formula_ = p->Clone();
+	formula_ = p;
 }
 
 void
@@ -641,6 +637,18 @@ Cell::SetStyle(Abstract *inst)
 	} else {
 		table_style_name_.clear();
 		mtl_warn();
+	}
+}
+
+void
+Cell::SetTime(ods::Time *p)
+{
+	ClearValue(true);
+	
+	if (p != nullptr)
+	{
+		office_value_type_ = ods::ValueType::Time;
+		value_data_ = p;
 	}
 }
 
@@ -697,6 +705,8 @@ Cell::ValueToString() const
 		return QString::number(*as_double(), 'f', FLT_DIG);
 	if (is_date())
 		return as_date()->toString(Qt::ISODate);
+	if (is_date_time())
+		return as_date_time()->toString(Qt::ISODate);
 	if (is_time())
 		return as_time()->toString();
 	if (is_boolean())
@@ -757,12 +767,9 @@ Cell::WriteValue(QXmlStreamWriter &xml)
 		Write(xml, ns_->office(), ods::ns::kDateValue, date_value);
 	} else if (is_time()) {
 		auto *dd = as_time();
-		
-		if (dd->IsValid())
-		{
-			QString dur_value = dd->toString();
-			Write(xml, ns_->office(), ods::ns::kTimeValue, dur_value);
-		}
+		CHECK_PTR_VOID(dd);
+		QString dur_value = dd->toString();
+		Write(xml, ns_->office(), ods::ns::kTimeValue, dur_value);
 	} else if (is_boolean()) {
 		QString str = *as_boolean() ? QLatin1String("true") : QLatin1String("false");
 		Write(xml, ns_->office(), ods::ns::kBooleanValue, str);

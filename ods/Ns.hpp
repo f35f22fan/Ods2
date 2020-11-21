@@ -15,29 +15,30 @@ public:
 	Ns();
 	virtual ~Ns();
 	
-	Prefix* anim() { return anim_; }
-	Prefix* chart() { return chart_; }
-	Prefix* config() { return config_; }
-	Prefix* db() { return db_; }
-	Prefix* dc() { return dc_; }
-	Prefix* draw() { return draw_; }
-	Prefix* fo() { return fo_; }
-	Prefix* form() { return form_; }
-	Prefix* loext() { return loext_; }
-	Prefix* manifest() { return manifest_; }
-	Prefix* math() { return math_; }
-	Prefix* meta() { return meta_; }
-	Prefix* number() { return number_; }
-	Prefix* of() { return of_; }
-	Prefix* office() { return office_; }
-	Prefix* presentation() { return presentation_; }
-	Prefix* script() { return script_; }
-	Prefix* smil() { return smil_; }
-	Prefix* style() { return style_; }
-	Prefix* svg() { return svg_; }
-	Prefix* table() { return table_; }
-	Prefix* text() { return text_; }
-	Prefix* xlink() { return xlink_; }
+	Prefix* anim() const { return anim_; }
+	Prefix* calcext() const { return calcext_; }
+	Prefix* chart() const { return chart_; }
+	Prefix* config() const { return config_; }
+	Prefix* db() const { return db_; }
+	Prefix* dc() const { return dc_; }
+	Prefix* draw() const { return draw_; }
+	Prefix* fo() const { return fo_; }
+	Prefix* form() const { return form_; }
+	Prefix* loext() const { return loext_; }
+	Prefix* manifest() const { return manifest_; }
+	Prefix* math() const { return math_; }
+	Prefix* meta() const { return meta_; }
+	Prefix* number() const { return number_; }
+	Prefix* of() const { return of_; }
+	Prefix* office() const { return office_; }
+	Prefix* presentation() const { return presentation_; }
+	Prefix* script() const { return script_; }
+	Prefix* smil() const { return smil_; }
+	Prefix* style() const { return style_; }
+	Prefix* svg() const { return svg_; }
+	Prefix* table() const { return table_; }
+	Prefix* text() const { return text_; }
+	Prefix* xlink() const { return xlink_; }
 	
 	ods::Prefix*
 	GetPrefix(const QString &s);
@@ -55,6 +56,7 @@ private:
 	void Default();
 	
 	Prefix *anim_ = nullptr;
+	Prefix *calcext_ = nullptr;
 	Prefix *chart_ = nullptr;
 	Prefix *config_ = nullptr;
 	Prefix *db_ = nullptr;

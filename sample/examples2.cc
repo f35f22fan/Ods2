@@ -340,7 +340,6 @@ CreateFormulaFunctions()
 	ods::AutoDelete<ods::Book*> ad(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Formula Functions");
-	
 	int last_row = 0;
 	{ // CONCATENATE()
 // Summary: Concatenate the text strings
@@ -399,7 +398,9 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	{ // SUM()
+	// Enclosed in multiple if(true/false){} blocks to selectively disable execution
+	// while still compiling - for the purpose of easing development:
+	if (false) { // SUM()
 		auto *row = sheet->NewRowAt(last_row++);
 		auto *cell0 = row->NewCellAt(0);
 		cell0->SetDouble(28);
@@ -415,7 +416,8 @@ CreateFormulaFunctions()
 		auto ba = node->toString().toLocal8Bit();
 		mtl_info("SUM(): %s", ba.data());
 	}
-	{ // QUOTIENT(), MOD(), POWER()
+	
+	if (false) { // QUOTIENT(), MOD(), POWER()
 		auto *row = sheet->NewRowAt(last_row++);
 		auto *lhs = row->NewCellAt(0);
 		lhs->SetDouble(-11.7);
@@ -471,38 +473,131 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	{ // IF()
-		CHECK_PTR_VOID(sheet);
+	if (true) { // IF()
 		auto *row = sheet->NewRowAt(last_row++);
 		CHECK_PTR_VOID(row);
-		auto *f_cell = row->NewCellAt(3);
-		CHECK_PTR_VOID(f_cell);
-		auto *f = f_cell->NewFormula();
-		auto *fn = ods::Function::New(ods::FunctionId::If);
-		f->Add(fn);
 		
-		auto *cell0 = row->NewCellAt(0);
-		cell0->SetDouble(25.0);
-		auto *condition = new QVector<ods::FormulaNode*>();
-		ods::Address *a = sheet->NewAddress(cell0);
-		condition->append(ods::FormulaNode::Address(a));
-		condition->append(ods::FormulaNode::Op(ods::Op::Equals));
-		condition->append(ods::FormulaNode::Double(10.0));
-		
-		fn->AddArg(condition);
-		auto *true_value = ods::FormulaNode::String(new QString("Cell0 = 10"));
-		fn->AddArg(true_value);
-		auto *false_value = ods::FormulaNode::String(new QString("Cell0 != 10"));
-		fn->AddArg(false_value);
-		
-		auto *node = f->Eval();
-		
-		if (node == nullptr) {
-			mtl_warn("IF() failed");
-		} else {
-			auto ba = node->toString().toLocal8Bit();
-			mtl_info("IF(): %s", ba.data());
+		{ // use IF() with numbers:
+			auto *f_cell = row->NewCellAt(3);
+			CHECK_PTR_VOID(f_cell);
+			auto *f = f_cell->NewFormula();
+			auto *fn_if = ods::Function::New(ods::FunctionId::If);
+			f->Add(fn_if);
+			
+			auto *cell0 = row->NewCellAt(0);
+			cell0->SetDouble(25.0);
+			auto *condition = new QVector<ods::FormulaNode*>();
+			ods::Address *a = sheet->NewAddress(cell0);
+			condition->append(ods::FormulaNode::Address(a));
+			condition->append(ods::FormulaNode::Op(ods::Op::GreaterOrEqual));
+			condition->append(ods::FormulaNode::Double(98));
+			fn_if->AddArg(condition);
+	
+			auto *true_option = ods::FormulaNode::String(new QString("true!"));
+			fn_if->AddArg(true_option);
+			auto *false_option = ods::Function::New(ods::FunctionId::Sum);
+			false_option->AddArg(49);
+			false_option->AddArg(15);
+			fn_if->AddArg(false_option);
+			
+			auto *node = f->Eval();
+			
+			if (node == nullptr) {
+				mtl_warn("IF(numbers) failed");
+			} else {
+				auto ba = node->toString().toLocal8Bit();
+				mtl_info("IF(numbers): %s", ba.data());
+			}
 		}
+		
+		{// Now use IF() with dates:
+			int next_cell = 3;
+			
+			auto *cell1 = row->NewCellAt(next_cell++);
+			cell1->SetDate(new QDate(1960, 7, 15));
+			auto *cell2 = row->NewCellAt(next_cell++);
+			cell2->SetDate(new QDate(1980, 1, 2));
+			
+			auto *f_cell = row->NewCellAt(next_cell++);
+			CHECK_PTR_VOID(f_cell);
+			auto *f = f_cell->NewFormula();
+			auto *fn_if = ods::Function::New(ods::FunctionId::If);
+			f->Add(fn_if);
+			
+			auto *condition = new QVector<ods::FormulaNode*>();
+			auto *lhs = ods::FormulaNode::Address(sheet->NewAddress(cell1));
+			condition->append(lhs);
+			condition->append(ods::FormulaNode::Op(ods::Op::GreaterOrEqual));
+			auto *rhs = ods::FormulaNode::Address(sheet->NewAddress(cell2));
+			condition->append(rhs);
+			fn_if->AddArg(condition);
+			
+			auto *true_option = ods::FormulaNode::String(new QString("true!"));
+			fn_if->AddArg(true_option);
+			auto *false_option = ods::FormulaNode::String(new QString("false!"));
+			fn_if->AddArg(false_option);
+			
+			auto *node = f->Eval();
+			
+			if (node == nullptr) {
+				mtl_warn("IF(dates) failed");
+			} else {
+				auto ba = node->toString().toLocal8Bit();
+				mtl_info("IF(dates): %s", ba.data());
+			}
+		}
+	}
+	
+	if (true) { // COUNT()
+		auto *row = sheet->NewRowAt(last_row++);
+		CHECK_PTR_VOID(row);
+		int next_col = 0;
+		auto *num_cell = row->NewCellAt(next_col++);
+		num_cell->SetDouble(14);
+		auto *str_cell = row->NewCellAt(next_col++);
+		str_cell->SetString(QString("foo"));
+		auto *empty_cell = row->NewCellAt(next_col++);
+		
+		{
+			auto *fcell = row->NewCellAt(next_col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = ods::Function::New(ods::FunctionId::Count);
+			f->Add(fn);
+			fn->AddArg(43.2);
+			fn->AddArg(new QString("hi"));
+			fn->AddArg(sheet->NewAddress(num_cell));
+			fn->AddArg(sheet->NewAddress(str_cell));
+			
+			auto *node = f->Eval();
+			if (node == nullptr || !node->is_double()) {
+				mtl_info("COUNT() eval failed");
+			} else {
+				double d = node->as_double();
+				mtl_info("COUNT(): %.0f", d);
+			}
+		}
+		
+		{
+			auto *fcell = row->NewCellAt(next_col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = ods::Function::New(ods::FunctionId::CountA);
+			f->Add(fn);
+			fn->AddArg(43.2);
+			fn->AddArg(new QString("hi"));
+			fn->AddArg(sheet->NewAddress(num_cell));
+			fn->AddArg(sheet->NewAddress(empty_cell));
+			fn->AddArg(sheet->NewAddress(str_cell));
+			
+			auto *node = f->Eval();
+			if (node == nullptr || !node->is_double()) {
+				mtl_info("COUNTA() eval failed");
+			} else {
+				double d = node->as_double();
+				mtl_info("COUNTA(): %.0f", d);
+			}
+		}
+		
+		
 	}
 	
 	util::Save(book);

@@ -17,6 +17,7 @@ enum class ValueType: u8
 	Bool = 1,
 	Currency,
 	Date,
+	DateTime,
 	Double,
 	Time,
 	None, // default

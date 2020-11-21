@@ -165,9 +165,11 @@ Tag::SetAttributes(const QXmlStreamAttributes &attrs)
 	{
 		auto *prefix = ns_->GetPrefix(attr.prefix().toString());
 		
-		// stuff like "calcext" not supported, will return nullptr
-		if (prefix == nullptr)
+		if (prefix == nullptr) {
+			auto ba =attr.prefix().toString().toLocal8Bit();
+			mtl_trace("\"%s\"", ba.data());
 			continue;
+		}
 		
 		auto *p = new ods::Attr(prefix, attr.name().toString(),
 			attr.value().toString());

@@ -915,8 +915,8 @@ CreateDate()
 	auto *row = sheet->NewRowAt(0);
 	auto *cell = row->NewCellAt(0);
 	
-	QDateTime dt = QDateTime::currentDateTimeUtc();
-	cell->SetDate(&dt);
+	auto *date = new QDate(QDate::currentDate());
+	cell->SetDate(date);
 	
 	auto *style = cell->GetStyle();
 	
@@ -942,12 +942,16 @@ CreateDate()
 	date_style->NewMonth()->style(num_style);
 	date_style->NewText(".");
 	date_style->NewYear()->style(num_style);
-	date_style->NewText(" ");
-	date_style->NewHours()->style(num_style);
-	date_style->NewText(":");
-	date_style->NewMinutes()->style(num_style);
-	date_style->NewText(":");
-	date_style->NewSeconds()->style(num_style);
+	
+	if (cell->is_date_time()) {
+		// if it's not a QDate but a QDateTime:
+		date_style->NewText(" ");
+		date_style->NewHours()->style(num_style);
+		date_style->NewText(":");
+		date_style->NewMinutes()->style(num_style);
+		date_style->NewText(":");
+		date_style->NewSeconds()->style(num_style);
+	}
 	
 	util::Save(book);
 }
@@ -975,15 +979,19 @@ ReadDate()
 	auto *row = sheet->GetRow(0);
 	auto *cell = row->GetCell(0);
 	
-	if (!cell->is_date())
+	if (cell->is_date())
 	{
-		mtl_warn("Not a date cell");
+		QDate *dt = cell->as_date();
+		auto ba = dt->toString(Qt::ISODate).toLocal8Bit();
+		mtl_info("Date: %s", ba.data());
+	} else if (cell->is_date_time()) {
+		QDateTime *dt = cell->as_date_time();
+		auto ba = dt->toString(Qt::ISODate).toLocal8Bit();
+		mtl_info("DateTime: %s", ba.data());
+	} else {
+		mtl_warn("Cell is not a date or date-time");
 		return;
 	}
-	
-	QDateTime *dt = cell->as_date();
-	auto ba = dt->toString(Qt::ISODate).toLocal8Bit();
-	mtl_info("Date: %s", ba.data());
 	
 	// Now query date formatting rules,
 	// should print a string like "Day.Month.Year Hours:Minutes:Seconds"
@@ -1058,11 +1066,10 @@ CreateTime()
 	auto *row = sheet->NewRowAt(0);
 	auto *cell = row->NewCellAt(0);
 	
-	ods::Duration d(9, 32, 40); // 9h 32m 40s
-	cell->SetDuration(&d);
+	// 9h 32m 40s
+	cell->SetTime(new ods::Time(9, 32, 40));
 	
 	// Now set up formatting styles:
-	
 	auto *style = cell->GetStyle();
 	
 	if (style == nullptr)
@@ -1109,23 +1116,30 @@ ReadTime()
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	auto *row = sheet->GetRow(0);
-	auto *cell = row->GetCell(0);
 	
-	if (!cell->is_time())
-	{
-		mtl_warn("Cell type is not \"time\"");
-		return;
+	for (int i = 0; i < 2; i++) {
+		auto *cell = row->GetCell(i);
+		if (cell == nullptr) {
+			mtl_trace("Cell at: %d = null", i);
+			continue;
+		}
+		
+		if (!cell->is_time())
+		{
+			mtl_warn("Cell at %d type is not \"time\"", i);
+			return;
+		}
+		
+		ods::Time *t = cell->as_time();
+		auto ba = t->toString().toLocal8Bit();
+		mtl_info("Time: %s", ba.data());
 	}
-	
-	ods::Duration *dt = cell->as_time();
-	auto ba = dt->toString().toLocal8Bit();
-	mtl_info("Time: %s", ba.data());
 	
 	// Now query time formatting rules,
 	// should print a string like "Hours:Minutes:Seconds"
 	printf("Formatting: ");
 	
-	ods::inst::StyleStyle *style = cell->GetStyle();
+	ods::inst::StyleStyle *style = row->GetCell(0)->GetStyle();
 	
 	if (style == nullptr)
 	{

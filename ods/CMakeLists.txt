@@ -37,7 +37,6 @@ set(lib_files
 	country.hxx
 	currency.cc currency.hh currency.hxx
 	decl.hxx
-	Duration.cpp Duration.hpp
 	DurationInfo.cpp DurationInfo.hpp
 	err.hpp
 	filename.hxx
@@ -58,6 +57,7 @@ set(lib_files
 	style.cc style.hh style.hxx
 
 	Tag.cpp Tag.hpp
+	Time.cpp Time.hpp
 	types.hxx
 	VAlign.cpp VAlign.hpp
 	

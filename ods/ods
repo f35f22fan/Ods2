@@ -8,7 +8,6 @@
 #include <ods/Cell.hpp>
 #include <ods/country.hxx>
 #include <ods/currency.hh>
-#include <ods/Duration.hpp>
 #include <ods/err.hpp>
 #include <ods/Formula.hpp>
 #include <ods/FormulaError.hpp>
@@ -25,6 +24,7 @@
 #include <ods/Row.hpp>
 #include <ods/Sheet.hpp>
 #include <ods/style.hxx>
+#include <ods/Time.hpp>
 #include <ods/VAlign.hpp>
 
 #include <ods/attr/Border.hpp>

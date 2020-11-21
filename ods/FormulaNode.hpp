@@ -33,7 +33,7 @@ public:
 	
 	ods::Op as_op() const { return data_.op; }
 	ods::Brace as_brace() const { return data_.brace; }
-	ods::Duration* as_time() const { return data_.time; }
+	ods::Time* as_time() const { return data_.time; }
 	QDate* as_date() const { return data_.date; }
 	QDateTime* as_date_time() const { return data_.date_time; }
 	ods::Currency* as_currency() const { return data_.currency; }
@@ -54,7 +54,7 @@ public:
 	static FormulaNode* Date(QDate *date);
 	static FormulaNode* DateTime(QDateTime *p);
 	static FormulaNode* String(QString *s);
-	static FormulaNode* Time(ods::Duration *d);
+	static FormulaNode* Time(ods::Time *d);
 	
 	bool is_any_double() const { return type_ == Type::Double ||
 		type_ == Type::Currency || type_ == Type::Percentage; }
@@ -74,7 +74,7 @@ public:
 	
 	bool Operation(const ods::Op op, FormulaNode *rhs);
 	bool OperationAmpersand(const ods::Op op, FormulaNode *rhs);
-	bool OperationEquals(const ods::Op op, FormulaNode *rhs);
+	bool OperationEquality(const ods::Op op, FormulaNode *rhs_node);
 	bool OperationPlusMinus(const ods::Op op, FormulaNode *rhs);
 	bool OperationMultDivide(const ods::Op op, FormulaNode *rhs);
 	
@@ -114,6 +114,11 @@ public:
 		type_ = Type::Double;
 	}
 	
+	void SetNone() {
+		Clear();
+		type_ = Type::None;
+	}
+	
 	void SetPercentage(double d) {
 		Clear();
 		data_.percentage = d;
@@ -126,7 +131,7 @@ public:
 		type_ = Type::String;
 	}
 	
-	void SetTime(ods::Duration *d) {
+	void SetTime(ods::Time *d) {
 		Clear();
 		data_.time = d;
 		type_ = Type::Time;
@@ -167,7 +172,7 @@ private:
 		double number;
 		ods::Op op;
 		ods::Brace brace;
-		ods::Duration *time;
+		ods::Time *time;
 		QDate *date;
 		QDateTime *date_time;
 		ods::Currency *currency;

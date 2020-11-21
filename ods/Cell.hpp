@@ -31,8 +31,11 @@ public:
 	double*
 	as_currency() const { return as_double(); }
 	
+	QDate*
+	as_date() const { return (QDate*) value_data_; }
+	
 	QDateTime*
-	as_date() const { return (QDateTime*) value_data_; }
+	as_date_time() const { return (QDateTime*) value_data_; }
 	
 	double*
 	as_double() const { return (double*) value_data_; }
@@ -40,8 +43,8 @@ public:
 	double*
 	as_percentage() const { return as_double(); }
 	
-	ods::Duration*
-	as_time() const { return (ods::Duration*) value_data_; }
+	ods::Time*
+	as_time() const { return (ods::Time*) value_data_; }
 	
 	void
 	ClearValue(const bool delete_data = true);
@@ -96,6 +99,9 @@ public:
 	is_date() const { return office_value_type_ == ods::ValueType::Date; }
 	
 	bool
+	is_date_time() const { return office_value_type_ == ods::ValueType::DateTime; }
+	
+	bool
 	is_double() const { return office_value_type_ == ods::ValueType::Double; }
 
 	bool
@@ -109,6 +115,9 @@ public:
 	
 	bool
 	is_value_set() const { return office_value_type_ != ods::ValueType::None; }
+	
+	bool
+	is_empty() const { return (formula_ == nullptr) && !is_value_set(); }
 	
 	inst::DrawFrame*
 	NewDrawFrame();
@@ -170,13 +179,16 @@ public:
 	SetCurrency(const Currency &c);
 
 	void
-	SetDate(const QDateTime *p);
+	SetDate(QDate *p);
+	
+	void
+	SetDateTime(QDateTime *p);
 	
 	void
 	SetDouble(const double d);
 
 	void
-	SetDuration(const Duration *p);
+	SetTime(Time *p);
 	
 	void
 	SetFirstString(const QString &s, bool change_value_type = true);

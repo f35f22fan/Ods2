@@ -14,10 +14,14 @@ FindFile(const QString &file_name)
 	QString full_path = QString(ODS2_TEST_DIR)
 		+ QLatin1String("/sample/test_files/") + file_name;
 	
-	if (QFile(full_path).exists())
-		return full_path;
-	
 	auto ba = full_path.toLocal8Bit();
+	
+	if (QFile(full_path).exists()) {
+		mtl_info("Using file: %s", ba.data());
+		return full_path;
+	}
+	
+	
 	mtl_warn("File not found: %s", ba.data());
 	return QString();
 }

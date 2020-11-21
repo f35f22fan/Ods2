@@ -23,6 +23,7 @@ public:
 	void AddArg(ods::Function *f);
 	void AddArg(ods::Currency *c);
 	void AddArg(ods::Brace b);
+	void AddArg(ods::Op op);
 	void AddArg(QString *s);
 	void AddArg(QVector<FormulaNode*> *subvec);
 	Function* Clone();
@@ -35,7 +36,7 @@ public:
 private:
 	Function();
 	Function(const Function &src);
-	void DeepCopy(ods::Function &dest, const ods::Function &src);
+	bool DeepCopy(ods::Function &dest, const ods::Function &src);
 	FormulaNode* Eval();
 	FormulaNode* ExecOpenFormulaFunction(QVector<FormulaNode *> &fn_args);
 	

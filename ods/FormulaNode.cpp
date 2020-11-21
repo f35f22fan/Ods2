@@ -2,7 +2,7 @@
 
 #include "Cell.hpp"
 #include "CellRef.hpp"
-#include "Duration.hpp"
+#include "Time.hpp"
 #include "ods.hh"
 
 #include <float.h>
@@ -215,21 +215,23 @@ FormulaNode::DateTime(QDateTime *p)
 bool
 FormulaNode::Operation(const ods::Op op, FormulaNode *rhs)
 {
-	if (op == Op::Plus || op == Op::Minus)
-		return OperationPlusMinus(op, rhs);
-	
-	if (op == Op::Multiply || op == Op::Divide)
-		return OperationMultDivide(op, rhs);
-	
-	if (op == Op::Ampersand)
-		return OperationAmpersand(op, rhs);
-	
-	if (op == Op::Equals)
-		return OperationEquals(op, rhs);
-	
-	auto ba = ods::op::ToString(op).toLocal8Bit();
-	mtl_trace("Op: \"%s\"", ba.data());
-	return false;
+	switch (op) {
+	case Op::Plus:
+	case Op::Minus: return OperationPlusMinus(op, rhs);
+	case Op::Multiply:
+	case Op::Divide: return OperationMultDivide(op, rhs);
+	case Op::Ampersand: return OperationAmpersand(op, rhs);
+	case Op::Equals:
+	case Op::Greater:
+	case Op::GreaterOrEqual:
+	case Op::Less:
+	case Op::LessOrEqual: return OperationEquality(op, rhs);
+	default: {
+		auto ba = ods::op::ToString(op).toLocal8Bit();
+		mtl_trace("Op: \"%s\"", ba.data());
+		return false;
+	}
+	}
 }
 
 bool
@@ -243,7 +245,7 @@ FormulaNode::OperationAmpersand(const ods::Op op, FormulaNode *rhs)
 }
 
 bool
-FormulaNode::OperationEquals(const ods::Op op, FormulaNode *rhs)
+FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 {
 	if (is_address()) {
 		ods::Address *address = as_address();
@@ -255,11 +257,11 @@ FormulaNode::OperationEquals(const ods::Op op, FormulaNode *rhs)
 		ods::Cell *cell = address->cell()->GetCell();
 		CHECK_PTR(cell);
 		CHECK_TRUE(function::ExtractCellValue(cell, *this));
-		return OperationEquals(op, rhs);
+		return OperationEquality(op, rhs_node);
 	}
 	
-	if (rhs->is_address()) {
-		ods::Address *address = rhs->as_address();
+	if (rhs_node->is_address()) {
+		ods::Address *address = rhs_node->as_address();
 		if (address->is_cell_range()) {
 			mtl_warn("Cell range not implemented");
 			return false;
@@ -267,41 +269,100 @@ FormulaNode::OperationEquals(const ods::Op op, FormulaNode *rhs)
 	
 		ods::Cell *cell = address->cell()->GetCell();
 		CHECK_PTR(cell);
-		CHECK_TRUE(function::ExtractCellValue(cell, *rhs));
-		return OperationEquals(op, rhs);
+		CHECK_TRUE(function::ExtractCellValue(cell, *rhs_node));
+		return OperationEquality(op, rhs_node);
 	}
 	
 	if (is_function()) {
 		auto *node = as_function()->Eval();
 		CHECK_PTR(node);
-		bool flag = node->OperationEquals(op, rhs);
+		bool flag = node->OperationEquality(op, rhs_node);
 		delete node;
 		return flag;
 	}
 	
-	if (rhs->is_function()) {
-		auto *node = rhs->as_function()->Eval();
+	if (rhs_node->is_function()) {
+		auto *node = rhs_node->as_function()->Eval();
 		CHECK_PTR(node);
-		bool flag = OperationEquals(op, node);
+		bool flag = OperationEquality(op, node);
 		delete node;
 		return flag;
 	}
 	
 	if (is_any_double()) {
-		if (rhs->is_any_double()) {
+		if (rhs_node->is_any_double()) {
 			const double lhs = as_any_double();
-			const double rhs_val = rhs->as_any_double();
-			bool flag = function::IsNearlyEqual(lhs, rhs_val);
+			const double rhs = rhs_node->as_any_double();
+			bool flag;
+			if (op == Op::Equals)
+				flag = function::IsNearlyEqual(lhs, rhs);
+			else if (op == Op::Greater)
+				flag = lhs > rhs;
+			else if (op == Op::GreaterOrEqual)
+				flag = lhs >= rhs;
+			else if (op == Op::Less)
+				flag = lhs < rhs;
+			else if (op == Op::LessOrEqual)
+				flag = lhs <= rhs;
 #ifdef DEBUG_FORMULA_EVAL
-mtl_info("lhs: %.2f, rhs: %.2f, eq: %s", lhs, rhs_val, (flag ? "true" : "false"));
+mtl_info("lhs: %.2f, rhs: %.2f, eq: %s", lhs, rhs, (flag ? "true" : "false"));
 #endif
-			Clear();
 			SetBool(flag);
 			return true;
 		} else {
 it_happened();
 			return false;
 		}
+	}
+	
+	if (is_date()) {
+		CHECK_TRUE((rhs_node->is_date()));
+		const QDate *lhs = as_date();
+		const QDate *rhs = rhs_node->as_date();
+		bool flag;
+		
+		if (op == Op::Equals)
+			flag = lhs == rhs;
+		else if (op == Op::Greater)
+			flag = lhs > rhs;
+		else if (op == Op::GreaterOrEqual)
+			flag = lhs >= rhs;
+		else if (op == Op::Less)
+			flag = lhs < rhs;
+		else if (op == Op::LessOrEqual)
+			flag = lhs <= rhs;
+		else {
+			it_happened();
+			return false;
+		}
+		
+		SetBool(flag);
+		return true;
+	}
+	
+	if (is_date_time()) {
+		CHECK_TRUE((rhs_node->is_date_time()));
+		const QDateTime *lhs = as_date_time();
+		const QDateTime *rhs = rhs_node->as_date_time();
+		bool flag;
+		
+		if (op == Op::Equals)
+			flag = lhs == rhs;
+		else if (op == Op::Greater)
+			flag = lhs > rhs;
+		else if (op == Op::GreaterOrEqual)
+			flag = lhs >= rhs;
+		else if (op == Op::Less)
+			flag = lhs < rhs;
+		else if (op == Op::LessOrEqual)
+			flag = lhs <= rhs;
+		else {
+			it_happened();
+			return false;
+		}
+		
+		SetBool(flag);
+		return true;
 	}
 	
 	mtl_warn("TBD");
@@ -457,7 +518,7 @@ FormulaNode::String(QString *s)
 }
 
 FormulaNode*
-FormulaNode::Time(ods::Duration *d)
+FormulaNode::Time(ods::Time *d)
 {
 	auto *p = new FormulaNode();
 	p->SetTime(d);
@@ -488,9 +549,9 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 		}
 		return *as_string();
 	} else if (is_date()) {
-		return as_date()->toString();
+		return as_date()->toString(Qt::ISODate);
 	} else if (is_date_time()) {
-		return as_date_time()->toString();
+		return as_date_time()->toString(Qt::ISODate);
 	} else if (is_bool()) {
 		return as_bool() ? QLatin1String("true") : QLatin1String("false");
 	} else if (is_none())
