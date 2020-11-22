@@ -26,6 +26,71 @@ CloneVec(const QVector<FormulaNode*> &vec)
 }
 
 bool
+CommonForSumIfLikeFunctions_BuildUp(const QVector<ods::FormulaNode*> &values,
+	ods::Sheet *default_sheet,
+	QVector<FormulaNode*> &test_range_vec,
+	QVector<FormulaNode*> &cond_nodes,
+	QVector<FormulaNode*> *sum_range_vec)
+{
+	CHECK_TRUE(values.size() == 3);
+	
+	if (sum_range_vec != nullptr)
+	{
+		FormulaNode *sum_range = values[2];
+		sum_range_vec->append(sum_range->Clone());
+		CHECK_TRUE(function::FlattenOutArgs(*sum_range_vec));
+	}
+	
+	{
+		FormulaNode *test_range = values[0];
+		test_range_vec.append(test_range->Clone());
+		// Now convert address ranges to arrays of values
+		CHECK_TRUE(function::FlattenOutArgs(test_range_vec));
+	}
+	
+	{
+		FormulaNode *condition = values[1];
+		if (condition->is_string()) {
+			QString cond_str = *condition->as_string();
+			CHECK_TRUE(Formula::ParseString(cond_str, cond_nodes,
+				default_sheet, ods::TreatRemainderAsString));
+#ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
+			PrintNodes(cond_nodes, "Before adding anything:");
+#endif
+			if (cond_nodes.size() == 1) {
+				// Op::Equals is implied
+				cond_nodes.prepend(FormulaNode::Op(Op::Equals));
+			}
+		} else {
+#ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
+			mtl_print_node(condition, "Condition not a string:");
+#endif
+			cond_nodes.append(FormulaNode::Op(Op::Equals));
+			cond_nodes.append(condition->Clone());
+		}
+	}
+	
+	return true;
+}
+
+FormulaNode*
+CommonForSumIfLikeFunctions_Eval(const FormulaNode &test_node,
+	QVector<FormulaNode*> &cond_nodes)
+{
+	QVector<ods::FormulaNode*> *expression = function::CloneVec(cond_nodes);
+	ods::AutoDeleteVecP expression_advp(expression);
+	expression->prepend(test_node.Clone());
+#ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
+	function::PrintNodesInOneLine(*expression);
+#endif
+	auto *result = Formula::EvaluateNodes(*expression);
+#ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
+		mtl_print_node(result, "Expression result: ");
+#endif
+	return result;
+}
+
+bool
 EvalDeepestGroup(QVector<FormulaNode*> &input)
 {
 	int start = -1, count = -1;
@@ -282,6 +347,9 @@ GetSupportedFunctions() {
 	FunctionMeta ("IF", FunctionId::If),
 	FunctionMeta ("COUNT", FunctionId::Count),
 	FunctionMeta ("COUNTA", FunctionId::CountA),
+	FunctionMeta ("COUNTBLANK", FunctionId::CountBlank),
+	FunctionMeta ("COUNTIF", FunctionId::CountIf, 0),
+	FunctionMeta ("AVERAGE", FunctionId::Average),
 	};
 	return v;
 }
@@ -403,6 +471,21 @@ bool IsNearlyEqual(double x, double y)
 
 //============Standard Formula Functions===============
 
+FormulaNode* Average(const QVector<ods::FormulaNode*> &values)
+{
+	i32 count = 0;
+	double total = 0;
+	
+	for (ods::FormulaNode *node: values) {
+		if (node->is_any_double()) {
+			total += node->as_any_double();
+			count++;
+		}
+	}
+	
+	return ods::FormulaNode::Double(total / count);
+}
+
 FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values)
 {
 	QString *s = new QString();
@@ -418,30 +501,74 @@ FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values)
 
 FormulaNode* Count(const QVector<ods::FormulaNode*> &values)
 {
-	int total = 0;
+	i64 total = 0;
 	
 	for (ods::FormulaNode *value: values) {
 		if (value->is_any_double())
 			total++;
 	}
 	
-	auto *result = new ods::FormulaNode();
-	result->SetDouble(double(total));
-	return result;
+	return ods::FormulaNode::Double(total);
 }
 
 FormulaNode* CountA(const QVector<ods::FormulaNode*> &values)
 {
-	i32 total = 0;
+	i64 total = 0;
 	
 	for (ods::FormulaNode *value: values) {
-		if (!value->is_none())
+		if (!value->is_empty())
 			total++;
 	}
 	
-	auto *result = new ods::FormulaNode();
-	result->SetDouble(double(total));
-	return result;
+	return ods::FormulaNode::Double(total);
+}
+
+FormulaNode* CountBlank(const QVector<ods::FormulaNode*> &values)
+{
+	i64 total = 0;
+	
+	for (ods::FormulaNode *node: values) {
+		if (node->is_empty())
+			total++;
+	}
+	
+	return ods::FormulaNode::Double(total);
+}
+
+FormulaNode* CountIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *default_sheet)
+{
+	QVector<FormulaNode*> test_range_vec;
+	ods::AutoDeleteVec test_range_adv(test_range_vec);
+	
+	QVector<FormulaNode*> cond_nodes;
+	ods::AutoDeleteVec cond_nodes_adv(cond_nodes);
+	
+	CHECK_TRUE_NULL(CommonForSumIfLikeFunctions_BuildUp(values, default_sheet,
+		test_range_vec, cond_nodes, nullptr));
+	
+	PrintNodes(cond_nodes, "CountIf() Before for loop");
+	i64 count = 0;
+	const int range_size = test_range_vec.size();
+	// Now for the testing and summing up!
+	for (int i = 0; i < range_size; i++) {
+		FormulaNode *test_node = test_range_vec[i];
+		if (test_node->is_empty()) {
+			// Blank (empty) cells in test_range are ignored (they never
+			// satisfy the condition).
+			continue;
+		}
+		
+		FormulaNode *result = CommonForSumIfLikeFunctions_Eval(*test_node, cond_nodes);
+		ods::AutoDelete result_ad(result);
+		CHECK_TRUE_NULL((result != nullptr && result->is_bool()));
+		const bool ok = result->as_bool();
+		
+		if (ok) {
+			count++;
+		}
+	}
+	
+	return FormulaNode::Double(double(count));
 }
 
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values)
@@ -456,10 +583,8 @@ FormulaNode* Date(const QVector<ods::FormulaNode*> &values)
 		arr[i] = node->as_double();
 	}
 	
-	auto *result = new ods::FormulaNode();
 	QDate *d = new QDate(arr[0], arr[1], arr[2]);
-	result->SetDate(d);
-	return result;
+	return FormulaNode::Date(d);
 }
 
 FormulaNode* If(const QVector<FormulaNode*> &values)
@@ -504,23 +629,18 @@ FormulaNode* Max(const QVector<ods::FormulaNode*> &values)
 		}
 	}
 	
-#ifdef DEBUG_FORMULA_EVAL
-	mtl_info("%.2f", max);
-#endif
-	auto *result = new ods::FormulaNode();
-	result->SetDouble(max);
-	return result;
+	return FormulaNode::Double(max);
 }
 
 FormulaNode* Min(const QVector<FormulaNode *> &values)
 {
-	double min;
-	bool initialize = true;
+	double min = 0;
+	bool initialized = false;
 	
 	for (ods::FormulaNode *value: values) {
 		CHECK_TRUE_NULL(value->is_any_double());
-		if (initialize) {
-			initialize = false;
+		if (!initialized) {
+			initialized = true;
 			min = value->as_any_double();
 		} else {
 			double d = value->as_any_double();
@@ -528,12 +648,10 @@ FormulaNode* Min(const QVector<FormulaNode *> &values)
 				min = d;
 		}
 	}
-#ifdef DEBUG_FORMULA_EVAL
-	mtl_info("%.2f", min);
-#endif
-	auto *result = new ods::FormulaNode();
-	result->SetDouble(min);
-	return result;
+	
+	if (initialized)
+		return FormulaNode::Double(min);
+	return FormulaNode::Empty();
 }
 
 FormulaNode* Mod(const QVector<FormulaNode*> &values)
@@ -581,26 +699,18 @@ FormulaNode* Product(const QVector<ods::FormulaNode*> &values)
 	for (int i = 0; i < values.size(); i++) {
 		ods::FormulaNode *node = values[i];
 		
-		if (!node->is_any_double()) {
-			auto ba = node->toString().toLocal8Bit();
-			mtl_info("Node is non double: \"%s\"", ba.data());
-			return nullptr;
-		}
+		if (!node->is_any_double())
+			continue;
 		
-		//CHECK_TRUE_NULL(node->is_any_double());
+		const double n = node->as_any_double();
 		
-		if (i == 0) {
-			d = node->as_any_double();
-		} else {
-			d *= node->as_any_double();
-		}
+		if (i == 0)
+			d = n;
+		else
+			d *= n;
 	}
-#ifdef DEBUG_FORMULA_EVAL
-	mtl_info("%.2f", d);
-#endif
-	auto *result = new ods::FormulaNode();
-	result->SetDouble(d);
-	return result;
+
+	return FormulaNode::Double(d);
 }
 
 FormulaNode* Quotient(const QVector<FormulaNode*> &values)
@@ -625,82 +735,42 @@ FormulaNode* Sum(const QVector<ods::FormulaNode*> &values)
 	
 	for (ods::FormulaNode *node: values) {
 		
-		if (!node->is_any_double()) {
-			auto ba = node->toString().toLocal8Bit();
-			mtl_info("Node is non double: \"%s\"", ba.data());
-		}
-		
-		CHECK_TRUE_NULL(node->is_any_double());
-		d += node->as_any_double();
+		if (node->is_any_double())
+			d += node->as_any_double();
 	}
-	auto *result = new ods::FormulaNode();
-	result->SetDouble(d);
-	return result;
+	
+	return FormulaNode::Double(d);
 }
 
 FormulaNode* SumIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *default_sheet)
 { // =SUMIF(E17:E33,"=x",F17:F33)
 // table:formula="of:=SUMIF([.E17:.E33];&quot;=x&quot;;[.F17:.F33])"
-	CHECK_TRUE_NULL(values.size() == 3);
-	
-	QVector<FormulaNode*> sum_range_vec;
-	ods::AutoDeleteVec sum_range_vec_adv(sum_range_vec);
-	{
-		FormulaNode *sum_range = values[2];
-		sum_range_vec.append(sum_range->Clone());
-		CHECK_TRUE_NULL(function::FlattenOutArgs(sum_range_vec));
-	}
 	
 	QVector<FormulaNode*> test_range_vec;
 	ods::AutoDeleteVec test_range_adv(test_range_vec);
-	{
-		FormulaNode *test_range = values[0];
-		test_range_vec.append(test_range->Clone());
-		// Now convert address ranges to arrays of values
-		CHECK_TRUE_NULL(function::FlattenOutArgs(test_range_vec));
-	}
 	
 	QVector<FormulaNode*> cond_nodes;
 	ods::AutoDeleteVec cond_nodes_adv(cond_nodes);
-	{
-		FormulaNode *condition = values[1];
-		if (condition->is_string()) {
-			QString cond_str = *condition->as_string();
-			CHECK_TRUE_NULL(Formula::ParseString(cond_str, cond_nodes,
-				default_sheet, ods::TreatRemainderAsString));
-#ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
-			PrintNodes(cond_nodes, "Before adding anything:");
-#endif
-			if (cond_nodes.size() == 1) {
-				// Op::Equals is implied
-				cond_nodes.prepend(FormulaNode::Op(Op::Equals));
-			}
-		} else {
-#ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
-			mtl_print_node(condition, "Condition not a string:");
-#endif
-			cond_nodes.append(FormulaNode::Op(Op::Equals));
-			cond_nodes.append(condition->Clone());
-		}
-	}
+	
+	QVector<FormulaNode*> sum_range_vec;
+	ods::AutoDeleteVec sum_range_vec_adv(sum_range_vec);
+	
+	CHECK_TRUE_NULL(CommonForSumIfLikeFunctions_BuildUp(values, default_sheet,
+		test_range_vec, cond_nodes, &sum_range_vec));
 	
 	ods::FormulaNode sumup;
 	const int count = std::min(sum_range_vec.size(), test_range_vec.size());
 	// Now for the testing and summing up!
 	for (int i = 0; i < count; i++) {
-		auto *test_node = test_range_vec[i];
-		QVector<ods::FormulaNode*> *expression = function::CloneVec(cond_nodes);
-		ods::AutoDeleteVecP expression_advp(expression);
-		expression->prepend(test_node->Clone());
-#ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
-		function::PrintNodesInOneLine(*expression);
-#endif
-		FormulaNode *result = Formula::EvaluateNodes(*expression);
+		FormulaNode *test_node = test_range_vec[i];
+		if (test_node->is_empty()) {
+			// Blank (empty) cells in test_range are ignored (they never
+			// satisfy the condition).
+			return nullptr;
+		}
+		FormulaNode *result = CommonForSumIfLikeFunctions_Eval(*test_node, cond_nodes);
 		ods::AutoDelete result_ad(result);
 		CHECK_TRUE_NULL((result != nullptr && result->is_bool()));
-#ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
-		mtl_print_node(result, "Expression result: ");
-#endif
 		const bool do_sumup = result->as_bool();
 		
 		if (do_sumup) {
@@ -717,5 +787,4 @@ FormulaNode* SumIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *default
 	return sumup.Clone();
 }
 
-
-}
+} // ods::

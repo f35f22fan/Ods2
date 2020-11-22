@@ -181,6 +181,9 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::If: return function::If(fn_args);
 	case FunctionId::Count: return function::Count(fn_args);
 	case FunctionId::CountA: return function::CountA(fn_args);
+	case FunctionId::CountBlank: return function::CountBlank(fn_args);
+	case FunctionId::CountIf: return function::CountIf(fn_args, default_sheet());
+	case FunctionId::Average: return function::Average(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

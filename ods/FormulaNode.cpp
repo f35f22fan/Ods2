@@ -126,7 +126,7 @@ FormulaNode::Clear()
 }
 
 FormulaNode*
-FormulaNode::Clone()
+FormulaNode::Clone() const
 {
 	auto *p = new FormulaNode();
 	DeepCopy(*p, *this);

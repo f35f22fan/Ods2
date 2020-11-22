@@ -25,7 +25,7 @@ public:
 	void AdoptDefaultValueFrom(const FormulaNode &rhs);
 	bool ApplyMinus(); // Op "-" + number "3" => number "-3";
 	void Clear();
-	FormulaNode* Clone();
+	FormulaNode* Clone() const;
 	
 	ods::Address* as_address() const { return data_.address; }
 	ods::Function* as_function() const { return data_.function; }
@@ -48,6 +48,7 @@ public:
 	static FormulaNode* Double(const double d);
 	static FormulaNode* Op(const ods::Op op);
 	static FormulaNode* Brace(ods::Brace p);
+	static FormulaNode* Empty() { return new FormulaNode(); }
 	
 	static FormulaNode* Bool(bool b);
 	static FormulaNode* Percentage(double d);
@@ -63,6 +64,7 @@ public:
 	bool is_function() const { return type_ == Type::Function; }
 	bool is_double() const { return type_ == Type::Double; }
 	bool is_none() const { return type_ == Type::None; }
+	bool is_empty() const { return is_none(); }
 	bool is_op() const { return type_ == Type::Op; }
 	bool is_brace() const { return type_ == Type::Brace; }
 	bool is_time() const { return type_ == Type::Time; }

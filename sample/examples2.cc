@@ -588,7 +588,7 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // SUMIF()
+	if (false) { // SUMIF()
 		auto *row = sheet->NewRowAt(last_row++);
 		int col = 0;
 		for (; col < 3; col++) {
@@ -650,7 +650,104 @@ CreateFormulaFunctions()
 				mtl_info("SUMIF(): \"%s\"", ba.data());
 			}
 		}
+	}
+	
+	if (false) { // COUNTIF()
+		auto *row = sheet->NewRowAt(last_row++);
+		int col = 0;
+		for (; col < 3; col++) {
+			row->NewCellAt(col)->SetDouble(col + 2);
+		}
+		row->NewCellAt(col++);
 		
+		{ // COUNTIF() when condition is a string
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+	
+			auto *fn = f->Add(ods::FunctionId::CountIf);
+			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(3));
+			fn->AddArg(a);
+			fn->AddArg(">1");
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("COUNTIF() Eval() failed");
+			} else {
+				double count = node->as_double();
+				mtl_info("COUNTIF(): \"%.f\"", count);
+			}
+		}
+		
+		{ // COUNTIF() when condition is an expression (array of FormulaNode*)
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			
+			auto *fn = f->Add(ods::FunctionId::CountIf);
+			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(2));
+			// COUNTIF() test range:
+			fn->AddArg(a);
+			
+			auto *cond_vec = new QVector<ods::FormulaNode*>();
+			a = sheet->NewAddress(row->GetCell(2));
+			cond_vec->append(ods::FormulaNode::Address(a));
+			cond_vec->append(ods::FormulaNode::Op(ods::Op::Minus));
+			cond_vec->append(ods::FormulaNode::Double(2));
+			// COUNTIF() condition:
+			fn->AddArg(cond_vec);
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("COUNTIF() Eval() failed");
+			} else {
+				double count = node->as_double();
+				mtl_info("COUNTIF(): \"%.f\"", count);
+			}
+		}
+	}
+	
+	if (true) { // COUNTBLANK(), AVERAGE()
+		auto *row = sheet->NewRowAt(last_row++);
+		int col = 0;
+		for (; col < 5; col++) {
+			if (col % 2)
+				row->NewCellAt(col)->SetDouble(col + 2);
+			else
+				row->NewCellAt(col);
+		}
+		
+		{ // COUNTBLANK():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+		
+			auto *fn = f->Add(ods::FunctionId::CountBlank);
+			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(3));
+			fn->AddArg(a);
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("COUNTBLANK() Eval() failed");
+			} else {
+				double count = node->as_double();
+				mtl_info("COUNTBLANK(): \"%.f\"", count);
+			}
+		}
+		
+		{ // AVERAGE():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+		
+			auto *fn = f->Add(ods::FunctionId::Average);
+			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(3));
+			fn->AddArg(a);
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("AVERAGE() Eval() failed");
+			} else {
+				double avg = node->as_double();
+				mtl_info("AVERAGE(): \"%.f\"", avg);
+			}
+		}
 	}
 	util::Save(book);
 }

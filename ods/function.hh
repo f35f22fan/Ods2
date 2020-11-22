@@ -20,9 +20,12 @@ const u8 TreatRemainderAsString = 1u << 0;
 
 enum class FunctionId : u16 {
 	None,
+	Average,
 	Concatenate,
 	Count,
 	CountA,
+	CountBlank,
+	CountIf,
 	Date,
 	If,
 	Max,
@@ -58,6 +61,17 @@ QVector<FormulaNode*>*
 CloneVec(const QVector<FormulaNode*> &vec);
 
 bool
+CommonForSumIfLikeFunctions_BuildUp(const QVector<ods::FormulaNode*> &values,
+	ods::Sheet *default_sheet,
+	QVector<FormulaNode*> &test_range_vec,
+	QVector<FormulaNode*> &cond_nodes,
+	QVector<FormulaNode*> *sum_range_vec);
+
+FormulaNode*
+CommonForSumIfLikeFunctions_Eval(const FormulaNode &test_node,
+	QVector<FormulaNode*> &cond_nodes);
+
+bool
 EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes);
 
 bool
@@ -89,9 +103,12 @@ void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg = QString
 bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index);
 
 // Formula functions:
+FormulaNode* Average(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Count(const QVector<ods::FormulaNode*> &values);
 FormulaNode* CountA(const QVector<ods::FormulaNode*> &values);
+FormulaNode* CountBlank(const QVector<ods::FormulaNode*> &values);
+FormulaNode* CountIf(const QVector<FormulaNode *> &values, Sheet *default_sheet);
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
 FormulaNode* If(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Max(const QVector<FormulaNode *> &values);
