@@ -32,11 +32,17 @@ public:
 	static Time*
 	New(const i32 h, const i32 m, const i32 s);
 	
-	bool operator==(const ods::Time &rhs) const;
 	void operator+=(const ods::Time &rhs);
 	void operator-=(const ods::Time &rhs);
 	Time operator+(const Time &rhs) const;
 	Time operator-(const Time &rhs) const;
+	
+	bool operator>(const ods::Time &rhs) const { return ms_ > rhs.ms_; }
+	bool operator<(const ods::Time &rhs) const { return ms_ < rhs.ms_; }
+	bool operator>=(const ods::Time &rhs) const { return ms_ >= rhs.ms_; }
+	bool operator<=(const ods::Time &rhs) const { return ms_ <= rhs.ms_; }
+	bool operator==(const ods::Time &rhs) const { return ms_ == rhs.ms_; }
+	bool operator!=(const ods::Time &rhs) const { return ms_ != rhs.ms_; }
 	
 	operator QString();
 	

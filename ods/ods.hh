@@ -30,6 +30,20 @@ private:
 	VecType &vec_;
 };
 
+template <class VecType> class AutoDeleteVecP {
+public:
+	AutoDeleteVecP(VecType &x) : vec_(x) {}
+	~AutoDeleteVecP() {
+		for (auto *item : *vec_) {
+			delete item;
+		}
+		delete vec_;
+	}
+	
+private:
+	VecType vec_;
+};
+
 ODS_API QString ToString(const Brace p);
 ODS_API Brace FromString(const QString &s);
 

@@ -58,9 +58,12 @@ Function::AddArg(ods::Op op) {
 	AddArg(ods::FormulaNode::Op(op));
 }
 
-void
-Function::AddArg(Function *f) {
-	AddArg(ods::FormulaNode::Function(f));
+ods::Function*
+Function::AddArg(const ods::FunctionId id) {
+	auto *fn = ods::Function::New(id);
+	fn->parent_formula_ = parent_formula_;
+	AddArg(ods::FormulaNode::Function(fn));
+	return fn;
 }
 
 void
@@ -91,15 +94,16 @@ Function::Clone()
 	
 	if (DeepCopy(*p, *this))
 		return p;
+	
+	mtl_trace();
 	return p;
-//	delete p;
-//	return nullptr;
 }
 
 bool
 Function::DeepCopy(ods::Function &dest, const ods::Function &src)
 {
 	dest.meta_ = src.meta_;
+	dest.parent_formula_ = src.parent_formula_;
 	dest.args_->clear();
 	
 	if(src.args_ == nullptr) {
@@ -120,6 +124,9 @@ Function::DeepCopy(ods::Function &dest, const ods::Function &src)
 	
 	return true;
 }
+
+ods::Sheet*
+Function::default_sheet() const { return parent_formula_->default_sheet(); }
 
 FormulaNode*
 Function::Eval()
@@ -146,7 +153,11 @@ Function::Eval()
 #ifdef DEBUG_FORMULA_EVAL
 	mtl_info("%sInside %s()%s", MTL_COLOR_YELLOW, meta_->name, MTL_COLOR_DEFAULT);
 #endif
-	CHECK_TRUE_NULL(function::FlattenOutArgs(fn_args));
+	
+	if (meta_->settings & function::FlattenOutParamsBit) {
+		CHECK_TRUE_NULL(function::FlattenOutArgs(fn_args));
+	}
+	
 	CHECK_PTR_NULL(meta_);
 	
 	return ExecOpenFormulaFunction(fn_args);
@@ -160,6 +171,7 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Product: return function::Product(fn_args);
 	case FunctionId::Max: return function::Max(fn_args);
 	case FunctionId::Min: return function::Min(fn_args);
+	case FunctionId::SumIf: return function::SumIf(fn_args, default_sheet());
 	case FunctionId::Concatenate: return function::Concatenate(fn_args);
 	case FunctionId::Date: return function::Date(fn_args);
 	case FunctionId::Now: return function::Now();

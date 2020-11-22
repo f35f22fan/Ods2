@@ -19,6 +19,8 @@
     #define MTL_BLINK_END       "\e[25m"
     #define MTL_BOLD            "\e[1m"
     #define MTL_NON_BOLD        "\e[21"
+	#define MTL_INVERTED		"\e[7m"
+	#define MTL_INVERTED_CANCEL "\e[27m"
 #else
 	#define MTL_COLOR_BLUE		""
 	#define MTL_COLOR_DEFAULT	""
@@ -30,7 +32,23 @@
     #define MTL_BLINK_END       ""
     #define MTL_BOLD            ""
     #define MTL_NON_BOLD        ""
+	#define MTL_INVERTED        ""
+	#define MTL_INVERTED_CANCEL ""
 #endif
+
+// node => ods::FormulaNode*
+#define mtl_print_node(node, msg) {\
+	if (node == nullptr) {\
+		mtl_info("%s [nullptr]", msg);\
+	} else {\
+		QString type_str, node_str;\
+		function::NodeToStr(node, type_str, node_str);\
+		auto type_ba = type_str.toLocal8Bit();\
+		auto node_ba = node_str.toLocal8Bit();\
+		mtl_info("%s [%s] %s%s%s", msg, type_ba.data(),\
+		MTL_INVERTED, node_ba.data(), MTL_INVERTED_CANCEL);\
+	}\
+}
 
 #ifdef _MSC_VER
 #define mtl_info(fmt, ...) fprintf(stdout, \

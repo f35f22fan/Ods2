@@ -1,13 +1,16 @@
-Ods2 is QOds rewritten from scratch to allow for:
- - [x] Updating of .ods files
- - [x] Having a test suite
- - [x] Implementing advanced features
+Ods2 - a library to read/write/update OpenDocument Spreadsheet (.ods) files.
+Supports the most commonly used formula functions (including evaluation).
 
-Built exactly as QOds, see subfolder sample/* for examples on how to use.
+##### API usage
+See sample/examples[1-2].cc
 
-The file sample/Invoice.ods was generated with Ods2, the source code
-is in sample/Invoice.cpp
+Also, the file sample/Invoice.ods was generated with Ods2, the source code
+for the code that generated it is in sample/Invoice.cpp
 
+##### How to build
+Built exactly as my other project - QOds, see how_to_build.html
+
+##### License, etc
 Library updates might break API compatibility with previous updates to allow
 for easier development of this library.
 

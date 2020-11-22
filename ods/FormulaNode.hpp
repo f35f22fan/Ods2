@@ -22,6 +22,7 @@ public:
 	FormulaNode& operator=(const FormulaNode &rhs);
 	virtual ~FormulaNode();
 	
+	void AdoptDefaultValueFrom(const FormulaNode &rhs);
 	bool ApplyMinus(); // Op "-" + number "3" => number "-3";
 	void Clear();
 	FormulaNode* Clone();

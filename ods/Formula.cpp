@@ -43,9 +43,13 @@ Formula::AddOpenBrace()
 	nodes_.append(FormulaNode::Brace(Brace::Open));
 }
 
-void
-Formula::Add(Function *f) {
-	nodes_.append(FormulaNode::Function(f));
+ods::Function*
+Formula::Add(const ods::FunctionId id)
+{
+	auto *fn = ods::Function::New(id);
+	fn->parent_formula_ = this;
+	nodes_.append(FormulaNode::Function(fn));
+	return fn;
 }
 
 void
@@ -149,13 +153,10 @@ Formula::Eval()
 		CHECK_TRUE_NULL(ProcessFormulaString(str_to_evaluate_, nodes_));
 	}
 	
-	QVector<FormulaNode*> cloned_vec;
-	for (auto *item: nodes_) {
-		cloned_vec.append(item->Clone());
-	}
-	ods::AutoDeleteVec adv(cloned_vec);
+	QVector<FormulaNode*> *cloned_vec = function::CloneVec(nodes_);
+	ods::AutoDeleteVecP adv(cloned_vec);
 	evaluating(true);
-	ods::FormulaNode *result = EvaluateNodes(cloned_vec);
+	ods::FormulaNode *result = EvaluateNodes(*cloned_vec);
 	evaluating(false);
 
 	return result;
@@ -379,6 +380,35 @@ Formula::RemoveAllNodes()
 	}
 	nodes_.clear();
 	str_to_evaluate_.clear();
+}
+
+bool
+Formula::ParseString(const QString &s, QVector<FormulaNode*> &result,
+	ods::Sheet *default_sheet, const ParsingSettings ps)
+{
+	u8 settings = 0;
+	int chunk = 0;
+	int resume_at = 0;
+	QStringRef str_ref = s.midRef(0);
+	
+	while (ParseNext(str_ref, chunk, result, default_sheet, settings)) {
+		str_ref = str_ref.mid(chunk);
+		resume_at += chunk;
+		chunk = 0;
+		
+		if (str_ref.isEmpty())
+			return true;
+	}
+	
+	if (ps & ods::TreatRemainderAsString) {
+		auto *node = FormulaNode::String(new QString(str_ref.toString()));
+		result.append(node);
+		return true;
+	}
+	
+	auto ba = str_ref.toLocal8Bit();
+	mtl_trace("Remaining string is: \"%s\"", ba.data());
+	return false;
 }
 
 QString

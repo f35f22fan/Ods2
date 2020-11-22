@@ -182,10 +182,9 @@ CreateFormula()
 		
 		auto *formula_cell = row->NewCellAt(7);
 		ods::Formula *formula2 = formula_cell->NewFormula();
-		auto *function = ods::Function::New(ods::FunctionId::Sum);
+		auto *function = formula2->Add(ods::FunctionId::Sum);
 		auto *cell_range = sheet->NewAddress(start_cell, end_cell);
 		function->AddArg(cell_range);
-		formula2->Add(function);
 		formula2->Add(ods::Op::Multiply);
 		formula2->AddOpenBrace();
 		formula2->Add(sheet2_cell);
@@ -219,12 +218,11 @@ CreateFormula()
 		
 		auto *formula_cell = row3->NewCellAt(cells.size());
 		auto *formula = formula_cell->NewFormula();
-		auto *function = ods::Function::New(ods::FunctionId::Product);
+		auto *function = formula->Add(ods::FunctionId::Product);
 		ods::Cell *start_cell = cells[0];
 		ods::Cell *end_cell = cells[cells.size() - 1];
 		auto *cell_range = sheet->NewAddress(start_cell, end_cell);
 		function->AddArg(cell_range);
-		formula->Add(function);
 		auto *node = formula->Eval();
 		CHECK_PTR_VOID(node);
 		auto ba = node->toString().toLocal8Bit();
@@ -341,7 +339,11 @@ CreateFormulaFunctions()
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Formula Functions");
 	int last_row = 0;
-	{ // CONCATENATE()
+	
+	// Enclosed in multiple if(true/false){} blocks to selectively disable execution
+	// while still compiling - for the purpose of easing development:
+	
+	if (false) { // CONCATENATE()
 // Summary: Concatenate the text strings
 // Semantics: Concatenate each text value, in order, into a
 // single text result.
@@ -352,24 +354,23 @@ CreateFormulaFunctions()
 		cell2->SetString("World");
 		auto *formula_cell = row->NewCellAt(2);
 		ods::Formula *formula = formula_cell->NewFormula();
-		ods::Function *concatenate = ods::Function::New(ods::FunctionId::Concatenate);
+		ods::Function *concatenate = formula->Add(ods::FunctionId::Concatenate);
 		concatenate->AddArg(sheet->NewAddress(cell));
 		concatenate->AddArg(new QString(" "));
 		concatenate->AddArg(sheet->NewAddress(cell2));
 		concatenate->AddArg(new QString("!"));
-		formula->Add(concatenate);
 		
 		ods::FormulaNode *result = formula->Eval();
 		CHECK_PTR_VOID(result);
 		auto ba = result->toString().toLocal8Bit();
 		mtl_info("CONCATENATE(): \"%s\"", ba.data());
 	}
-	{ // DATE(), NOW()
+	
+	if (false) { // DATE(), NOW()
 		auto *row = sheet->NewRowAt(last_row++);
 		auto *cell = row->NewCellAt(0);
 		auto *formula = cell->NewFormula();
-		auto *fn = ods::Function::New(ods::FunctionId::Now);
-		formula->Add(fn);
+		auto *fn = formula->Add(ods::FunctionId::Now);
 		ods::FormulaNode *node = formula->Eval();
 		
 		if (node->is_date_time()) {
@@ -380,12 +381,11 @@ CreateFormulaFunctions()
 		
 		cell = row->NewCellAt(1);
 		formula = cell->NewFormula();
-		fn = ods::Function::New(ods::FunctionId::Date);
+		fn = formula->Add(ods::FunctionId::Date);
 		// y = 1969, m = 5, d = 30
 		fn->AddArg(double(1969));
 		fn->AddArg(double(5));
 		fn->AddArg(double(30));
-		formula->Add(fn);
 		node = formula->Eval();
 		CHECK_PTR_VOID(node);
 		
@@ -398,19 +398,16 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	// Enclosed in multiple if(true/false){} blocks to selectively disable execution
-	// while still compiling - for the purpose of easing development:
 	if (false) { // SUM()
 		auto *row = sheet->NewRowAt(last_row++);
 		auto *cell0 = row->NewCellAt(0);
 		cell0->SetDouble(28);
 		auto *cell = row->NewCellAt(1);
 		auto *formula = cell->NewFormula();
-		auto *fn = ods::Function::New(ods::FunctionId::Sum);
+		auto *fn = formula->Add(ods::FunctionId::Sum);
 		fn->AddArg(sheet->NewAddress(cell0));
 		fn->AddArg(25);
 		fn->AddArg(20);
-		formula->Add(fn);
 		ods::FormulaNode *node = formula->Eval();
 		CHECK_PTR_VOID(node);
 		auto ba = node->toString().toLocal8Bit();
@@ -426,11 +423,11 @@ CreateFormulaFunctions()
 		rhs->SetDouble(3);
 		auto *f_cell = row->NewCellAt(last_col++);
 		auto *f = f_cell->NewFormula();
-		auto *fn = ods::Function::New(ods::FunctionId::Quotient);
+		auto *fn = f->Add(ods::FunctionId::Quotient);
 		fn->AddArg(sheet->NewAddress(lhs));
 		fn->AddArg(sheet->NewAddress(rhs));
-		f->Add(fn);
 		auto *node = f->Eval();
+		
 		if (node == nullptr || !node->is_any_double()) {
 			mtl_warn("QUOTIENT() failed");
 		} else {
@@ -443,10 +440,9 @@ CreateFormulaFunctions()
 		lhs->SetDouble(7.5);
 		f_cell = row->NewCellAt(last_col++);
 		f = f_cell->NewFormula();
-		fn = ods::Function::New(ods::FunctionId::Mod);
+		fn = f->Add(ods::FunctionId::Mod);
 		fn->AddArg(sheet->NewAddress(lhs));
 		fn->AddArg(2.1);
-		f->Add(fn);
 		node = f->Eval();
 		if (node == nullptr || !node->is_any_double()) {
 			mtl_warn("MOD() failed");
@@ -460,8 +456,7 @@ CreateFormulaFunctions()
 		lhs->SetDouble(3.4);
 		f_cell = row->NewCellAt(last_col++);
 		f = f_cell->NewFormula();
-		fn = ods::Function::New(ods::FunctionId::Power);
-		f->Add(fn);
+		fn = f->Add(ods::FunctionId::Power);
 		fn->AddArg(sheet->NewAddress(lhs));
 		fn->AddArg(4.4);
 		node = f->Eval();
@@ -473,7 +468,7 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // IF()
+	if (false) { // IF()
 		auto *row = sheet->NewRowAt(last_row++);
 		CHECK_PTR_VOID(row);
 		
@@ -481,8 +476,7 @@ CreateFormulaFunctions()
 			auto *f_cell = row->NewCellAt(3);
 			CHECK_PTR_VOID(f_cell);
 			auto *f = f_cell->NewFormula();
-			auto *fn_if = ods::Function::New(ods::FunctionId::If);
-			f->Add(fn_if);
+			auto *fn_if = f->Add(ods::FunctionId::If);
 			
 			auto *cell0 = row->NewCellAt(0);
 			cell0->SetDouble(25.0);
@@ -495,10 +489,9 @@ CreateFormulaFunctions()
 	
 			auto *true_option = ods::FormulaNode::String(new QString("true!"));
 			fn_if->AddArg(true_option);
-			auto *false_option = ods::Function::New(ods::FunctionId::Sum);
+			auto *false_option = fn_if->AddArg(ods::FunctionId::Sum);
 			false_option->AddArg(49);
 			false_option->AddArg(15);
-			fn_if->AddArg(false_option);
 			
 			auto *node = f->Eval();
 			
@@ -521,8 +514,7 @@ CreateFormulaFunctions()
 			auto *f_cell = row->NewCellAt(next_cell++);
 			CHECK_PTR_VOID(f_cell);
 			auto *f = f_cell->NewFormula();
-			auto *fn_if = ods::Function::New(ods::FunctionId::If);
-			f->Add(fn_if);
+			auto *fn_if = f->Add(ods::FunctionId::If);
 			
 			auto *condition = new QVector<ods::FormulaNode*>();
 			auto *lhs = ods::FormulaNode::Address(sheet->NewAddress(cell1));
@@ -548,7 +540,7 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // COUNT()
+	if (false) { // COUNT(), COUNTA()
 		auto *row = sheet->NewRowAt(last_row++);
 		CHECK_PTR_VOID(row);
 		int next_col = 0;
@@ -561,8 +553,7 @@ CreateFormulaFunctions()
 		{
 			auto *fcell = row->NewCellAt(next_col++);
 			auto *f = fcell->NewFormula();
-			auto *fn = ods::Function::New(ods::FunctionId::Count);
-			f->Add(fn);
+			auto *fn = f->Add(ods::FunctionId::Count);
 			fn->AddArg(43.2);
 			fn->AddArg(new QString("hi"));
 			fn->AddArg(sheet->NewAddress(num_cell));
@@ -580,8 +571,7 @@ CreateFormulaFunctions()
 		{
 			auto *fcell = row->NewCellAt(next_col++);
 			auto *f = fcell->NewFormula();
-			auto *fn = ods::Function::New(ods::FunctionId::CountA);
-			f->Add(fn);
+			auto *fn = f->Add(ods::FunctionId::CountA);
 			fn->AddArg(43.2);
 			fn->AddArg(new QString("hi"));
 			fn->AddArg(sheet->NewAddress(num_cell));
@@ -596,10 +586,72 @@ CreateFormulaFunctions()
 				mtl_info("COUNTA(): %.0f", d);
 			}
 		}
-		
-		
 	}
 	
+	if (true) { // SUMIF()
+		auto *row = sheet->NewRowAt(last_row++);
+		int col = 0;
+		for (; col < 3; col++) {
+			row->NewCellAt(col)->SetDouble(col + 2);
+			row->NewCellAt(col + 3)->SetDouble(10 * (col + 1));
+		}
+		
+		{ // SUMIF() when condition is a string
+			col = 6;
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+	
+			auto *fn = f->Add(ods::FunctionId::SumIf);
+			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(2));
+			fn->AddArg(a);
+			fn->AddArg(">3");
+			a = sheet->NewAddress(row->GetCell(3), row->GetCell(5));
+			fn->AddArg(a);
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("SUMIF() Eval() failed");
+			} else if (node->is_none()) {
+				mtl_info("SUMIF(): Empty. No addition of data of any type happened.");
+			} else {
+				auto ba = node->toString().toLocal8Bit();
+				mtl_info("SUMIF(): \"%s\"", ba.data());
+			}
+		}
+		
+		{ // SUMIF() when condition is an expression (array of FormulaNode*)
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			
+			auto *fn = f->Add(ods::FunctionId::SumIf);
+			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(2));
+			// SUMIF() test range:
+			fn->AddArg(a);
+			
+			auto *cond_vec = new QVector<ods::FormulaNode*>();
+			a = sheet->NewAddress(row->GetCell(2));
+			cond_vec->append(ods::FormulaNode::Address(a));
+			cond_vec->append(ods::FormulaNode::Op(ods::Op::Minus));
+			cond_vec->append(ods::FormulaNode::Double(2));
+			// SUMIF() condition:
+			fn->AddArg(cond_vec);
+			
+			a = sheet->NewAddress(row->GetCell(3), row->GetCell(5));
+			// SUMIF() sum range:
+			fn->AddArg(a);
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("SUMIF() Eval() failed");
+			} else if (node->is_none()) {
+				mtl_info("SUMIF(): Empty. No addition of data of any type happened.");
+			} else {
+				auto ba = node->toString().toLocal8Bit();
+				mtl_info("SUMIF(): \"%s\"", ba.data());
+			}
+		}
+		
+	}
 	util::Save(book);
 }
 

@@ -23,10 +23,10 @@ public:
 	void Add(const ods::Op op);
 	void AddCloseBrace();
 	void AddOpenBrace();
-	void Add(Function *f);
 	void Add(ods::Cell *cell);
 	void Add(QString *s);
 	void AddCellRange(Cell *start, Cell *end);
+	ods::Function* Add(const ods::FunctionId id);
 	
 	ods::Sheet* default_sheet() const { return default_sheet_; }
 	const QString& error() const { return error_; }
@@ -34,11 +34,18 @@ public:
 	
 	bool evaluating() const { return bits_ & ods::EvaluatingBit; }
 	
+	static FormulaNode*
+	EvaluateNodes(QVector<FormulaNode*> &nodes);
+	
 	static Formula*
 	FromString(const QString &str, ods::Cell *cell);
 	
 	bool has_error() const { return !error_.isEmpty(); }
 	bool ok() const { return error_.isEmpty(); }
+	
+	static bool
+	ParseString(const QString &s, QVector<FormulaNode*> &result,
+		Sheet *default_sheet, const ParsingSettings ps = 0);
 	
 	void PrintNodes(const char *msg = "") { function::PrintNodes(nodes_, msg); }
 	void PrintNodesInOneLine(const char *msg = "") { function::PrintNodesInOneLine(nodes_, msg); }
@@ -59,7 +66,6 @@ private:
 	ParseNext(QStringRef s, int &resume_at, QVector<FormulaNode *> &vec, Sheet *default_sheet,
 		u8 &settings);
 	
-	FormulaNode *EvaluateNodes(QVector<FormulaNode*> &nodes);
 	void evaluating(const bool flag) {
 		if (flag)
 			bits_ |= ods::EvaluatingBit;

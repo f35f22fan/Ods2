@@ -15,18 +15,19 @@ public:
 	virtual ~Function();
 	
 	static Function* TryNew(QStringRef s, int &skip, Sheet *default_sheet);
-	static Function* New(const FunctionId id);
 	
 	void AddArg(ods::FormulaNode *node);
 	void AddArg(ods::Address *a);
 	void AddArg(double d);
-	void AddArg(ods::Function *f);
+	ods::Function* AddArg(const ods::FunctionId id);
 	void AddArg(ods::Currency *c);
 	void AddArg(ods::Brace b);
 	void AddArg(ods::Op op);
 	void AddArg(QString *s);
+	void AddArg(const char *s) { return AddArg(new QString(s)); }
 	void AddArg(QVector<FormulaNode*> *subvec);
 	Function* Clone();
+	ods::Sheet* default_sheet() const;
 	const FunctionMeta* meta() const { return meta_; }
 	QString toString() const;
 	QString toXmlString() const;
@@ -36,10 +37,13 @@ public:
 private:
 	Function();
 	Function(const Function &src);
+	static Function* New(const FunctionId id);
 	bool DeepCopy(ods::Function &dest, const ods::Function &src);
 	FormulaNode* Eval();
 	FormulaNode* ExecOpenFormulaFunction(QVector<FormulaNode *> &fn_args);
 	
+	// set by ods::Formula when added to it.
+	ods::Formula *parent_formula_ = nullptr;
 	const FunctionMeta *meta_ = nullptr;
 	QVector<QVector<ods::FormulaNode*>*> *args_ = nullptr;
 	

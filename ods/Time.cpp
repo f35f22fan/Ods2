@@ -52,12 +52,6 @@ Time::New(const i32 h, const i32 m, const i32 s)
 	return p;
 }
 
-bool
-Time::operator==(const ods::Time &rhs) const
-{
-	return ms_ == rhs.ms_;
-}
-
 Time
 Time::operator+(const Time &rhs) const {
 	Time d(*this);

@@ -19,16 +19,33 @@ const QString Multiply = QLatin1String("*");
 const QString Divide = QLatin1String("/");
 const QString Exponent = QLatin1String("^");
 const QString Equals = QLatin1String("=");
-const QString Diamond = QLatin1String("<>");
+const QString NotEquals = QLatin1String("<>");
 const QString Percent = QLatin1String("%");
 const QString RefIntersection = QLatin1String("!");
 const QString Colon = QLatin1String(":");
 
-const QString Regex = RefConcat + QChar('|') + Minus
-	+ QLatin1String("|\\") + Plus
-	+ QChar('|') + Divide
-	+ QLatin1String("|\\") + Multiply + QChar('|')
-	+ Ampersand + QChar('|') + Equals;
+const QChar sep('|');
+const QString sep_slash = QLatin1String("|\\");
+
+// 2-digit ops must follow before 1-digit ones otherwise parsing
+// won't work properly, e.g. ">=" must be before "="
+const QString Regex = 
+	GreaterOrEqual + sep +
+	LessOrEqual + sep +
+	NotEquals + sep +
+	RefConcat + sep +
+	Minus + sep_slash +
+	Plus + sep +
+	Divide + sep_slash +
+	Multiply + sep +
+	Ampersand + sep +
+	Equals + sep +
+	Less + sep +
+	Greater + sep_slash +
+	Exponent + sep_slash +
+	Percent + sep_slash +
+	RefIntersection + sep +
+	Colon;
 }
 
 enum class Op : u8 {
@@ -45,7 +62,7 @@ enum class Op : u8 {
 	Divide,
 	Exponent,
 	Equals,
-	Diamond,
+	NotEquals,
 	Percent,
 	RefIntersection,
 	Colon

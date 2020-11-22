@@ -35,6 +35,33 @@ FormulaNode::Address(ods::Address *a)
 	return p;
 }
 
+void
+FormulaNode::AdoptDefaultValueFrom(const FormulaNode &rhs)
+{
+	if (rhs.is_double()) {
+		SetDouble(0);
+	} else if (rhs.is_currency()) {
+		auto *c = rhs.as_currency()->Clone();
+		c->qtty = 0;
+		SetCurrency(c);
+	} else if (rhs.is_percentage())
+		SetPercentage(0);
+	else if (rhs.is_string()) {
+		SetString(new QString());
+	} else if (is_time()) {
+		SetTime(new ods::Time());
+	} else if (rhs.is_date()) {
+		SetDate(new QDate(0, 0, 0));
+	} else if (rhs.is_date_time()) {
+		auto *p = new QDateTime();
+		p->setDate(QDate(0, 0, 0));
+		p->setTime(QTime(0, 0, 0));
+		SetDateTime(p);
+	} else {
+		it_happened();
+	}
+}
+
 bool
 FormulaNode::ApplyMinus() {
 	// return false if failed
@@ -109,6 +136,7 @@ FormulaNode::Clone()
 void
 FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 {
+	dest.Clear();
 	dest.type_ = src.type_;
 	
 	if (src.is_address()) {
@@ -135,7 +163,9 @@ FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 		dest.data_.s = new QString(*src.data_.s);
 	else if (src.is_time())
 		dest.data_.time = src.data_.time->Clone();
-	else {
+	else if (src.is_none()) {
+		// a Clone() on empty object, that's fine.
+	} else {
 		mtl_trace();
 	}
 }
@@ -222,6 +252,7 @@ FormulaNode::Operation(const ods::Op op, FormulaNode *rhs)
 	case Op::Divide: return OperationMultDivide(op, rhs);
 	case Op::Ampersand: return OperationAmpersand(op, rhs);
 	case Op::Equals:
+	case Op::NotEquals:
 	case Op::Greater:
 	case Op::GreaterOrEqual:
 	case Op::Less:
@@ -304,65 +335,159 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 				flag = lhs < rhs;
 			else if (op == Op::LessOrEqual)
 				flag = lhs <= rhs;
-#ifdef DEBUG_FORMULA_EVAL
-mtl_info("lhs: %.2f, rhs: %.2f, eq: %s", lhs, rhs, (flag ? "true" : "false"));
-#endif
+			else if (op == Op::NotEquals)
+				flag = lhs != rhs;
 			SetBool(flag);
 			return true;
 		} else {
-it_happened();
-			return false;
+// Legit use case: SUMIF(.., cond, ...) can test if a
+// string equals to a number which is OK, the result is bool=false.
+			SetBool(false);
+			return true;
 		}
 	}
 	
 	if (is_date()) {
-		CHECK_TRUE((rhs_node->is_date()));
-		const QDate *lhs = as_date();
-		const QDate *rhs = rhs_node->as_date();
-		bool flag;
-		
-		if (op == Op::Equals)
-			flag = lhs == rhs;
-		else if (op == Op::Greater)
-			flag = lhs > rhs;
-		else if (op == Op::GreaterOrEqual)
-			flag = lhs >= rhs;
-		else if (op == Op::Less)
-			flag = lhs < rhs;
-		else if (op == Op::LessOrEqual)
-			flag = lhs <= rhs;
-		else {
-			it_happened();
-			return false;
+		if (rhs_node->is_date()) {
+			const QDate *lhs = as_date();
+			const QDate *rhs = rhs_node->as_date();
+			bool flag;
+			
+			if (op == Op::Equals)
+				flag = lhs == rhs;
+			else if (op == Op::Greater)
+				flag = lhs > rhs;
+			else if (op == Op::GreaterOrEqual)
+				flag = lhs >= rhs;
+			else if (op == Op::Less)
+				flag = lhs < rhs;
+			else if (op == Op::LessOrEqual)
+				flag = lhs <= rhs;
+			else if (op == Op::NotEquals)
+				flag = *lhs != *rhs;
+			else {
+				it_happened();
+				return false;
+			}
+			
+			SetBool(flag);
+			return true;
+		} else {
+			SetBool(false);
+			return true;
 		}
-		
-		SetBool(flag);
-		return true;
 	}
 	
 	if (is_date_time()) {
-		CHECK_TRUE((rhs_node->is_date_time()));
-		const QDateTime *lhs = as_date_time();
-		const QDateTime *rhs = rhs_node->as_date_time();
-		bool flag;
-		
-		if (op == Op::Equals)
-			flag = lhs == rhs;
-		else if (op == Op::Greater)
-			flag = lhs > rhs;
-		else if (op == Op::GreaterOrEqual)
-			flag = lhs >= rhs;
-		else if (op == Op::Less)
-			flag = lhs < rhs;
-		else if (op == Op::LessOrEqual)
-			flag = lhs <= rhs;
-		else {
-			it_happened();
-			return false;
+		if (rhs_node->is_date_time()) {
+			const QDateTime *lhs = as_date_time();
+			const QDateTime *rhs = rhs_node->as_date_time();
+			bool flag;
+			
+			if (op == Op::Equals)
+				flag = *lhs == *rhs;
+			else if (op == Op::Greater)
+				flag = *lhs > *rhs;
+			else if (op == Op::GreaterOrEqual)
+				flag = *lhs >= *rhs;
+			else if (op == Op::Less)
+				flag = *lhs < *rhs;
+			else if (op == Op::LessOrEqual)
+				flag = *lhs <= *rhs;
+			else if (op == Op::NotEquals)
+				flag = *lhs != *rhs;
+			else {
+				it_happened();
+				return false;
+			}
+			
+			SetBool(flag);
+			return true;
+		} else {
+			SetBool(false);
+			return true;
 		}
-		
-		SetBool(flag);
-		return true;
+	}
+	
+	if (is_string()) {
+		if (rhs_node->is_string()) {
+			QString lhs = *as_string();
+			QString rhs = rhs_node->toString();
+			
+			bool flag;
+			
+			if (op == Op::Equals)
+				flag = lhs == rhs;
+			else if (op == Op::Greater)
+				flag = lhs > rhs;
+			else if (op == Op::GreaterOrEqual)
+				flag = lhs >= rhs;
+			else if (op == Op::Less)
+				flag = lhs < rhs;
+			else if (op == Op::LessOrEqual)
+				flag = lhs <= rhs;
+			else if (op == Op::NotEquals)
+				flag = lhs != rhs;
+			else {
+				it_happened();
+				return false;
+			}
+			
+			SetBool(flag);
+			return true;
+		} else {
+			SetBool(false);
+			return true;
+		}
+	}
+	
+	if (is_time()) {
+		if (rhs_node->is_time()) {
+			const ods::Time &lhs = *as_time();
+			const ods::Time &rhs = *rhs_node->as_time();
+			bool flag = false;
+			
+			if (op == Op::Equals)
+				flag = lhs == rhs;
+			else if (op == Op::Greater)
+				flag = lhs > rhs;
+			else if (op == Op::GreaterOrEqual)
+				flag = lhs >= rhs;
+			else if (op == Op::Less)
+				flag = lhs < rhs;
+			else if (op == Op::LessOrEqual)
+				flag = lhs <= rhs;
+			else if (op == Op::NotEquals)
+				flag = lhs != rhs;
+			else {
+				it_happened();
+				return false;
+			}
+			
+			SetBool(flag);
+			return true;
+		} else {
+			SetBool(false);
+			return true;
+		}
+	}
+	
+	if (is_bool()) {
+		if (rhs_node->is_bool()) {
+			bool flag = false;
+			if (op == Op::Equals)
+				flag = as_bool() == rhs_node->as_bool();
+			else if (op == Op::NotEquals)
+				flag = as_bool() != rhs_node->as_bool();
+			else {
+				mtl_trace();
+			}
+			SetBool(flag);
+			return true;
+		} else {
+			SetBool(false);
+			return true;
+		}
 	}
 	
 	mtl_warn("TBD");
@@ -438,51 +563,7 @@ FormulaNode::OperationPlusMinus(const ods::Op op, FormulaNode *rhs)
 {
 	const bool plus = (op == ods::Op::Plus);
 	
-	if (is_double()) {
-		if (rhs->is_any_double()) {
-			if (plus) {
-				double result = as_double() + rhs->as_any_double(); 
-				SetDouble(result);
-				
-			} else
-				SetDouble(as_double() - rhs->as_any_double());
-			return true;
-		} else if (rhs->is_address()) {
-			QVector<FormulaNode*> values;
-			CHECK_TRUE(function::ExtractAddressValues(rhs, values));
-			if (values.size() != 1) {
-				mtl_warn("Don't know what to do when values count = %d", values.size());
-				return false;
-			}
-			return OperationPlusMinus(op, values[0]);
-		}
-	} else if (is_currency()) {
-		ods::Currency *c = as_currency();
-		if (rhs->is_any_double()) {
-			if (plus)
-				c->qtty += rhs->as_any_double();
-			else
-				c->qtty -= rhs->as_any_double();
-			return true;
-		}
-	} else if (is_percentage()) {
-		if (rhs->is_any_double()) {
-			if (plus)
-				SetPercentage(as_percentage() + rhs->as_any_double());
-			else
-				SetPercentage(as_percentage() - rhs->as_any_double());
-			return true;
-		}
-	} else if (is_function()) {
-		auto *f = as_function();
-		const ods::FormulaNode *val = f->Eval();
-		ods::AutoDelete ad(val);
-		CHECK_TRUE(((val != nullptr) && (!val->is_none())))
-		if (val->is_double()) {
-			SetDouble(val->as_double());
-			return Operation(op, rhs);
-		}
-	} else if (is_address()) {
+	if (is_address()) {
 		ods::Address *address = as_address();
 		if (address->is_cell_range()) {
 			mtl_warn("Cell range not implemented");
@@ -493,6 +574,74 @@ FormulaNode::OperationPlusMinus(const ods::Op op, FormulaNode *rhs)
 		CHECK_PTR(cell);
 		CHECK_TRUE(function::ExtractCellValue(cell, *this));
 		return OperationPlusMinus(op, rhs);
+	}
+	
+	if (rhs->is_address()) {
+		ods::Address *address = rhs->as_address();
+		if (address->is_cell_range()) {
+			mtl_warn("Cell range not implemented");
+			return false;
+		}
+		
+		ods::Cell *cell = address->cell()->GetCell();
+		CHECK_PTR(cell);
+		CHECK_TRUE(function::ExtractCellValue(cell, *rhs));
+		return OperationPlusMinus(op, rhs);
+	}
+	
+	if (is_function()) {
+		auto *f = as_function();
+		const ods::FormulaNode *val = f->Eval();
+		ods::AutoDelete ad(val);
+		CHECK_TRUE((val != nullptr));
+		DeepCopy(*this, *val);
+		return OperationPlusMinus(op, rhs);
+	}
+	
+	if (rhs->is_function()) {
+		auto *f = rhs->as_function();
+		const ods::FormulaNode *val = f->Eval();
+		ods::AutoDelete ad(val);
+		CHECK_TRUE((val != nullptr));
+		DeepCopy(*rhs, *val);
+		return OperationPlusMinus(op, rhs);
+	}
+	
+	if (is_double()) {
+		if (rhs->is_any_double()) {
+			if (plus) {
+				double result = as_double() + rhs->as_any_double(); 
+				SetDouble(result);
+				
+			} else
+				SetDouble(as_double() - rhs->as_any_double());
+			return true;
+		} else {
+			mtl_trace();
+		}
+	} else if (is_currency()) {
+		ods::Currency *c = as_currency();
+		if (rhs->is_any_double()) {
+			if (plus)
+				c->qtty += rhs->as_any_double();
+			else
+				c->qtty -= rhs->as_any_double();
+			return true;
+		} else {
+			mtl_trace();
+		}
+	} else if (is_percentage()) {
+		if (rhs->is_any_double()) {
+			if (plus)
+				SetPercentage(as_percentage() + rhs->as_any_double());
+			else
+				SetPercentage(as_percentage() - rhs->as_any_double());
+			return true;
+		} else {
+			mtl_trace();
+		}
+	} else if (is_time()) {
+		
 	}
 	
 	auto self_ba = toString().toLocal8Bit();
@@ -548,6 +697,8 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 			return quot + *as_string() + quot;
 		}
 		return *as_string();
+	} else if (is_time()) {
+		return as_time()->toString();
 	} else if (is_date()) {
 		return as_date()->toString(Qt::ISODate);
 	} else if (is_date_time()) {
@@ -555,7 +706,7 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 	} else if (is_bool()) {
 		return as_bool() ? QLatin1String("true") : QLatin1String("false");
 	} else if (is_none())
-		return QLatin1String("[none!!]");
+		return QLatin1String("[none!]");
 	else {
 		it_happened();
 		return QLatin1String("Shouldn't happen!");

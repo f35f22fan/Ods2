@@ -8,7 +8,8 @@ int priority(const ods::Op op)
 	// Greatest number has highest priority.
 	switch (op) {
 	case Op::Ampersand: // this op's priority is just a guess!
-	case Op::Equals: return 3;
+	case Op::Equals:
+	case Op::NotEquals:
 	case Op::Less:
 	case Op::LessOrEqual:
 	case Op::Greater:
@@ -57,8 +58,8 @@ From(const QStringRef &s) {
 		return Op::Exponent;
 	if (s == op_str::Equals)
 		return Op::Equals;
-	if (s == op_str::Diamond)
-		return Op::Diamond;
+	if (s == op_str::NotEquals)
+		return Op::NotEquals;
 	if (s == op_str::Percent)
 		return Op::Percent;
 	if (s == op_str::RefIntersection)
@@ -96,8 +97,8 @@ ToString(const Op op)
 		return op_str::Exponent;
 	if (op == Op::Equals)
 		return op_str::Equals;
-	if (op == Op::Diamond)
-		return op_str::Diamond;
+	if (op == Op::NotEquals)
+		return op_str::NotEquals;
 	if (op == Op::Percent)
 		return op_str::Percent;
 	if (op == Op::RefIntersection)
