@@ -332,6 +332,9 @@ FlattenOutArgs(QVector<ods::FormulaNode*> &vec)
 
 const QVector<FunctionMeta>&
 GetSupportedFunctions() {
+// A third param of 0 indicates that the function args shouldn't be
+// "flattened out", e.g. an "address range" node shouldn't be replaced
+// with an array of nodes containing the values of those cells.
 	static const QVector<FunctionMeta> v = {
 	FunctionMeta ("SUM", FunctionId::Sum),
 	FunctionMeta ("MAX", FunctionId::Max),
@@ -350,6 +353,10 @@ GetSupportedFunctions() {
 	FunctionMeta ("COUNTBLANK", FunctionId::CountBlank),
 	FunctionMeta ("COUNTIF", FunctionId::CountIf, 0),
 	FunctionMeta ("AVERAGE", FunctionId::Average),
+	FunctionMeta ("TODAY", FunctionId::Today),
+	FunctionMeta ("ROUND", FunctionId::Round, 0),
+	FunctionMeta ("ROUNDDOWN", FunctionId::RoundDown, 0),
+	FunctionMeta ("ROUNDUP", FunctionId::RoundUp, 0),
 	};
 	return v;
 }
@@ -467,6 +474,21 @@ bool IsNearlyEqual(double x, double y)
 	const double epsilon = 1e-5;
 	return std::abs(x - y) <= epsilon * std::abs(x);
 	// see Knuth section 4.2.2 pages 217-218
+}
+
+double RoundUp(double value, int decimal_places) {
+	const double multiplier = std::pow(10.0, decimal_places);
+	return std::round(value * multiplier) / multiplier;
+}
+
+double CeilUp(double value, int decimal_places) {
+	const double multiplier = std::pow(10.0, decimal_places);
+	return std::ceil(value * multiplier) / multiplier;
+}
+
+double FloorUp(double value, int decimal_places) {
+	const double multiplier = std::pow(10.0, decimal_places);
+	return std::floor(value * multiplier) / multiplier;
 }
 
 //============Standard Formula Functions===============
@@ -729,6 +751,51 @@ FormulaNode* Quotient(const QVector<FormulaNode*> &values)
 	return FormulaNode::Double(double(n));
 }
 
+FormulaNode* RoundAnyWay(const QVector<FormulaNode*> &values, const RoundType round_type)
+{ // table:formula="of:=ROUND([.F35]*[.F36];2)"
+	RET_IF_EQUAL_NULL(values.size(), 0);
+	double number = values[0]->as_any_double();
+	int places = 0;
+	
+	if (values.size() == 2) {
+		FormulaNode *node = values[1];
+		CHECK_TRUE_NULL(node->ConvertFunctionOrAddressToValue());
+		if (node->is_any_double())
+			places = node->as_double();
+	}
+	
+	if (places > 0) {
+		switch (round_type) {
+			case RoundType::Round: {number = RoundUp(number, places); break;}
+			case RoundType::Ceil: {number = CeilUp(number, places); break;}
+			case RoundType::Floor: {number = FloorUp(number, places); break;}
+			default: {
+				mtl_trace();
+				return nullptr;
+			}
+		}
+	} else if (places == 0) {
+		number = i64(number); // round to the first integer
+	} else { // places < 0
+		// =ROUND(5555;-1) = 5560
+		const double n = pow(10, -places);
+		double d = round(number / n);
+		number = i64(d) * n;
+	}
+	/*
+=ROUND(10.1) 	10		If b is not specified, round to the nearest integer.
+=ROUND(0.5) 	1		0.5 rounds up.
+=ROUND(1/3;0) 	0		Round to the nearest integer.
+=ROUND(1/3;1) 	0.3 	Round to one decimal place.
+=ROUND(1/3;2) 	0.33 	Round to two decimal places.
+=ROUND(1/3;2.9) 0.33 	If b is not an integer, it is truncated.
+=ROUND(5555;-1) 5560 	Round to the nearest 10.
+=ROUND(-1.1) 	-1	 	Negative number rounded to the nearest integer
+=ROUND(-1.5) 	-2	 	Negative number rounded to the nearest integer 
+	*/
+	return FormulaNode::Double(number);
+}
+
 FormulaNode* Sum(const QVector<ods::FormulaNode*> &values)
 {
 	double d = 0;
@@ -787,4 +854,8 @@ FormulaNode* SumIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *default
 	return sumup.Clone();
 }
 
+FormulaNode* Today() {
+	auto *p = new QDate(QDate::currentDate());
+	return FormulaNode::Date(p);
+}
 } // ods::

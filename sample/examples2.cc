@@ -366,52 +366,140 @@ CreateFormulaFunctions()
 		mtl_info("CONCATENATE(): \"%s\"", ba.data());
 	}
 	
-	if (false) { // DATE(), NOW()
+	if (false) { // NOW(), TODAY(), DATE()
 		auto *row = sheet->NewRowAt(last_row++);
-		auto *cell = row->NewCellAt(0);
-		auto *formula = cell->NewFormula();
-		auto *fn = formula->Add(ods::FunctionId::Now);
-		ods::FormulaNode *node = formula->Eval();
+		int col = 0;
 		
-		if (node->is_date_time()) {
-			QDateTime *dt = node->as_date_time();
-			auto ba = dt->toString().toLocal8Bit();
-			mtl_info("NOW(): %s", ba.data());
+		{ // NOW():
+			auto *cell = row->NewCellAt(col++);
+			auto *formula = cell->NewFormula();
+			formula->Add(ods::FunctionId::Now);
+			ods::FormulaNode *node = formula->Eval();
+			
+			if (node == nullptr) {
+				mtl_info("NOW() Failed");
+			} else {
+				QDateTime *dt = node->as_date_time();
+				auto ba = dt->toString().toLocal8Bit();
+				mtl_info("NOW(): %s", ba.data());
+			}
 		}
 		
-		cell = row->NewCellAt(1);
-		formula = cell->NewFormula();
-		fn = formula->Add(ods::FunctionId::Date);
-		// y = 1969, m = 5, d = 30
-		fn->AddArg(double(1969));
-		fn->AddArg(double(5));
-		fn->AddArg(double(30));
-		node = formula->Eval();
-		CHECK_PTR_VOID(node);
+		{ // TODAY():
+			auto *cell = row->NewCellAt(col++);
+			auto *formula = cell->NewFormula();
+			formula->Add(ods::FunctionId::Today);
+			ods::FormulaNode *node = formula->Eval();
+			
+			if (node == nullptr) {
+				mtl_info("TODAY() Failed");
+			} else {
+				QDate *dt = node->as_date();
+				auto ba = dt->toString().toLocal8Bit();
+				mtl_info("TODAY(): %s", ba.data());
+			}
+		}
 		
-		if (node->is_date()) {
-			QDate *date = node->as_date();
-			auto ba = date->toString().toLocal8Bit();
-			mtl_info("DATE(): %s", ba.data());
-		} else {
-			mtl_warn("Node is not a date!");
+		{ // DATE():
+			auto *cell = row->NewCellAt(col++);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::Date);
+			// y = 1969, m = 5, d = 30
+			fn->AddArg(double(1969));
+			fn->AddArg(double(5));
+			fn->AddArg(double(30));
+			auto *node = formula->Eval();
+			CHECK_PTR_VOID(node);
+			
+			if (node->is_date()) {
+				QDate *date = node->as_date();
+				auto ba = date->toString().toLocal8Bit();
+				mtl_info("DATE(): %s", ba.data());
+			} else {
+				mtl_warn("Node is not a date!");
+			}
 		}
 	}
 	
-	if (false) { // SUM()
+	if (true) { // SUM(), ROUND(), ROUNDDOWN(), ROUNDUP()
 		auto *row = sheet->NewRowAt(last_row++);
-		auto *cell0 = row->NewCellAt(0);
-		cell0->SetDouble(28);
-		auto *cell = row->NewCellAt(1);
-		auto *formula = cell->NewFormula();
-		auto *fn = formula->Add(ods::FunctionId::Sum);
-		fn->AddArg(sheet->NewAddress(cell0));
-		fn->AddArg(25);
-		fn->AddArg(20);
-		ods::FormulaNode *node = formula->Eval();
-		CHECK_PTR_VOID(node);
-		auto ba = node->toString().toLocal8Bit();
-		mtl_info("SUM(): %s", ba.data());
+		int col = 0;
+		
+		for (; col < 4; col++) {
+			double val = (col == 0) ? 3.141592653 : (col + 2);
+			row->NewCellAt(col)->SetDouble(val);
+		}
+		
+		if (true) { // SUM():
+			auto *cell = row->NewCellAt(col++);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::Sum);
+			fn->AddArg(sheet->NewAddress(row->GetCell(0)));
+			fn->AddArg(25);
+			fn->AddArg(20);
+			ods::FormulaNode *node = formula->Eval();
+			
+			if (node == nullptr) {
+				mtl_info("SUM() Failed");
+			} else {
+				auto ba = node->toString().toLocal8Bit();
+				mtl_info("SUM(): %s", ba.data());
+			}
+		}
+		
+		const double RoundNum = 3.55;//3.1415926535897;
+		const int places = 1;
+		
+		if (true) { // ROUND():
+			auto *cell = row->NewCellAt(col++);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::Round);
+			// number or expression resulting in a number:
+			//ods::Address *a1 = sheet->NewAddress(row->GetCell(0));
+			fn->AddArg(RoundNum);
+			// number or expression resulting in the number of places to round to:
+			fn->AddArg(places); // =ROUND(5555;-1) = 5560
+			
+			auto *node = formula->Eval();
+			if (node == nullptr) {
+				mtl_info("ROUND() Failed");
+			} else {
+				double num = node->as_double();
+				mtl_info("ROUND(): %.6f", num);
+			}
+		}
+		
+		if (true) { // ROUNDDOWN():
+			auto *cell = row->NewCellAt(col++);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::RoundDown);
+			fn->AddArg(RoundNum);
+			fn->AddArg(places);
+			
+			auto *node = formula->Eval();
+			if (node == nullptr) {
+				mtl_info("ROUNDDOWN() Failed");
+			} else {
+				double num = node->as_double();
+				mtl_info("ROUNDDOWN(): %.6f", num);
+			}
+		}
+		
+		if (true) { // ROUNDUP():
+			auto *cell = row->NewCellAt(col++);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::RoundUp);
+			fn->AddArg(RoundNum);
+			fn->AddArg(places);
+			
+			auto *node = formula->Eval();
+			if (node == nullptr) {
+				mtl_info("ROUNDUP() Failed");
+			} else {
+				double num = node->as_double();
+				mtl_info("ROUNDUP(): %.6f", num);
+			}
+		}
 	}
 	
 	if (false) { // QUOTIENT(), MOD(), POWER()
@@ -705,7 +793,7 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // COUNTBLANK(), AVERAGE()
+	if (false) { // COUNTBLANK(), AVERAGE()
 		auto *row = sheet->NewRowAt(last_row++);
 		int col = 0;
 		for (; col < 5; col++) {
@@ -749,6 +837,9 @@ CreateFormulaFunctions()
 			}
 		}
 	}
+	
+	
+	
 	util::Save(book);
 }
 

@@ -18,6 +18,12 @@ const u8 ReachedParamSeparator = 1u << 3;
 typedef u8 ParsingSettings;
 const u8 TreatRemainderAsString = 1u << 0;
 
+enum class RoundType : u8 {
+	Ceil,
+	Floor,
+	Round
+};
+
 enum class FunctionId : u16 {
 	None,
 	Average,
@@ -34,9 +40,13 @@ enum class FunctionId : u16 {
 	Now,
 	Power,
 	Quotient,
+	Round,
+	RoundUp,
+	RoundDown,
 	Sum,
 	SumIf,
 	Product,
+	Today,
 };
 
 namespace function {
@@ -101,6 +111,9 @@ void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str);
 void PrintNodesInOneLine(const QVector<FormulaNode*> &v, const char *msg = "");
 void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg = QString());
 bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index);
+double CeilUp(double value, int decimal_places);
+double FloorUp(double value, int decimal_places);
+double RoundUp(double value, int decimal_places);
 
 // Formula functions:
 FormulaNode* Average(const QVector<ods::FormulaNode*> &values);
@@ -118,9 +131,10 @@ FormulaNode* Now();
 FormulaNode* Power(const QVector<FormulaNode*> &values);
 FormulaNode* Product(const QVector<FormulaNode*> &values);
 FormulaNode* Quotient(const QVector<FormulaNode*> &values);
+FormulaNode* RoundAnyWay(const QVector<FormulaNode*> &values, const RoundType round_type);
 FormulaNode* Sum(const QVector<FormulaNode *> &values);
 FormulaNode* SumIf(const QVector<FormulaNode *> &values, Sheet *default_sheet);
-
+FormulaNode* Today();
 } // function::
 
 }

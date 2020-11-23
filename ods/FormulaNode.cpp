@@ -133,6 +133,30 @@ FormulaNode::Clone() const
 	return p;
 }
 
+bool
+FormulaNode::ConvertFunctionOrAddressToValue()
+{
+	if (is_address()) {
+		ods::Address *address = as_address();
+		if (address->is_cell_range()) {
+			mtl_warn("Cell range not implemented");
+			return false;
+		}
+		
+		ods::Cell *cell = address->cell()->GetCell();
+		CHECK_PTR(cell);
+		CHECK_TRUE(function::ExtractCellValue(cell, *this));
+	} else if (is_function()) {
+		auto *f = as_function();
+		const ods::FormulaNode *val = f->Eval();
+		ods::AutoDelete ad(val);
+		CHECK_TRUE((val != nullptr));
+		DeepCopy(*this, *val);
+	}
+	
+	return true;
+}
+
 void
 FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 {
@@ -498,6 +522,9 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 bool
 FormulaNode::OperationMultDivide(const ods::Op op, FormulaNode *rhs)
 {
+	CHECK_TRUE(ConvertFunctionOrAddressToValue());
+	CHECK_TRUE(rhs->ConvertFunctionOrAddressToValue());
+	
 	const bool is_rhs_any_double = rhs->is_any_double();
 	double rhs_double = is_rhs_any_double ? rhs->as_any_double() : 0;
 	const bool mult = (op == ods::Op::Multiply);
@@ -510,24 +537,6 @@ FormulaNode::OperationMultDivide(const ods::Op op, FormulaNode *rhs)
 				SetDouble(as_double() / rhs_double);
 			}
 			return true;
-		} else if (rhs->is_function()) {
-			auto *f = rhs->as_function();
-			const ods::FormulaNode *rhs_value = f->Eval();
-			ods::AutoDelete ad(rhs_value);
-			CHECK_TRUE((rhs_value != nullptr));
-			CHECK_TRUE((!rhs_value->is_none()))
-			if (rhs_value->is_any_double()) {
-				rhs_double = rhs_value->as_any_double();
-				if (mult) {
-					SetDouble(as_double() * rhs_double);
-				} else {
-					SetDouble(as_double() / rhs_double);
-				}
-				return true;
-			} else {
-				mtl_trace("TBD: rhs value op");
-				return false;
-			}
 		} else {
 			mtl_warn("TBD");
 		}
@@ -561,51 +570,9 @@ FormulaNode::OperationMultDivide(const ods::Op op, FormulaNode *rhs)
 bool
 FormulaNode::OperationPlusMinus(const ods::Op op, FormulaNode *rhs)
 {
+	CHECK_TRUE(ConvertFunctionOrAddressToValue());
+	CHECK_TRUE(rhs->ConvertFunctionOrAddressToValue());
 	const bool plus = (op == ods::Op::Plus);
-	
-	if (is_address()) {
-		ods::Address *address = as_address();
-		if (address->is_cell_range()) {
-			mtl_warn("Cell range not implemented");
-			return false;
-		}
-		
-		ods::Cell *cell = address->cell()->GetCell();
-		CHECK_PTR(cell);
-		CHECK_TRUE(function::ExtractCellValue(cell, *this));
-		return OperationPlusMinus(op, rhs);
-	}
-	
-	if (rhs->is_address()) {
-		ods::Address *address = rhs->as_address();
-		if (address->is_cell_range()) {
-			mtl_warn("Cell range not implemented");
-			return false;
-		}
-		
-		ods::Cell *cell = address->cell()->GetCell();
-		CHECK_PTR(cell);
-		CHECK_TRUE(function::ExtractCellValue(cell, *rhs));
-		return OperationPlusMinus(op, rhs);
-	}
-	
-	if (is_function()) {
-		auto *f = as_function();
-		const ods::FormulaNode *val = f->Eval();
-		ods::AutoDelete ad(val);
-		CHECK_TRUE((val != nullptr));
-		DeepCopy(*this, *val);
-		return OperationPlusMinus(op, rhs);
-	}
-	
-	if (rhs->is_function()) {
-		auto *f = rhs->as_function();
-		const ods::FormulaNode *val = f->Eval();
-		ods::AutoDelete ad(val);
-		CHECK_TRUE((val != nullptr));
-		DeepCopy(*rhs, *val);
-		return OperationPlusMinus(op, rhs);
-	}
 	
 	if (is_double()) {
 		if (rhs->is_any_double()) {

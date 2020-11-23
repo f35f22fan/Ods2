@@ -18,4 +18,17 @@ Licensed under the GPLv3, see LICENSE for details.
 For questions, feature requests, etc: f35f22fan AT gmail.com
 
 ---
-BTC(₿): bc1qzs8ux6m0t4jj98furra8pvx2ll80qchr5v4ru6
+
+##### Implemented Formula Functions:
+
+Column 1 | Column 2   | Column 3 | Column 4
+-------- | ---------- | -------- | ---------
+☑️AVERAGE()    | ☑️MAX()            | ☑️MIN()          | ☑️SUMIF()
+☑️COUNT()      | ☑️CONCATENATE()    | ☑️DATE()         | ☑️NOW()
+☑️QUOTIENT()   | ☑️MOD()            | ☑️POWER()        | ☑️IF()
+☑️PRODUCT()    | ☑️COUNTA()         | ☑️COUNTBLANK()   | ☑️COUNTIF()
+☑️SUM()        | ☑️TODAY()          | ☑️ROUND()        | ☑️ROUNDDOWN()
+☑️ROUNDUP()    | ⬜ DAY()            | ⬜ MONTH()        | ⬜ YEAR()
+
+---
+BTC/₿: bc1qzs8ux6m0t4jj98furra8pvx2ll80qchr5v4ru6

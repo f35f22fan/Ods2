@@ -184,6 +184,10 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::CountBlank: return function::CountBlank(fn_args);
 	case FunctionId::CountIf: return function::CountIf(fn_args, default_sheet());
 	case FunctionId::Average: return function::Average(fn_args);
+	case FunctionId::Today: return function::Today();
+	case FunctionId::Round: return function::RoundAnyWay(fn_args, RoundType::Round);
+	case FunctionId::RoundDown: return function::RoundAnyWay(fn_args, RoundType::Floor);
+	case FunctionId::RoundUp: return function::RoundAnyWay(fn_args, RoundType::Ceil);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

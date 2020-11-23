@@ -26,6 +26,7 @@ public:
 	bool ApplyMinus(); // Op "-" + number "3" => number "-3";
 	void Clear();
 	FormulaNode* Clone() const;
+	bool ConvertFunctionOrAddressToValue();
 	
 	ods::Address* as_address() const { return data_.address; }
 	ods::Function* as_function() const { return data_.function; }
