@@ -54,11 +54,11 @@ main(int argc, char *argv[])
 //	ReadFormula();
 //	ReadFormulaCustom();
 	
-//	CreateFormulaFunctions();
+	CreateFormulaFunctions();
 //	new sample::Invoice();
 	
 	
-	GenerateFunctionsListForGitHub();
+//	GenerateFunctionsListForGitHub();
 	return 0;
 }
 

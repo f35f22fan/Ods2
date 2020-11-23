@@ -357,6 +357,9 @@ GetSupportedFunctions() {
 	FunctionMeta ("ROUND", FunctionId::Round, 0),
 	FunctionMeta ("ROUNDDOWN", FunctionId::RoundDown, 0),
 	FunctionMeta ("ROUNDUP", FunctionId::RoundUp, 0),
+	FunctionMeta ("DAY", FunctionId::Day),
+	FunctionMeta ("MONTH", FunctionId::Month),
+	FunctionMeta ("YEAR", FunctionId::Year),
 	};
 	return v;
 }
@@ -607,6 +610,68 @@ FormulaNode* Date(const QVector<ods::FormulaNode*> &values)
 	
 	QDate *d = new QDate(arr[0], arr[1], arr[2]);
 	return FormulaNode::Date(d);
+}
+
+FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dmy)
+{
+	CHECK_TRUE_NULL((values.size() == 1));
+	
+	FormulaNode *node = values[0];
+	int ret_val = -1;
+	
+	if (node->is_date()) {
+		QDate *date = node->as_date();
+		if (dmy == DMY::Day)
+			ret_val = date->day();
+		else if (dmy == DMY::Month)
+			ret_val = date->month();
+		else if (dmy == DMY::Year)
+			ret_val = date->year();
+		else {
+			mtl_trace();
+			return nullptr;
+		}
+	} else if (node->is_date_time()) {
+		QDate date = node->as_date_time()->date();
+		if (dmy == DMY::Day)
+			ret_val = date.day();
+		else if (dmy == DMY::Month)
+			ret_val = date.month();
+		else if (dmy == DMY::Year)
+			ret_val = date.year();
+		else {
+			mtl_trace();
+			return nullptr;
+		}
+	} else if (node->is_string()) {
+		QString *date_str = node->as_string();
+		// "2008-06-04"
+		auto list = date_str->splitRef('-');
+		CHECK_TRUE_NULL((list.size() == 3));
+		int index = -1;
+		if (dmy == DMY::Day)
+			index = 2;
+		else if (dmy == DMY::Month)
+			index = 1;
+		else if (dmy == DMY::Year)
+			index = 0;
+		else {
+			mtl_trace();
+			return nullptr;
+		}
+		auto str = list[index];
+		bool ok;
+		ret_val = str.toInt(&ok);
+		
+		if (!ok) {
+			auto ba = date_str->toLocal8Bit();
+			mtl_trace("Invalid date: \"%s\"", ba.data());
+			return nullptr;
+		}
+	}
+	
+	RET_IF_EQUAL_NULL(ret_val, -1);
+	return FormulaNode::Double(ret_val);	
 }
 
 FormulaNode* If(const QVector<FormulaNode*> &values)

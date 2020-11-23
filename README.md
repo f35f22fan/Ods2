@@ -19,7 +19,7 @@ For questions, feature requests, etc: f35f22fan AT gmail.com
 
 ---
 
-##### Implemented 21 out of 388 functions
+##### Implemented 24 out of 388 functions
 
 Column 1 | Column 2 | Column 3 | Column 4
 -------- | ---------- | -------- | ---------
@@ -43,7 +43,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: coupncd() | :black_square_button: coupnum() | :black_square_button: couppcd() | :black_square_button: covar()
 :black_square_button: critbinom() | :black_square_button: csc() | :black_square_button: csch() | :black_square_button: cumipmt()
 :black_square_button: cumipmt_add() | :black_square_button: cumprinc() | :black_square_button: cumprinc_add() | :black_square_button: current()
-:ballot_box_with_check: date() | :black_square_button: datevalue() | :black_square_button: daverage() | :black_square_button: day()
+:ballot_box_with_check: date() | :black_square_button: datevalue() | :black_square_button: daverage() | :ballot_box_with_check: day()
 :black_square_button: days() | :black_square_button: days360() | :black_square_button: daysinmonth() | :black_square_button: daysinyear()
 :black_square_button: db() | :black_square_button: dcount() | :black_square_button: dcounta() | :black_square_button: ddb()
 :black_square_button: dde() | :black_square_button: dec2bin() | :black_square_button: dec2hex() | :black_square_button: dec2oct()
@@ -83,7 +83,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: match() | :ballot_box_with_check: max() | :black_square_button: maxa() | :black_square_button: mdeterm()
 :black_square_button: mduration() | :black_square_button: median() | :black_square_button: mid() | :ballot_box_with_check: min()
 :black_square_button: mina() | :black_square_button: minute() | :black_square_button: minverse() | :black_square_button: mirr()
-:black_square_button: mmult() | :ballot_box_with_check: mod() | :black_square_button: mode() | :black_square_button: month()
+:black_square_button: mmult() | :ballot_box_with_check: mod() | :black_square_button: mode() | :ballot_box_with_check: month()
 :black_square_button: months() | :black_square_button: mround() | :black_square_button: multinomial() | :black_square_button: munit()
 :black_square_button: n() | :black_square_button: na() | :black_square_button: negbinomdist() | :black_square_button: networkdays()
 :black_square_button: nominal() | :black_square_button: nominal_add() | :black_square_button: normdist() | :black_square_button: norminv()
@@ -118,8 +118,9 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: varpa() | :black_square_button: vdb() | :black_square_button: vlookup() | :black_square_button: weekday()
 :black_square_button: weeknum() | :black_square_button: weeknum_add() | :black_square_button: weeks() | :black_square_button: weeksinyear()
 :black_square_button: weibull() | :black_square_button: workday() | :black_square_button: xirr() | :black_square_button: xnpv()
-:black_square_button: xor() | :black_square_button: year() | :black_square_button: yearfrac() | :black_square_button: years()
+:black_square_button: xor() | :ballot_box_with_check: year() | :black_square_button: yearfrac() | :black_square_button: years()
 :black_square_button: yield() | :black_square_button: yielddisc() | :black_square_button: yieldmat() | :black_square_button: ztest()
+
 
 ---
 BTC/₿: bc1qzs8ux6m0t4jj98furra8pvx2ll80qchr5v4ru6

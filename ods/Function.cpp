@@ -188,6 +188,9 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Round: return function::RoundAnyWay(fn_args, RoundType::Round);
 	case FunctionId::RoundDown: return function::RoundAnyWay(fn_args, RoundType::Floor);
 	case FunctionId::RoundUp: return function::RoundAnyWay(fn_args, RoundType::Ceil);
+	case FunctionId::Day: return function::DayMonthYear(fn_args, DMY::Day);
+	case FunctionId::Month: return function::DayMonthYear(fn_args, DMY::Month);
+	case FunctionId::Year: return function::DayMonthYear(fn_args, DMY::Year);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

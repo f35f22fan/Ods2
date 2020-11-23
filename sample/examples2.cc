@@ -423,7 +423,7 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // SUM(), ROUND(), ROUNDDOWN(), ROUNDUP()
+	if (false) { // SUM(), ROUND(), ROUNDDOWN(), ROUNDUP()
 		auto *row = sheet->NewRowAt(last_row++);
 		int col = 0;
 		
@@ -840,7 +840,57 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	
+	if (true) { // DAY(), MONTH(), YEAR()
+		auto *row = sheet->NewRowAt(last_row++);
+		int col = 0;
+		row->NewCellAt(col++)->SetDate(new QDate(QDate::currentDate()));
+		row->NewCellAt(col++)->SetString(QLatin1String("2009-11-24"));
+		
+		{ // DAY():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Day);
+			fn->AddArg("2001-11-14");
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("DAY() failed");
+			} else {
+				const int day = node->as_double();
+				mtl_info("DAY: %d", day);
+			}
+		}
+		
+		{ // MONTH():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Month);
+			fn->AddArg("2001-11-14");
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("MONTH() failed");
+			} else {
+				const int day = node->as_double();
+				mtl_info("MONTH: %d", day);
+			}
+		}
+		
+		{ // YEAR():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Year);
+			fn->AddArg("2001-11-14");
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("YEAR() failed");
+			} else {
+				const int day = node->as_double();
+				mtl_info("YEAR: %d", day);
+			}
+		}
+	}
 	
 	util::Save(book);
 }

@@ -24,6 +24,12 @@ enum class RoundType : u8 {
 	Round
 };
 
+enum class DMY {
+	Day,
+	Month,
+	Year
+};
+
 enum class FunctionId : u16 {
 	None,
 	Average,
@@ -33,10 +39,12 @@ enum class FunctionId : u16 {
 	CountBlank,
 	CountIf,
 	Date,
+	Day,
 	If,
 	Max,
 	Min,
 	Mod,
+	Month,
 	Now,
 	Power,
 	Quotient,
@@ -47,6 +55,7 @@ enum class FunctionId : u16 {
 	SumIf,
 	Product,
 	Today,
+	Year,
 };
 
 namespace function {
@@ -123,6 +132,7 @@ FormulaNode* CountA(const QVector<ods::FormulaNode*> &values);
 FormulaNode* CountBlank(const QVector<ods::FormulaNode*> &values);
 FormulaNode* CountIf(const QVector<FormulaNode *> &values, Sheet *default_sheet);
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
+FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dmy);
 FormulaNode* If(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Max(const QVector<FormulaNode *> &values);
 FormulaNode* Min(const QVector<FormulaNode*> &values);
