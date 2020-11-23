@@ -10,3 +10,6 @@ void ReadFormulaCustom(); // to be deleted
 void CreateFormulaFunctions();
 
 void CreateInvoice();
+
+// personal:
+void GenerateFunctionsListForGitHub();

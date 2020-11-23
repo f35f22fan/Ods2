@@ -4,6 +4,8 @@
 #include <ods/ods>
 #include <float.h>
 
+#include <QFile>
+
 void
 CreateCurrency()
 {
@@ -899,3 +901,82 @@ ReadFormulaCustom()
 	util::Save(book);
 }
 
+bool
+IsFunctionImplemented(const QStringRef &s) {
+	const QVector<ods::FunctionMeta> &vec = ods::function::GetSupportedFunctions();
+	
+	for (const auto &next: vec) {
+		if (s == next.name) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+bool CompareVec(const QStringRef &lhs, const QStringRef &rhs) {
+	return lhs < rhs;
+}
+
+void GenerateFunctionsListForGitHub()
+{
+	QFile file("/media/data/Documents/ListOfAllFormulaFunctions.txt");
+	
+	CHECK_TRUE_VOID(file.open(QIODevice::ReadOnly | QIODevice::Text));
+	QTextStream in(&file);
+	QString all = in.readAll();
+	QVector<QStringRef> list1 = all.splitRef(',');
+	
+	const int count = list1.size();
+	const int columns = 4;
+	
+	const QString impl_str = QLatin1String(":ballot_box_with_check:");
+	const QString not_impl_str = QLatin1String(":black_square_button:");
+	QString heap = QLatin1String("Column 1 | Column 2 | Column 3 | Column 4\n");
+	heap.append("-------- | ---------- | -------- | ---------\n");
+	
+	QVector<QStringRef> vec;
+	
+	for (const auto &item: list1) {
+		vec.append(item.trimmed());
+	}
+	int implemented = 0;
+	
+	std::sort(vec.begin(), vec.end(), CompareVec);
+	
+	for (int i = 0; i < count; i++) {
+		const QStringRef &name = vec[i];
+		
+		if (IsFunctionImplemented(name)) {
+			implemented++;
+			heap.append(impl_str);
+		} else {
+			heap.append(not_impl_str);
+		}
+		heap.append(' ');
+		heap.append(name.toString().toLower());
+		heap.append(QLatin1String("()"));
+		int col = i % columns;
+		
+		if (col == columns - 1) {
+			heap.append('\n');
+		} else {
+			heap.append(QLatin1String(" | "));
+		}
+	}
+	
+	QString prepend = QLatin1String("##### Implemented ") + QString::number(implemented) +
+		QLatin1String(" out of ") + QString::number(count) +
+		QLatin1String(" functions\n\n");
+	
+	heap.prepend(prepend);
+	
+	const QString full_path = QDir::homePath() + "/out.txt";
+	QFile out_file(full_path);
+	out_file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+	QTextStream out(&out_file);
+	out << heap;
+	// optional, as QFile destructor will already do it:
+	out_file.close(); 
+	
+}
