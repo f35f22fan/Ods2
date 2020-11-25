@@ -845,12 +845,13 @@ CreateFormulaFunctions()
 		int col = 0;
 		row->NewCellAt(col++)->SetDate(new QDate(QDate::currentDate()));
 		row->NewCellAt(col++)->SetString(QLatin1String("2009-11-24"));
+		const char *date_str = "18.07.2001";
 		
 		{ // DAY():
 			auto *fcell = row->NewCellAt(col++);
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Day);
-			fn->AddArg("2001-11-14");
+			fn->AddArg(date_str);
 			
 			auto *node = f->Eval();
 			if (node == nullptr) {
@@ -865,7 +866,7 @@ CreateFormulaFunctions()
 			auto *fcell = row->NewCellAt(col++);
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Month);
-			fn->AddArg("2001-11-14");
+			fn->AddArg(date_str);
 			
 			auto *node = f->Eval();
 			if (node == nullptr) {
@@ -880,7 +881,7 @@ CreateFormulaFunctions()
 			auto *fcell = row->NewCellAt(col++);
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Year);
-			fn->AddArg("2001-11-14");
+			fn->AddArg(date_str);
 			
 			auto *node = f->Eval();
 			if (node == nullptr) {
@@ -951,6 +952,60 @@ ReadFormulaCustom()
 	util::Save(book);
 }
 
+void
+ReadCellRange()
+{
+	QString full_path = "/home/fox/Documents/NamedRange.ods";
+	
+	if (full_path.isEmpty())
+		return;
+	
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
+	
+	if (!err.isEmpty()) {
+		auto ba = err.toLocal8Bit();
+		mtl_warn("%s", ba.data());
+		return;
+	}
+	
+	ods::AutoDelete<ods::Book*> ad(book);
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->GetSheet(1);
+	
+	auto *row = sheet->GetRow(3);
+	CHECK_PTR_VOID(row);
+	auto *fcell = row->GetCell(0);
+	CHECK_PTR_VOID(fcell);
+	auto *f = fcell->formula();
+	CHECK_PTR_VOID(f);
+	auto *node = f->Eval();
+	
+	if (node == nullptr) {
+		mtl_info("Named Range formula failed");
+	} else {
+		mtl_printq2("Formula Eval(): ", node->toString());
+	}
+	
+	
+	
+//	auto vec = book->GetAllNamedRanges();
+//	for (ods::inst::TableNamedRange *item: vec) {
+//		mtl_printq2("Item name: ", item->name());
+//		auto *sheet = item->GetSheet();
+//		mtl_printq2("Sheet name: ", sheet->name());
+//		auto *address = item->GetAddress();
+//		if (address != nullptr) {
+//			mtl_printq2("Address: ", address->toString());
+//		} else {
+//			mtl_info("Address = nullptr");
+//		}
+//		printf("\n");
+//	}
+	
+	util::Save(book);
+}
+
 bool
 IsFunctionImplemented(const QStringRef &s) {
 	const QVector<ods::FunctionMeta> &vec = ods::function::GetSupportedFunctions();
@@ -1015,9 +1070,9 @@ void GenerateFunctionsListForGitHub()
 		}
 	}
 	
-	QString prepend = QLatin1String("##### Implemented ") + QString::number(implemented) +
+	QString prepend = QLatin1String("##### ") + QString::number(implemented) +
 		QLatin1String(" out of ") + QString::number(count) +
-		QLatin1String(" functions\n\n");
+		QLatin1String(" functions implemented\n\n");
 	
 	heap.prepend(prepend);
 	

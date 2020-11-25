@@ -141,24 +141,27 @@ Function::Eval()
 	
 	for (int i = 0; i < args_->size(); i++) {
 		QVector<FormulaNode*> *subvec = (*args_)[i];
-		
+		CHECK_TRUE_NULL(function::ReplaceNamedRanges(*subvec));
 		while (subvec->size() > 1) {
 			CHECK_TRUE_NULL(function::EvalDeepestGroup(*subvec));
 		}
+		
 		CHECK_TRUE_NULL((subvec->size() == 1));
 		FormulaNode *node = (*subvec)[0];
 		fn_args.append(node);
 		subvec->clear();
 	}
-#ifdef DEBUG_FORMULA_EVAL
-	mtl_info("%sInside %s()%s", MTL_COLOR_YELLOW, meta_->name, MTL_COLOR_DEFAULT);
-#endif
-	
+
 	if (meta_->settings & function::FlattenOutParamsBit) {
 		CHECK_TRUE_NULL(function::FlattenOutArgs(fn_args));
 	}
 	
 	CHECK_PTR_NULL(meta_);
+	
+#ifdef DEBUG_FORMULA_EVAL
+	mtl_info("%sSending %s() to execution%s", MTL_COLOR_YELLOW, meta_->name, MTL_COLOR_DEFAULT);
+#endif
+	
 	
 	return ExecOpenFormulaFunction(fn_args);
 }
@@ -307,14 +310,13 @@ Function::TryNew(QStringRef s, int &skip, ods::Sheet *default_sheet)
 	u8 settings = ParsingFunctionParams;
 	auto *new_vec = new QVector<FormulaNode*>();
 	
-	while (Formula::ParseNext(s, chunk, *new_vec,
-		default_sheet, settings))
+	while (Formula::ParseNext(s, chunk, *new_vec, default_sheet, settings))
 	{
 #ifdef DEBUG_FORMULA_PARSING
 		mtl_info("ParseNext()");
 #endif
-		s = s.mid(chunk);
 		params_total += chunk;
+		s = s.mid(chunk);
 		chunk = 0;
 
 		if (settings & ReachedFunctionEnd) {

@@ -70,7 +70,12 @@ Address::CellRange(Sheet *default_sheet, QStringRef start, QStringRef end)
 	Address *address = new Address();
 	address->default_sheet_ = default_sheet;
 	address->cell_ = ods::CreateCellRef(default_sheet, start);
-	address->end_cell_ = ods::CreateCellRef(default_sheet, end);
+	address->end_cell_ = ods::CreateCellRef(default_sheet, end, address->cell_);
+//	mtl_printq2("start: ", start.toString());
+//	mtl_printq2("end: ", end.toString());
+//	address->cell_->PrintDebug("cell_: ");
+//	address->end_cell_->PrintDebug("end_cell_: ");
+	
 	return address;
 }
 
@@ -79,6 +84,7 @@ Address::CellToString(const ods::CellRef *cell_ref) const
 {
 	CHECK_TRUE_QSTR((cell_ref != nullptr));
 	ods::Cell *cell = cell_ref->GetCell();
+	
 	CHECK_TRUE_QSTR((cell != nullptr));
 	ods::Sheet *sheet = cell_ref->sheet();
 	CHECK_TRUE_QSTR((sheet != nullptr));
@@ -98,6 +104,18 @@ Address::Clone()
 	DeepCopy(*p, *this);
 	
 	return p;
+}
+
+Address*
+Address::From(const QStringRef &str, Sheet *default_sheet)
+{
+	int index = str.indexOf(':');
+	if (index == -1)
+		return Address::Cell(default_sheet, str);
+	
+	QStringRef start = str.mid(0, index);
+	QStringRef end = str.mid(index + 1);
+	return Address::CellRange(default_sheet, start, end);
 }
 
 bool

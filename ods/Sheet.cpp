@@ -12,6 +12,7 @@
 #include "inst/OfficeDocumentContent.hpp"
 #include "inst/OfficeSpreadsheet.hpp"
 #include "inst/TableTableColumn.hpp"
+#include "inst/TableNamedExpressions.hpp"
 
 namespace ods { // ods::
 
@@ -403,12 +404,17 @@ Sheet::Scan(ods::Tag *tag)
 			continue;
 		
 		auto *next = x->as_tag();
-		
-		if (next->Is(ns_->table(), ods::ns::kTableRow))
-		{
-			rows_.append(new ods::Row(this, next));
-		} else if (next->Is(ns_->table(), ods::ns::kTableColumn)) {
-			columns_.append(new ods::inst::TableTableColumn(this, next));
+		if (next->Has(ns_->table())) {
+			if (next->Has(ods::ns::kTableRow))
+			{
+				rows_.append(new ods::Row(this, next));
+			} else if (next->Has(ods::ns::kTableColumn)) {
+				columns_.append(new ods::inst::TableTableColumn(this, next));
+			} else if (next->Has(ods::ns::kNamedExpressions)) {
+				named_expressions_ = new inst::TableNamedExpressions(this, next);
+			} else {
+				Scan(next);
+			}
 		} else {
 			Scan(next);
 		}
@@ -444,6 +450,8 @@ Sheet::WriteData(QXmlStreamWriter &xml)
 	
 	for (auto *next: rows_)
 		next->Write(xml);
+	
+	Write(xml, named_expressions_);
 }
 
 } // ods::

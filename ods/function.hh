@@ -5,7 +5,7 @@
 
 //#define DEBUG_FORMULA_PARSING
 //#define DEBUG_FORMULA_EVAL
-#define DEBUG_SUMIF_LIKE_FUNCTIONS
+//#define DEBUG_SUMIF_LIKE_FUNCTIONS
 namespace ods {
 // This lets the parsing function know it's parsing
 // formula function params
@@ -120,6 +120,7 @@ void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str);
 void PrintNodesInOneLine(const QVector<FormulaNode*> &v, const char *msg = "");
 void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg = QString());
 bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index);
+bool ReplaceNamedRanges(QVector<FormulaNode*> &input);
 double CeilUp(double value, int decimal_places);
 double FloorUp(double value, int decimal_places);
 double RoundUp(double value, int decimal_places);

@@ -94,6 +94,16 @@
 	MTL_COLOR_RED, SRC_FILE_NAME, \
 	__LINE__, strerror(status), MTL_COLOR_DEFAULT)
 
+#define mtl_printq(s) {\
+	auto ba = s.toLocal8Bit();\
+	mtl_info("%s", ba.data());\
+}
+
+#define mtl_printq2(msg, s) {\
+	auto ba = s.toLocal8Bit();\
+	mtl_info("%s\"%s\"", msg, ba.data());\
+}
+
 #define NO_ASSIGN_COPY_MOVE(TypeName)	\
 	TypeName(const TypeName&) = delete;		\
 	void operator=(const TypeName&) = delete; \

@@ -3,6 +3,7 @@
 #include "TableCalculationSettings.hpp"
 #include "../Sheet.hpp"
 #include "TableNamedExpressions.hpp"
+#include "TableNamedRange.hpp"
 
 #include "../Ns.hpp"
 #include "../ns.hxx"
@@ -27,7 +28,7 @@ OfficeSpreadsheet::OfficeSpreadsheet(const OfficeSpreadsheet &cloner)
 OfficeSpreadsheet::~OfficeSpreadsheet()
 {
 	delete table_calculation_settings_;
-	delete table_named_expressions_;
+	delete named_expressions_;
 	
 	for (auto *next: tables_)
 		delete next;
@@ -47,10 +48,10 @@ OfficeSpreadsheet::Clone(Abstract *parent) const
 			table_calculation_settings_->Clone(p);
 	}
 	
-	if (table_named_expressions_ != nullptr)
+	if (named_expressions_ != nullptr)
 	{
-		p->table_named_expressions_ = (TableNamedExpressions*)
-			table_named_expressions_->Clone(p);
+		p->named_expressions_ = (TableNamedExpressions*)
+			named_expressions_->Clone(p);
 	}
 	
 	for (auto *next: tables_)
@@ -95,7 +96,7 @@ void
 OfficeSpreadsheet::InitDefault()
 {
 	table_calculation_settings_ = new TableCalculationSettings(this);
-	table_named_expressions_ = new TableNamedExpressions(this);
+	named_expressions_ = new TableNamedExpressions(this);
 }
 
 ods::Sheet*
@@ -126,12 +127,19 @@ OfficeSpreadsheet::Scan(Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->table(), ods::ns::kCalculationSettings)) {
-			table_calculation_settings_ = new TableCalculationSettings(this, next);
-		} else if (next->Is(ns_->table(), ods::ns::kTable)) {
-			tables_.append(new ods::Sheet(this, next));
-		} else if (next->Is(ns_->table(), ods::ns::kNamedExpressions)) {
-			table_named_expressions_ = new TableNamedExpressions(this, next);
+		if (next->Has(ns_->table())) {
+			if (next->Has(ods::ns::kCalculationSettings)) {
+				table_calculation_settings_ = new TableCalculationSettings(this, next);
+			} else if (next->Has(ods::ns::kTable)) {
+				tables_.append(new ods::Sheet(this, next));
+			} else if (next->Has(ods::ns::kNamedExpressions)) {
+				named_expressions_ = new TableNamedExpressions(this, next);
+				for (TableNamedRange *nr: named_expressions_->named_ranges()) {
+					nr->global(true);
+				}
+			} else {
+				Scan(next);
+			}
 		} else {
 			Scan(next);
 		}
@@ -146,7 +154,7 @@ OfficeSpreadsheet::WriteData(QXmlStreamWriter &xml)
 	for (auto *next: tables_)
 		next->Write(xml);
 	
-	Write(xml, table_named_expressions_);
+	Write(xml, named_expressions_);
 }
 
 } // ods::inst::

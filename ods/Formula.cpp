@@ -1,11 +1,13 @@
 #include "Formula.hpp"
 
 #include "Address.hpp"
+#include "Book.hpp"
 #include "Cell.hpp"
 #include "CellRef.hpp"
 #include "ods.hh"
 #include "Row.hpp"
 #include "Sheet.hpp"
+#include "inst/TableNamedRange.hpp"
 
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -186,7 +188,8 @@ Formula::EvaluateNodes(QVector<FormulaNode *> &nodes)
 }
 
 bool
-Formula::ParseNext(QStringRef s, int &resume_at, QVector<FormulaNode*> &vec,
+Formula::ParseNext(QStringRef s, int &resume_at,
+	QVector<FormulaNode*> &vec,
 	ods::Sheet *default_sheet, u8 &settings)
 {
 #ifdef DEBUG_FORMULA_PARSING
@@ -305,8 +308,8 @@ mtl_info("Param separator ;");
 	static const auto op_regex = QRegularExpression(ods::op_str::Regex);
 	QRegularExpressionMatch regex_match;
 	at = as_str.indexOf(op_regex, 0, &regex_match);
-	
-	if (at == 0) {
+	const bool found_op = (at == 0);
+	if (found_op) {
 		QStringRef captured_op_str = regex_match.capturedRef(0);
 #ifdef DEBUG_FORMULA_PARSING
 		auto ba = captured_op_str.toLocal8Bit();
@@ -329,6 +332,13 @@ mtl_info("Param separator ;");
 		return true;
 	}
 	
+	inst::TableNamedRange *nr = StartsWithNamedRange(s, default_sheet);
+	if (nr != nullptr) {
+		vec.append(FormulaNode::NamedRange(nr));
+		resume_at += nr->name().size();
+		return true;
+	}
+	
 	return false;
 }
 
@@ -339,25 +349,20 @@ Formula::ProcessFormulaString(QString s, QVector<FormulaNode*> &nodes)
 	auto ba = s.toLocal8Bit();
 	mtl_info("Breaking down into nodes: %s", ba.data());
 #endif
-	s = s.trimmed();
 	const QString prefix = QLatin1String("of:=");
 	
 	if (s.startsWith(prefix))
 		s = s.mid(prefix.size());
 	
-	if (s.isEmpty()) {
-		mtl_trace();
-		return false;
-	}
-	
+	CHECK_TRUE((!s.isEmpty()));
 	int resume_at = 0;
 	int chunk = 0;
-	QStringRef str_ref = s.midRef(0);
 	u8 settings = 0;
+	QStringRef str_ref = s.midRef(0);
 	
 	while (ParseNext(str_ref, chunk, nodes, default_sheet_, settings)) {
-		str_ref = str_ref.mid(chunk);
 		resume_at += chunk;
+		str_ref = str_ref.mid(chunk);
 		chunk = 0;
 		
 		if (str_ref.isEmpty())
@@ -392,8 +397,8 @@ Formula::ParseString(const QString &s, QVector<FormulaNode*> &result,
 	QStringRef str_ref = s.midRef(0);
 	
 	while (ParseNext(str_ref, chunk, result, default_sheet, settings)) {
-		str_ref = str_ref.mid(chunk);
 		resume_at += chunk;
+		str_ref = str_ref.mid(chunk);
 		chunk = 0;
 		
 		if (str_ref.isEmpty())
@@ -409,6 +414,28 @@ Formula::ParseString(const QString &s, QVector<FormulaNode*> &result,
 	auto ba = str_ref.toLocal8Bit();
 	mtl_trace("Remaining string is: \"%s\"", ba.data());
 	return false;
+}
+
+inst::TableNamedRange*
+Formula::StartsWithNamedRange(QStringRef &s, ods::Sheet *sheet) {
+	const auto &named_ranges = sheet->book()->GetAllNamedRanges();
+	for (inst::TableNamedRange *nr: named_ranges) {
+		
+		if (!nr->global() && (nr->GetSheet() != sheet)) {
+			continue;
+		}
+		
+		if (s.startsWith(nr->name())) {
+//			QString new_range = QChar('[') + nr->cell_range_address() + QChar(']');
+//			QString new_s = new_range;
+//			new_s += original_string.mid(s.position() + name.size());
+//			original_string = new_s;
+//			s = original_string.midRef(s.position());
+//			return true;
+			return nr;
+		}
+	}
+	return nullptr;
 }
 
 QString

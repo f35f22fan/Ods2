@@ -51,7 +51,7 @@ ODS_API void
 ApplyBool(const QString &str, ods::Bool &b);
 
 ODS_API CellRef*
-CreateCellRef(Sheet *default_sheet, QStringRef address);
+CreateCellRef(Sheet *default_sheet, QStringRef address, CellRef *first_one = nullptr);
 
 ODS_API double
 DPI();
@@ -77,6 +77,9 @@ ColumnLettersToNumber(const QStringRef &letters);
 
 ODS_API QString
 ColumnNumberToLetters(const int kColumn);
+
+bool
+ParseTableName(const QStringRef &address, QStringRef &name, int *ret_dot = nullptr);
 
 ODS_API ValueType
 TypeFromString(const QString &ods_type);

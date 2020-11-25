@@ -80,6 +80,7 @@ enum class Id : int16_t
 	SvgTitle,
 	TableCalculationSettings,
 	TableNamedExpressions,
+	TableNamedRange,
 	TableTable,
 	TableTableCell,
 	TableTableColumn,
@@ -164,6 +165,7 @@ void ODS_API SvgDesc(Ns *ns, inst::Abstract *a);
 void ODS_API SvgTitle(Ns *ns, inst::Abstract *a);
 void ODS_API TableCalculationSettings(Ns *ns, inst::Abstract *a);
 void ODS_API TableNamedExpressions(Ns *ns, inst::Abstract *a);
+void ODS_API TableNamedRange(Ns *ns, inst::Abstract *a);
 void ODS_API TableTable(Ns *ns, inst::Abstract *a);
 void ODS_API TableTableCell(Ns *ns, inst::Abstract *a);
 void ODS_API TableTableColumn(Ns *ns, inst::Abstract *a);

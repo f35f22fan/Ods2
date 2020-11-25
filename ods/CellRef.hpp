@@ -39,6 +39,8 @@ public:
 
 	void
 	sheet(ods::Sheet *s) { sheet_ = s; }
+	
+	void PrintDebug(const char *msg);
 
 private:
 	NO_ASSIGN_COPY_MOVE(CellRef);

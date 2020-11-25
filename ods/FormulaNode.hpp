@@ -3,6 +3,7 @@
 #include "Address.hpp"
 #include "currency.hxx"
 #include "decl.hxx"
+#include "inst/decl.hxx"
 #include "err.hpp"
 #include "Function.hpp"
 #include "formula.hxx"
@@ -42,6 +43,7 @@ public:
 	double as_percentage() const { return data_.percentage; }
 	bool as_bool() const { return data_.flag; }
 	QString* as_string() const { return data_.s; }
+	inst::TableNamedRange* as_named_range() const { return data_.named_range; }
 	
 	// takes ownership of pointer arguments:
 	static FormulaNode* Address(ods::Address *a);
@@ -50,8 +52,8 @@ public:
 	static FormulaNode* Op(const ods::Op op);
 	static FormulaNode* Brace(ods::Brace p);
 	static FormulaNode* Empty() { return new FormulaNode(); }
-	
 	static FormulaNode* Bool(bool b);
+	static FormulaNode* NamedRange(inst::TableNamedRange *p);
 	static FormulaNode* Percentage(double d);
 	static FormulaNode* Currency(ods::Currency *c);
 	static FormulaNode* Date(QDate *date);
@@ -75,6 +77,7 @@ public:
 	bool is_percentage() const { return type_ == Type::Percentage; }
 	bool is_bool() const { return type_ == Type::Bool; }
 	bool is_string() const { return type_ == Type::String; }
+	bool is_named_range() const { return type_ == Type::NamedRange; }
 	
 	bool Operation(const ods::Op op, FormulaNode *rhs);
 	bool OperationAmpersand(const ods::Op op, FormulaNode *rhs);
@@ -118,6 +121,12 @@ public:
 		type_ = Type::Double;
 	}
 	
+	void SetNamedRange(inst::TableNamedRange *p) {
+		Clear();
+		data_.named_range = p;
+		type_ = Type::NamedRange;
+	}
+	
 	void SetNone() {
 		Clear();
 		type_ = Type::None;
@@ -159,14 +168,14 @@ private:
 		Op,
 		Double,
 		Brace,
-		// New:
 		Time,
 		Date,
 		DateTime,
 		Currency,
 		Percentage,
 		Bool,
-		String
+		String,
+		NamedRange,
 	};
 	
 	// each data type must be properly copied in DeepCopy(..)
@@ -183,6 +192,8 @@ private:
 		double percentage;
 		bool flag;
 		QString *s;
+// The named range is owned by ods::Book, only copy its pointer and never destroy!
+		inst::TableNamedRange *named_range;
 		Data() { memset(this, 0, sizeof(Data)); }
 		~Data() {}
 	};

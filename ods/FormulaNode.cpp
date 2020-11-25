@@ -2,8 +2,9 @@
 
 #include "Cell.hpp"
 #include "CellRef.hpp"
-#include "Time.hpp"
 #include "ods.hh"
+#include "Time.hpp"
+#include "inst/TableNamedRange.hpp"
 
 #include <float.h>
 
@@ -187,6 +188,8 @@ FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 		dest.data_.s = new QString(*src.data_.s);
 	else if (src.is_time())
 		dest.data_.time = src.data_.time->Clone();
+	else if (src.is_named_range())
+		dest.data_.named_range = src.data_.named_range;// not cloned because not owned
 	else if (src.is_none()) {
 		// a Clone() on empty object, that's fine.
 	} else {
@@ -263,6 +266,15 @@ FormulaNode::DateTime(QDateTime *p)
 	auto *node = new FormulaNode();
 	node->type_ = Type::DateTime;
 	node->data_.date_time = p;
+	return node;
+}
+
+FormulaNode*
+FormulaNode::NamedRange(inst::TableNamedRange *p)
+{
+	auto *node = new FormulaNode();
+	node->type_ = Type::NamedRange;
+	node->data_.named_range = p;
 	return node;
 }
 
@@ -672,6 +684,8 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 		return as_date_time()->toString(Qt::ISODate);
 	} else if (is_bool()) {
 		return as_bool() ? QLatin1String("true") : QLatin1String("false");
+	} else if (is_named_range()) {
+		return as_named_range()->name();
 	} else if (is_none())
 		return QLatin1String("[none!]");
 	else {

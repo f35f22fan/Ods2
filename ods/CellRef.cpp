@@ -42,4 +42,12 @@ CellRef::New(ods::Sheet *sheet, const int row, const int col)
 	return p;
 }
 
+void
+CellRef::PrintDebug(const char *msg)
+{
+	auto ba = sheet_->name().toLocal8Bit();
+	mtl_info("%s col: %d, row: %d, sheet: %s", msg, col(), row(), ba.data());
+}
+
+
 } // ods::

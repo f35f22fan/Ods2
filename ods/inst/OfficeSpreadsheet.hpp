@@ -25,6 +25,9 @@ public:
 	ods::Sheet*
 	GetSheet(const QStringRef name) const;
 	
+	TableNamedExpressions*
+	named_expressions() const { return named_expressions_; }
+	
 	ods::Sheet*
 	NewSheet(const QString &name);
 	
@@ -45,7 +48,7 @@ private:
 	
 	TableCalculationSettings *table_calculation_settings_ = nullptr;
 	QVector<ods::Sheet*> tables_;
-	TableNamedExpressions *table_named_expressions_ = nullptr;
+	TableNamedExpressions *named_expressions_ = nullptr;
 };
 
 } // ods::inst::

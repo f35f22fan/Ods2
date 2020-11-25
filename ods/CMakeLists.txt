@@ -139,6 +139,7 @@ set(lib_files
 	inst/SvgTitle.cpp inst/SvgTitle.hpp
 	inst/TableCalculationSettings.cpp inst/TableCalculationSettings.hpp
 	inst/TableNamedExpressions.cpp inst/TableNamedExpressions.hpp
+	inst/TableNamedRange.cpp inst/TableNamedRange.hpp
 	inst/TableTableColumn.cpp inst/TableTableColumn.hpp
 	inst/TextDate.cpp inst/TextDate.hpp
 	inst/TextP.cpp inst/TextP.hpp

@@ -765,6 +765,10 @@ Cell::WriteValue(QXmlStreamWriter &xml)
 		auto *dt = as_date();
 		QString date_value = dt->toString(Qt::ISODate);
 		Write(xml, ns_->office(), ods::ns::kDateValue, date_value);
+	} else if (is_date_time()) {
+		QDateTime *dt = as_date_time();
+		QString date_value = dt->toString(Qt::ISODate);
+		Write(xml, ns_->office(), ods::ns::kDateValue, date_value);
 	} else if (is_time()) {
 		auto *dd = as_time();
 		CHECK_PTR_VOID(dd);
@@ -777,6 +781,10 @@ Cell::WriteValue(QXmlStreamWriter &xml)
 		// do nothing
 	} else if (!is_value_set()) {
 	} else {
+		auto str = QueryAddress();
+		auto *sheet = row_->sheet();
+		QString s = str + QLatin1String(", sheet name: ") + sheet->name();
+		mtl_printq(s);
 		it_happened();
 	}
 	

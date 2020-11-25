@@ -6,6 +6,7 @@
 #include "Formula.hpp"
 #include "FormulaNode.hpp"
 #include "Time.hpp"
+#include "inst/TableNamedRange.hpp"
 
 #include <QDate>
 #include <QDateTime>
@@ -93,6 +94,9 @@ CommonForSumIfLikeFunctions_Eval(const FormulaNode &test_node,
 bool
 EvalDeepestGroup(QVector<FormulaNode*> &input)
 {
+	// first replace named ranges (if any) with regular nodes
+	CHECK_TRUE(ReplaceNamedRanges(input));
+	
 	int start = -1, count = -1;
 	bool remove_braces = false;
 	
@@ -364,6 +368,13 @@ GetSupportedFunctions() {
 	return v;
 }
 
+bool IsNearlyEqual(double x, double y)
+{
+	const double epsilon = 1e-5;
+	return std::abs(x - y) <= epsilon * std::abs(x);
+	// see Knuth section 4.2.2 pages 217-218
+}
+
 void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str)
 {
 	if (node->is_address()) {
@@ -396,6 +407,9 @@ void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str)
 	} else if (node->is_bool()) {
 		type_str = QLatin1String("Boolean");
 		node_str = node->as_bool() ? QLatin1String("true") : QLatin1String("false");
+	} else if (node->is_named_range()) {
+		type_str = QLatin1String("Named Range");
+		node_str = node->toString();
 	} else if (node->is_none()) {
 		type_str = QLatin1String("None");
 		node_str = QLatin1String("[!!]");
@@ -472,11 +486,26 @@ bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index)
 	return true;
 }
 
-bool IsNearlyEqual(double x, double y)
+bool
+ReplaceNamedRanges(QVector<FormulaNode*> &input)
 {
-	const double epsilon = 1e-5;
-	return std::abs(x - y) <= epsilon * std::abs(x);
-	// see Knuth section 4.2.2 pages 217-218
+	for (int i = 0; i < input.size(); i++) {
+		ods::FormulaNode *node = input[i];
+		if (node->is_named_range()) {
+			inst::TableNamedRange *nr = node->as_named_range();
+			QVector<FormulaNode*> vec;
+			const QString s = QChar('[') + nr->cell_range_address() + QChar(']');
+			CHECK_TRUE(Formula::ParseString(s, vec, nr->GetSheet()));
+			CHECK_TRUE((!vec.isEmpty()));
+			for (int j = 0; j < vec.size(); j++) {
+				input.insert(i + j, vec[j]);
+			}
+			input.remove(i + vec.size());
+			delete node;
+		}
+	}
+	
+	return true;
 }
 
 double RoundUp(double value, int decimal_places) {
@@ -644,21 +673,37 @@ FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dm
 			return nullptr;
 		}
 	} else if (node->is_string()) {
+		// Expected formats: "2008-06-24" or "24-06-2008"
 		QString *date_str = node->as_string();
-		// "2008-06-04"
-		auto list = date_str->splitRef('-');
+#ifdef DEBUG_FORMULA_EVAL
+		{
+			auto ba = date_str->toLocal8Bit();
+			mtl_info("Date: \"%s\"", ba.data());
+		}
+#endif
+		QChar sep('.');
+		
+		if (date_str->indexOf('-') != -1)
+			sep = QChar('-');
+		else if (date_str->indexOf('/') != -1)
+			sep = QChar('/');
+		
+		QVector<QStringRef> list = date_str->splitRef(sep);
 		CHECK_TRUE_NULL((list.size() == 3));
+		const bool year_first = (list[0].size() > 2);
 		int index = -1;
+		
 		if (dmy == DMY::Day)
-			index = 2;
+			index = year_first ? 2 : 0;
 		else if (dmy == DMY::Month)
 			index = 1;
 		else if (dmy == DMY::Year)
-			index = 0;
+			index = year_first ? 0 : 2;
 		else {
 			mtl_trace();
 			return nullptr;
 		}
+		
 		auto str = list[index];
 		bool ok;
 		ret_val = str.toInt(&ok);

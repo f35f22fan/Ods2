@@ -34,6 +34,8 @@ public:
 	static Book*
 	FromFile(const QString &full_path, QString *err);
 	
+	const QVector<inst::TableNamedRange *> &GetAllNamedRanges();
+	
 	inst::Abstract*
 	GetAnyStyle(const QString &name);
 	
@@ -103,6 +105,7 @@ private:
 	inst::OfficeDocumentMeta *document_meta_ = nullptr;
 	inst::OfficeDocumentStyles *document_styles_ = nullptr;
 	inst::ManifestManifest *manifest_ = nullptr;
+	QVector<inst::TableNamedRange*> *named_ranges_ = nullptr;
 	
 	friend class inst::OfficeDocumentContent;
 	friend class inst::OfficeDocumentMeta;

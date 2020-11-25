@@ -51,14 +51,15 @@ main(int argc, char *argv[])
 //	ReadBoolean();
 	
 //	CreateFormula();
-//	ReadFormula();
+	ReadFormula();
 //	ReadFormulaCustom();
 	
-	CreateFormulaFunctions();
+//	CreateFormulaFunctions();
 //	new sample::Invoice();
 	
 	
 //	GenerateFunctionsListForGitHub();
+//	ReadCellRange();
 	return 0;
 }
 

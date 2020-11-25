@@ -55,5 +55,7 @@
 #include <ods/inst/StyleTableCellProperties.hpp>
 #include <ods/inst/StyleTableColumnProperties.hpp>
 #include <ods/inst/StyleTextProperties.hpp>
-#include <ods/inst/TextP.hpp>
+#include <ods/inst/TableNamedRange.hpp>
 #include <ods/inst/TableTableColumn.hpp>
+#include <ods/inst/TextP.hpp>
+

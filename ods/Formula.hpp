@@ -66,6 +66,10 @@ private:
 	ParseNext(QStringRef s, int &resume_at, QVector<FormulaNode *> &vec, Sheet *default_sheet,
 		u8 &settings);
 	
+	static inst::TableNamedRange*
+	StartsWithNamedRange(QStringRef &s, ods::Sheet *sheet);
+	
+	
 	void evaluating(const bool flag) {
 		if (flag)
 			bits_ |= ods::EvaluatingBit;

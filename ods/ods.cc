@@ -83,20 +83,17 @@ ColumnNumberToLetters(const int column)
 	return ret;
 }
 
-CellRef*
-CreateCellRef(ods::Sheet *default_sheet, QStringRef address)
+bool
+ParseTableName(const QStringRef &address, QStringRef &name, int *ret_dot)
 {
-	CHECK_TRUE_NULL(!address.isEmpty());
+	CHECK_TRUE((!address.isEmpty()));
 	int dot = address.lastIndexOf('.');
-	CHECK_TRUE_NULL((dot != -1));
+	CHECK_TRUE((dot != -1));
 
 	auto sheet_name = address.left(dot);
 	
 	if (sheet_name.startsWith('$'))
-	{
 		sheet_name = sheet_name.mid(1);
-		mtl_warn();
-	}
 	
 	// Must remove starting and ending single quote
 	// if it's a single quoted string
@@ -105,6 +102,20 @@ CreateCellRef(ods::Sheet *default_sheet, QStringRef address)
 		sheet_name = sheet_name.mid(1, sheet_name.size() - 2);
 	}
 	
+	if (ret_dot != nullptr)
+		*ret_dot = dot;
+	
+	name = sheet_name;
+	return true;
+}
+
+
+CellRef*
+CreateCellRef(ods::Sheet *default_sheet, QStringRef address, ods::CellRef *first_one)
+{
+	QStringRef sheet_name;
+	int dot;
+	CHECK_TRUE_NULL(ParseTableName(address, sheet_name, &dot));
 	auto *book = default_sheet->book();
 	auto *sp = book->spreadsheet();
 	auto *sheet = sp->GetSheet(sheet_name);
@@ -114,7 +125,11 @@ CreateCellRef(ods::Sheet *default_sheet, QStringRef address)
 //		mtl_warn("Couldn't find sheet by name: \"%s\"", ba.data());
 		// it means the address didn't have a sheet name,
 		// e.g. ".A2" which means one should use the "current" sheet.
-		sheet = default_sheet;
+		if ((first_one != nullptr) && (first_one->sheet() != nullptr)) {
+			sheet = first_one->sheet();
+		} else {
+			sheet = default_sheet;
+		}
 	}
 	
 	auto cell_name = address.mid(dot + 1);
@@ -135,9 +150,17 @@ CreateCellRef(ods::Sheet *default_sheet, QStringRef address)
 	
 	CHECK_TRUE_NULL(found);
 	
-	auto letters = cell_name.left(index);
+	QStringRef letters = cell_name.left(index);
+	if (letters.startsWith('$'))
+		letters = letters.mid(1);
+	if (letters.endsWith('$'))
+		letters = letters.left(letters.size() - 1);
+	
 	const int col = ods::ColumnLettersToNumber(letters);
-	auto digits = cell_name.right(count - index);
+	QStringRef digits = cell_name.right(count - index);
+//	mtl_printq2("letters: ", letters.toString());
+//	mtl_printq2("digits: ", digits.toString());
+//	mtl_printq2("address: ", address.toString());
 	bool ok;
 	// "- 1" because e.g. "1" in [.B1] is row 0
 	const int row = digits.toInt(&ok) - 1;

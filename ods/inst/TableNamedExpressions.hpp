@@ -16,6 +16,12 @@ public:
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
+	
+	void
+	CopyNamedRangesTo(QVector<TableNamedRange*> *v);
+	
+	const QVector<TableNamedRange*>&
+	named_ranges() const { return named_ranges_; }
 
 	void
 	WriteData(QXmlStreamWriter &xml) override;
@@ -24,6 +30,9 @@ private:
 	
 	void Init(ods::Tag *tag);
 	void InitDefault();
+	void Scan(ods::Tag *tag);
+	
+	QVector<TableNamedRange*> named_ranges_;
 };
 
 } // ods::inst::

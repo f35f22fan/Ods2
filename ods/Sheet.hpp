@@ -1,6 +1,7 @@
 #pragma once
 
 #include "decl.hxx"
+#include "inst/decl.hxx"
 #include "err.hpp"
 #include "global.hxx"
 
@@ -39,6 +40,9 @@ public:
 	
 	const QString&
 	name() const { return table_name_; }
+	
+	inst::TableNamedExpressions*
+	named_expressions() const { return named_expressions_; }
 	
 	ods::Address*
 	NewAddress(ods::Cell *cell, ods::Cell *end_cell = nullptr);
@@ -79,6 +83,7 @@ private:
 	QString table_style_name_;
 	QVector<ods::Row*> rows_;
 	QVector<inst::TableTableColumn*> columns_;
+	inst::TableNamedExpressions *named_expressions_ = nullptr;
 	int num_cols_ = 0;
 	
 	const int DefaultColumnCountPerSheet = 1024;

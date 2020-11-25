@@ -30,11 +30,11 @@ public:
 	static Address*
 	CellRange(ods::Sheet *default_sheet, QStringRef start, QStringRef end);
 	
+	static Address*
+	From(const QStringRef &str, Sheet *default_sheet);
+	
 	bool
 	GenCells(QVector<ods::Cell*> &cells);
-	
-//	static Address
-//	Invalid() { return Address(nullptr); }
 	
 	bool is_cell_range() const { return end_cell_ != nullptr; }
 	

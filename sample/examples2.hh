@@ -21,3 +21,4 @@ void CreateInvoice();
 
 // personal:
 void GenerateFunctionsListForGitHub();
+void ReadCellRange();

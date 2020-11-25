@@ -15,6 +15,8 @@
 #include "inst/OfficeDocumentStyles.hpp"
 #include "inst/OfficeSpreadsheet.hpp"
 #include "inst/OfficeStyles.hpp"
+#include "inst/TableNamedExpressions.hpp"
+#include "inst/TableNamedRange.hpp"
 
 #include <QGuiApplication>
 #include <QSaveFile>
@@ -37,6 +39,9 @@ Book::~Book()
 	delete document_styles_;
 	delete document_meta_;
 	delete manifest_;
+	
+	delete named_ranges_; // its items don't belong to it.
+	named_ranges_ = nullptr;
 }
 
 Book*
@@ -106,6 +111,35 @@ Book::GetAnyStyle(const QString &name)
 		return a;
 	
 	return document_styles_->GetAnyStyle(name);
+}
+
+const QVector<inst::TableNamedRange*>&
+Book::GetAllNamedRanges()
+{
+	if (named_ranges_ != nullptr)
+		return *named_ranges_;
+	
+	named_ranges_ = new QVector<inst::TableNamedRange*>();
+	auto *sp = spreadsheet();
+	
+	if (sp == nullptr) {
+		mtl_trace();
+		return *named_ranges_;
+	}
+	
+	inst::TableNamedExpressions *tne = sp->named_expressions();
+	
+	if (tne != nullptr)
+		tne->CopyNamedRangesTo(named_ranges_);
+	
+	QVector<ods::Sheet*> &sheets = sp->tables();
+	for (ods::Sheet *sheet: sheets) {
+		auto *tne = sheet->named_expressions();
+		if (tne != nullptr)
+			tne->CopyNamedRangesTo(named_ranges_);
+	}
+	
+	return *named_ranges_;
 }
 
 inst::OfficeFontFaceDecls*
@@ -490,13 +524,9 @@ Book::Save(inst::Abstract *top, const QString &full_path, QString *err)
 inst::OfficeSpreadsheet*
 Book::spreadsheet() const
 {
-	if (document_content_ == nullptr)
-		return nullptr;
-	
+	CHECK_TRUE_NULL((document_content_ != nullptr));
 	auto *body = document_content_->body();
-	
-	if (body == nullptr)
-		return nullptr;
+	CHECK_TRUE_NULL((body != nullptr));
 	
 	return body->spreadsheet();
 }

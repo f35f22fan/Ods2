@@ -72,6 +72,7 @@ class SvgDesc;
 class SvgTitle;
 class TableCalculationSettings;
 class TableNamedExpressions;
+class TableNamedRange;
 class TableTableColumn;
 class TextDate;
 class TextP;

@@ -699,6 +699,16 @@ TableNamedExpressions(Ns *ns, inst::Abstract *a)
 }
 
 void
+TableNamedRange(Ns *ns, inst::Abstract *a)
+{
+	a->ns(ns);
+	a->prefix(ns->table());
+	a->tag_name(ods::ns::kNamedRange);
+	a->func(TableNamedRange);
+	a->id(Id::TableNamedRange);
+}
+
+void
 TableTable(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
