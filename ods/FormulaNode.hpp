@@ -28,6 +28,7 @@ public:
 	void Clear();
 	FormulaNode* Clone() const;
 	bool ConvertFunctionOrAddressToValue();
+	bool InterpretAsBoolean() const;
 	
 	ods::Address* as_address() const { return data_.address; }
 	ods::Function* as_function() const { return data_.function; }

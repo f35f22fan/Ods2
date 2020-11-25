@@ -5,6 +5,7 @@
 #include "err.hpp"
 #include "Formula.hpp"
 #include "FormulaNode.hpp"
+#include "formula.hxx"
 #include "function.hh"
 #include "ods.hh"
 
@@ -141,9 +142,9 @@ Function::Eval()
 	
 	for (int i = 0; i < args_->size(); i++) {
 		QVector<FormulaNode*> *subvec = (*args_)[i];
-		CHECK_TRUE_NULL(function::ReplaceNamedRanges(*subvec));
+		CHECK_TRUE_NULL(eval::ReplaceNamedRanges(*subvec));
 		while (subvec->size() > 1) {
-			CHECK_TRUE_NULL(function::EvalDeepestGroup(*subvec));
+			CHECK_TRUE_NULL(eval::EvalDeepestGroup(*subvec));
 		}
 		
 		CHECK_TRUE_NULL((subvec->size() == 1));
@@ -152,8 +153,8 @@ Function::Eval()
 		subvec->clear();
 	}
 
-	if (meta_->settings & function::FlattenOutParamsBit) {
-		CHECK_TRUE_NULL(function::FlattenOutArgs(fn_args));
+	if (meta_->settings & ods::FlattenOutParamsBit) {
+		CHECK_TRUE_NULL(eval::FlattenOutArgs(fn_args));
 	}
 	
 	CHECK_PTR_NULL(meta_);
@@ -194,6 +195,12 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Day: return function::DayMonthYear(fn_args, DMY::Day);
 	case FunctionId::Month: return function::DayMonthYear(fn_args, DMY::Month);
 	case FunctionId::Year: return function::DayMonthYear(fn_args, DMY::Year);
+	case FunctionId::And: return function::And(fn_args);
+	case FunctionId::Or: return function::Or(fn_args);
+	case FunctionId::Columns: return function::Columns(fn_args);
+	case FunctionId::True: return function::Bool(true);
+	case FunctionId::False: return function::Bool(false);
+	case FunctionId::Not: return function::Not(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }
@@ -201,7 +208,7 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 Function*
 Function::New(const FunctionId id)
 {
-	const FunctionMeta *func_meta = function::FindFunctionMeta(id);
+	const FunctionMeta *func_meta = eval::FindFunctionMeta(id);
 	CHECK_PTR_NULL(func_meta);
 	Function *f = new Function();
 	f->meta_ = func_meta;
@@ -281,7 +288,7 @@ Function::TryNew(QStringRef s, int &skip, ods::Sheet *default_sheet)
 		return nullptr;
 
 	const QString name = s.mid(0, end_of_func_name).toString().toUpper();
-	const FunctionMeta *func_meta = function::FindFunctionMeta(name);
+	const FunctionMeta *func_meta = eval::FindFunctionMeta(name);
 	
 	if (func_meta == nullptr)
 		return nullptr; // not a function

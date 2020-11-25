@@ -1,6 +1,7 @@
 #pragma once
 
 #include "currency.hxx"
+#include "eval.hh"
 #include "function.hh"
 #include "global.hxx"
 #include "ods.hxx"
@@ -50,8 +51,8 @@ private:
 	// ods::Formula calls into private Function::Eval()
 	friend class ods::Formula;
 	friend class ods::FormulaNode;
-	friend bool ods::function::EvalDeepestGroup(QVector<ods::FormulaNode*>&);
-	friend bool ods::function::FlattenOutArgs(QVector<ods::FormulaNode*> &vec);
+	friend bool ods::eval::EvalDeepestGroup(QVector<ods::FormulaNode*>&);
+	friend bool ods::eval::FlattenOutArgs(QVector<ods::FormulaNode*> &vec);
 };
 
 

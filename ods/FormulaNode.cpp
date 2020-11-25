@@ -2,6 +2,7 @@
 
 #include "Cell.hpp"
 #include "CellRef.hpp"
+#include "eval.hh"
 #include "ods.hh"
 #include "Time.hpp"
 #include "inst/TableNamedRange.hpp"
@@ -146,7 +147,7 @@ FormulaNode::ConvertFunctionOrAddressToValue()
 		
 		ods::Cell *cell = address->cell()->GetCell();
 		CHECK_PTR(cell);
-		CHECK_TRUE(function::ExtractCellValue(cell, *this));
+		CHECK_TRUE(eval::ExtractCellValue(cell, *this));
 	} else if (is_function()) {
 		auto *f = as_function();
 		const ods::FormulaNode *val = f->Eval();
@@ -269,6 +270,21 @@ FormulaNode::DateTime(QDateTime *p)
 	return node;
 }
 
+bool
+FormulaNode::InterpretAsBoolean() const
+{
+	if (is_empty())
+		return false;
+	if (is_bool())
+		return as_bool();
+	if (is_any_double())
+		return (as_any_double() != 0);
+	if (is_string())
+		return !as_string()->isEmpty();
+	
+	return true;
+}
+
 FormulaNode*
 FormulaNode::NamedRange(inst::TableNamedRange *p)
 {
@@ -323,7 +339,7 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 	
 		ods::Cell *cell = address->cell()->GetCell();
 		CHECK_PTR(cell);
-		CHECK_TRUE(function::ExtractCellValue(cell, *this));
+		CHECK_TRUE(eval::ExtractCellValue(cell, *this));
 		return OperationEquality(op, rhs_node);
 	}
 	
@@ -336,7 +352,7 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 	
 		ods::Cell *cell = address->cell()->GetCell();
 		CHECK_PTR(cell);
-		CHECK_TRUE(function::ExtractCellValue(cell, *rhs_node));
+		CHECK_TRUE(eval::ExtractCellValue(cell, *rhs_node));
 		return OperationEquality(op, rhs_node);
 	}
 	
@@ -362,7 +378,7 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 			const double rhs = rhs_node->as_any_double();
 			bool flag;
 			if (op == Op::Equals)
-				flag = function::IsNearlyEqual(lhs, rhs);
+				flag = eval::IsNearlyEqual(lhs, rhs);
 			else if (op == Op::Greater)
 				flag = lhs > rhs;
 			else if (op == Op::GreaterOrEqual)

@@ -40,4 +40,4 @@ endif(WIN32)
 
 add_subdirectory(quazip)
 add_subdirectory(ods)
-add_subdirectory(sample)
+add_subdirectory(examples)

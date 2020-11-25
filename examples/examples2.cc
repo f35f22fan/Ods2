@@ -840,12 +840,13 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // DAY(), MONTH(), YEAR()
+	if (true) { // DAY(), MONTH(), YEAR(), AND(), OR()
 		auto *row = sheet->NewRowAt(last_row++);
 		int col = 0;
 		row->NewCellAt(col++)->SetDate(new QDate(QDate::currentDate()));
 		row->NewCellAt(col++)->SetString(QLatin1String("2009-11-24"));
-		const char *date_str = "18.07.2001";
+		row->NewCellAt(col++);
+		const char *date_str = "2001-08-14";
 		
 		{ // DAY():
 			auto *fcell = row->NewCellAt(col++);
@@ -891,63 +892,86 @@ CreateFormulaFunctions()
 				mtl_info("YEAR: %d", day);
 			}
 		}
-	}
-	
-	util::Save(book);
-}
-
-void
-ReadFormulaCustom()
-{
-	auto full_path = util::FindFile("FormulaCustom2.ods");
-	
-	if (full_path.isEmpty())
-		return;
-	
-	QString err;
-	auto *book = ods::Book::FromFile(full_path, &err);
-	
-	if (!err.isEmpty()) {
-		auto ba = err.toLocal8Bit();
-		mtl_warn("%s", ba.data());
-		return;
-	}
-	
-	ods::AutoDelete<ods::Book*> ad(book);
-	auto *spreadsheet = book->spreadsheet();
-	auto *sheet = spreadsheet->GetSheet(0);
-	auto *row = sheet->GetRow(0);
-	CHECK_PTR_VOID(row);
-	auto *cell = row->GetCell(0);
-	CHECK_PTR_VOID(cell);
-	
-	if (!cell->has_formula()) {
-		mtl_warn("The cell has no formula");
-		return;
-	}
-	
-	ods::Formula *formula = cell->formula();
-	const ods::FormulaNode *node = formula->Eval();
-	
-	if (node == nullptr || formula->has_error()) {
-		if (node == nullptr)
-			mtl_info("value = nullptr");
-		else {
-			auto ba = formula->error().toLocal8Bit();
-			mtl_warn("Formula error: %s", ba.data());
+		
+		{ // AND():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::And);
+			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(1));
+			fn->AddArg(ods::FormulaNode::Address(a));
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("AND() eval() failed");
+			} else {
+				mtl_info("AND(): %s", node->as_bool() ? "true" : "false");
+			}
 		}
-		return;
+		
+		{ // OR():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Or);
+			auto *a = sheet->NewAddress(row->GetCell(2));
+			fn->AddArg(ods::FormulaNode::Address(a));
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("OR() eval() failed");
+			} else {
+				mtl_info("OR(): %s", node->as_bool() ? "true" : "false");
+			}
+		}
+		
+		{ // COLUMNS():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Columns);
+			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(5));
+			fn->AddArg(ods::FormulaNode::Address(a));
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("COLUMNS() eval() failed");
+			} else {
+				mtl_info("COLUMNS(): %d", int(node->as_double()));
+			}
+		}
+		
+		{ // TRUE():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			f->Add(ods::FunctionId::True);
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("TRUE() eval() failed");
+			} else {
+				mtl_info("TRUE(): %s", node->as_bool() ? "true" : "false");
+			}
+		}
+		
+		{ // FALSE():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			f->Add(ods::FunctionId::False);
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("FALSE() eval() failed");
+			} else {
+				mtl_info("FALSE(): %s", node->as_bool() ? "true" : "false");
+			}
+		}
+		
+		{ // NOT():
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Not);
+			fn->AddArg(false);
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("NOT() eval() failed");
+			} else {
+				mtl_info("NOT(): %s", node->as_bool() ? "true" : "false");
+			}
+		}
 	}
-	
-	auto ba = node->toString().toLocal8Bit();
-	if (node->is_string()) {
-		auto ba = node->as_string()->toLocal8Bit();
-		mtl_info("Node is string: %s", ba.data());
-	} else {
-		auto ba = node->toString().toLocal8Bit();
-		mtl_info("node is not string: %s", ba.data());
-	}
-	mtl_info("value: \"%s\"", ba.data());
 	
 	util::Save(book);
 }
@@ -987,28 +1011,12 @@ ReadCellRange()
 		mtl_printq2("Formula Eval(): ", node->toString());
 	}
 	
-	
-	
-//	auto vec = book->GetAllNamedRanges();
-//	for (ods::inst::TableNamedRange *item: vec) {
-//		mtl_printq2("Item name: ", item->name());
-//		auto *sheet = item->GetSheet();
-//		mtl_printq2("Sheet name: ", sheet->name());
-//		auto *address = item->GetAddress();
-//		if (address != nullptr) {
-//			mtl_printq2("Address: ", address->toString());
-//		} else {
-//			mtl_info("Address = nullptr");
-//		}
-//		printf("\n");
-//	}
-	
 	util::Save(book);
 }
 
 bool
 IsFunctionImplemented(const QStringRef &s) {
-	const QVector<ods::FunctionMeta> &vec = ods::function::GetSupportedFunctions();
+	const QVector<ods::FunctionMeta> &vec = ods::eval::GetSupportedFunctions();
 	
 	for (const auto &next: vec) {
 		if (s == next.name) {

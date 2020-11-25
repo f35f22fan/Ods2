@@ -9,6 +9,7 @@
 #include <ods/country.hxx>
 #include <ods/currency.hh>
 #include <ods/err.hpp>
+#include <ods/eval.hh>
 #include <ods/Formula.hpp>
 #include <ods/FormulaError.hpp>
 #include <ods/FormulaNode.hpp>

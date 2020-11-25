@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Cell.hpp"
+#include "eval.hh"
 #include "formula.hxx"
 #include "FormulaNode.hpp"
 #include "Function.hpp"
@@ -47,8 +48,8 @@ public:
 	ParseString(const QString &s, QVector<FormulaNode*> &result,
 		Sheet *default_sheet, const ParsingSettings ps = 0);
 	
-	void PrintNodes(const char *msg = "") { function::PrintNodes(nodes_, msg); }
-	void PrintNodesInOneLine(const char *msg = "") { function::PrintNodesInOneLine(nodes_, msg); }
+	void PrintNodes(const char *msg = "") { eval::PrintNodes(nodes_, msg); }
+	void PrintNodesInOneLine(const char *msg = "") { eval::PrintNodesInOneLine(nodes_, msg); }
 	
 	void RemoveAllNodes();
 	

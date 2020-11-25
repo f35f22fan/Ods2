@@ -155,7 +155,7 @@ Formula::Eval()
 		CHECK_TRUE_NULL(ProcessFormulaString(str_to_evaluate_, nodes_));
 	}
 	
-	QVector<FormulaNode*> *cloned_vec = function::CloneVec(nodes_);
+	QVector<FormulaNode*> *cloned_vec = eval::CloneVec(nodes_);
 	ods::AutoDeleteVecP adv(cloned_vec);
 	evaluating(true);
 	ods::FormulaNode *result = EvaluateNodes(*cloned_vec);
@@ -168,14 +168,14 @@ FormulaNode*
 Formula::EvaluateNodes(QVector<FormulaNode *> &nodes)
 {
 #ifdef DEBUG_FORMULA_EVAL
-	function::PrintNodes(nodes, "From EvaluateNodes [start]");
+	eval::PrintNodes(nodes, "From EvaluateNodes [start]");
 #endif
 	
 	if (nodes.size() == 1) {
-		CHECK_TRUE_NULL(function::EvalDeepestGroup(nodes));
+		CHECK_TRUE_NULL(eval::EvalDeepestGroup(nodes));
 	} else {
 		while (nodes.size() > 1) {
-			CHECK_TRUE_NULL(function::EvalDeepestGroup(nodes));
+			CHECK_TRUE_NULL(eval::EvalDeepestGroup(nodes));
 		}
 	}
 	CHECK_TRUE_NULL((nodes.size() == 1));

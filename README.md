@@ -2,10 +2,10 @@ Ods2 - a library to read/write/update OpenDocument Spreadsheet (.ods) files.
 Supports the most commonly used formula functions (including evaluation).
 
 ##### API usage
-See sample/examples[1-2].cc
+See examples/examples[1-2].cc
 
-Also, the file sample/Invoice.ods was generated with Ods2, the source code
-for the code that generated it is in sample/Invoice.cpp
+Also, the file examples/Invoice.ods was generated with Ods2, the source code
+for the code that generated it is in examples/Invoice.cpp
 
 ##### How to build
 Built exactly as my other project - QOds, see how_to_build.html
@@ -18,14 +18,13 @@ Licensed under the GPLv3, see LICENSE for details.
 For questions, feature requests, etc: f35f22fan AT gmail.com
 
 ---
-
-##### Implemented 24 out of 388 functions
+##### 30 out of 388 functions implemented
 
 Column 1 | Column 2 | Column 3 | Column 4
 -------- | ---------- | -------- | ---------
 :black_square_button: abs() | :black_square_button: accrint() | :black_square_button: accrintm() | :black_square_button: acos()
 :black_square_button: acosh() | :black_square_button: acot() | :black_square_button: acoth() | :black_square_button: address()
-:black_square_button: amordegrc() | :black_square_button: amorlinc() | :black_square_button: and() | :black_square_button: arabic()
+:black_square_button: amordegrc() | :black_square_button: amorlinc() | :ballot_box_with_check: and() | :black_square_button: arabic()
 :black_square_button: areas() | :black_square_button: asin() | :black_square_button: asinh() | :black_square_button: atan()
 :black_square_button: atan2() | :black_square_button: atanh() | :black_square_button: avedev() | :ballot_box_with_check: average()
 :black_square_button: averagea() | :black_square_button: averageifs() | :black_square_button: b() | :black_square_button: bahttext()
@@ -34,7 +33,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: bin2hex() | :black_square_button: bin2oct() | :black_square_button: binomdist() | :black_square_button: ceiling()
 :black_square_button: cell() | :black_square_button: char() | :black_square_button: chidist() | :black_square_button: chiinv()
 :black_square_button: chisqdist() | :black_square_button: chisqinv() | :black_square_button: chitest() | :black_square_button: choose()
-:black_square_button: clean() | :black_square_button: code() | :black_square_button: column() | :black_square_button: columns()
+:black_square_button: clean() | :black_square_button: code() | :black_square_button: column() | :ballot_box_with_check: columns()
 :black_square_button: combin() | :black_square_button: combina() | :black_square_button: complex() | :ballot_box_with_check: concatenate()
 :black_square_button: confidence() | :black_square_button: convert() | :black_square_button: convert_add() | :black_square_button: correl()
 :black_square_button: cos() | :black_square_button: cosh() | :black_square_button: cot() | :black_square_button: coth()
@@ -55,7 +54,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: edate() | :black_square_button: effective() | :black_square_button: effect_add() | :black_square_button: eomonth()
 :black_square_button: erf() | :black_square_button: erfc() | :black_square_button: errortype() | :black_square_button: even()
 :black_square_button: exact() | :black_square_button: exp() | :black_square_button: expondist() | :black_square_button: fact()
-:black_square_button: factdouble() | :black_square_button: false() | :black_square_button: fdist() | :black_square_button: find()
+:black_square_button: factdouble() | :ballot_box_with_check: false() | :black_square_button: fdist() | :black_square_button: find()
 :black_square_button: finv() | :black_square_button: fisher() | :black_square_button: fisherinv() | :black_square_button: fixed()
 :black_square_button: floor() | :black_square_button: forecast() | :black_square_button: formula() | :black_square_button: frequency()
 :black_square_button: ftest() | :black_square_button: fv() | :black_square_button: fvschedule() | :black_square_button: gamma()
@@ -87,10 +86,10 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: months() | :black_square_button: mround() | :black_square_button: multinomial() | :black_square_button: munit()
 :black_square_button: n() | :black_square_button: na() | :black_square_button: negbinomdist() | :black_square_button: networkdays()
 :black_square_button: nominal() | :black_square_button: nominal_add() | :black_square_button: normdist() | :black_square_button: norminv()
-:black_square_button: normsdist() | :black_square_button: normsinv() | :black_square_button: not() | :ballot_box_with_check: now()
+:black_square_button: normsdist() | :black_square_button: normsinv() | :ballot_box_with_check: not() | :ballot_box_with_check: now()
 :black_square_button: nper() | :black_square_button: npv() | :black_square_button: oct2bin() | :black_square_button: oct2dec()
 :black_square_button: oct2hex() | :black_square_button: odd() | :black_square_button: oddfprice() | :black_square_button: oddfyield()
-:black_square_button: oddlprice() | :black_square_button: oddlyield() | :black_square_button: offset() | :black_square_button: or()
+:black_square_button: oddlprice() | :black_square_button: oddlyield() | :black_square_button: offset() | :ballot_box_with_check: or()
 :black_square_button: pearson() | :black_square_button: percentile() | :black_square_button: percentrank() | :black_square_button: permut()
 :black_square_button: permutationa() | :black_square_button: phi() | :black_square_button: pi() | :black_square_button: pmt()
 :black_square_button: poisson() | :ballot_box_with_check: power() | :black_square_button: ppmt() | :black_square_button: price()
@@ -112,7 +111,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: tan() | :black_square_button: tanh() | :black_square_button: tbilleq() | :black_square_button: tbillprice()
 :black_square_button: tbillyield() | :black_square_button: tdist() | :black_square_button: text() | :black_square_button: time()
 :black_square_button: timevalue() | :black_square_button: tinv() | :ballot_box_with_check: today() | :black_square_button: transpose()
-:black_square_button: trend() | :black_square_button: trim() | :black_square_button: trimmean() | :black_square_button: true()
+:black_square_button: trend() | :black_square_button: trim() | :black_square_button: trimmean() | :ballot_box_with_check: true()
 :black_square_button: trunc() | :black_square_button: ttest() | :black_square_button: type() | :black_square_button: upper()
 :black_square_button: value() | :black_square_button: var() | :black_square_button: vara() | :black_square_button: varp()
 :black_square_button: varpa() | :black_square_button: vdb() | :black_square_button: vlookup() | :black_square_button: weekday()
