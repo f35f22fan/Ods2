@@ -239,7 +239,18 @@ Cell::NewRef()
 	int row_index = sheet->QueryRowStart(row_);
 	int col = row_->QueryCellStart(this);
 	return CellRef::New(sheet, row_index, col);
-	
+}
+
+ods::CellRef*
+Cell::NewRef(const i32 r, const i32 c)
+{
+	ods::Sheet *sheet = row_->sheet();
+	CHECK_PTR_NULL(sheet);
+	int row_index = sheet->QueryRowStart(row_);
+	int col_index = row_->QueryCellStart(this);
+	int row = row_index + r;
+	int col = col_index + c;
+	return CellRef::New(sheet, row, col);
 }
 
 inst::StyleStyle*
@@ -711,8 +722,10 @@ Cell::ValueToString() const
 		return as_time()->toString();
 	if (is_boolean())
 		return *as_boolean() ? QLatin1String("true") : QLatin1String("false");
-	if (is_string())
-		return empty;
+	if (is_string()) {
+		QString *s = GetFirstString();
+		return (s == nullptr) ? empty : *s;
+	}
 	
 	it_happened();
 	return empty;

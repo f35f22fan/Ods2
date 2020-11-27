@@ -8,7 +8,7 @@ namespace ods::function {
 FormulaNode* And(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Average(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Bool(const bool flag);
-FormulaNode* Columns(const QVector<ods::FormulaNode*> &values);
+FormulaNode* ColumnsRows(const QVector<ods::FormulaNode*> &values, const ColsOrRows arg);
 FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Count(const QVector<ods::FormulaNode*> &values);
 FormulaNode* CountA(const QVector<ods::FormulaNode*> &values);
@@ -17,11 +17,13 @@ FormulaNode* CountIf(const QVector<FormulaNode *> &values, Sheet *default_sheet)
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
 FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dmy);
 FormulaNode* If(const QVector<ods::FormulaNode*> &values);
+FormulaNode* Indirect(const QVector<FormulaNode*> &values, ods::Formula *formula);
 FormulaNode* Max(const QVector<FormulaNode *> &values);
 FormulaNode* Min(const QVector<FormulaNode*> &values);
 FormulaNode* Mod(const QVector<FormulaNode*> &values);
 FormulaNode* Not(const QVector<FormulaNode*> &values);
 FormulaNode* Now();
+FormulaNode* Offset(const QVector<FormulaNode*> &values);
 FormulaNode* Or(const QVector<FormulaNode*> &values);
 FormulaNode* Power(const QVector<FormulaNode*> &values);
 FormulaNode* Product(const QVector<FormulaNode*> &values);

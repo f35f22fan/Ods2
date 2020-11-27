@@ -1,6 +1,6 @@
 #include "eval.hh"
 
-#include "Address.hpp"
+#include "Reference.hpp"
 #include "Cell.hpp"
 #include "CellRef.hpp"
 #include "Formula.hpp"
@@ -45,7 +45,7 @@ CommonForSumIfLikeFunctions_BuildUp(const QVector<ods::FormulaNode*> &values,
 	{
 		FormulaNode *test_range = values[0];
 		test_range_vec.append(test_range->Clone());
-		// Now convert address ranges to arrays of values
+		// Now convert reference ranges to arrays of values
 		CHECK_TRUE(FlattenOutArgs(test_range_vec));
 	}
 	
@@ -222,15 +222,15 @@ ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 bool
 ExtractAddressValues(ods::FormulaNode *node, QVector<ods::FormulaNode*> &result)
 {
-	auto *address = node->as_address();
+	auto *reference = node->as_reference();
 	
-	if (address->is_cell_range()) {
+	if (reference->is_cell_range()) {
 #ifdef DEBUG_FORMULA_EVAL
-		auto ba = address->toString().toLocal8Bit();
-		mtl_info("Cell Address Range: %s", ba.data());
+		auto ba = reference->toString().toLocal8Bit();
+		mtl_info("Cell Reference Range: %s", ba.data());
 #endif
 		QVector<ods::Cell*> cells;
-		CHECK_TRUE(address->GenCells(cells));
+		CHECK_TRUE(reference->GenCells(cells));
 		
 		for (auto *cell : cells) {
 			auto *val = new ods::FormulaNode();
@@ -244,7 +244,7 @@ ExtractAddressValues(ods::FormulaNode *node, QVector<ods::FormulaNode*> &result)
 		}
 		return true;
 	} else {
-		auto *cell_ref = address->cell();
+		auto *cell_ref = reference->cell();
 		ods::Cell *cell = cell_ref->GetCell();
 		auto *val = new ods::FormulaNode();
 		if (ExtractCellValue(cell, *val)) {
@@ -319,7 +319,7 @@ FlattenOutArgs(QVector<ods::FormulaNode*> &vec)
 			CHECK_PTR(value);
 			delete node;
 			vec[i] = value;
-		} else if (node->is_address()) {
+		} else if (node->is_reference()) {
 			QVector<FormulaNode*> ext;
 			CHECK_TRUE(ExtractAddressValues(node, ext));
 			
@@ -337,7 +337,7 @@ FlattenOutArgs(QVector<ods::FormulaNode*> &vec)
 const QVector<FunctionMeta>&
 GetSupportedFunctions() {
 // A third param of 0 indicates that the function args shouldn't be
-// "flattened out", e.g. an "address range" node shouldn't be replaced
+// "flattened out", e.g. an "reference range" node shouldn't be replaced
 // with an array of nodes containing the values of those cells.
 	static const QVector<FunctionMeta> v = {
 	FunctionMeta ("SUM", FunctionId::Sum),
@@ -367,9 +367,12 @@ GetSupportedFunctions() {
 	FunctionMeta ("AND", FunctionId::And),
 	FunctionMeta ("OR", FunctionId::Or),
 	FunctionMeta ("COLUMNS", FunctionId::Columns, 0),
+	FunctionMeta ("ROWS", FunctionId::Rows, 0),
 	FunctionMeta ("TRUE", FunctionId::True),
 	FunctionMeta ("FALSE", FunctionId::False),
 	FunctionMeta ("NOT", FunctionId::Not),
+	FunctionMeta ("INDIRECT", FunctionId::Indirect),
+	FunctionMeta ("OFFSET", FunctionId::Offset, 0),
 	};
 	return v;
 }
@@ -383,9 +386,9 @@ bool IsNearlyEqual(double x, double y)
 
 void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str)
 {
-	if (node->is_address()) {
-		type_str = QLatin1String("Address");
-		node_str = node->as_address()->toString();
+	if (node->is_reference()) {
+		type_str = QLatin1String("Reference");
+		node_str = node->as_reference()->toString();
 	} else if (node->is_function()) {
 		type_str = QLatin1String("Function");
 		node_str = node->as_function()->toString();
@@ -416,9 +419,12 @@ void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str)
 	} else if (node->is_named_range()) {
 		type_str = QLatin1String("Named Range");
 		node_str = node->toString();
+	} else if (node->is_error()) {
+		type_str = QLatin1String("Formula Error");
+		node_str = node->toString();
 	} else if (node->is_none()) {
-		type_str = QLatin1String("None");
-		node_str = QLatin1String("[!!]");
+		type_str = QLatin1String("Empty");
+		node_str = QString();
 	}
 }
 

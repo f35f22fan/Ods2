@@ -11,8 +11,8 @@ class CellRef
 public:
 	virtual ~CellRef();
 	
-	CellRef* Clone();
-
+	CellRef* Clone() const;
+	
 	int
 	col() const { return col_; }
 
@@ -27,6 +27,9 @@ public:
 
 	static CellRef*
 	New(ods::Sheet *sheet, const int row, const int col);
+	
+	CellRef*
+	NewRelativeTo(const int r, const int c);
 	
 	int
 	row() const { return row_; }

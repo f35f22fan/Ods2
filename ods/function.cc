@@ -1,9 +1,10 @@
 #include "function.hh"
 
-#include "Address.hpp"
+#include "Reference.hpp"
 #include "Cell.hpp"
 #include "CellRef.hpp"
 #include "Formula.hpp"
+#include "FormulaError.hpp"
 #include "FormulaNode.hpp"
 #include "Time.hpp"
 
@@ -48,26 +49,29 @@ FormulaNode* Bool(const bool flag) {
 	return FormulaNode::Bool(flag);
 }
 
-FormulaNode* Columns(const QVector<ods::FormulaNode*> &values)
+FormulaNode* ColumnsRows(const QVector<ods::FormulaNode*> &values, const ColsOrRows arg)
 {
-	std::unordered_set<i32> items;
+//COLUMNS sums the number of columns in each range, irrespective
+// of any duplication of columns. 
+	i32 total = 0;
+	const bool cols = (arg == ColsOrRows::Columns);
 	
 	for (ods::FormulaNode *node: values) {
-		if (node->is_address()) {
-			ods::Address *a = node->as_address();
-			i32 start = a->cell()->col();
+		if (node->is_reference()) {
+			ods::Reference *a = node->as_reference();
+			auto *cell = a->cell();
+			const i32 start = cols ? cell->col() : cell->row();
 			if (a->is_cell_range()) {
-				i32 end = a->end_cell()->col();
-				for (i32 i = start; i <= end; i++) {
-					items.insert(i);
-				}
+				auto *end_cell = a->end_cell();
+				i32 end = cols ? end_cell->col() : end_cell->row();
+				total += std::abs(start - end);
 			} else {
-				items.insert(start);
+				total++;
 			}
 		}
 	}
 	
-	return ods::FormulaNode::Double(items.size());
+	return ods::FormulaNode::Double(total);
 }
 
 FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values)
@@ -274,6 +278,35 @@ FormulaNode* If(const QVector<FormulaNode*> &values)
 	return flag ? true_node->Clone() : false_node->Clone();
 }
 
+FormulaNode* Indirect(const QVector<FormulaNode*> &values, ods::Formula *formula)
+{
+	CHECK_TRUE_NULL(!values.isEmpty());
+	//eval::PrintNodes(values, "function.cc::Indirect()");
+	bool is_r1c1 = false;
+	
+	if (values.size() == 2) {
+		auto *node = values[1];
+		is_r1c1 = node->is_any_double() && (node->as_any_double() == 0);
+	}
+	
+	FormulaNode *node = values[0];
+	
+	if (!node->is_string())
+		return FormulaNode::Error(FormError::WrongArgType, "A string is needed.");
+	
+	const QString &addr_str = *node->as_string();
+	Reference *a = nullptr;
+	
+	if (is_r1c1) {
+		a = ods::Reference::R1C1From(addr_str.midRef(0), formula);
+	} else {
+		a = ods::Reference::From(addr_str.midRef(0), formula->default_sheet());
+	}
+	
+	CHECK_PTR_NULL(a);
+	return FormulaNode::Reference(a);
+}
+
 FormulaNode* Max(const QVector<ods::FormulaNode*> &values)
 {
 	double max;
@@ -345,6 +378,40 @@ FormulaNode* Now()
 {
 	QDateTime now = QDateTime::currentDateTime();
 	return FormulaNode::DateTime(new QDateTime(now));
+}
+
+FormulaNode* Offset(const QVector<ods::FormulaNode*> &values)
+{
+//	eval::PrintNodes(values);
+	CHECK_TRUE_NULL((values.size() >= 3));
+	FormulaNode *refr_node = values[0];
+	CHECK_TRUE_NULL(refr_node->is_reference());
+	FormulaNode *row_offset = values[1];
+	CHECK_TRUE_NULL(row_offset->is_any_double());
+	FormulaNode *col_offset = values[2];
+	CHECK_TRUE_NULL(col_offset->is_any_double());
+	
+	const int row_off = row_offset->as_any_double();
+	const int col_off = col_offset->as_any_double();
+	
+	int new_h = -1, new_w = -1;
+	if (values.size() >= 4) {
+		FormulaNode *node = values[3];
+		CHECK_TRUE_NULL(node->is_any_double());
+		new_h = node->as_any_double();
+	}
+	
+	if (values.size() >= 5) {
+		FormulaNode *node = values[4];
+		CHECK_TRUE_NULL(node->is_any_double());
+		new_w = node->as_any_double();
+	}
+	
+	ods::Reference *refr = refr_node->as_reference();
+	ods::Reference *new_refr = refr->Offset(row_off, col_off, new_h, new_w);
+	CHECK_PTR_NULL(new_refr);
+	
+	return FormulaNode::Reference(new_refr);
 }
 
 FormulaNode* Or(const QVector<ods::FormulaNode*> &values)

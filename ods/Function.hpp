@@ -18,8 +18,9 @@ public:
 	static Function* TryNew(QStringRef s, int &skip, Sheet *default_sheet);
 	
 	void AddArg(ods::FormulaNode *node);
-	void AddArg(ods::Address *a);
+	void AddArg(ods::Reference *a);
 	void AddArg(double d);
+	void AddArg(i32 n) { AddArg(double(n)); }
 	ods::Function* AddArg(const ods::FunctionId id);
 	void AddArg(ods::Currency *c);
 	void AddArg(ods::Brace b);

@@ -3,6 +3,7 @@
 #include "Cell.hpp"
 #include "CellRef.hpp"
 #include "eval.hh"
+#include "FormulaError.hpp"
 #include "ods.hh"
 #include "Time.hpp"
 #include "inst/TableNamedRange.hpp"
@@ -29,11 +30,11 @@ FormulaNode::operator=(const FormulaNode &rhs)
 }
 
 FormulaNode*
-FormulaNode::Address(ods::Address *a)
+FormulaNode::Reference(ods::Reference *a)
 {
 	auto *p = new FormulaNode();
-	p->type_ = Type::Address;
-	p->data_.address = a;
+	p->type_ = Type::Reference;
+	p->data_.reference = a;
 	return p;
 }
 
@@ -109,8 +110,8 @@ FormulaNode::Clear()
 		type_ = Type::None;
 		return;
 	}
-	if (is_address())
-		delete as_address();
+	if (is_reference())
+		delete as_reference();
 	else if (is_function())
 		delete as_function();
 	else if (is_currency())
@@ -123,6 +124,8 @@ FormulaNode::Clear()
 		delete as_time();
 	else if (is_string())
 		delete as_string();
+	else if (is_error())
+		delete as_error();
 	
 	type_ = Type::None;
 }
@@ -138,14 +141,14 @@ FormulaNode::Clone() const
 bool
 FormulaNode::ConvertFunctionOrAddressToValue()
 {
-	if (is_address()) {
-		ods::Address *address = as_address();
-		if (address->is_cell_range()) {
+	if (is_reference()) {
+		ods::Reference *reference = as_reference();
+		if (reference->is_cell_range()) {
 			mtl_warn("Cell range not implemented");
 			return false;
 		}
 		
-		ods::Cell *cell = address->cell()->GetCell();
+		ods::Cell *cell = reference->cell()->GetCell();
 		CHECK_PTR(cell);
 		CHECK_TRUE(eval::ExtractCellValue(cell, *this));
 	} else if (is_function()) {
@@ -165,8 +168,8 @@ FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 	dest.Clear();
 	dest.type_ = src.type_;
 	
-	if (src.is_address()) {
-		dest.data_.address = src.data_.address->Clone();
+	if (src.is_reference()) {
+		dest.data_.reference = src.data_.reference->Clone();
 	} else if (src.is_function())
 		dest.data_.function = src.data_.function->Clone();
 	else if (src.is_double())
@@ -191,6 +194,8 @@ FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 		dest.data_.time = src.data_.time->Clone();
 	else if (src.is_named_range())
 		dest.data_.named_range = src.data_.named_range;// not cloned because not owned
+	else if (src.is_error())
+		dest.data_.error = src.data_.error->Clone();
 	else if (src.is_none()) {
 		// a Clone() on empty object, that's fine.
 	} else {
@@ -270,6 +275,34 @@ FormulaNode::DateTime(QDateTime *p)
 	return node;
 }
 
+FormulaNode*
+FormulaNode::Error(ods::FormError e)
+{
+	auto *node = new FormulaNode();
+	node->type_ = Type::Error;
+	node->data_.error = new ods::FormulaError(e);
+	return node;
+}
+
+FormulaNode*
+FormulaNode::Error(ods::FormError e, const QString &s)
+{
+	auto *node = Error(e);
+	if (!s.isEmpty())
+		node->as_error()->more_info(s);
+	return node;
+}
+
+FormulaNode*
+FormulaNode::Error(ods::FormulaError *e)
+{
+mtl_trace();
+	auto *node = new FormulaNode();
+	node->type_ = Type::Error;
+	node->data_.error = e;
+	return node;
+}
+
 bool
 FormulaNode::InterpretAsBoolean() const
 {
@@ -330,27 +363,27 @@ FormulaNode::OperationAmpersand(const ods::Op op, FormulaNode *rhs)
 bool
 FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 {
-	if (is_address()) {
-		ods::Address *address = as_address();
-		if (address->is_cell_range()) {
+	if (is_reference()) {
+		ods::Reference *reference = as_reference();
+		if (reference->is_cell_range()) {
 			mtl_warn("Cell range not implemented");
 			return false;
 		}
 	
-		ods::Cell *cell = address->cell()->GetCell();
+		ods::Cell *cell = reference->cell()->GetCell();
 		CHECK_PTR(cell);
 		CHECK_TRUE(eval::ExtractCellValue(cell, *this));
 		return OperationEquality(op, rhs_node);
 	}
 	
-	if (rhs_node->is_address()) {
-		ods::Address *address = rhs_node->as_address();
-		if (address->is_cell_range()) {
+	if (rhs_node->is_reference()) {
+		ods::Reference *reference = rhs_node->as_reference();
+		if (reference->is_cell_range()) {
 			mtl_warn("Cell range not implemented");
 			return false;
 		}
 	
-		ods::Cell *cell = address->cell()->GetCell();
+		ods::Cell *cell = reference->cell()->GetCell();
 		CHECK_PTR(cell);
 		CHECK_TRUE(eval::ExtractCellValue(cell, *rhs_node));
 		return OperationEquality(op, rhs_node);
@@ -653,6 +686,12 @@ FormulaNode::Percentage(double d)
 	return p;
 }
 
+void
+FormulaNode::PrintError() const {
+	if (is_error())
+		as_error()->PrintError();
+}
+
 FormulaNode*
 FormulaNode::String(QString *s)
 {
@@ -672,8 +711,8 @@ FormulaNode::Time(ods::Time *d)
 QString
 FormulaNode::toString(const ods::ToStringArgs args) const
 {
-	if (is_address())
-		return data_.address->toString();
+	if (is_reference())
+		return data_.reference->toString();
 	else if (is_function())
 		return data_.function->toXmlString();
 	else if (is_double())
@@ -702,11 +741,13 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 		return as_bool() ? QLatin1String("true") : QLatin1String("false");
 	} else if (is_named_range()) {
 		return as_named_range()->name();
+	} else if (is_error()) {
+		return as_error()->toString();
 	} else if (is_none())
-		return QLatin1String("[none!]");
+		return QString();
 	else {
 		it_happened();
-		return QLatin1String("Shouldn't happen!");
+		return QString();
 	}
 }
 

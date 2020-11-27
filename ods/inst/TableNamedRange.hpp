@@ -23,7 +23,7 @@ public:
 	
 	const QString& name() const { return name_; }
 	const QString& cell_range_address() const { return table_cell_range_address_; }
-	ods::Address* GetAddress();
+	ods::Reference* GetReference();
 	bool global() const { return bits_ & IsGlobalBit; }
 	void global(const bool flag) {
 		if (flag)
@@ -49,7 +49,7 @@ private:
 	QString name_;
 	// The sheet it belongs to:
 	ods::Sheet *sheet_ = nullptr;
-	ods::Address *address_ = nullptr;
+	ods::Reference *reference_ = nullptr;
 	u8 bits_ = 0;
 };
 

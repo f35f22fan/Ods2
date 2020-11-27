@@ -11,7 +11,7 @@ CellRef::CellRef() {}
 CellRef::~CellRef() {}
 
 CellRef*
-CellRef::Clone()
+CellRef::Clone() const
 {
 	auto *p = new CellRef();
 	p->row_ = row_;
@@ -27,8 +27,8 @@ CellRef::FetchCell(ods::Sheet *sheet, const int row_index, const int col)
 	CHECK_PTR_NULL(sheet);
 	ods::Row *row = sheet->GetRow(row_index);
 	CHECK_PTR_NULL(row);
-	
-	return row->GetCell(col);
+	auto *c = row->GetCell(col);
+	return c;
 }
 
 CellRef*
@@ -40,6 +40,12 @@ CellRef::New(ods::Sheet *sheet, const int row, const int col)
 	p->col(col);
 	
 	return p;
+}
+
+CellRef*
+CellRef::NewRelativeTo(const int r, const int c)
+{
+	return New(sheet_, row_ + r, col_ + c);
 }
 
 void

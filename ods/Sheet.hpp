@@ -44,7 +44,7 @@ public:
 	inst::TableNamedExpressions*
 	named_expressions() const { return named_expressions_; }
 	
-	ods::Address*
+	ods::Reference*
 	NewAddress(ods::Cell *cell, ods::Cell *end_cell = nullptr);
 	
 	inst::TableTableColumn*

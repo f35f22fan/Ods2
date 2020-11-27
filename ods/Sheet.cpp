@@ -1,6 +1,6 @@
 #include "Sheet.hpp"
 
-#include "Address.hpp"
+#include "Reference.hpp"
 #include "Book.hpp"
 #include "Cell.hpp"
 #include "Ns.hpp"
@@ -181,6 +181,74 @@ Sheet::DeleteRowRegion(ods::Row *row, const int vec_index)
 	row->delete_region({-1, -1, -1});
 }
 
+inst::TableTableColumn*
+Sheet::GetColumn(const int place) const
+{
+	int next_col = 0;
+	
+	for (auto *next: columns_)
+	{
+		next_col += next->num();
+		
+		if (next_col > place)
+			return next;
+	}
+	
+	return nullptr;
+}
+
+inst::StyleStyle*
+Sheet::GetDefaultCellStyle(const ods::Cell *cell) const
+{
+	auto *column = GetColumn(cell->QueryStart());
+	
+	if (column == nullptr)
+	{
+		mtl_warn();
+		return nullptr;
+	}
+	
+	return column->GetDefaultCellStyle();
+}
+
+ods::Row*
+Sheet::GetRow(const int place)
+{
+	CHECK_TRUE_NULL((place >= 0));
+	int at = 0;
+	
+	for (ods::Row *r: rows_)
+	{
+		if (at >= place)
+			return r;
+		
+		at += r->num();
+	}
+	
+	return nullptr;
+}
+
+void
+Sheet::Init(ods::Tag *tag)
+{
+	tag->Copy(ns_->table(), ods::ns::kName, table_name_);
+	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
+	Scan(tag);
+}
+
+void
+Sheet::InitDefault()
+{
+	auto *column = new inst::TableTableColumn(this);
+	num_cols_ = DefaultColumnCountPerSheet;
+	column->number_columns_repeated(num_cols_);
+	columns_.append(column);
+	
+	auto *row = new ods::Row(this);
+	row->num(DefaultRowCountPerSheet);
+	rows_.append(row);
+}
+
 void
 Sheet::MarkColumnDeleteRegion(int from, int remaining)
 {
@@ -241,80 +309,13 @@ Sheet::MarkRowDeleteRegion(int from, int remaining)
 	}
 }
 
-inst::TableTableColumn*
-Sheet::GetColumn(const int place) const
-{
-	int next_col = 0;
-	
-	for (auto *next: columns_)
-	{
-		next_col += next->num();
-		
-		if (next_col > place)
-			return next;
-	}
-	
-	return nullptr;
-}
-
-inst::StyleStyle*
-Sheet::GetDefaultCellStyle(const ods::Cell *cell) const
-{
-	auto *column = GetColumn(cell->QueryStart());
-	
-	if (column == nullptr)
-	{
-		mtl_warn();
-		return nullptr;
-	}
-	
-	return column->GetDefaultCellStyle();
-}
-
-ods::Row*
-Sheet::GetRow(const int place)
-{
-	int at = 0;
-	
-	for (ods::Row *r: rows_)
-	{
-		if (at >= place)
-			return r;
-		
-		at += r->num();
-	}
-	
-	return nullptr;
-}
-
-void
-Sheet::Init(ods::Tag *tag)
-{
-	tag->Copy(ns_->table(), ods::ns::kName, table_name_);
-	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
-	Scan(tag);
-}
-
-void
-Sheet::InitDefault()
-{
-	auto *column = new inst::TableTableColumn(this);
-	num_cols_ = DefaultColumnCountPerSheet;
-	column->number_columns_repeated(num_cols_);
-	columns_.append(column);
-	
-	auto *row = new ods::Row(this);
-	row->num(DefaultRowCountPerSheet);
-	rows_.append(row);
-}
-
-ods::Address*
+ods::Reference*
 Sheet::NewAddress(ods::Cell *cell, ods::Cell *end_cell)
 {
 	if (end_cell == nullptr)
-		return ods::Address::Cell(this, cell->NewRef());
+		return ods::Reference::Cell(this, cell->NewRef());
 	
-	return ods::Address::CellRange(this, cell->NewRef(), end_cell->NewRef());
+	return ods::Reference::CellRange(this, cell->NewRef(), end_cell->NewRef());
 }
 
 inst::TableTableColumn*

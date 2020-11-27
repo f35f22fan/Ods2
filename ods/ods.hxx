@@ -54,17 +54,39 @@ const double kPointsInACm = 28.3464567;
 const double kInchesInACm = 0.393701;
 const double kCmInAnInch = 2.54;
 
-enum class AddIfNeeded: uint8_t
+enum class AddIfNeeded: u8
 {
 	Yes,
 	No
 };
 
-enum class Place : uint8_t
+enum class Place : u8
 {
 	ContentFile,
 	StylesFile,
 	None
+};
+
+
+enum class FormError: i16 {
+// https://wiki.openoffice.org/wiki/Calc_Error_Codes
+	None				= 0,
+	
+	//==> LibreOffice
+	WrongArgType		= 504,
+	MissingOp			= 509,
+	MissingVar			= 510,
+	Value				= 519,
+	CircularReference	= 522,
+	Ref					= 524,
+	Name				= 525,
+	Div0				= 532,
+	//<== LibreOffice
+	
+	//==> Custom ones (mine)
+	Num					= 5000,
+	NotImplemented		= 5001,
+	Other				= INT16_MAX,
 };
 
 } // ods::

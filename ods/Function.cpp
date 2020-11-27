@@ -1,6 +1,6 @@
 #include "Function.hpp"
 
-#include "Address.hpp"
+#include "Reference.hpp"
 #include "CellRef.hpp"
 #include "err.hpp"
 #include "Formula.hpp"
@@ -45,8 +45,8 @@ Function::AddArg(FormulaNode *node)
 }
 
 void
-Function::AddArg(ods::Address *a) {
-	AddArg(ods::FormulaNode::Address(a));
+Function::AddArg(ods::Reference *a) {
+	AddArg(ods::FormulaNode::Reference(a));
 }
 
 void
@@ -197,10 +197,13 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Year: return function::DayMonthYear(fn_args, DMY::Year);
 	case FunctionId::And: return function::And(fn_args);
 	case FunctionId::Or: return function::Or(fn_args);
-	case FunctionId::Columns: return function::Columns(fn_args);
+	case FunctionId::Columns: return function::ColumnsRows(fn_args, ods::ColsOrRows::Columns);
+	case FunctionId::Rows: return function::ColumnsRows(fn_args, ods::ColsOrRows::Rows);
 	case FunctionId::True: return function::Bool(true);
 	case FunctionId::False: return function::Bool(false);
 	case FunctionId::Not: return function::Not(fn_args);
+	case FunctionId::Indirect: return function::Indirect(fn_args, parent_formula_);
+	case FunctionId::Offset: return function::Offset(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

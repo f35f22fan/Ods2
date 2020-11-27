@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Address.hpp"
+#include "Reference.hpp"
 #include "currency.hxx"
 #include "decl.hxx"
 #include "inst/decl.hxx"
@@ -29,8 +29,9 @@ public:
 	FormulaNode* Clone() const;
 	bool ConvertFunctionOrAddressToValue();
 	bool InterpretAsBoolean() const;
+	void PrintError() const;
 	
-	ods::Address* as_address() const { return data_.address; }
+	ods::Reference* as_reference() const { return data_.reference; }
 	ods::Function* as_function() const { return data_.function; }
 	double as_double() const { return data_.number; }
 	double as_any_double() const;
@@ -45,9 +46,10 @@ public:
 	bool as_bool() const { return data_.flag; }
 	QString* as_string() const { return data_.s; }
 	inst::TableNamedRange* as_named_range() const { return data_.named_range; }
+	FormulaError *as_error() const { return data_.error; }
 	
 	// takes ownership of pointer arguments:
-	static FormulaNode* Address(ods::Address *a);
+	static FormulaNode* Reference(ods::Reference *a);
 	static FormulaNode* Function(ods::Function *f);
 	static FormulaNode* Double(const double d);
 	static FormulaNode* Op(const ods::Op op);
@@ -61,10 +63,13 @@ public:
 	static FormulaNode* DateTime(QDateTime *p);
 	static FormulaNode* String(QString *s);
 	static FormulaNode* Time(ods::Time *d);
+	static FormulaNode* Error(ods::FormError e);
+	static FormulaNode* Error(ods::FormError e, const QString &s);
+	static FormulaNode* Error(ods::FormulaError *e);
 	
 	bool is_any_double() const { return type_ == Type::Double ||
 		type_ == Type::Currency || type_ == Type::Percentage; }
-	bool is_address() const { return type_ == Type::Address; }
+	bool is_reference() const { return type_ == Type::Reference; }
 	bool is_function() const { return type_ == Type::Function; }
 	bool is_double() const { return type_ == Type::Double; }
 	bool is_none() const { return type_ == Type::None; }
@@ -79,6 +84,7 @@ public:
 	bool is_bool() const { return type_ == Type::Bool; }
 	bool is_string() const { return type_ == Type::String; }
 	bool is_named_range() const { return type_ == Type::NamedRange; }
+	bool is_error() const { return type_ == Type::Error; }
 	
 	bool Operation(const ods::Op op, FormulaNode *rhs);
 	bool OperationAmpersand(const ods::Op op, FormulaNode *rhs);
@@ -86,10 +92,10 @@ public:
 	bool OperationPlusMinus(const ods::Op op, FormulaNode *rhs);
 	bool OperationMultDivide(const ods::Op op, FormulaNode *rhs);
 	
-	void SetAddress(ods::Address *a) {
+	void SetAddress(ods::Reference *a) {
 		Clear();
-		data_.address = a;
-		type_ = Type::Address;
+		data_.reference = a;
+		type_ = Type::Reference;
 	}
 	
 	void SetBool(const bool flag) {
@@ -152,7 +158,7 @@ public:
 	}
 	
 	bool is_cell_range() const {
-		return is_address() && as_address()->is_cell_range();
+		return is_reference() && as_reference()->is_cell_range();
 	}
 	
 	QString toString(const ToStringArgs args = ToStringArgs::None) const;
@@ -164,7 +170,7 @@ private:
 // percentage, bool, string
 	enum class Type : u8 {
 		None,
-		Address,
+		Reference,
 		Function,
 		Op,
 		Double,
@@ -177,16 +183,18 @@ private:
 		Bool,
 		String,
 		NamedRange,
+		Error,
 	};
 	
 	// each data type must be properly copied in DeepCopy(..)
 	union Data {
-		ods::Address *address;
+		ods::Reference *reference;
 		ods::Function *function;
 		double number;
 		ods::Op op;
 		ods::Brace brace;
 		ods::Time *time;
+		ods::FormulaError *error;
 		QDate *date;
 		QDateTime *date_time;
 		ods::Currency *currency;

@@ -134,6 +134,10 @@ public:
 	ods::CellRef*
 	NewRef();
 	
+	 // The row/col arguments are always relative to this cell's position
+	ods::CellRef*
+	NewRef(const i32 row, const i32 col);
+	
 	int number_columns_repeated() const { return ncr_; }
 	void number_columns_repeated(const int n) { ncr_ = n; }
 	int ncr() const { return ncr_; }

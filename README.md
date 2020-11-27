@@ -18,7 +18,8 @@ Licensed under the GPLv3, see LICENSE for details.
 For questions, feature requests, etc: f35f22fan AT gmail.com
 
 ---
-##### 30 out of 388 functions implemented
+
+##### 33 out of 388 functions implemented
 
 Column 1 | Column 2 | Column 3 | Column 4
 -------- | ---------- | -------- | ---------
@@ -69,7 +70,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: impower() | :black_square_button: improduct() | :black_square_button: imreal() | :black_square_button: imsec()
 :black_square_button: imsech() | :black_square_button: imsin() | :black_square_button: imsinh() | :black_square_button: imsqrt()
 :black_square_button: imsub() | :black_square_button: imsum() | :black_square_button: imtan() | :black_square_button: index()
-:black_square_button: indirect() | :black_square_button: info() | :black_square_button: int() | :black_square_button: intercept()
+:ballot_box_with_check: indirect() | :black_square_button: info() | :black_square_button: int() | :black_square_button: intercept()
 :black_square_button: intrate() | :black_square_button: ipmt() | :black_square_button: irr() | :black_square_button: isblank()
 :black_square_button: iserr() | :black_square_button: iserror() | :black_square_button: iseven() | :black_square_button: iseven()
 :black_square_button: iseven_add() | :black_square_button: isformula() | :black_square_button: isleapyear() | :black_square_button: islogical()
@@ -89,7 +90,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: normsdist() | :black_square_button: normsinv() | :ballot_box_with_check: not() | :ballot_box_with_check: now()
 :black_square_button: nper() | :black_square_button: npv() | :black_square_button: oct2bin() | :black_square_button: oct2dec()
 :black_square_button: oct2hex() | :black_square_button: odd() | :black_square_button: oddfprice() | :black_square_button: oddfyield()
-:black_square_button: oddlprice() | :black_square_button: oddlyield() | :black_square_button: offset() | :ballot_box_with_check: or()
+:black_square_button: oddlprice() | :black_square_button: oddlyield() | :ballot_box_with_check: offset() | :ballot_box_with_check: or()
 :black_square_button: pearson() | :black_square_button: percentile() | :black_square_button: percentrank() | :black_square_button: permut()
 :black_square_button: permutationa() | :black_square_button: phi() | :black_square_button: pi() | :black_square_button: pmt()
 :black_square_button: poisson() | :ballot_box_with_check: power() | :black_square_button: ppmt() | :black_square_button: price()
@@ -98,7 +99,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: radians() | :black_square_button: rand() | :black_square_button: randbetween() | :black_square_button: rank()
 :black_square_button: rate() | :black_square_button: received() | :black_square_button: replace() | :black_square_button: rept()
 :black_square_button: right() | :black_square_button: roman() | :ballot_box_with_check: round() | :ballot_box_with_check: rounddown()
-:ballot_box_with_check: roundup() | :black_square_button: row() | :black_square_button: rows() | :black_square_button: rri()
+:ballot_box_with_check: roundup() | :black_square_button: row() | :ballot_box_with_check: rows() | :black_square_button: rri()
 :black_square_button: rsq() | :black_square_button: search() | :black_square_button: sec() | :black_square_button: sech()
 :black_square_button: second() | :black_square_button: seriessum() | :black_square_button: sheet() | :black_square_button: sheets()
 :black_square_button: sign() | :black_square_button: sin() | :black_square_button: sinh() | :black_square_button: skew()
@@ -119,6 +120,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: weibull() | :black_square_button: workday() | :black_square_button: xirr() | :black_square_button: xnpv()
 :black_square_button: xor() | :ballot_box_with_check: year() | :black_square_button: yearfrac() | :black_square_button: years()
 :black_square_button: yield() | :black_square_button: yielddisc() | :black_square_button: yieldmat() | :black_square_button: ztest()
+
 
 
 ---

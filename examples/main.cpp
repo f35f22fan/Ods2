@@ -58,7 +58,7 @@ main(int argc, char *argv[])
 //	new sample::Invoice();
 	
 	
-	GenerateFunctionsListForGitHub();
+//	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
 	return 0;
 }

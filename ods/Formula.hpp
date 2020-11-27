@@ -60,7 +60,7 @@ public:
 private:
 	Formula(ods::Cell *cell);
 	
-	static Address *CellAddressOrRange(QStringRef s, int &skip, Sheet *default_sheet);
+	static Reference *CellAddressOrRange(QStringRef s, int &skip, Sheet *default_sheet);
 	bool ProcessFormulaString(QString s, QVector<FormulaNode *> &nodes);
 	
 	static bool
@@ -86,6 +86,7 @@ private:
 	ods::Cell *cell_ = nullptr;
 	ods::Sheet *default_sheet_ = nullptr;
 	u8 bits_ = 0;
+	friend class ods::Reference;
 	friend class ods::Cell;
 	friend class ods::Function;
 };

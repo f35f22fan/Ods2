@@ -83,38 +83,11 @@ ColumnNumberToLetters(const int column)
 	return ret;
 }
 
-bool
-ParseTableName(const QStringRef &address, QStringRef &name, int *ret_dot)
-{
-	CHECK_TRUE((!address.isEmpty()));
-	int dot = address.lastIndexOf('.');
-	CHECK_TRUE((dot != -1));
-
-	auto sheet_name = address.left(dot);
-	
-	if (sheet_name.startsWith('$'))
-		sheet_name = sheet_name.mid(1);
-	
-	// Must remove starting and ending single quote
-	// if it's a single quoted string
-	const QChar SingleQuote('\'');
-	if (sheet_name.startsWith(SingleQuote)) {
-		sheet_name = sheet_name.mid(1, sheet_name.size() - 2);
-	}
-	
-	if (ret_dot != nullptr)
-		*ret_dot = dot;
-	
-	name = sheet_name;
-	return true;
-}
-
-
 CellRef*
 CreateCellRef(ods::Sheet *default_sheet, QStringRef address, ods::CellRef *first_one)
 {
 	QStringRef sheet_name;
-	int dot;
+	int dot = -1;
 	CHECK_TRUE_NULL(ParseTableName(address, sheet_name, &dot));
 	auto *book = default_sheet->book();
 	auto *sp = book->spreadsheet();
@@ -132,32 +105,31 @@ CreateCellRef(ods::Sheet *default_sheet, QStringRef address, ods::CellRef *first
 		}
 	}
 	
-	auto cell_name = address.mid(dot + 1);
-	int index = -1;
+	const int start_at = (dot == -1) ? 0 : dot + 1;
+	auto cell_name = address.mid(start_at);
+	int digit_index = -1;
 	const int count = cell_name.size();
-	bool found = false;
 	
 	for (int i = 0; i < count; i++)
 	{
 		QChar c = cell_name.at(i);
-		index++;
+		digit_index++;
 		
 		if (c.isDigit()) {
-			found = true;
 			break;
 		}
 	}
 	
-	CHECK_TRUE_NULL(found);
+	RET_IF_EQUAL_NULL(digit_index, -1);
 	
-	QStringRef letters = cell_name.left(index);
+	QStringRef letters = cell_name.left(digit_index);
 	if (letters.startsWith('$'))
 		letters = letters.mid(1);
 	if (letters.endsWith('$'))
 		letters = letters.left(letters.size() - 1);
 	
 	const int col = ods::ColumnLettersToNumber(letters);
-	QStringRef digits = cell_name.right(count - index);
+	QStringRef digits = cell_name.right(count - digit_index);
 //	mtl_printq2("letters: ", letters.toString());
 //	mtl_printq2("digits: ", digits.toString());
 //	mtl_printq2("address: ", address.toString());
@@ -247,6 +219,37 @@ FontSizeToString(const double size, const style::FontSizeType size_type)
 		str += QLatin1String("in");
 	
 	return str;
+}
+
+bool
+ParseTableName(const QStringRef &address, QStringRef &name, int *ret_dot)
+{
+	CHECK_TRUE((!address.isEmpty()));
+	int dot = address.lastIndexOf('.');
+	
+	if (dot == -1) {
+		if (ret_dot != nullptr)
+			*ret_dot = -1;
+		return true; // doesn't contain sheet name
+	}
+
+	auto sheet_name = address.left(dot);
+	
+	if (sheet_name.startsWith('$'))
+		sheet_name = sheet_name.mid(1);
+	
+	// Must remove starting and ending single quote
+	// if it's a single quoted string
+	const QChar SingleQuote('\'');
+	if (sheet_name.startsWith(SingleQuote)) {
+		sheet_name = sheet_name.mid(1, sheet_name.size() - 2);
+	}
+	
+	if (ret_dot != nullptr)
+		*ret_dot = dot;
+	
+	name = sheet_name;
+	return true;
 }
 
 ods::ValueType

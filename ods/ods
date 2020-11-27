@@ -6,6 +6,7 @@
 
 #include <ods/Book.hpp>
 #include <ods/Cell.hpp>
+#include <ods/CellRef.hpp>
 #include <ods/country.hxx>
 #include <ods/currency.hh>
 #include <ods/err.hpp>
@@ -22,6 +23,7 @@
 #include <ods/LineStyle.hpp>
 #include <ods/ods.hh>
 #include <ods/ods.hxx>
+#include <ods/Reference.hpp>
 #include <ods/Row.hpp>
 #include <ods/Sheet.hpp>
 #include <ods/style.hxx>

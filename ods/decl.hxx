@@ -2,7 +2,6 @@
 
 namespace ods {
 
-class Address;
 class Attr;
 class Book;
 class Cell;
@@ -18,6 +17,7 @@ class LineStyle;
 class Master;
 class Ns;
 class Prefix;
+class Reference;
 class Row;
 class Sheet;
 class StringOrInst;

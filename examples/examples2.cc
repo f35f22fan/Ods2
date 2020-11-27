@@ -338,8 +338,8 @@ CreateFormulaFunctions()
 {
 	auto *book = ods::Book::New();
 	ods::AutoDelete<ods::Book*> ad(book);
-	auto *spreadsheet = book->spreadsheet();
-	auto *sheet = spreadsheet->NewSheet("Formula Functions");
+	ods::inst::OfficeSpreadsheet *spreadsheet = book->spreadsheet();
+	ods::Sheet *sheet = spreadsheet->NewSheet("Formula Functions");
 	int last_row = 0;
 	
 	// Enclosed in multiple if(true/false){} blocks to selectively disable execution
@@ -457,7 +457,7 @@ CreateFormulaFunctions()
 			auto *formula = cell->NewFormula();
 			auto *fn = formula->Add(ods::FunctionId::Round);
 			// number or expression resulting in a number:
-			//ods::Address *a1 = sheet->NewAddress(row->GetCell(0));
+			//ods::Reference *a1 = sheet->NewAddress(row->GetCell(0));
 			fn->AddArg(RoundNum);
 			// number or expression resulting in the number of places to round to:
 			fn->AddArg(places); // =ROUND(5555;-1) = 5560
@@ -571,8 +571,8 @@ CreateFormulaFunctions()
 			auto *cell0 = row->NewCellAt(0);
 			cell0->SetDouble(25.0);
 			auto *condition = new QVector<ods::FormulaNode*>();
-			ods::Address *a = sheet->NewAddress(cell0);
-			condition->append(ods::FormulaNode::Address(a));
+			ods::Reference *a = sheet->NewAddress(cell0);
+			condition->append(ods::FormulaNode::Reference(a));
 			condition->append(ods::FormulaNode::Op(ods::Op::GreaterOrEqual));
 			condition->append(ods::FormulaNode::Double(98));
 			fn_if->AddArg(condition);
@@ -607,10 +607,10 @@ CreateFormulaFunctions()
 			auto *fn_if = f->Add(ods::FunctionId::If);
 			
 			auto *condition = new QVector<ods::FormulaNode*>();
-			auto *lhs = ods::FormulaNode::Address(sheet->NewAddress(cell1));
+			auto *lhs = ods::FormulaNode::Reference(sheet->NewAddress(cell1));
 			condition->append(lhs);
 			condition->append(ods::FormulaNode::Op(ods::Op::GreaterOrEqual));
-			auto *rhs = ods::FormulaNode::Address(sheet->NewAddress(cell2));
+			auto *rhs = ods::FormulaNode::Reference(sheet->NewAddress(cell2));
 			condition->append(rhs);
 			fn_if->AddArg(condition);
 			
@@ -720,7 +720,7 @@ CreateFormulaFunctions()
 			
 			auto *cond_vec = new QVector<ods::FormulaNode*>();
 			a = sheet->NewAddress(row->GetCell(2));
-			cond_vec->append(ods::FormulaNode::Address(a));
+			cond_vec->append(ods::FormulaNode::Reference(a));
 			cond_vec->append(ods::FormulaNode::Op(ods::Op::Minus));
 			cond_vec->append(ods::FormulaNode::Double(2));
 			// SUMIF() condition:
@@ -779,7 +779,7 @@ CreateFormulaFunctions()
 			
 			auto *cond_vec = new QVector<ods::FormulaNode*>();
 			a = sheet->NewAddress(row->GetCell(2));
-			cond_vec->append(ods::FormulaNode::Address(a));
+			cond_vec->append(ods::FormulaNode::Reference(a));
 			cond_vec->append(ods::FormulaNode::Op(ods::Op::Minus));
 			cond_vec->append(ods::FormulaNode::Double(2));
 			// COUNTIF() condition:
@@ -840,7 +840,7 @@ CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // DAY(), MONTH(), YEAR(), AND(), OR()
+	if (false) { // DAY(), MONTH(), YEAR(), AND(), OR(), etc
 		auto *row = sheet->NewRowAt(last_row++);
 		int col = 0;
 		row->NewCellAt(col++)->SetDate(new QDate(QDate::currentDate()));
@@ -898,7 +898,7 @@ CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::And);
 			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(1));
-			fn->AddArg(ods::FormulaNode::Address(a));
+			fn->AddArg(ods::FormulaNode::Reference(a));
 			auto *node = f->Eval();
 			if (node == nullptr) {
 				mtl_info("AND() eval() failed");
@@ -912,7 +912,7 @@ CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Or);
 			auto *a = sheet->NewAddress(row->GetCell(2));
-			fn->AddArg(ods::FormulaNode::Address(a));
+			fn->AddArg(ods::FormulaNode::Reference(a));
 			auto *node = f->Eval();
 			if (node == nullptr) {
 				mtl_info("OR() eval() failed");
@@ -926,7 +926,7 @@ CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Columns);
 			auto *a = sheet->NewAddress(row->GetCell(0), row->GetCell(5));
-			fn->AddArg(ods::FormulaNode::Address(a));
+			fn->AddArg(ods::FormulaNode::Reference(a));
 			auto *node = f->Eval();
 			if (node == nullptr) {
 				mtl_info("COLUMNS() eval() failed");
@@ -973,6 +973,68 @@ CreateFormulaFunctions()
 		}
 	}
 	
+	if (true) { // INDIRECT(), OFFSET()
+		auto *row = sheet->NewRowAt(last_row++);
+		int col = 0;
+		
+		if (true) { // INDIRECT()
+			row->NewCellAt(col++)->SetDate(new QDate(QDate::currentDate()));
+			row->NewCellAt(col++)->SetString(QLatin1String("2009-11-24"));
+			row->NewCellAt(col++);
+			row->NewCellAt(col++)->SetString("RC[-3]");
+			
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Indirect);
+			
+			auto *a = sheet->NewAddress(row->GetCell(3));
+			fn->AddArg(a);
+			fn->AddArg(0);
+			
+			auto *node = f->Eval();
+			if (node == nullptr) {
+				mtl_info("INDIRECT() failed");
+			} else if (node->is_error()) {
+				mtl_print_error(node);
+			} else {
+				ods::Reference *address = node->as_reference();
+				mtl_printq2("INDIRECT(): ", address->toString());
+			}
+		}
+		
+		if (true) { // OFFSET
+			const int first_cell = col;
+			row->NewCellAt(col++)->SetString("1st cell");
+			row->NewCellAt(col++)->SetString("2nd cell");
+			auto *fcell = row->NewCellAt(col++);
+			auto *f = fcell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Offset);
+			// args: reference, row_offset, col_offset[, new_height, new_width]
+			auto *ref = sheet->NewAddress(row->GetCell(first_cell));
+			fn->AddArg(ref);
+			fn->AddArg(0);
+			fn->AddArg(1);
+			fn->AddArg(1);
+			fn->AddArg(1);
+			
+			ods::FormulaNode *node = f->Eval();
+			
+			if (node == nullptr) {
+				mtl_info("OFFSET() failed");
+			} else if (node->is_error()) {
+				mtl_print_error(node);
+			} else {
+				ods::Reference *r = node->as_reference();
+				mtl_printq2("OFFSET(): ", r->toString());
+				auto *refcell = r->cell();
+				CHECK_PTR_VOID(refcell);
+				auto *cell = refcell->GetCell();
+				CHECK_PTR_VOID(cell);
+				auto ba = cell->ValueToString().toLocal8Bit();
+				mtl_info("cell value: %s", ba.data());
+			}
+		}
+	}
 	util::Save(book);
 }
 

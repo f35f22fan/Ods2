@@ -2,7 +2,7 @@
 
 #include "OfficeSpreadsheet.hpp"
 #include "TableNamedExpressions.hpp"
-#include "../Address.hpp"
+#include "../Reference.hpp"
 #include "../Book.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
@@ -24,8 +24,8 @@ TableNamedRange::TableNamedRange(Abstract *parent, Tag *tag)
 TableNamedRange::TableNamedRange(const TableNamedRange &cloner)
 : Abstract(cloner)
 {
-	delete address_;
-	address_ = nullptr;
+	delete reference_;
+	reference_ = nullptr;
 }
 
 TableNamedRange::~TableNamedRange() {}
@@ -41,19 +41,19 @@ TableNamedRange::Clone(Abstract *parent) const
 	return p;
 }
 
-ods::Address*
-TableNamedRange::GetAddress()
+ods::Reference*
+TableNamedRange::GetReference()
 {
 	if (bits_ & TriedLoadingAddressBit)
-		return address_;
+		return reference_;
 	
 	bits_ |= TriedLoadingAddressBit;
 	
 	ods::Sheet *default_sheet = GetSheet();
 	CHECK_PTR_NULL(default_sheet);
 	
-	address_ = Address::From(table_cell_range_address_.midRef(0), default_sheet);
-	return address_;
+	reference_ = Reference::From(table_cell_range_address_.midRef(0), default_sheet);
+	return reference_;
 }
 
 ods::Sheet*

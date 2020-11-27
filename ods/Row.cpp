@@ -80,6 +80,7 @@ Row::Clone(inst::Abstract *parent) const
 ods::Cell*
 Row::GetCell(const int place)
 {
+	CHECK_TRUE_NULL((place >= 0));
 	int start = 0;
 	
 	for (ods::Cell *cell: cells_)

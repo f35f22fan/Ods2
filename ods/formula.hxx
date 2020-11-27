@@ -29,10 +29,15 @@ enum class RoundType : u8 {
 	Round
 };
 
-enum class DMY {
+enum class DMY : u8 {
 	Day,
 	Month,
 	Year
+};
+
+enum class ColsOrRows: u8 {
+	Columns,
+	Rows
 };
 
 enum class FunctionId : u16 {
@@ -49,18 +54,21 @@ enum class FunctionId : u16 {
 	Day,
 	False,
 	If,
+	Indirect,
 	Max,
 	Min,
 	Mod,
 	Month,
 	Not,
 	Now,
+	Offset,
 	Or,
 	Power,
 	Quotient,
 	Round,
 	RoundUp,
 	RoundDown,
+	Rows,
 	Sum,
 	SumIf,
 	Product,

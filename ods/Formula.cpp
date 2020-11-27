@@ -1,6 +1,6 @@
 #include "Formula.hpp"
 
-#include "Address.hpp"
+#include "Reference.hpp"
 #include "Book.hpp"
 #include "Cell.hpp"
 #include "CellRef.hpp"
@@ -58,7 +58,7 @@ void
 Formula::Add(ods::Cell *cell)
 {
 	auto *a = default_sheet_->NewAddress(cell);
-	nodes_.append(FormulaNode::Address(a));
+	nodes_.append(FormulaNode::Reference(a));
 }
 
 void
@@ -70,7 +70,7 @@ void
 Formula::AddCellRange(Cell *start, Cell *end)
 {
 	auto *a = default_sheet_->NewAddress(start, end);
-	nodes_.append(FormulaNode::Address(a));
+	nodes_.append(FormulaNode::Reference(a));
 }
 
 Formula*
@@ -99,7 +99,7 @@ GetColored(const QString &str, int start, int count)
 	return s.toLocal8Bit();
 }
 
-Address*
+Reference*
 Formula::CellAddressOrRange(QStringRef s, int &skip,
 	ods::Sheet *default_sheet)
 {
@@ -130,11 +130,11 @@ Formula::CellAddressOrRange(QStringRef s, int &skip,
 		QStringRef start_cell = s.mid(0, colon);
 		const int pos = colon + 1;
 		QStringRef end_cell = s.mid(pos, end - pos);
-		return Address::CellRange(default_sheet, start_cell, end_cell);
+		return Reference::CellRange(default_sheet, start_cell, end_cell);
 	}
 	
 	QStringRef cell = s.mid(0, end);
-	return Address::Cell(default_sheet, cell);
+	return Reference::Cell(default_sheet, cell);
 }
 
 Formula*
@@ -248,13 +248,13 @@ mtl_info("Brace )");
 	}
 	
 	if (s.startsWith('[')) {
-		Address *a = CellAddressOrRange(s.mid(1), resume_at, default_sheet);
+		Reference *a = CellAddressOrRange(s.mid(1), resume_at, default_sheet);
 		if (a != nullptr) {
 #ifdef DEBUG_FORMULA_PARSING
 			auto ba = a->toString().toLocal8Bit();
-			mtl_info("Address: %s", ba.data());
+			mtl_info("Reference: %s", ba.data());
 #endif
-			vec.append(FormulaNode::Address(a));
+			vec.append(FormulaNode::Reference(a));
 			resume_at++;
 		}
 		return a != nullptr;

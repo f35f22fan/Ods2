@@ -1,8 +1,7 @@
 # author f35f22fan at gmail dot com
-# extensions:
-# .hh, .cc:  namespace with functions
-# .cpp, hpp: classes
-# .hxx:      (const) declarations
+# .hh, .cc => functions within namespaces
+# .cpp, hpp => classes
+# .hxx => (const) declarations
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -22,25 +21,21 @@ find_package(Qt5 COMPONENTS Core Gui REQUIRED)
 set(lib_files
 	Attr.cpp Attr.hpp
 	Book.cpp Book.hpp
-	
-	Address.cpp Address.hpp
-	CellRef.cpp CellRef.hpp
-	eval.hh eval.cc
-	Formula.cpp Formula.hpp formula.hxx
-	FormulaError.cpp FormulaError.hpp
-	FormulaNode.cpp FormulaNode.hpp
-	Function.cpp Function.hpp
-	function.cc function.hh
-	op.cc op.hh
-	
 	Cell.cpp Cell.hpp cell.hxx
+	CellRef.cpp CellRef.hpp
 	cmp_num.hh
 	country.hxx
 	currency.cc currency.hh currency.hxx
 	decl.hxx
 	DurationInfo.cpp DurationInfo.hpp
 	err.hpp
+	eval.hh eval.cc
 	filename.hxx
+	Formula.cpp Formula.hpp formula.hxx
+	FormulaError.cpp FormulaError.hpp
+	FormulaNode.cpp FormulaNode.hpp
+	Function.cpp Function.hpp
+	function.cc function.hh
 	global.hxx
 	HAlign.cpp HAlign.hpp
 	id.cc id.hh
@@ -49,14 +44,15 @@ set(lib_files
 	LineStyle.cpp LineStyle.hpp line.hxx
 	Ns.cpp Ns.hpp ns.hxx
 	ods ods.cc ods.hh ods.hxx
+	op.cc op.hh
 	Prefix.cpp Prefix.hpp
+	Reference.cpp Reference.hpp
 	Row.cpp Row.hpp
 	Sheet.cpp Sheet.hpp
 	str.hxx
 	StringOrInst.cpp StringOrInst.hpp
 	StringOrTag.cpp StringOrTag.hpp
 	style.cc style.hh style.hxx
-
 	Tag.cpp Tag.hpp
 	Time.cpp Time.hpp
 	types.hxx
