@@ -309,15 +309,6 @@ Sheet::MarkRowDeleteRegion(int from, int remaining)
 	}
 }
 
-ods::Reference*
-Sheet::NewAddress(ods::Cell *cell, ods::Cell *end_cell)
-{
-	if (end_cell == nullptr)
-		return ods::Reference::Cell(this, cell->NewRef());
-	
-	return ods::Reference::CellRange(this, cell->NewRef(), end_cell->NewRef());
-}
-
 inst::TableTableColumn*
 Sheet::NewColumnAt(const int place, const int ncr)
 {
@@ -347,6 +338,15 @@ Sheet::NewColumnAt(const int place, const int ncr)
 	columns_.insert(vec_index, col);
 	
 	return col;
+}
+
+ods::Reference*
+Sheet::NewReference(ods::Cell *cell, ods::Cell *end_cell)
+{
+	if (end_cell == nullptr)
+		return ods::Reference::Cell(this, cell->NewRef());
+	
+	return ods::Reference::CellRange(this, cell->NewRef(), end_cell->NewRef());
 }
 
 ods::Row*

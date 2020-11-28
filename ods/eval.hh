@@ -2,6 +2,8 @@
 
 #include "formula.hxx"
 
+#include <QDateTime>
+
 namespace ods::eval {
 
 QVector<FormulaNode*>*
@@ -17,6 +19,9 @@ CommonForSumIfLikeFunctions_BuildUp(const QVector<ods::FormulaNode*> &values,
 FormulaNode*
 CommonForSumIfLikeFunctions_Eval(const FormulaNode &test_node,
 	QVector<FormulaNode*> &cond_nodes);
+
+bool
+EvalDeepestGroup(QVector<FormulaNode*> &input);
 
 bool
 EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes);
@@ -40,7 +45,9 @@ bool
 FlattenOutArgs(QVector<ods::FormulaNode*> &vec);
 
 bool
-EvalDeepestGroup(QVector<FormulaNode*> &input);
+FormatAsDateTime(const QString &format_str, QDate *date_arg, QTime *time_arg, QString &result);
+
+void FormatNumber(const QString &format_str, const double d, QString &result);
 
 const QVector<FunctionMeta>& GetSupportedFunctions();
 bool IsNearlyEqual(double x, double y);

@@ -204,6 +204,8 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Not: return function::Not(fn_args);
 	case FunctionId::Indirect: return function::Indirect(fn_args, parent_formula_);
 	case FunctionId::Offset: return function::Offset(fn_args);
+	case FunctionId::Text: return function::Text(fn_args);
+	case FunctionId::Match: return function::Match(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

@@ -23,7 +23,7 @@ class ODS_API Time
 public:
 	Time();
 	Time(const Time &rhs);
-	Time(const i32 h, const i32 m, const i32 s);
+	Time(const i32 h, const i32 m, const i32 s, const int ms = 0);
 	virtual ~Time();
 	
 	Time* Clone() const;

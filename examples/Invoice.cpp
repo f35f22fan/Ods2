@@ -239,7 +239,7 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 		ods::Function *function = total_formula->Add(ods::FunctionId::Sum);
 		ods::Cell *start_cell = line_total_cells[0];
 		ods::Cell *end_cell = line_total_cells[line_total_cells.size() - 1];
-		auto *cell_range = sheet_->NewAddress(start_cell, end_cell);
+		auto *cell_range = sheet_->NewReference(start_cell, end_cell);
 		function->AddArg(cell_range);
 	} else { // Option 2: Sum up all cells manually:
 		const auto kCount = line_total_cells.size();

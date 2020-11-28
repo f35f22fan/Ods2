@@ -28,6 +28,7 @@ public:
 	void Clear();
 	FormulaNode* Clone() const;
 	bool ConvertFunctionOrAddressToValue();
+	bool HasNumberTrait() const;
 	bool InterpretAsBoolean() const;
 	void PrintError() const;
 	

@@ -296,11 +296,17 @@ FormulaNode::Error(ods::FormError e, const QString &s)
 FormulaNode*
 FormulaNode::Error(ods::FormulaError *e)
 {
-mtl_trace();
 	auto *node = new FormulaNode();
 	node->type_ = Type::Error;
 	node->data_.error = e;
 	return node;
+}
+
+bool
+FormulaNode::HasNumberTrait() const
+{
+	return is_any_double() || is_date() ||
+		is_date_time() || is_time();
 }
 
 bool

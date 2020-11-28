@@ -6,6 +6,8 @@
 #include "Formula.hpp"
 #include "FormulaError.hpp"
 #include "FormulaNode.hpp"
+#include "Row.hpp"
+#include "Sheet.hpp"
 #include "Time.hpp"
 
 #include <QDate>
@@ -307,6 +309,51 @@ FormulaNode* Indirect(const QVector<FormulaNode*> &values, ods::Formula *formula
 	return FormulaNode::Reference(a);
 }
 
+FormulaNode* Match(const QVector<ods::FormulaNode*> &values)
+{
+	CHECK_TRUE_NULL((values.size() == 3));
+//	eval::PrintNodes(values);
+	
+	FormulaNode *search_item = values[0];
+	FormulaNode *search_range = values[1];
+	FormulaNode *param_node = values[2];
+	
+	if (!search_item->is_any_double()) {
+		mtl_warn("Match:() Currently only can search for numbers");
+		return nullptr;
+	}
+	
+	CHECK_TRUE_NULL(search_range->is_reference());
+	CHECK_TRUE_NULL(param_node->is_any_double());
+	
+	int param = param_node->as_any_double();
+	
+	if (param != 0) {
+		mtl_warn("Match(): currently only implemented searching for exact item");
+		return nullptr;
+	}
+	
+	double search_for = search_item->as_any_double();
+	Reference *reference = search_range->as_reference();
+	QVector<ods::Cell*> cells;
+	CHECK_TRUE_NULL(reference->GenCells(cells));
+	
+	for (ods::Cell *cell: cells) {
+		if (!cell->is_any_double())
+			continue;
+		
+		double d = *cell->as_double();
+		
+		if (eval::IsNearlyEqual(d, search_for)) {
+			ods::Sheet *sheet = cell->row()->sheet();
+			Reference *r = sheet->NewReference(cell);
+			return FormulaNode::Reference(r);
+		}
+	}
+	
+	return nullptr;
+}
+
 FormulaNode* Max(const QVector<ods::FormulaNode*> &values)
 {
 	double max;
@@ -582,6 +629,45 @@ FormulaNode* SumIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *default
 	}
 	
 	return sumup.Clone();
+}
+
+FormulaNode* Text(const QVector<FormulaNode *> &values)
+{ //TEXT([.B7];"mm/dd/yyyy")
+//	eval::PrintNodes(values, "from function::Text()");
+	
+	CHECK_TRUE_NULL((values.size() == 2));
+	
+	FormulaNode *num_node = values[0];
+	CHECK_TRUE_NULL(num_node->HasNumberTrait());
+	FormulaNode *format_node = values[1];
+	CHECK_TRUE_NULL(format_node->is_string());
+	
+	QString format_str = *format_node->as_string();
+	QString result;
+	
+	if (num_node->is_any_double()) {
+		const double d = num_node->as_any_double();
+		eval::FormatNumber(format_str, d, result);
+	} else {
+		if (num_node->is_date_time()) {
+			QDateTime *dt = num_node->as_date_time();
+			QDate date = dt->date();
+			QTime time = dt->time();
+			CHECK_TRUE_NULL(eval::FormatAsDateTime(format_str, &date, &time, result));
+		} else if (num_node->is_date()) {
+			QDate *date = num_node->as_date();
+			CHECK_TRUE_NULL(eval::FormatAsDateTime(format_str, date, nullptr, result));
+		} else if (num_node->is_time()) {
+			ods::Time *t = num_node->as_time();
+			QTime time_arg(t->hours(), t->minutes(), t->seconds(), t->ms());
+			CHECK_TRUE_NULL(eval::FormatAsDateTime(format_str, nullptr, &time_arg, result));
+		} else {
+			it_happened();
+			return nullptr;
+		}
+	}
+	
+	return FormulaNode::String(new QString(result));
 }
 
 FormulaNode* Today() {

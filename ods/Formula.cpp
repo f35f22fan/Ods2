@@ -57,7 +57,7 @@ Formula::Add(const ods::FunctionId id)
 void
 Formula::Add(ods::Cell *cell)
 {
-	auto *a = default_sheet_->NewAddress(cell);
+	auto *a = default_sheet_->NewReference(cell);
 	nodes_.append(FormulaNode::Reference(a));
 }
 
@@ -69,7 +69,7 @@ Formula::Add(QString *s) {
 void
 Formula::AddCellRange(Cell *start, Cell *end)
 {
-	auto *a = default_sheet_->NewAddress(start, end);
+	auto *a = default_sheet_->NewReference(start, end);
 	nodes_.append(FormulaNode::Reference(a));
 }
 

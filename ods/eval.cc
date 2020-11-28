@@ -15,6 +15,9 @@
 
 namespace ods::eval {
 
+const QChar MonthMarker('Q');
+
+
 QVector<FormulaNode*>*
 CloneVec(const QVector<FormulaNode*> &vec)
 {
@@ -89,6 +92,211 @@ CommonForSumIfLikeFunctions_Eval(const FormulaNode &test_node,
 		mtl_print_node(result, "Expression result: ");
 #endif
 	return result;
+}
+
+//void
+//AppendDateTimeParam(const QStringRef &ref, QString &result)
+//{
+//	if (ref ==)
+//}
+
+void
+MarkMonth(QVector<QString> &tokens)
+{
+	const int count = tokens.size();
+	
+	for (int i = 0; i < count; i++) {
+		QString &ref = tokens[i];
+		const QChar c = ref[0];
+		
+		if (c != 'm' && c != 'M')
+			continue;
+		
+		i8 minute_score = 0;
+		i8 month_score = 0;
+		
+		if (i > 0) {
+			const QChar past = tokens[i - 1].at(0).toLower();
+			if (past == 's' || past == 'h')
+				minute_score++;
+			else if (past == 'd' || past == 'y')
+				month_score++;
+		}
+		
+		if (i < count - 1) {
+			const QChar past = tokens[i + 1].at(0).toLower();
+			if (past == 's' || past == 'h')
+				minute_score++;
+			else if (past == 'd' || past == 'y')
+				month_score++;
+		}
+		
+		if (month_score > minute_score) {
+			const int sz = ref.size();
+			ref = MonthMarker; // 'm'
+			if (sz > 1) // "mm"
+				ref.append(MonthMarker);
+		}
+	}
+}
+
+bool
+FormatAsDateTime(const QString &format_str, QDate *date_arg, QTime *time_arg, QString &result)
+{ // "mm/dd/yyyy"
+//	mtl_printq2("Original String: ", format_str);
+	int token_start = -1;
+	const QChar dot('.');
+	const QChar fwslash('/');
+	const QChar colon(':');
+	QVector<QString> tokens;
+	struct Sep {
+		int at;
+		QChar c;
+	};
+	
+	QVector<Sep> separators;
+	const auto str_size = format_str.size();
+	
+	for (int i = 0; i < str_size; i++) {
+		QChar c = format_str.at(i);
+		if (c == ' ' || c == '\t') {
+			if (!tokens.isEmpty()) {
+				separators.append(Sep {tokens.size() + 1, c} );
+				int token_size = i - token_start;
+				auto sub = format_str.mid(token_start, token_size);
+				//mtl_printq(sub);
+				tokens.append(sub);
+			}
+			token_start = i + 1;
+			continue;
+		}
+		
+		if (token_start == -1) {
+			token_start = i;
+			continue;
+		}
+		
+		const bool at_end = (i == (str_size - 1));
+		const bool is_sep = (c == dot || c == fwslash || c == colon);
+		
+		if (is_sep || at_end) {
+			if (is_sep)
+				separators.append(Sep {tokens.size() + 1, c});
+			
+			if (at_end)
+				i++;
+			
+			if (token_start < (i + 1)) {
+				int token_size = i - token_start;
+				auto sub = format_str.mid(token_start, token_size);
+				tokens.append(sub);
+			}
+			token_start = i + 1;
+		}
+	}
+	
+	MarkMonth(tokens);
+	
+	for (int i = separators.size() - 1; i >= 0; i--) {
+		Sep &sep = separators[i];
+		tokens.insert(sep.at, QString(sep.c));
+	}
+	
+	for (auto &token : tokens) {
+		const QChar char0 = token[0].toLower();
+		const int token_size = token.size();
+		
+		if (char0 == 'y') {
+			if (date_arg != nullptr) {
+				QString year_str = QString::number(date_arg->year());
+				if (token_size > year_str.size()) {
+					const int diff = token_size - year_str.size();
+					for (int i = 0; i < diff; i++) {
+						result.append('0');
+					}
+				} else if (token_size < year_str.size()) {
+					year_str = year_str.left(token_size);
+				}
+				result.append(year_str);
+			}
+		} else if (char0 == MonthMarker.toLower()) {
+			if (date_arg != nullptr) {
+				const int month = date_arg->month();
+				if (token_size == 2 && month <= 9)
+					result.append('0');
+				result.append(QString::number(month));
+			}
+		} else if (char0 == 'd') {
+			if (date_arg != nullptr) {
+				const int day = date_arg->day();
+				if (token_size == 2 && day <= 9)
+					result.append('0');
+				result.append(QString::number(day));
+			}
+		} else if (char0 == 'h') {
+			if (time_arg != nullptr) {
+				const int hour = time_arg->hour();
+				if (token_size == 2 && hour <= 9)
+					result.append('0');
+				result.append(QString::number(hour));
+			}
+		} else if (char0 == 'm') {
+			if (time_arg != nullptr) {
+				const int minute = time_arg->minute();
+				if (token_size == 2 && minute <= 9)
+					result.append('0');
+				result.append(QString::number(minute));
+			}
+		} else if (char0 == 's') {
+			if (time_arg != nullptr) {
+				const int second = time_arg->second();
+				if (token_size == 2 && second <= 9)
+					result.append('0');
+				result.append(QString::number(second));
+			}
+		} else if (char0 == 'z') {
+			if (time_arg != nullptr) {
+				const int ms = time_arg->msec();
+				QString ms_str = QString::number(ms);
+				const int diff = token_size - ms_str.size();
+				for (int i = 0; i < diff; i++) {
+					result.append('0');
+				}
+				result.append(ms_str);
+			}
+		} else {
+			result.append(token);
+		}
+	}
+	
+	return true;
+}
+
+void
+FormatNumber(const QString &format_str, const double d, QString &result)
+{
+	int dot = format_str.indexOf('.');
+	if (dot == -1) {
+		result = QString::number(i64(d));
+		const int int_part = format_str.size();
+		
+		while (result.size() < int_part) {
+			result.prepend('0');
+		}
+		
+		return;
+	}
+	const int int_part = dot;
+	const int decimals = format_str.size() - dot - 1;
+	result = QString::number(d, 'f', decimals);
+	int int_size = result.indexOf('.');
+	
+	if (int_size == -1)
+		int_size = result.size();
+	
+	for (int i = int_size; i < int_part; i++) {
+		result.prepend('0');
+	}
 }
 
 bool
@@ -373,6 +581,8 @@ GetSupportedFunctions() {
 	FunctionMeta ("NOT", FunctionId::Not),
 	FunctionMeta ("INDIRECT", FunctionId::Indirect),
 	FunctionMeta ("OFFSET", FunctionId::Offset, 0),
+	FunctionMeta ("TEXT", FunctionId::Text),
+	FunctionMeta ("MATCH", FunctionId::Match, 0),
 	};
 	return v;
 }
@@ -498,8 +708,7 @@ bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index)
 	return true;
 }
 
-bool
-ReplaceNamedRanges(QVector<FormulaNode*> &input)
+bool ReplaceNamedRanges(QVector<FormulaNode*> &input)
 {
 	for (int i = 0; i < input.size(); i++) {
 		ods::FormulaNode *node = input[i];

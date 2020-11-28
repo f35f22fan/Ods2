@@ -18,6 +18,7 @@ FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
 FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dmy);
 FormulaNode* If(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Indirect(const QVector<FormulaNode*> &values, ods::Formula *formula);
+FormulaNode* Match(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Max(const QVector<FormulaNode *> &values);
 FormulaNode* Min(const QVector<FormulaNode*> &values);
 FormulaNode* Mod(const QVector<FormulaNode*> &values);
@@ -31,6 +32,7 @@ FormulaNode* Quotient(const QVector<FormulaNode*> &values);
 FormulaNode* RoundAnyWay(const QVector<FormulaNode*> &values, const RoundType round_type);
 FormulaNode* Sum(const QVector<FormulaNode *> &values);
 FormulaNode* SumIf(const QVector<FormulaNode *> &values, Sheet *default_sheet);
+FormulaNode* Text(const QVector<FormulaNode *> &values);
 FormulaNode* Today();
 } // ods::+function::
 

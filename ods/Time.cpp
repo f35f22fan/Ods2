@@ -20,11 +20,12 @@ Time::Time(const Time &rhs)
 	DeepCopy(*this, rhs);
 }
 
-Time::Time(const i32 h, const i32 m, const i32 s)
+Time::Time(const i32 h, const i32 m, const i32 s, const int msec)
 {
 	hours(h);
 	minutes(m);
 	seconds(s);
+    ms(msec);
 }
 
 Time::~Time()

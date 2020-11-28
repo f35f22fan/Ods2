@@ -45,7 +45,7 @@ public:
 	named_expressions() const { return named_expressions_; }
 	
 	ods::Reference*
-	NewAddress(ods::Cell *cell, ods::Cell *end_cell = nullptr);
+	NewReference(ods::Cell *cell, ods::Cell *end_cell = nullptr);
 	
 	inst::TableTableColumn*
 	NewColumnAt(const int place, const int ncr = 1);
