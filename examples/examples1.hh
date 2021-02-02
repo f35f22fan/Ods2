@@ -1,7 +1,5 @@
 #pragma once
 
-void TestBugFromAzure();
-
 void SetColumnWidths();
 void ReadColumnWidths();
 
@@ -37,3 +35,5 @@ void ReadTime();
 
 void CreateBoolean();
 void ReadBoolean();
+
+void TestReportedBug();

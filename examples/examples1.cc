@@ -1272,3 +1272,22 @@ ReadBoolean()
 		}
 	}
 }
+
+void TestReportedBug()
+{
+	mtl_trace();
+	auto *book = ods::Book::New();
+	ods::AutoDelete<ods::Book*> ad(book);
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->NewSheet("Sheet name"); // creating new sheet
+	auto *row = sheet->NewRowAt(0);
+	auto *cell = row->NewCellAt(0);
+	
+	cell->SetFirstString("first cell");
+	cell->number_rows_spanned(3); // code which doesn't work
+	
+	QFile file(QDir::home().filePath("bug.ods"));
+	QString err; // saving file
+	book->Save(file, &err);
+mtl_trace();
+}

@@ -54,9 +54,11 @@ main(int argc, char *argv[])
 //	ReadFormula();
 //	ReadFormulaCustom();
 	
-	CreateFormulaFunctions();
+// CreateFormulaFunctions();
 //	new sample::Invoice();
 	
+	
+	TestReportedBug();
 	
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();

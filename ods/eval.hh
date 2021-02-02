@@ -1,64 +1,65 @@
 #pragma once
 
 #include "formula.hxx"
+#include "global.hxx"
 
 #include <QDateTime>
 
 namespace ods::eval {
 
-QVector<FormulaNode*>*
+ODS_API QVector<FormulaNode*>*
 CloneVec(const QVector<FormulaNode*> &vec);
 
-bool
+ODS_API bool
 CommonForSumIfLikeFunctions_BuildUp(const QVector<ods::FormulaNode*> &values,
 	ods::Sheet *default_sheet,
 	QVector<FormulaNode*> &test_range_vec,
 	QVector<FormulaNode*> &cond_nodes,
 	QVector<FormulaNode*> *sum_range_vec);
 
-FormulaNode*
+ODS_API FormulaNode*
 CommonForSumIfLikeFunctions_Eval(const FormulaNode &test_node,
 	QVector<FormulaNode*> &cond_nodes);
 
-bool
+ODS_API bool
 EvalDeepestGroup(QVector<FormulaNode*> &input);
 
-bool
+ODS_API bool
 EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes);
 
-bool
+ODS_API bool
 ExtractCellValue(ods::Cell *cell, FormulaNode &result);
 
-bool
+ODS_API bool
 ExtractAddressValues(ods::FormulaNode *node, QVector<FormulaNode *> &result);
 
-int
+ODS_API int
 FindHighestPriorityOp(QVector<FormulaNode*> &vec);
 
-const FunctionMeta*
+ODS_API const FunctionMeta*
 FindFunctionMeta(const FunctionId id);
 
-const FunctionMeta*
+ODS_API const FunctionMeta*
 FindFunctionMeta(const QString &name);
 
-bool
+ODS_API bool
 FlattenOutArgs(QVector<ods::FormulaNode*> &vec);
 
-bool
+ODS_API bool
 FormatAsDateTime(const QString &format_str, QDate *date_arg, QTime *time_arg, QString &result);
 
-void FormatNumber(const QString &format_str, const double d, QString &result);
+ODS_API void FormatNumber(const QString &format_str, const double d, QString &result);
 
-const QVector<FunctionMeta>& GetSupportedFunctions();
-bool IsNearlyEqual(double x, double y);
-void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str);
-void PrintNodesInOneLine(const QVector<FormulaNode*> &v, const char *msg = "");
-void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg = QString());
-bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index);
-bool ReplaceNamedRanges(QVector<FormulaNode*> &input);
-double CeilUp(double value, int decimal_places);
-double FloorUp(double value, int decimal_places);
-double RoundUp(double value, int decimal_places);
+ODS_API const QVector<FunctionMeta>& GetSupportedFunctions();
+ODS_API bool IsNearlyEqual(double x, double y);
+ODS_API void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str);
+ODS_API void PrintNodesInOneLine(const QVector<FormulaNode*> &v, const char *msg = "");
+ODS_API void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg = QString());
+ODS_API bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index);
+ODS_API bool ReplaceNamedRanges(QVector<FormulaNode*> &input);
+ODS_API double CeilUp(double value, int decimal_places);
+ODS_API double FloorUp(double value, int decimal_places);
+ODS_API double RoundUp(double value, int decimal_places);
 
 
 } // ods::+eval::

@@ -735,16 +735,19 @@ void
 Cell::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->table(), ods::ns::kNumberColumnsRepeated, ncr_, 1);
-	Write(xml, ns_->table(), ods::ns::kNumberColumnsSpanned, ncs_, 1);
 	
 	{
-		// Workaround for MS Office (2019): if ncs_ > 1
-		// one must print out the nrs_ too, otherwise MS Office
-		// will treat ncs_ as 1 regardless of its real value
+		/// Workaround for MS Office (2019): if ncs_ > 1
+		/// one must print out the nrs_ too, otherwise MS Office
+		/// will treat ncs_ as 1 regardless of its real value
 		
-		int force_if_needed = (ncs_ != 1) ? -1 : 1;
+		/// Update 2: Both ncs_ and nrs_ must be written out in case
+		/// any of them is != 1
+		
+		int force_if_needed = (ncs_ != 1 || nrs_ != 1) ? -1 : 1;
 		
 		Write(xml, ns_->table(), ods::ns::kNumberRowsSpanned, nrs_, force_if_needed);
+		Write(xml, ns_->table(), ods::ns::kNumberColumnsSpanned, ncs_, force_if_needed);
 	}
 	
 	Write(xml, ns_->table(), ods::ns::kStyleName, table_style_name_);
