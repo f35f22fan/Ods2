@@ -12,7 +12,7 @@ QString
 FindFile(const QString &file_name)
 {
 	QString full_path = QString(ODS2_TEST_DIR)
-		+ QLatin1String("/sample/test_files/") + file_name;
+		+ QLatin1String("/examples/test_files/") + file_name;
 	
 	auto ba = full_path.toLocal8Bit();
 	

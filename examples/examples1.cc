@@ -236,7 +236,7 @@ CreateColorsAndUnderline()
 	
 	const int col = 2;
 	auto *cell = row->NewCellAt(col);
-	cell->SetFirstString("Row2Cel0");
+	cell->SetString("This is some cell text");
 	auto *style = cell->GetStyle();
 	
 	if (style == nullptr)
@@ -270,6 +270,9 @@ CreateColorsAndUnderline()
 	// set background color:
 	auto *stcp = style->FetchStyleTableCellProperties();
 	stcp->SetBackgroundColor(QColor(255, 255, 0));
+	
+	/// also wrap text:
+	///stcp->SetWrapOption(true);
 	
 	auto ba = cell->TypeAndValueString();
 	mtl_info("Cell type and value: %s", ba.data());

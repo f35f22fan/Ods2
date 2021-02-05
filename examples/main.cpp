@@ -17,7 +17,7 @@ main(int argc, char *argv[])
 //	CreateFont();
 //	ReadFont();
 	
-//	CreateColorsAndUnderline();
+	CreateColorsAndUnderline();
 //	ReadColorsAndUnderline();
 	
 //	CellSpan();
@@ -58,7 +58,7 @@ main(int argc, char *argv[])
 //	new sample::Invoice();
 	
 	
-	TestReportedBug();
+//	TestReportedBug();
 	
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
