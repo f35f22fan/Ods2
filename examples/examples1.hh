@@ -1,5 +1,7 @@
 #pragma once
 
+void TestBug();
+
 void SetColumnWidths();
 void ReadColumnWidths();
 

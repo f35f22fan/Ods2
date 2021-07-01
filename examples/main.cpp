@@ -11,13 +11,15 @@ main(int argc, char *argv[])
 {
 	QGuiApplication app(argc, argv);
 	
+//	TestBug();
+	
 //	SetColumnWidths();
 //	ReadColumnWidths();
 	
 //	CreateFont();
 //	ReadFont();
 	
-	CreateColorsAndUnderline();
+//	CreateColorsAndUnderline();
 //	ReadColorsAndUnderline();
 	
 //	CellSpan();
@@ -55,13 +57,11 @@ main(int argc, char *argv[])
 //	ReadFormulaCustom();
 	
 // CreateFormulaFunctions();
-//	new sample::Invoice();
-	
-	
-//	TestReportedBug();
+	new sample::Invoice();
 	
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
+	
 	return 0;
 }
 

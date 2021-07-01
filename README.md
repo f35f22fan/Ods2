@@ -123,5 +123,3 @@ Column 1 | Column 2 | Column 3 | Column 4
 
 
 
----
-BTC/₿: bc1qzs8ux6m0t4jj98furra8pvx2ll80qchr5v4ru6

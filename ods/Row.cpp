@@ -81,14 +81,14 @@ ods::Cell*
 Row::GetCell(const int place)
 {
 	CHECK_TRUE_NULL((place >= 0));
-	int start = 0;
+	int at = -1;
 	
 	for (ods::Cell *cell: cells_)
 	{
-		if (start >= place)
-			return cell;
+		at += cell->ncr(); /// ncr = "number columns repeated", default=1
 		
-		start += cell->ncr();
+		if (at >= place)
+			return cell;
 	}
 	
 	return nullptr;

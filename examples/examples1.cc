@@ -17,6 +17,34 @@
 
 #include <QSize>
 
+void TestBug()
+{
+	auto *book = ods::Book::New();
+	ods::AutoDelete<ods::Book*> ad(book);
+	
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->NewSheet("Sheet name");
+	
+	auto *row = sheet->NewRowAt(0);
+	auto *cell = row->NewCellAt(0);
+	cell->ncr(2);
+	
+	
+	cell = row->NewCellAt(2);
+	auto *date = new QDate(QDate::currentDate());
+	cell->SetDate(date);
+	
+	for (int i = 0; i < 3; i++) {
+		auto *next = row->GetCell(i);
+		auto ba = next->ValueToString().toLocal8Bit();
+		mtl_info("Cell %d is empty: %s, (%s)",
+			i, next->is_empty() ? "true" : "false", ba.data());
+	}
+	
+	
+	util::Save(book);
+}
+
 void
 SetColumnWidths()
 {

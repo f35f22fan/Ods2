@@ -107,7 +107,6 @@ TableTableColumn::SetWidth(Length *length)
 	tcp->SetColumnWidth(length);
 }
 
-
 QString
 TableTableColumn::ToSchemaString() const
 {

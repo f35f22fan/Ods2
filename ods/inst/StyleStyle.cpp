@@ -104,6 +104,19 @@ StyleStyle::FetchStyleTableCellProperties()
 	return p;
 }
 
+inst::StyleTableColumnProperties*
+StyleStyle::FetchTableColumnProperties()
+{
+	auto *p = (StyleTableColumnProperties*)Get(Id::StyleTableColumnProperties);
+	
+	if (p == nullptr) {
+		p = new StyleTableColumnProperties(this);
+		Append(p);
+	}
+	
+	return p;
+}
+
 StyleTextProperties*
 StyleStyle::FetchStyleTextProperties()
 {

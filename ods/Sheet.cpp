@@ -215,14 +215,14 @@ ods::Row*
 Sheet::GetRow(const int place)
 {
 	CHECK_TRUE_NULL((place >= 0));
-	int at = 0;
+	int at = -1;
 	
 	for (ods::Row *r: rows_)
 	{
+		at += r->num();
+		
 		if (at >= place)
 			return r;
-		
-		at += r->num();
 	}
 	
 	return nullptr;

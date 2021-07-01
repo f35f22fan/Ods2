@@ -49,6 +49,9 @@ public:
 	StyleTableCellProperties*
 	FetchTableCellProperties();
 	
+	inst::StyleTableColumnProperties*
+	FetchTableColumnProperties();
+	
 	NumberBooleanStyle*
 	GetBooleanStyle() const;
 	
