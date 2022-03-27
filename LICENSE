@@ -3,7 +3,7 @@ Ods2 - a library to CRUD .ods files, licensed under the GPLv3.
 Notice: The software in subfolders "quazip" and "zlib" are not part
 of Ods2 but they are included, modified and used by Ods2 and they
 ship under their own licenses. This software is dual licensed under
-the GPLv3 [1] or MIT [1] license, whichever you like best.
+the GPLv3 [1] or MIT [2] license, pick whichever license you like best.
 
     Copyright (C) 2018 Ursache Vladimir, f35f22fan AT gmail.com
 
