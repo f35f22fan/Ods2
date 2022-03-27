@@ -8,13 +8,13 @@ Also, the file examples/Invoice.ods was generated with Ods2, the source code
 for the code that generated it is in examples/Invoice.cpp
 
 ##### How to build
-Built exactly as my other project - QOds, see how_to_build.html
+See how_to_build.html
 
 ##### License, etc
 Library updates might break API compatibility with previous updates to allow
 for easier development of this library.
 
-Licensed under the GPLv3, see LICENSE for details.
+Licensed under the GPLv3 or MIT license, see LICENSE for details.
 For questions, feature requests, etc: f35f22fan AT gmail.com
 
 ---
