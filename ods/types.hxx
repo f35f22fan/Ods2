@@ -2,7 +2,13 @@
 
 #include <cstdint>
 #include <cstddef>
+
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#else
 #include <unistd.h>
+#endif
 
 typedef uint8_t u8;
 typedef int8_t i8;
