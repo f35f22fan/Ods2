@@ -220,7 +220,7 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 	
 	const int TotalStrCol = 5;
 	auto *total_str_cell = row->NewCellAt(TotalStrCol);
-	total_str_cell->SetValue("TOTAL:");
+	total_str_cell->SetValue(QLatin1String("TOTAL:"));
 	auto *style = book_->NewCellStyle();
 	style->SetHAlignment(ods::HAlignSide::Right);
 	total_str_cell->SetStyle(style);

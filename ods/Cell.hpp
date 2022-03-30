@@ -213,10 +213,25 @@ public:
 	SetStyle(Abstract *a);
 	
 	void
-	SetValue(const QString &s) { SetFirstString(s); }
+	SetValue(const QString &s) { SetString(s); }
 	
 	void
 	SetValue(const i64 n) { SetDouble(double(n)); }
+	
+	void
+	SetValue(void *value)
+	{
+		ClearValue(true);
+		value_data_ = value;
+	}
+	
+	void
+	SetValue(void *value, const ods::ValueType kType)
+	{
+		ClearValue(true);
+		value_data_ = value;
+		office_value_type_ = kType;
+	}
 	
 	const QString&
 	table_style_name() const { return table_style_name_; }
@@ -263,21 +278,6 @@ private:
 	}
 	
 	void Set(const QString &stype, const QString &value);
-	
-	void
-	SetValue(void *value)
-	{
-		ClearValue(true);
-		value_data_ = value;
-	}
-	
-	void
-	SetValue(void *value, const ods::ValueType kType)
-	{
-		ClearValue(true);
-		value_data_ = value;
-		office_value_type_ = kType;
-	}
 	
 	QString
 	ToSchemaString() const;

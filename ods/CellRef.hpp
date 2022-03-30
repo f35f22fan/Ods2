@@ -6,7 +6,7 @@
 
 namespace ods { // ods::
 
-class CellRef
+class ODS_API CellRef
 {
 public:
 	virtual ~CellRef();
