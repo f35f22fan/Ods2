@@ -103,11 +103,13 @@ bool QuaZipDir::cd(const QString &directoryName)
             if (!dir.cd("/"))
                 return false;
         }
-        QStringList path = dirName.split('/', QString::SkipEmptyParts);
-        for (QStringList::const_iterator i = path.constBegin();
-                i != path.end();
-                ++i) {
-            const QString &step = *i;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        QStringList path = dirName.split(QLatin1Char('/'), Qt::SkipEmptyParts);
+#else
+        QStringList path = dirName.split(QLatin1Char('/'), QString::SkipEmptyParts);
+#endif
+        for (const QString &step : path) {
 #ifdef QUAZIP_QUAZIPDIR_DEBUG
             qDebug("QuaZipDir::cd(%s): going to %s",
                     dirName.toUtf8().constData(),
@@ -390,7 +392,7 @@ bool QuaZipDirPrivate::entryInfoList(QStringList nameFilters,
                 == Qt::CaseInsensitive)
             srt |= QDir::IgnoreCase;
         QuaZipDirComparator lessThan(srt);
-        qSort(list.begin(), list.end(), lessThan);
+        std::sort(list.begin(), list.end(), lessThan);
     }
     QuaZipDir_convertInfoList(list, result);
     return true;

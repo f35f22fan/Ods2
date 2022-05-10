@@ -124,7 +124,7 @@ Cell::CloneValue() const
 	if (is_double() || is_percentage() || is_currency())
 		return new double(*as_double());
 	else if (is_date())
-		return new QDateTime(*as_date());
+		return new QDateTime(QDate(*as_date()).startOfDay());
 	else if (is_time())
 		return new ods::Time(*as_time());
 	else if (is_boolean())
