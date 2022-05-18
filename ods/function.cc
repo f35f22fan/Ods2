@@ -224,7 +224,7 @@ FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dm
 		else if (date_str->indexOf('/') != -1)
 			sep = QChar('/');
 		
-		QVector<QStringRef> list = date_str->splitRef(sep);
+		auto list = QStringView(*date_str).split(sep);
 		CHECK_TRUE_NULL((list.size() == 3));
 		const bool year_first = (list[0].size() > 2);
 		int index = -1;
@@ -300,9 +300,9 @@ FormulaNode* Indirect(const QVector<FormulaNode*> &values, ods::Formula *formula
 	Reference *a = nullptr;
 	
 	if (is_r1c1) {
-		a = ods::Reference::R1C1From(addr_str.midRef(0), formula);
+		a = ods::Reference::R1C1From(addr_str, formula);
 	} else {
-		a = ods::Reference::From(addr_str.midRef(0), formula->default_sheet());
+		a = ods::Reference::From(addr_str, formula->default_sheet());
 	}
 	
 	CHECK_PTR_NULL(a);

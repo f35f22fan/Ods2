@@ -23,7 +23,7 @@ public:
 	GetSheet(const int index) const;
 	
 	ods::Sheet*
-	GetSheet(const QStringRef name) const;
+	GetSheet(QStringView name) const;
 	
 	TableNamedExpressions*
 	named_expressions() const { return named_expressions_; }

@@ -50,8 +50,8 @@ ODS_API Brace FromString(const QString &s);
 ODS_API void
 ApplyBool(const QString &str, ods::Bool &b);
 
-ODS_API CellRef*
-CreateCellRef(Sheet *default_sheet, QStringRef address, CellRef *first_one = nullptr);
+ODS_API CellRef *CreateCellRef(Sheet *default_sheet, QStringView address,
+                               CellRef *first_one = nullptr);
 
 ODS_API double
 DPI();
@@ -60,26 +60,23 @@ ODS_API void
 DPI(const double dpi);
 
 /** Returns the index of the last single quote, not past it. **/
-int
-FindEndOfSingleQuotedString(const QStringRef &s);
+int FindEndOfSingleQuotedString(QStringView s);
 
-ODS_API int
-FindNonAscii(const QStringRef &s, const int from = 0);
+ODS_API int FindNonAscii(QStringView s, const int from = 0);
 
 ODS_API int // error = -1
-FindNonWhitespace(const QStringRef &str, const int from = 0);
+FindNonWhitespace(QStringView str, const int from = 0);
 
 ODS_API QString
 FontSizeToString(const double size, const style::FontSizeType tp);
 
-ODS_API int
-ColumnLettersToNumber(const QStringRef &letters);
+ODS_API int ColumnLettersToNumber(QStringView letters);
 
 ODS_API QString
 ColumnNumberToLetters(const int kColumn);
 
-bool
-ParseTableName(const QStringRef &address, QStringRef &name, int *ret_dot = nullptr);
+bool ParseTableName(QStringView address, QStringView &name,
+                    int *ret_dot = nullptr);
 
 ODS_API ValueType
 TypeFromString(const QString &ods_type);

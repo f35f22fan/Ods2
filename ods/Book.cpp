@@ -221,28 +221,28 @@ Book::Load(const QString &full_path, QString *err)
 		return;
 	}
 	
-	for (auto path : extracted_file_paths_) {
+	for (const auto &path : extracted_file_paths_) {
 		if (path.endsWith(ods::filename::ContentXml)) {
 			LoadContentXml(path, err);
 			break;
 		}
 	}
 	
-	for (auto path : extracted_file_paths_) {
+	for (const auto &path : extracted_file_paths_) {
 		if (path.endsWith(ods::filename::ManifestXml)) {
 			LoadManifestXml(path, err);
 			break;
 		}
 	}
 	
-	for (auto path : extracted_file_paths_) {
+	for (const auto &path : extracted_file_paths_) {
 		if (path.endsWith(ods::filename::MetaXml)) {
 			LoadMetaXml(path, err);
 			break;
 		}
 	}
 	
-	for (auto path : extracted_file_paths_) {
+	for (const auto &path : extracted_file_paths_) {
 		if (path.endsWith(ods::filename::StylesXml)) {
 			LoadStylesXml(path, err);
 			break;
@@ -273,7 +273,7 @@ Book::LoadContentXml(const QString &full_path, QString *err)
 		if (token != QXmlStreamReader::StartElement)
 			continue;
 		
-		if (xml.name() == ods::ns::kDocumentContent)
+		if (xml.name() == QLatin1String(ods::ns::kDocumentContent))
 		{
 			auto *ns = new ods::Ns();
 			ns->Read(xml);
@@ -310,7 +310,7 @@ Book::LoadManifestXml(const QString &full_path, QString *err)
 		if (token != QXmlStreamReader::StartElement)
 			continue;
 		
-		if (xml.name() == ods::ns::kManifest)
+		if (xml.name() == QLatin1String(ods::ns::kManifest))
 		{
 			auto *ns = new ods::Ns();
 			ns->Read(xml);
@@ -347,7 +347,7 @@ Book::LoadMetaXml(const QString &full_path, QString *err)
 		if (token != QXmlStreamReader::StartElement)
 			continue;
 		
-		if (xml.name() == ods::ns::kDocumentMeta)
+		if (xml.name() == QLatin1String(ods::ns::kDocumentMeta))
 		{
 			auto *ns = new ods::Ns();
 			ns->Read(xml);
@@ -383,7 +383,7 @@ Book::LoadStylesXml(const QString &full_path, QString *err)
 		if (token != QXmlStreamReader::StartElement)
 			continue;
 		
-		if (xml.name() == ods::ns::kDocumentStyles)
+		if (xml.name() == QLatin1String(ods::ns::kDocumentStyles))
 		{
 			auto *ns = new ods::Ns();
 			ns->Read(xml);
@@ -451,7 +451,7 @@ Book::Save(const QFile &target, QString *err)
 	QDir base_dir(temp_dir_path_);
 	
 	QString full_path;
-	const QString MetaInf = QLatin1String("META-INF");
+	const QString MetaInf = QStringLiteral("META-INF");
 	
 	full_path = base_dir.filePath(ods::filename::ContentXml);
 	Save(document_content_, full_path, err);

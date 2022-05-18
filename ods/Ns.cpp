@@ -161,12 +161,12 @@ Ns::GetPrefix(const QString &s)
 void
 Ns::Read(QXmlStreamReader &xml)
 {
-	auto decls = xml.namespaceDeclarations();
+	const auto decls = xml.namespaceDeclarations();
 	
-	foreach (auto decl, decls)
+    for (const auto &decl : decls)
 	{
 		QString prefix = decl.prefix().toString();
-		QStringRef uri = decl.namespaceUri();
+		auto uri = decl.namespaceUri();
 		
 		for (Prefix *x: v_)
 		{
@@ -179,7 +179,7 @@ Ns::Read(QXmlStreamReader &xml)
 	}
 	
 	auto attrs = xml.attributes();
-	QStringRef ref = attrs.value(office()->With(ods::ns::kVersion));
+	auto ref = attrs.value(office()->With(ods::ns::kVersion));
 	
 	if (ref.isEmpty())
 	{

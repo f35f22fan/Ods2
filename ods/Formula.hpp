@@ -60,15 +60,15 @@ public:
 private:
 	Formula(ods::Cell *cell);
 	
-	static Reference *CellAddressOrRange(QStringRef s, int &skip, Sheet *default_sheet);
+	static Reference *CellAddressOrRange(QStringView s, int &skip, Sheet *default_sheet);
 	bool ProcessFormulaString(QString s, QVector<FormulaNode *> &nodes);
 	
 	static bool
-	ParseNext(QStringRef s, int &resume_at, QVector<FormulaNode *> &vec, Sheet *default_sheet,
+	ParseNext(QStringView s, int &resume_at, QVector<FormulaNode *> &vec, Sheet *default_sheet,
 		u8 &settings);
 	
 	static inst::TableNamedRange*
-	StartsWithNamedRange(QStringRef &s, ods::Sheet *sheet);
+	StartsWithNamedRange(QStringView s, ods::Sheet *sheet);
 	
 	
 	void evaluating(const bool flag) {

@@ -69,8 +69,7 @@ enum class Op : u8 {
 };
 
 namespace op {
-Op From(const QString &s);
-Op From(const QStringRef &s);
+Op From(QStringView s);
 QString ToString(const Op op);
 } // ods::op::
 

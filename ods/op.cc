@@ -27,13 +27,9 @@ int priority(const ods::Op op)
 }
 
 namespace op {
-Op
-From(const QString &s) {
-	return From(s.midRef(0));
-}
 
 Op
-From(const QStringRef &s) {
+From(QStringView s) {
 	if (s == op_str::RefConcat)
 		return Op::RefConcat;
 	if (s == op_str::Less)

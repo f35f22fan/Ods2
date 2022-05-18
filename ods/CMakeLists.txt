@@ -16,8 +16,6 @@ endif()
 include_directories(${Ods2_SOURCE_DIR})
 link_directories(${Ods2_BINARY_DIR}/lib)
 
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
-
 set(lib_files
 	Attr.cpp Attr.hpp
 	Book.cpp Book.hpp
@@ -162,4 +160,4 @@ else (DEFINED ODS_STATIC)
 endif (DEFINED ODS_STATIC)
 
 add_library(ods ${lib_type} ${lib_files})
-target_link_libraries(ods quazip Qt5::Core Qt5::Gui)
+target_link_libraries(ods quazip Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui)

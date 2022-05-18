@@ -433,7 +433,7 @@ Sheet::SetName(const QString &name)
 	
 	auto *spreadsheet = (inst::OfficeSpreadsheet*)parent_;
 	
-	if (spreadsheet->GetSheet(name.midRef(0)) != nullptr)
+	if (spreadsheet->GetSheet(name) != nullptr)
 		return false;
 	
 	table_name_ = name;

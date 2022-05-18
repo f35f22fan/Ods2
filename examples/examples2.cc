@@ -1188,11 +1188,11 @@ ReadCellRange()
 }
 
 bool
-IsFunctionImplemented(const QStringRef &s) {
+IsFunctionImplemented(QStringView s) {
 	const QVector<ods::FunctionMeta> &vec = ods::eval::GetSupportedFunctions();
 	
 	for (const auto &next: vec) {
-		if (s == next.name) {
+		if (s == QLatin1String(next.name)) {
 			return true;
 		}
 	}
@@ -1200,7 +1200,7 @@ IsFunctionImplemented(const QStringRef &s) {
 	return false;
 }
 
-bool CompareVec(const QStringRef &lhs, const QStringRef &rhs) {
+bool CompareVec(QStringView lhs, QStringView rhs) {
 	return lhs < rhs;
 }
 
@@ -1211,7 +1211,7 @@ void GenerateFunctionsListForGitHub()
 	CHECK_TRUE_VOID(file.open(QIODevice::ReadOnly | QIODevice::Text));
 	QTextStream in(&file);
 	QString all = in.readAll();
-	QVector<QStringRef> list1 = all.splitRef(',');
+	auto list1 = QStringView(all).split(',');
 	
 	const int count = list1.size();
 	const int columns = 4;
@@ -1221,7 +1221,7 @@ void GenerateFunctionsListForGitHub()
 	QString heap = QLatin1String("Column 1 | Column 2 | Column 3 | Column 4\n");
 	heap.append("-------- | ---------- | -------- | ---------\n");
 	
-	QVector<QStringRef> vec;
+	QVector<QStringView> vec;
 	
 	for (const auto &item: list1) {
 		vec.append(item.trimmed());
@@ -1231,7 +1231,7 @@ void GenerateFunctionsListForGitHub()
 	std::sort(vec.begin(), vec.end(), CompareVec);
 	
 	for (int i = 0; i < count; i++) {
-		const QStringRef &name = vec[i];
+		const QStringView name = vec[i];
 		
 		if (IsFunctionImplemented(name)) {
 			implemented++;

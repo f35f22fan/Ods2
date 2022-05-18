@@ -7,7 +7,6 @@ set(CMAKE_AUTOMOC ON)
 
 include_directories(${Ods2_SOURCE_DIR})
 link_directories(${Ods2_BINARY_DIR})
-find_package(Qt5Core REQUIRED)
 
 # set all include directories for in and out of source builds
 include_directories(
@@ -29,5 +28,8 @@ endif (DEFINED QUAZIP_STATIC)
 
 add_library(quazip ${lib_type} ${src_files})
 get_property(zlib_libs GLOBAL PROPERTY zlib_libs_property)
-target_link_libraries(quazip Qt5::Core ${zlib_libs})
+target_link_libraries(quazip Qt${QT_VERSION_MAJOR}::Core ${zlib_libs})
+if (QT_VERSION_MAJOR EQUAL 6)
+    target_link_libraries(quazip Qt6::Core5Compat)
+endif()
 
