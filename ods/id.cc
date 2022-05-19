@@ -15,7 +15,7 @@ DcDate(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->manifest());
-	a->tag_name(ods::ns::kManifest);
+	a->tag_name(QLatin1String(ods::ns::kManifest));
 	a->func(DcDate);
 	a->id(Id::DcDate);
 }
@@ -25,7 +25,7 @@ DcTitle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->dc());
-	a->tag_name(ods::ns::kTitle);
+	a->tag_name(QLatin1String(ods::ns::kTitle));
 	a->func(DcTitle);
 	a->id(Id::DcTitle);
 }
@@ -35,7 +35,7 @@ DrawFrame(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->draw());
-	a->tag_name(ods::ns::kFrame);
+	a->tag_name(QLatin1String(ods::ns::kFrame));
 	a->func(DrawFrame);
 	a->id(Id::DrawFrame);
 }
@@ -45,7 +45,7 @@ DrawImage(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->draw());
-	a->tag_name(ods::ns::kImage);
+	a->tag_name(QLatin1String(ods::ns::kImage));
 	a->func(DrawImage);
 	a->id(Id::DrawImage);
 }
@@ -55,7 +55,7 @@ ManifestFileEntry(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->manifest());
-	a->tag_name(ods::ns::kFileEntry);
+	a->tag_name(QLatin1String(ods::ns::kFileEntry));
 	a->func(ManifestFileEntry);
 	a->id(Id::ManifestFileEntry);
 }
@@ -65,7 +65,7 @@ ManifestManifest(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->manifest());
-	a->tag_name(ods::ns::kManifest);
+    a->tag_name(QLatin1String(ods::ns::kManifest));
 	a->func(ManifestManifest);
 	a->id(Id::ManifestManifest);
 }
@@ -75,7 +75,7 @@ MetaCreationDate(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(ods::ns::kCreationDate);
+	a->tag_name(QLatin1String(ods::ns::kCreationDate));
 	a->func(MetaCreationDate);
 	a->id(Id::MetaCreationDate);
 }
@@ -85,7 +85,7 @@ MetaDocumentStatistic(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(ods::ns::kDocumentStatistic);
+	a->tag_name(QLatin1String(ods::ns::kDocumentStatistic));
 	a->func(MetaDocumentStatistic);
 	a->id(Id::MetaDocumentStatistic);
 }
@@ -95,7 +95,7 @@ MetaEditingCycles(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(ods::ns::kEditingCycles);
+	a->tag_name(QLatin1String(ods::ns::kEditingCycles));
 	a->func(MetaEditingCycles);
 	a->id(Id::MetaEditingCycles);
 }
@@ -105,7 +105,7 @@ MetaEditingDuration(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(ods::ns::kEditingDuration);
+	a->tag_name(QLatin1String(ods::ns::kEditingDuration));
 	a->func(MetaEditingDuration);
 	a->id(Id::MetaEditingDuration);
 }
@@ -115,7 +115,7 @@ MetaGenerator(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(ods::ns::kGenerator);
+	a->tag_name(QLatin1String(ods::ns::kGenerator));
 	a->func(MetaGenerator);
 	a->id(Id::MetaGenerator);
 }
@@ -125,7 +125,7 @@ MetaTemplate(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(ods::ns::kTemplate);
+	a->tag_name(QLatin1String(ods::ns::kTemplate));
 	a->func(MetaTemplate);
 	a->id(Id::MetaTemplate);
 }
@@ -135,7 +135,7 @@ NumberBoolean(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kBoolean);
+	a->tag_name(QLatin1String(ods::ns::kBoolean));
 	a->func(NumberBoolean);
 	a->id(Id::NumberBoolean);
 }
@@ -145,7 +145,7 @@ NumberBooleanStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kBooleanStyle);
+	a->tag_name(QLatin1String(ods::ns::kBooleanStyle));
 	a->func(NumberBooleanStyle);
 	a->bits() |= ods::inst::Bits::Style;
 	a->id(Id::NumberBooleanStyle);
@@ -156,7 +156,7 @@ NumberCurrencyStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kCurrencyStyle);
+	a->tag_name(QLatin1String(ods::ns::kCurrencyStyle));
 	a->func(NumberCurrencyStyle);
 	a->bits() |= ods::inst::Bits::Style;
 	a->id(Id::NumberCurrencyStyle);
@@ -167,7 +167,7 @@ NumberCurrencySymbol(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kCurrencySymbol);
+	a->tag_name(QLatin1String(ods::ns::kCurrencySymbol));
 	a->func(NumberCurrencySymbol);
 	a->id(Id::NumberCurrencySymbol);
 }
@@ -177,7 +177,7 @@ NumberDateStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kDateStyle);
+	a->tag_name(QLatin1String(ods::ns::kDateStyle));
 	a->func(NumberDateStyle);
 	a->bits() |= ods::inst::Bits::Style;
 	a->id(Id::NumberDateStyle);
@@ -188,7 +188,7 @@ NumberDay(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kDay);
+	a->tag_name(QLatin1String(ods::ns::kDay));
 	a->func(NumberDay);
 	a->id(Id::NumberDay);
 }
@@ -198,7 +198,7 @@ NumberHours(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kHours);
+	a->tag_name(QLatin1String(ods::ns::kHours));
 	a->func(NumberHours);
 	a->id(Id::NumberHours);
 }
@@ -208,7 +208,7 @@ NumberMinutes(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kMinutes);
+	a->tag_name(QLatin1String(ods::ns::kMinutes));
 	a->func(NumberMinutes);
 	a->id(Id::NumberMinutes);
 }
@@ -218,7 +218,7 @@ NumberMonth(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kMonth);
+	a->tag_name(QLatin1String(ods::ns::kMonth));
 	a->func(NumberMonth);
 	a->id(Id::NumberMonth);
 }
@@ -228,7 +228,7 @@ NumberNumber(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kNumber);
+	a->tag_name(QLatin1String(ods::ns::kNumber));
 	a->func(NumberNumber);
 	a->id(Id::NumberNumber);
 }
@@ -238,7 +238,7 @@ NumberNumberStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kNumberStyle);
+	a->tag_name(QLatin1String(ods::ns::kNumberStyle));
 	a->func(NumberNumberStyle);
 	a->bits() |= ods::inst::Bits::Style;
 	a->id(Id::NumberNumberStyle);
@@ -249,7 +249,7 @@ NumberPercentageStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kPercentageStyle);
+	a->tag_name(QLatin1String(ods::ns::kPercentageStyle));
 	a->func(NumberPercentageStyle);
 	a->bits() |= ods::inst::Bits::Style;
 	a->id(Id::NumberPercentageStyle);
@@ -260,7 +260,7 @@ NumberSeconds(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kSeconds);
+	a->tag_name(QLatin1String(ods::ns::kSeconds));
 	a->func(NumberSeconds);
 	a->id(Id::NumberSeconds);
 }
@@ -270,7 +270,7 @@ NumberText(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kText);
+	a->tag_name(QLatin1String(ods::ns::kText));
 	a->func(NumberText);
 	a->id(Id::NumberText);
 }
@@ -280,7 +280,7 @@ NumberTextContent(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kTextContent);
+	a->tag_name(QLatin1String(ods::ns::kTextContent));
 	a->func(NumberTextContent);
 	a->id(Id::NumberTextContent);
 }
@@ -290,7 +290,7 @@ NumberTextStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kTextStyle);
+	a->tag_name(QLatin1String(ods::ns::kTextStyle));
 	a->func(NumberTextStyle);
 	a->bits() |= ods::inst::Bits::Style;
 	a->id(Id::NumberTextStyle);
@@ -301,7 +301,7 @@ NumberTimeStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kTimeStyle);
+	a->tag_name(QLatin1String(ods::ns::kTimeStyle));
 	a->func(NumberTimeStyle);
 	a->bits() |= ods::inst::Bits::Style;
 	a->id(Id::NumberTimeStyle);
@@ -312,7 +312,7 @@ NumberYear(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(ods::ns::kYear);
+	a->tag_name(QLatin1String(ods::ns::kYear));
 	a->func(NumberYear);
 	a->id(Id::NumberYear);
 }
@@ -322,7 +322,7 @@ OfficeAutomaticStyles(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kAutomaticStyles);
+	a->tag_name(QLatin1String(ods::ns::kAutomaticStyles));
 	a->func(OfficeAutomaticStyles);
 	a->id(Id::OfficeAutomaticStyles);
 }
@@ -342,7 +342,7 @@ OfficeDocumentContent(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kDocumentContent);
+	a->tag_name(QLatin1String(ods::ns::kDocumentContent));
 	a->func(OfficeDocumentContent);
 	a->id(Id::OfficeDocumentContent);
 }

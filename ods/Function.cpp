@@ -285,7 +285,7 @@ Function::toXmlString() const {
 }
 
 Function*
-Function::TryNew(QStringRef s, int &skip, ods::Sheet *default_sheet)
+Function::TryNew(QStringView s, int &skip, ods::Sheet *default_sheet)
 {
 	int end_of_func_name = ods::FindNonAscii(s);
 	
@@ -302,7 +302,7 @@ Function::TryNew(QStringRef s, int &skip, ods::Sheet *default_sheet)
 #endif
 	
 	// now decode the params.
-	QStringRef params = s.mid(end_of_func_name);
+	QStringView params = s.mid(end_of_func_name);
 	int parenthesis_loc = params.indexOf('(');
 	
 	if (parenthesis_loc == -1)

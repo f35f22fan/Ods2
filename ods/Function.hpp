@@ -14,9 +14,9 @@ namespace ods {
 class ODS_API Function {
 public:
 	virtual ~Function();
-	
-	static Function* TryNew(QStringRef s, int &skip, Sheet *default_sheet);
-	
+
+	static Function *TryNew(QStringView s, int &skip, Sheet *default_sheet);
+
 	void AddArg(ods::FormulaNode *node);
 	void AddArg(ods::Reference *a);
 	void AddArg(double d);

@@ -33,7 +33,7 @@ ApplyBool(const QString &str, ods::Bool &b)
 }
 
 int
-ColumnLettersToNumber(const QStringRef &letters)
+ColumnLettersToNumber(QStringView letters)
 {
 	const auto char_A_code = QChar('A').unicode();
 	int col = 0;
@@ -84,15 +84,15 @@ ColumnNumberToLetters(const int column)
 }
 
 CellRef*
-CreateCellRef(ods::Sheet *default_sheet, QStringRef address, ods::CellRef *first_one)
+CreateCellRef(ods::Sheet *default_sheet, QStringView address, ods::CellRef *first_one)
 {
-	QStringRef sheet_name;
+	QStringView sheet_name;
 	int dot = -1;
 	CHECK_TRUE_NULL(ParseTableName(address, sheet_name, &dot));
 	auto *book = default_sheet->book();
 	auto *sp = book->spreadsheet();
 	auto *sheet = sp->GetSheet(sheet_name);
-	
+
 	if (sheet == nullptr) {
 //		auto ba = sheet_name.toLocal8Bit();
 //		mtl_warn("Couldn't find sheet by name: \"%s\"", ba.data());
@@ -119,17 +119,17 @@ CreateCellRef(ods::Sheet *default_sheet, QStringRef address, ods::CellRef *first
 			break;
 		}
 	}
-	
+
 	RET_IF_EQUAL_NULL(digit_index, -1);
-	
-	QStringRef letters = cell_name.left(digit_index);
+
+	QStringView letters = cell_name.left(digit_index);
 	if (letters.startsWith('$'))
 		letters = letters.mid(1);
 	if (letters.endsWith('$'))
 		letters = letters.left(letters.size() - 1);
 	
 	const int col = ods::ColumnLettersToNumber(letters);
-	QStringRef digits = cell_name.right(count - digit_index);
+	QStringView digits = cell_name.right(count - digit_index);
 //	mtl_printq2("letters: ", letters.toString());
 //	mtl_printq2("digits: ", digits.toString());
 //	mtl_printq2("address: ", address.toString());
@@ -157,7 +157,7 @@ DPI(const double dpi_param)
 }
 
 int
-FindEndOfSingleQuotedString(const QStringRef &s)
+FindEndOfSingleQuotedString(QStringView s)
 {
 	const QChar SingleQuote('\'');
 	const int start_at = 1; // skip first single quote
@@ -179,7 +179,7 @@ FindEndOfSingleQuotedString(const QStringRef &s)
 }
 
 int
-FindNonAscii(const QStringRef &s, const int from)
+FindNonAscii(QStringView s, const int from)
 {
 	for (int i = from; i < s.size(); i++) {
 		QChar c = s.at(i);
@@ -193,7 +193,7 @@ FindNonAscii(const QStringRef &s, const int from)
 }
 
 int
-FindNonWhitespace(const QStringRef &str, const int from)
+FindNonWhitespace(QStringView str, const int from)
 {
 	for (int i = from; i < str.size(); i++) {
 		const QChar c = str.at(i);
@@ -222,7 +222,7 @@ FontSizeToString(const double size, const style::FontSizeType size_type)
 }
 
 bool
-ParseTableName(const QStringRef &address, QStringRef &name, int *ret_dot)
+ParseTableName(QStringView address, QStringView &name, int *ret_dot)
 {
 	CHECK_TRUE((!address.isEmpty()));
 	int dot = address.lastIndexOf('.');

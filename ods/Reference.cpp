@@ -67,7 +67,7 @@ Reference::Cell(Sheet *default_sheet, CellRef *ref)
 }
 
 Reference*
-Reference::Cell(Sheet *default_sheet, QStringRef str)
+Reference::Cell(Sheet *default_sheet, QStringView str)
 {
 	Reference *reference = new Reference();
 	reference->default_sheet_ = default_sheet;
@@ -86,7 +86,7 @@ Reference::CellRange(Sheet *default_sheet, CellRef *start, CellRef *end)
 }
 
 Reference*
-Reference::CellRange(Sheet *default_sheet, QStringRef start, QStringRef end)
+Reference::CellRange(Sheet *default_sheet, QStringView start, QStringView end)
 {
 	Reference *reference = new Reference();
 	reference->default_sheet_ = default_sheet;
@@ -124,14 +124,14 @@ Reference::Clone() const
 }
 
 Reference*
-Reference::From(const QStringRef &str, Sheet *default_sheet)
+Reference::From(QStringView str, Sheet *default_sheet)
 {
 	int index = str.indexOf(':');
 	if (index == -1)
 		return Reference::Cell(default_sheet, str);
 	
-	QStringRef start = str.mid(0, index);
-	QStringRef end = str.mid(index + 1);
+	auto start = str.mid(0, index);
+	auto end = str.mid(index + 1);
 	return Reference::CellRange(default_sheet, start, end);
 }
 
@@ -217,7 +217,7 @@ Reference::Offset(int row_off, int col_off, int new_h, int new_w) const
 }
 
 Reference*
-Reference::R1C1From(QStringRef str, ods::Formula *formula)
+Reference::R1C1From(QStringView str, ods::Formula *formula)
 {
 	int excl = str.indexOf('!');
 	ods::Sheet *reference_sheet = nullptr;
@@ -242,7 +242,7 @@ Reference::R1C1From(QStringRef str, ods::Formula *formula)
 	
 	auto row_ref = str.mid(0, C);
 	auto col_ref = str.mid(C);
-	QStringRef num_ref;
+	QStringView num_ref;
 	
 	if (row_ref.endsWith(']')) {
 		is_relative = true;

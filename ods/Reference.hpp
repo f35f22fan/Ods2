@@ -26,22 +26,22 @@ public:
 	
 	static Reference*
 	Cell(ods::Sheet *default_sheet, CellRef *ref);
-	
+
 	static Reference*
-	Cell(ods::Sheet *default_sheet, QStringRef cell_str);
-	
+	Cell(ods::Sheet *default_sheet, QStringView cell_str);
+
 	static Reference*
 	CellRange(Sheet *default_sheet, CellRef *start, CellRef *end);
-	
+
 	static Reference*
-	CellRange(ods::Sheet *default_sheet, QStringRef start, QStringRef end);
-	
+	CellRange(ods::Sheet *default_sheet, QStringView start, QStringView end);
+
 	static Reference*
-	From(const QStringRef &str, Sheet *default_sheet);
-	
+	From(QStringView str, Sheet *default_sheet);
+
 	static Reference*
-	R1C1From(QStringRef str, Formula *formula);
-	
+	R1C1From(QStringView str, Formula *formula);
+
 	bool
 	GenCells(QVector<ods::Cell*> &cells);
 	

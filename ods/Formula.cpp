@@ -100,7 +100,7 @@ GetColored(const QString &str, int start, int count)
 }
 
 Reference*
-Formula::CellAddressOrRange(QStringRef s, int &skip,
+Formula::CellAddressOrRange(QStringView s, int &skip,
 	ods::Sheet *default_sheet)
 {
 	const QChar SingleQuote('\'');
@@ -127,13 +127,13 @@ Formula::CellAddressOrRange(QStringRef s, int &skip,
 	skip += end + 1;
 	
 	if (colon != -1) {
-		QStringRef start_cell = s.mid(0, colon);
+		QStringView start_cell = s.mid(0, colon);
 		const int pos = colon + 1;
-		QStringRef end_cell = s.mid(pos, end - pos);
+		QStringView end_cell = s.mid(pos, end - pos);
 		return Reference::CellRange(default_sheet, start_cell, end_cell);
 	}
 	
-	QStringRef cell = s.mid(0, end);
+	QStringView cell = s.mid(0, end);
 	return Reference::Cell(default_sheet, cell);
 }
 
@@ -188,7 +188,7 @@ Formula::EvaluateNodes(QVector<FormulaNode *> &nodes)
 }
 
 bool
-Formula::ParseNext(QStringRef s, int &resume_at,
+Formula::ParseNext(QStringView s, int &resume_at,
 	QVector<FormulaNode*> &vec,
 	ods::Sheet *default_sheet, u8 &settings)
 {
@@ -230,7 +230,7 @@ Formula::ParseNext(QStringRef s, int &resume_at,
 		return true;
 	}
 	
-	if (s.startsWith(')')) {
+	if (s.startsWith(u')')) {
 #ifdef DEBUG_FORMULA_PARSING
 mtl_info("Brace )");
 #endif
@@ -269,10 +269,10 @@ mtl_info("Param separator ;");
 		return true;
 	}
 	
-	if (s.startsWith("\"")) {
-		int end = s.indexOf("\"", 1);
+	if (s.startsWith(u"\"")) {
+		int end = s.indexOf(u"\"", 1);
 		CHECK_TRUE((end != -1));
-		QStringRef str_arg = s.mid(1, end - 1);
+		QStringView str_arg = s.mid(1, end - 1);
 		auto ba = str_arg.toLocal8Bit();
 		mtl_info("String: \"%s\"", ba.data());
 		resume_at += end + 1;
@@ -288,7 +288,7 @@ mtl_info("Param separator ;");
 	int at = as_str.indexOf(digit_regex, 0, &rmatch);
 	const bool is_number = (at == 0);
 	if (is_number) {
-		QStringRef number_str = rmatch.capturedRef(0);
+		QStringView number_str = rmatch.capturedView(0);
 		bool ok;
 		double num = number_str.toDouble(&ok);
 #ifdef DEBUG_FORMULA_PARSING
@@ -310,7 +310,7 @@ mtl_info("Param separator ;");
 	at = as_str.indexOf(op_regex, 0, &regex_match);
 	const bool found_op = (at == 0);
 	if (found_op) {
-		QStringRef captured_op_str = regex_match.capturedRef(0);
+		QStringView captured_op_str = regex_match.capturedView(0);
 #ifdef DEBUG_FORMULA_PARSING
 		auto ba = captured_op_str.toLocal8Bit();
 		mtl_info("op \"%s\"", ba.data());
@@ -358,7 +358,7 @@ Formula::ProcessFormulaString(QString s, QVector<FormulaNode*> &nodes)
 	int resume_at = 0;
 	int chunk = 0;
 	u8 settings = 0;
-	QStringRef str_ref = s.midRef(0);
+	QStringView str_ref(s);
 	
 	while (ParseNext(str_ref, chunk, nodes, default_sheet_, settings)) {
 		resume_at += chunk;
@@ -394,7 +394,7 @@ Formula::ParseString(const QString &s, QVector<FormulaNode*> &result,
 	u8 settings = 0;
 	int chunk = 0;
 	int resume_at = 0;
-	QStringRef str_ref = s.midRef(0);
+	QStringView str_ref(s);
 	
 	while (ParseNext(str_ref, chunk, result, default_sheet, settings)) {
 		resume_at += chunk;
@@ -417,7 +417,7 @@ Formula::ParseString(const QString &s, QVector<FormulaNode*> &result,
 }
 
 inst::TableNamedRange*
-Formula::StartsWithNamedRange(QStringRef &s, ods::Sheet *sheet) {
+Formula::StartsWithNamedRange(QStringView s, ods::Sheet *sheet) {
 	const auto &named_ranges = sheet->book()->GetAllNamedRanges();
 	for (inst::TableNamedRange *nr: named_ranges) {
 		

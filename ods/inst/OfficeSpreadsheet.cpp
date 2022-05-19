@@ -72,7 +72,7 @@ OfficeSpreadsheet::GetSheet(const int index) const
 }
 
 ods::Sheet*
-OfficeSpreadsheet::GetSheet(const QStringRef name) const
+OfficeSpreadsheet::GetSheet(QStringView name) const
 {
 	if (name.isEmpty())
 		return nullptr;
@@ -107,7 +107,7 @@ OfficeSpreadsheet::NewSheet(const QString &name)
 		return nullptr;
 	}
 	
-	if (GetSheet(name.midRef(0)) != nullptr)
+	if (GetSheet(name) != nullptr)
 		return nullptr;
 	
 	auto *sheet = new ods::Sheet(this);

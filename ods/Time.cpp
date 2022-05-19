@@ -8,7 +8,6 @@
 #include "err.hpp"
 
 #include <QtCore/QDebug>
-#include <QtCore/QStringRef>
 
 namespace ods	{
 
@@ -88,7 +87,7 @@ Time::Parse(const QString &orig_str)
 	i32 ms = 0;
 	bool negative = false;
 	
-	QStringRef str_ref = orig_str.midRef(0);
+	QStringView str_ref(orig_str);
 	if (str_ref.startsWith(QChar('-'))) {
 		negative = true;
 		str_ref = str_ref.mid(1);
@@ -103,7 +102,7 @@ Time::Parse(const QString &orig_str)
 	
 	int h_index = str_ref.indexOf('H');
 	RET_IF_EQUAL(h_index, -1);
-	QStringRef hours = str_ref.mid(0, h_index);
+	QStringView hours = str_ref.mid(0, h_index);
 	i32 n = hours.toInt(&ok);
 	CHECK_TRUE(ok);
 	hrs = n;
@@ -112,7 +111,7 @@ Time::Parse(const QString &orig_str)
 	int m_index = str_ref.indexOf('M');
 	RET_IF_EQUAL(m_index, -1);
 	auto min_ref = str_ref.mid(0, m_index);
-	QStringRef minutes = min_ref.mid(0, 2);
+	QStringView minutes = min_ref.mid(0, 2);
 	n = minutes.toInt(&ok);
 	CHECK_TRUE(ok);
 	min = n;
@@ -129,7 +128,7 @@ Time::Parse(const QString &orig_str)
 		CHECK_TRUE(ok);
 		sec = n;
 	} else {
-		QStringRef seconds = str_ref.mid(0, index);
+		QStringView seconds = str_ref.mid(0, index);
 		n = seconds.toInt(&ok);
 		CHECK_TRUE(ok);
 		sec = n;

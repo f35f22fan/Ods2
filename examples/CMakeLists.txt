@@ -17,9 +17,7 @@ if(WIN32)
 	set(GUI_TYPE "") #or WIN32 for no console output
 endif (WIN32)
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5Test REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 
 set(src_files
 	examples1.cc examples1.hh
@@ -40,7 +38,7 @@ add_definitions(-DODS2_TEST_DIR="${Ods2_SOURCE_DIR}")
 set (exe_name "app")
 add_executable(${exe_name} ${GUI_TYPE} ${src_files})
 get_property(zlib_libs GLOBAL PROPERTY zlib_libs_property)
-target_link_libraries(${exe_name} ods quazip ${zlib_libs} Qt5::Core Qt5::Gui)
+target_link_libraries(${exe_name} ods quazip ${zlib_libs} Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui)
 
 ## enable_testing() seems to not make a difference
 ## since cmake builds the tests regardless
@@ -52,7 +50,7 @@ target_link_libraries(${exe_name} ods quazip ${zlib_libs} Qt5::Core Qt5::Gui)
 #macro(add_test testname testsrc)
 #set(test_${testname}_SRCS ${testsrc})
 #add_executable(test_${testname} ${test_${testname}_SRCS})
-#target_link_libraries(test_${testname} Qt5::Core Qt5::Gui Qt5::Test ods)
+#target_link_libraries(test_${testname} Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Test ods)
 #endmacro(add_test)
 
 #include_directories(test)

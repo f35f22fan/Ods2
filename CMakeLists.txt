@@ -7,6 +7,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} 5.15 COMPONENTS Core Gui REQUIRED)
+if (QT_VERSION_MAJOR EQUAL 6)
+    find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
+endif()
+
 #only build zlib on windows because unix has it by default
 IF(WIN32)
 	include_directories(${Ods2_SOURCE_DIR}/zlib)
