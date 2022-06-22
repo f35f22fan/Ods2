@@ -23,8 +23,8 @@ public:
 	bool
 	IsFont(const QString &font_name) const;
 	
-	const QString&
-	style_name() const { return style_name_; }
+	QString*
+	style_name() override { return &style_name_; }
 	
 	const QString&
 	font_family() const { return svg_font_family_; }

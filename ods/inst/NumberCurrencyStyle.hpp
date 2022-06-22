@@ -18,8 +18,8 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	virtual QString*
-	data_style_name() { return nullptr; }
+	QString*
+	data_style_name() override { return nullptr; }
 	
 	NumberCurrencySymbol*
 	FetchCurrencySymbol();
@@ -39,8 +39,8 @@ public:
 	void
 	style_name(const QString &s) { style_name_ = s; }
 	
-	virtual QString*
-	parent_style_name() { return nullptr; }
+	QString*
+	parent_style_name() override { return nullptr; }
 	
 	void
 	WriteData(QXmlStreamWriter &xml) override;
