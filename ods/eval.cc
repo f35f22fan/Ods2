@@ -36,7 +36,7 @@ CommonForSumIfLikeFunctions_BuildUp(const QVector<ods::FormulaNode*> &values,
 	QVector<FormulaNode*> &cond_nodes,
 	QVector<FormulaNode*> *sum_range_vec)
 {
-	CHECK_TRUE((values.size() == 3));
+	CHECK_TRUE(values.size() == 3);
 	
 	if (sum_range_vec != nullptr)
 	{

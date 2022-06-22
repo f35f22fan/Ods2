@@ -162,28 +162,28 @@
 }
 
 #define CHECK_TRUE(x) {\
-	if (!x) {\
+	if (!(x)) {\
 		mtl_trace();\
 		return false;\
 	}\
 }
 
 #define CHECK_TRUE_NULL(x) {\
-	if (!x) {\
+	if (!(x)) {\
 		mtl_trace();\
 		return nullptr;\
 	}\
 }
 
 #define CHECK_TRUE_VOID(x) {\
-	if (!x) {\
+	if (!(x)) {\
 		mtl_trace();\
 		return;\
 	}\
 }
 
 #define CHECK_TRUE_QSTR(x) {\
-	if (!x) {\
+	if (!(x)) {\
 		mtl_trace();\
 		return QString();\
 	}\
