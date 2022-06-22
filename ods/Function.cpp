@@ -239,7 +239,7 @@ Function::PrintArgs(const QString &msg) const
 			s.append(node->toString()).append(separator);
 		}
 		auto ba = s.toLocal8Bit();
-		mtl_info("%d/%d %s", i, args_->size() - 1, ba.data());
+		mtl_info("%d/%d %s", i, static_cast<int>(args_->size()) - 1, ba.data());
 	}
 	
 }

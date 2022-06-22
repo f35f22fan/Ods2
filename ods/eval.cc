@@ -36,7 +36,7 @@ CommonForSumIfLikeFunctions_BuildUp(const QVector<ods::FormulaNode*> &values,
 	QVector<FormulaNode*> &cond_nodes,
 	QVector<FormulaNode*> *sum_range_vec)
 {
-	CHECK_TRUE(values.size() == 3);
+	CHECK_TRUE((values.size() == 3));
 	
 	if (sum_range_vec != nullptr)
 	{
@@ -161,7 +161,7 @@ FormatAsDateTime(const QString &format_str, QDate *date_arg, QTime *time_arg, QS
 		QChar c = format_str.at(i);
 		if (c == ' ' || c == '\t') {
 			if (!tokens.isEmpty()) {
-				separators.append(Sep {tokens.size() + 1, c} );
+				separators.append(Sep {static_cast<int>(tokens.size()) + 1, c} );
 				int token_size = i - token_start;
 				auto sub = format_str.mid(token_start, token_size);
 				//mtl_printq(sub);
@@ -181,7 +181,7 @@ FormatAsDateTime(const QString &format_str, QDate *date_arg, QTime *time_arg, QS
 		
 		if (is_sep || at_end) {
 			if (is_sep)
-				separators.append(Sep {tokens.size() + 1, c});
+				separators.append(Sep {static_cast<int>(tokens.size()) + 1, c});
 			
 			if (at_end)
 				i++;
@@ -641,7 +641,7 @@ void NodeToStr(FormulaNode *node, QString &type_str, QString &node_str)
 void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg)
 {
 	if (msg.isEmpty())
-		mtl_info("Formula nodes (%d):", nodes.size());
+		mtl_info("Formula nodes (%d):", static_cast<int>(nodes.size()));
 	else {
 		auto ba = msg.toLocal8Bit();
 		mtl_info("%s", ba.data());
