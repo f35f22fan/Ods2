@@ -17,6 +17,7 @@ enum class CurrencyId : u16 {
 	JPY,
 	XBT,
 	ETH,
+	SEK,
 };
 
 struct ODS_API Currency {

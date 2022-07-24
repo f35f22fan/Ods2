@@ -22,6 +22,7 @@ static const char * SYMBOL_RUB = "₽";
 static const char * SYMBOL_JPY = "¥";
 static const char * SYMBOL_XBT = "₿";
 static const char * SYMBOL_ETH = "Ξ";
+static const char * SYMBOL_SEK = "kr";
 
 CurrencyInfo info(const CurrencyId &id)
 {
@@ -34,6 +35,7 @@ CurrencyInfo info(const CurrencyId &id)
 	case CurrencyId::JPY: return CurrencyInfo{"JPY", SYMBOL_JPY};
 	case CurrencyId::XBT: return CurrencyInfo{"XBT", SYMBOL_XBT};
 	case CurrencyId::ETH: return CurrencyInfo{"ETH", SYMBOL_ETH};
+	case CurrencyId::SEK: return CurrencyInfo{"SEK", SYMBOL_SEK};
 	default: {
 		mtl_trace();
 		return {"", ""};
@@ -49,6 +51,7 @@ Currency RUB(double d) { return Currency { CurrencyId::RUB, d }; }
 Currency JPY(double d) { return Currency { CurrencyId::JPY, d }; }
 Currency XBT(double d) { return Currency { CurrencyId::XBT, d }; }
 Currency ETH(double d) { return Currency { CurrencyId::ETH, d }; }
+Currency SEK(double d) { return Currency { CurrencyId::SEK, d }; }
 
 ods::Currency*
 Query(const QString &country, const QString &symbol)
@@ -73,7 +76,9 @@ Query(const QString &country, const QString &symbol)
 		return new Currency(XBT(0));
 	if (symbol == SYMBOL_ETH)
 		return new Currency(ETH(0));
-	
+	if (symbol == SYMBOL_SEK)
+		return new Currency(SEK(0));
+
 	it_happened();
 	return nullptr;
 }
