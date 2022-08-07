@@ -167,9 +167,12 @@ Cell::GetFirstString() const
 }
 
 inst::StyleStyle*
-Cell::GetStyle() const
+Cell::GetStyle(const CreateIfNeeded cin)
 {
-	return Get(table_style_name_);
+	auto *style = Get(table_style_name_);
+	
+	return (cin == CreateIfNeeded::Yes && style == nullptr) ?
+		NewStyle() : style;
 }
 
 void

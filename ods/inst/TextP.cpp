@@ -9,6 +9,7 @@
 
 #include "../Ns.hpp"
 #include "../ns.hxx"
+#include "../record.hh"
 #include "../Tag.hpp"
 
 namespace ods { // ods::

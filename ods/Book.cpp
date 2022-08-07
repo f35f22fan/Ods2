@@ -1,9 +1,11 @@
 #include "Book.hpp"
 
+#include "AutoDelete.hh"
 #include "filename.hxx"
 #include "Ns.hpp"
 #include "ns.hxx"
 #include "ods.hh"
+#include "record.hh"
 #include "Sheet.hpp"
 #include "Tag.hpp"
 
@@ -31,6 +33,7 @@ Book::Book()
 	double dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
 	ods::DPI(dpi);
 	InitTempDir();
+	records_ = new Records();
 }
 
 Book::~Book()
@@ -42,6 +45,9 @@ Book::~Book()
 	
 	delete named_ranges_; // its items don't belong to it.
 	named_ranges_ = nullptr;
+	
+	delete records_;
+	records_ = nullptr;
 }
 
 Book*
@@ -175,10 +181,10 @@ Book::GetMimeType(const QString &file_path)
 void
 Book::InitDefault()
 {
-	document_content_ = new inst::OfficeDocumentContent(this, new Ns());
-	manifest_ = new inst::ManifestManifest(this, new Ns());
-	document_meta_ = new inst::OfficeDocumentMeta(this, new Ns());
-	document_styles_ = new inst::OfficeDocumentStyles(this, new Ns());
+	document_content_ = new inst::OfficeDocumentContent(this, Ns::Default());
+	manifest_ = new inst::ManifestManifest(this, Ns::Default());
+	document_meta_ = new inst::OfficeDocumentMeta(this, Ns::Default());
+	document_styles_ = new inst::OfficeDocumentStyles(this, Ns::Default());
 }
 
 void
@@ -221,38 +227,50 @@ Book::Load(const QString &full_path, QString *err)
 		return;
 	}
 	
-	for (const auto &path : extracted_file_paths_) {
-		if (path.endsWith(ods::filename::ContentXml)) {
-			LoadContentXml(path, err);
-			break;
-		}
+/* IN PROGRESS:
+  EDF IDs = the implicit IDs of XML tags in an EDF to be able to refer to them
+  by some ID without having to modify the zip (open document) file.
+  These IDS need to have 2 parts: the XML file they're from and the index
+  which they appear in this XML file.
+  So if content.xml is listed in 3rd place inside "manifest.xml"
+  and it has a tag called "<abc></abc>" that is in
+  the 5th place inside content.xml, then its implied (global) EDF ID will be "3:5".
+*/
+	SwitchToFalseLater stfl(&loading_);
+	loading_ = true;
+	{
+		cauto file_index = ods::FindIndexThatEndsWith(extracted_file_paths_,
+			QString(ods::filename::ManifestXml));
+		CHECK_TRUE_VOID(file_index != -1);
+		LoadManifestXml(file_index, err);
 	}
 	
-	for (const auto &path : extracted_file_paths_) {
-		if (path.endsWith(ods::filename::ManifestXml)) {
-			LoadManifestXml(path, err);
-			break;
-		}
+	{
+		cauto file_index = ods::FindIndexThatEndsWith(extracted_file_paths_,
+			QString(ods::filename::ContentXml));
+		CHECK_TRUE_VOID(file_index != -1);
+		LoadContentXml(file_index, err);
 	}
 	
-	for (const auto &path : extracted_file_paths_) {
-		if (path.endsWith(ods::filename::MetaXml)) {
-			LoadMetaXml(path, err);
-			break;
-		}
+	{
+		cauto file_index = ods::FindIndexThatEndsWith(extracted_file_paths_,
+			QString(ods::filename::MetaXml));
+		CHECK_TRUE_VOID(file_index != -1);
+		LoadMetaXml(file_index, err);
 	}
 	
-	for (const auto &path : extracted_file_paths_) {
-		if (path.endsWith(ods::filename::StylesXml)) {
-			LoadStylesXml(path, err);
-			break;
-		}
+	{
+		cauto file_index = ods::FindIndexThatEndsWith(extracted_file_paths_,
+			QString(ods::filename::StylesXml));
+		CHECK_TRUE_VOID(file_index != -1);
+		LoadStylesXml(file_index, err);
 	}
 }
 
 void
-Book::LoadContentXml(const QString &full_path, QString *err)
+Book::LoadContentXml(ci32 file_index, QString *err)
 {
+	cauto &full_path = extracted_file_paths_[file_index];
 	QFile file(full_path);
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -275,8 +293,7 @@ Book::LoadContentXml(const QString &full_path, QString *err)
 		
 		if (xml.name() == QLatin1String(ods::ns::kDocumentContent))
 		{
-			auto *ns = new ods::Ns();
-			ns->Read(xml);
+			Ns *ns = Ns::FromXml(xml, file_index);
 			auto *tag = ods::Tag::From(xml, ns);
 			document_content_ = new inst::OfficeDocumentContent(this, ns, tag);
 			break;
@@ -288,8 +305,9 @@ Book::LoadContentXml(const QString &full_path, QString *err)
 }
 
 void
-Book::LoadManifestXml(const QString &full_path, QString *err)
+Book::LoadManifestXml(ci32 file_index, QString *err)
 {
+	cauto &full_path = extracted_file_paths_[file_index];
 	QFile file(full_path);
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -312,8 +330,7 @@ Book::LoadManifestXml(const QString &full_path, QString *err)
 		
 		if (xml.name() == QLatin1String(ods::ns::kManifest))
 		{
-			auto *ns = new ods::Ns();
-			ns->Read(xml);
+			auto *ns = Ns::FromXml(xml, file_index);
 			auto *tag = ods::Tag::From(xml, ns);
 			manifest_ = new ods::inst::ManifestManifest(this, ns, tag);
 			break;
@@ -325,8 +342,9 @@ Book::LoadManifestXml(const QString &full_path, QString *err)
 }
 
 void
-Book::LoadMetaXml(const QString &full_path, QString *err)
+Book::LoadMetaXml(ci32 file_index, QString *err)
 {
+	cauto &full_path = extracted_file_paths_[file_index];
 	QFile file(full_path);
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -338,19 +356,17 @@ Book::LoadMetaXml(const QString &full_path, QString *err)
 	
 	QXmlStreamReader xml(&file);
 	QXmlStreamReader::TokenType token;
+	cauto dm = QLatin1String(ods::ns::kDocumentMeta);
 	
 	while(!xml.atEnd() && !xml.hasError())
 	{
 		token = xml.readNext();
-		//if (token == QXmlStreamReader::StartDocument)
-		
 		if (token != QXmlStreamReader::StartElement)
 			continue;
 		
-		if (xml.name() == QLatin1String(ods::ns::kDocumentMeta))
+		if (xml.name() == dm)
 		{
-			auto *ns = new ods::Ns();
-			ns->Read(xml);
+			auto *ns = Ns::FromXml(xml, file_index);
 			auto *tag = ods::Tag::From(xml, ns);
 			document_meta_ = new inst::OfficeDocumentMeta(this, ns, tag);
 			break;
@@ -362,8 +378,9 @@ Book::LoadMetaXml(const QString &full_path, QString *err)
 }
 
 void
-Book::LoadStylesXml(const QString &full_path, QString *err)
+Book::LoadStylesXml(ci32 file_index, QString *err)
 {
+	cauto &full_path = extracted_file_paths_[file_index];
 	QFile file(full_path);
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
@@ -385,8 +402,7 @@ Book::LoadStylesXml(const QString &full_path, QString *err)
 		
 		if (xml.name() == QLatin1String(ods::ns::kDocumentStyles))
 		{
-			auto *ns = new ods::Ns();
-			ns->Read(xml);
+			auto *ns = Ns::FromXml(xml, file_index);
 			auto *tag = ods::Tag::From(xml, ns);
 			document_styles_ = new inst::OfficeDocumentStyles(this, ns, tag);
 			break;
@@ -451,7 +467,7 @@ Book::Save(const QFile &target, QString *err)
 	QDir base_dir(temp_dir_path_);
 	
 	QString full_path;
-	const QString MetaInf = QStringLiteral("META-INF");
+	const QString MetaInf = QLatin1String("META-INF");
 	
 	full_path = base_dir.filePath(ods::filename::ContentXml);
 	Save(document_content_, full_path, err);
@@ -464,7 +480,7 @@ Book::Save(const QFile &target, QString *err)
 	if (!meta_dir.exists()) {
 		if (!base_dir.mkdir(MetaInf)) {
 			if (err != nullptr)
-				*err = "Failed to create meta-inf dir";
+				*err = QLatin1String("Failed to create meta-inf dir");
 			return false;
 		}
 	}
@@ -498,8 +514,6 @@ Book::Save(const QFile &target, QString *err)
 		return false;
 	}
 	
-//	auto ba = ods_path.toLocal8Bit();
-//	mtl_line("Saved as: %s", ba.data());
 	return true;
 }
 

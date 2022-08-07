@@ -18,6 +18,7 @@ link_directories(${Ods2_BINARY_DIR}/lib)
 
 set(lib_files
 	Attr.cpp Attr.hpp
+	AutoDelete.hh
 	Book.cpp Book.hpp
 	Cell.cpp Cell.hpp cell.hxx
 	CellRef.cpp CellRef.hpp
@@ -44,6 +45,7 @@ set(lib_files
 	ods ods.cc ods.hh ods.hxx
 	op.cc op.hh
 	Prefix.cpp Prefix.hpp
+	record.cc record.hh
 	Reference.cpp Reference.hpp
 	Row.cpp Row.hpp
 	Sheet.cpp Sheet.hpp

@@ -69,6 +69,13 @@ public:
 	inst::StyleStyle*
 	NewStyle(const Place place, const style::Family f);
 	
+	bool quick_save() const {
+		return loading_ ? false : (quick_save_mode_ == QuickSave::Yes);
+	}
+	void quick_save(const QuickSave s) { quick_save_mode_ = s; }
+	
+	Records* records() const { return records_; }
+	
 	bool // returns true on success
 	Save(const QFile &target, QString *err);
 	
@@ -87,15 +94,16 @@ private:
 	void InitTempDir();
 	void InitDefault();
 	void Load(const QString &full_path, QString *err);
-	void LoadContentXml(const QString &full_path, QString *err);
-	void LoadManifestXml(const QString &full_path, QString *err);
-	void LoadMetaXml(const QString &full_path, QString *err);
-	void LoadStylesXml(const QString &full_path, QString *err);
+	void LoadContentXml(ci32 file_index, QString *err);
+	void LoadManifestXml(ci32 file_index, QString *err);
+	void LoadMetaXml(ci32 file_index, QString *err);
+	void LoadStylesXml(ci32 file_index, QString *err);
 	bool Save(inst::Abstract *top, const QString &full_path, QString *err);
 	void Scan(ods::Tag *parent);
 	
 	QMimeDatabase db_;
 	const bool dev_mode_ = true;
+	bool loading_ = false;
 	QStringList extracted_file_paths_;
 	QString media_dir_path_;
 	
@@ -106,6 +114,9 @@ private:
 	inst::OfficeDocumentStyles *document_styles_ = nullptr;
 	inst::ManifestManifest *manifest_ = nullptr;
 	QVector<inst::TableNamedRange*> *named_ranges_ = nullptr;
+	
+	QuickSave quick_save_mode_ = QuickSave::No;
+	Records *records_ = nullptr;
 	
 	friend class inst::OfficeDocumentContent;
 	friend class inst::OfficeDocumentMeta;

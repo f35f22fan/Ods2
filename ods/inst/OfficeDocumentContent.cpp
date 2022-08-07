@@ -106,24 +106,32 @@ OfficeDocumentContent::InitDefault()
 void
 OfficeDocumentContent::Scan(ods::Tag *tag)
 {
-	for (auto *x: tag->nodes())
+	for (auto *node: tag->nodes())
 	{
-		if (!x->is_tag())
+		if (!node->is_tag())
 			continue;
 		
-		auto *next = x->as_tag();
-		
-		if (next->Is(ns_->office(), ods::ns::kAutomaticStyles)) {
-			office_automatic_styles_ = new OfficeAutomaticStyles(this, next);
-		} else if (next->Is(ns_->office(), ods::ns::kBody)) {
-			office_body_ = new OfficeBody(this, next);
-		} else if (next->Is(ns_->office(), ods::ns::kFontFaceDecls)) {
-			office_font_face_decls_ = new OfficeFontFaceDecls(this, next);
-		} else if (next->Is(ns_->office(), ods::ns::kScripts)) {
-			office_scripts_ = new OfficeScripts(this, next);
+		bool scan = false;
+		ods::Tag *subtag = node->as_tag();
+		if (subtag->Has(ns_->office()))
+		{
+			if (subtag->Has(ods::ns::kAutomaticStyles)) {
+				office_automatic_styles_ = new OfficeAutomaticStyles(this, subtag);
+			} else if (subtag->Has(ods::ns::kBody)) {
+				office_body_ = new OfficeBody(this, subtag);
+			} else if (subtag->Has(ods::ns::kFontFaceDecls)) {
+				office_font_face_decls_ = new OfficeFontFaceDecls(this, subtag);
+			} else if (subtag->Has(ods::ns::kScripts)) {
+				office_scripts_ = new OfficeScripts(this, subtag);
+			} else {
+				scan = true;
+			}
 		} else {
-			Scan(next);
+			scan = true;
 		}
+		
+		if (scan)
+			Scan(subtag);
 	}
 }
 
@@ -131,7 +139,9 @@ void
 OfficeDocumentContent::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->office(), ods::ns::kVersion, office_version_);
-	
+	auto &ids = ns_->ids();
+	UriId tag_id = ids.Office;
+	mtl_info("office id: %d, style_id: %d", tag_id, ids.Style);
 	office_scripts_->Write(xml);
 	office_font_face_decls_->Write(xml);
 	office_automatic_styles_->Write(xml);

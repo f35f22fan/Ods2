@@ -18,14 +18,13 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	QString*
-	GetFirstString() const;
+	QString* GetFirstString() const;
+	QString* GetString() const { return GetFirstString(); }
 	
-	void
-	SetFirstString(const QString &s);
+	void SetFirstString(const QString &s);
+	void SetString(const QString &s) { SetFirstString(s); }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	void WriteData(QXmlStreamWriter &xml) override;
 
 private:
 	void Init(ods::Tag*);

@@ -32,8 +32,7 @@ ApplyBool(const QString &str, ods::Bool &b)
 	}
 }
 
-int
-ColumnLettersToNumber(QStringView letters)
+int ColumnLettersToNumber(QStringView letters)
 {
 	const auto char_A_code = QChar('A').unicode();
 	int col = 0;
@@ -144,20 +143,17 @@ CreateCellRef(ods::Sheet *default_sheet, QStringView address, ods::CellRef *firs
 	return nullptr;
 }
 
-double
-DPI()
+double DPI()
 {
 	return dpi; 
 }
 
-void
-DPI(const double dpi_param)
+void DPI(const double dpi_param)
 {
 	dpi = dpi_param;
 }
 
-int
-FindEndOfSingleQuotedString(QStringView s)
+int FindEndOfSingleQuotedString(QStringView s)
 {
 	const QChar SingleQuote('\'');
 	const int start_at = 1; // skip first single quote
@@ -178,8 +174,19 @@ FindEndOfSingleQuotedString(QStringView s)
 	return -1;
 }
 
-int
-FindNonAscii(QStringView s, const int from)
+i32 FindIndexThatEndsWith(const QStringList &vec, QStringView s)
+{
+	ci32 end = vec.size();
+	for (i32 i = 0; i < end; i++)
+	{
+		if (vec[i].endsWith(s))
+			return i;
+	}
+	
+	return -1;
+}
+
+int FindNonAscii(QStringView s, const int from)
 {
 	for (int i = from; i < s.size(); i++) {
 		QChar c = s.at(i);
@@ -192,8 +199,7 @@ FindNonAscii(QStringView s, const int from)
 	return -1;
 }
 
-int
-FindNonWhitespace(QStringView str, const int from)
+int FindNonWhitespace(QStringView str, const int from)
 {
 	for (int i = from; i < str.size(); i++) {
 		const QChar c = str.at(i);

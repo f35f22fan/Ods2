@@ -6,6 +6,7 @@
 #include "../err.hpp"
 #include "../id.hh"
 #include "../ods.hxx"
+#include "../record.hh"
 #include "../style.hxx"
 
 #include "../StringOrInst.hpp"
@@ -17,9 +18,9 @@
 namespace ods { // ods::
 namespace inst { // ods::inst::
 
-namespace Bits {
-const uint16_t Style = 1 << 0;
-}
+const u16 StyleBit              = 1 << 0;
+const u16 ChangedPropertiesBit  = 1 << 1;
+const u16 ChangedSubnodesBit    = 1 << 2;
 
 class ODS_API Abstract {
 public:
@@ -36,7 +37,7 @@ public:
 		GetStyleRecursive(const QString &name);
 		
 		bool
-		IsStyle() const { return bits_ & Bits::Style; }
+		IsStyle() const { return bits_ & StyleBit; }
 		
 		virtual QString*
 		parent_style_name() { return nullptr; }
@@ -114,34 +115,50 @@ public:
 	inst::Abstract*
 	parent() const { return parent_; }
 	
-	void
-	parent(inst::Abstract *p) { parent_ = p; }
+	void parent(inst::Abstract *p) { parent_ = p; }
 	
 	ods::Prefix*
 	prefix() const { return prefix_; }
 	
-	void
-	prefix(ods::Prefix *p) { prefix_ = p; }
+	void prefix(ods::Prefix *p) { prefix_ = p; }
 	
-	void
-	ScanString(Tag *tag);
+	bool quick_save() const;
+	
+	Records* records();
+	
+	void ScanString(Tag *tag);
 	
 	const QString&
 	tag_name() const { return tag_name_; }
 	
-	void
-	tag_name(const QString &n) { tag_name_ = n; }
+	void tag_name(const QString &n) { tag_name_ = n; }
 	
-	void
-	Write(QXmlStreamWriter &xml);
+	void Write(QXmlStreamWriter &xml);
 	
 	virtual void
 	WriteData(QXmlStreamWriter &xml) = 0;
 	
-	void
-	WriteNodes(QXmlStreamWriter &xml);
+	void WriteNodes(QXmlStreamWriter &xml);
 	
 protected:
+	
+	bool changed_properties() const { return bits_ & ChangedPropertiesBit; }
+	bool changed_subnodes() const { return bits_ & ChangedSubnodesBit; }
+	
+	void changed_properties(const bool b) {
+		if (b)
+			bits_ |= ChangedPropertiesBit;
+		else
+			bits_ &= ~ChangedPropertiesBit;
+	}
+	
+	void changed_subnodes(const bool b) {
+		if (b)
+			bits_ |= ChangedSubnodesBit;
+		else
+			bits_ &= ~ChangedSubnodesBit;
+	}
+	
 	void
 	Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
 		const QString &value);
@@ -171,7 +188,8 @@ protected:
 	QString tag_name_;
 	QVector<StringOrInst*> nodes_;
 	ods::Book *book_ = nullptr;
-	uint16_t bits_ = 0;
+	u16 bits_ = 0;
+	i32 tag_index_ = -1;
 };
 
 }} // ods::inst::

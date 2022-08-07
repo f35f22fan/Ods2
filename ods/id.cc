@@ -147,7 +147,7 @@ NumberBooleanStyle(Ns *ns, inst::Abstract *a)
 	a->prefix(ns->number());
 	a->tag_name(QLatin1String(ods::ns::kBooleanStyle));
 	a->func(NumberBooleanStyle);
-	a->bits() |= ods::inst::Bits::Style;
+	a->bits() |= inst::StyleBit;
 	a->id(Id::NumberBooleanStyle);
 }
 
@@ -158,7 +158,7 @@ NumberCurrencyStyle(Ns *ns, inst::Abstract *a)
 	a->prefix(ns->number());
 	a->tag_name(QLatin1String(ods::ns::kCurrencyStyle));
 	a->func(NumberCurrencyStyle);
-	a->bits() |= ods::inst::Bits::Style;
+	a->bits() |= inst::StyleBit;
 	a->id(Id::NumberCurrencyStyle);
 }
 
@@ -179,7 +179,7 @@ NumberDateStyle(Ns *ns, inst::Abstract *a)
 	a->prefix(ns->number());
 	a->tag_name(QLatin1String(ods::ns::kDateStyle));
 	a->func(NumberDateStyle);
-	a->bits() |= ods::inst::Bits::Style;
+	a->bits() |= inst::StyleBit;
 	a->id(Id::NumberDateStyle);
 }
 
@@ -240,7 +240,7 @@ NumberNumberStyle(Ns *ns, inst::Abstract *a)
 	a->prefix(ns->number());
 	a->tag_name(QLatin1String(ods::ns::kNumberStyle));
 	a->func(NumberNumberStyle);
-	a->bits() |= ods::inst::Bits::Style;
+	a->bits() |= inst::StyleBit;
 	a->id(Id::NumberNumberStyle);
 }
 
@@ -251,7 +251,7 @@ NumberPercentageStyle(Ns *ns, inst::Abstract *a)
 	a->prefix(ns->number());
 	a->tag_name(QLatin1String(ods::ns::kPercentageStyle));
 	a->func(NumberPercentageStyle);
-	a->bits() |= ods::inst::Bits::Style;
+	a->bits() |= inst::StyleBit;
 	a->id(Id::NumberPercentageStyle);
 }
 
@@ -292,7 +292,7 @@ NumberTextStyle(Ns *ns, inst::Abstract *a)
 	a->prefix(ns->number());
 	a->tag_name(QLatin1String(ods::ns::kTextStyle));
 	a->func(NumberTextStyle);
-	a->bits() |= ods::inst::Bits::Style;
+	a->bits() |= inst::StyleBit;
 	a->id(Id::NumberTextStyle);
 }
 
@@ -303,7 +303,7 @@ NumberTimeStyle(Ns *ns, inst::Abstract *a)
 	a->prefix(ns->number());
 	a->tag_name(QLatin1String(ods::ns::kTimeStyle));
 	a->func(NumberTimeStyle);
-	a->bits() |= ods::inst::Bits::Style;
+	a->bits() |= inst::StyleBit;
 	a->id(Id::NumberTimeStyle);
 }
 
@@ -604,7 +604,7 @@ StyleStyle(Ns *ns, inst::Abstract *a)
 	a->prefix(ns->style());
 	a->tag_name(ods::ns::kStyle);
 	a->func(StyleStyle);
-	a->bits() |= ods::inst::Bits::Style;
+	a->bits() |= inst::StyleBit;
 	a->id(Id::StyleStyle);
 }
 
