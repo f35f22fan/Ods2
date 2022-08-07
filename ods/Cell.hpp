@@ -77,7 +77,13 @@ public:
 	GetFirstString() const;
 	
 	inst::StyleStyle*
-	GetStyle() const;
+	GetStyle() const
+	{
+		return Get(table_style_name_);
+	}
+	
+	inst::StyleStyle*
+	GetStyle(const ods::CreateIfNeeded cin = CreateIfNeeded::No);
 	
 	bool
 	has_delete_region() const { return delete_region_.start != -1; }

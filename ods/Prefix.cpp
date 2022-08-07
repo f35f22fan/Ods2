@@ -2,9 +2,9 @@
 
 namespace ods { // ods::
 
-Prefix::Prefix(const UriId id, const QString &prefix, const QString &uri) :
+Prefix::Prefix(UriId &id, const QString &prefix, const QString &uri) :
 	id_(id),
-	str_(prefix),
+	name_(prefix),
 	uri_(uri)
 {}
 
@@ -17,32 +17,32 @@ Prefix::Is(const Prefix *prefix) const
 }
 
 bool
-Prefix::Is(const QString &s) const
+Prefix::Is(QStringView s) const
 {
-	return str_ == s;
+	return name_ == s;
 }
 
 QString
 Prefix::With(const char *name) const
 {
-	return str_ + QChar(':') + name;
+	return name_ + QChar(':') + name;
 }
 
 QString
 Prefix::With(const QString &name) const
 {
-	return str_ + QChar(':') + name;
+	return name_ + QChar(':') + name;
 }
 
 void
 Prefix::Write(QXmlStreamWriter &xml) const
 {
-	if (!str_.isEmpty())
-		xml.writeNamespace(uri_, str_);
+	if (!name_.isEmpty())
+		xml.writeNamespace(uri_, name_);
 }
 
 Prefix*
-Prefix::Create(const ods::UriId id, const QString &s, const QString &uri)
+Prefix::Create(UriId &id, const QString &s, const QString &uri)
 {
 	return new Prefix(id, s, uri);
 }

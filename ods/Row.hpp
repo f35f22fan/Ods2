@@ -35,7 +35,7 @@ public:
 	}
 	
 	ods::Cell*
-	GetCell(const int place);
+	GetCell(cint place);
 	
 	int
 	GetColumnIndex(const ods::Cell *cell) const;
@@ -44,7 +44,7 @@ public:
 	GetStyle() const;
 	
 	Cell*
-	NewCellAt(const int place, const int ncr = 1, const int ncs = 1);
+	NewCellAt(cint place, cint ncr = 1, cint ncs = 1);
 	
 	inst::StyleStyle*
 	NewStyle();
@@ -53,7 +53,7 @@ public:
 	num() const { return nrr_; }
 	
 	void
-	num(const int n) { nrr_ = n; }
+	num(cint n) { nrr_ = n; }
 	
 	int
 	number_rows_repeated() const { return nrr_; }
@@ -95,10 +95,10 @@ private:
 	bool
 	has_delete_region() const { return delete_region_.start != -1; }
 	
-	Cell* At(const int place, int &vec_index);
-	void DeleteCellRegion(ods::Cell *cell, const int vec_index);
-	void MarkDeleteRegion(int from, int remaining);
-	void MarkCoveredCellsAfter(ods::Cell *cell, const int vec_index);
+	Cell* At(cint place, int &vec_index);
+	void DeleteCellRegion(ods::Cell *cell, cint vec_index);
+	void MarkDeleteRegion(cint from, cint remaining);
+	void MarkCoveredCellsAfter(ods::Cell *cell, cint vec_index);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void Scan(ods::Tag *tag);

@@ -4,16 +4,58 @@
 #include "decl.hxx"
 #include "global.hxx"
 #include "inst/decl.hxx"
+#include "types.hxx"
 
+#include <QMap>
 #include <QXmlStreamReader>
 
 namespace ods { // ods::
 
+enum class WillInitFromXml: i8 {
+	Yes,
+	No
+};
+
+using UriId = u8;
+
+struct UriIds
+{ // Not using an enum because these values will differ based
+	// on the order of namespaces appearance in documents.
+	static const UriId None = 255;
+	UriId Animation    = 0;
+	UriId Calcext      = 1;
+	UriId Chart        = 2;
+	UriId Config       = 3;
+	UriId Database     = 4;
+	UriId Dc           = 5;
+	UriId Dr3          = 6;
+	UriId Draw         = 7;
+	UriId Fo           = 8;
+	UriId Form         = 9;
+	UriId Loext        = 10;
+	UriId Manifest     = 11;
+	UriId Math         = 12;
+	UriId Meta         = 13;
+	UriId Number       = 14;
+	UriId Of           = 15;
+	UriId Office       = 16;
+	UriId Presentation = 17;
+	UriId Script       = 18;
+	UriId Smil         = 19;
+	UriId Style        = 20;
+	UriId Svg          = 21;
+	UriId Text         = 22;
+	UriId Table        = 23;
+	UriId Xlink        = 24;
+};
+
 class ODS_API Ns
 {
 public:
-	Ns();
 	virtual ~Ns();
+	
+	static Ns* Default();
+	static Ns* FromXml(QXmlStreamReader &xml, ci32 file_index);
 	
 	Prefix* anim() const { return anim_; }
 	Prefix* calcext() const { return calcext_; }
@@ -40,20 +82,18 @@ public:
 	Prefix* text() const { return text_; }
 	Prefix* xlink() const { return xlink_; }
 	
-	ods::Prefix*
-	GetPrefix(const QString &s);
+	const UriIds& ids() const { return uri_ids_; }
 	
-	void
-	Read(QXmlStreamReader &xml);
-	
-	void
-	WriteNamespaces(QXmlStreamWriter &xml, inst::Abstract *top);
+	i32 file_index() const { return file_index_; }
+	ods::Prefix* GetPrefix(QStringView s);
+	void Read(QXmlStreamReader &xml, ci32 file_index);
+	void WriteNamespaces(QXmlStreamWriter &xml, inst::Abstract *top);
 
 private:
+	Ns();
 	NO_ASSIGN_COPY_MOVE(Ns);
 	
-	void AddToVec();
-	void Default();
+	void InitDefault(const WillInitFromXml atr);
 	
 	Prefix *anim_ = nullptr;
 	Prefix *calcext_ = nullptr;
@@ -81,7 +121,9 @@ private:
 	Prefix *xlink_ = nullptr;
 	QString version_;
 	
-	QVector<Prefix*> v_;
+	QVector<Prefix*> prefixes_;
+	i32 file_index_ = -1;
+	UriIds uri_ids_ = {};
 };
 
 } // ods::

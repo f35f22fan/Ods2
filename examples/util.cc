@@ -215,9 +215,8 @@ Save(ods::Book *book, const char *file_name)
 	const char *fn = (file_name == nullptr) ? "out.ods" : file_name;
 	QFile file(QDir::home().filePath(fn));
 	QString err;
-	book->Save(file, &err);
-	
-	if (err.isEmpty()) {
+	if (book->Save(file, &err))
+	{
 		auto ba = file.fileName().toLocal8Bit();
 		mtl_info("Saved to: %s", ba.data());
 	} else {

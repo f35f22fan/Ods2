@@ -1,6 +1,7 @@
 #pragma once
 
 #include "global.hxx"
+#include "types.hxx"
 
 namespace ods { // ods::
 class Ns;
@@ -9,7 +10,9 @@ namespace inst { // ods::inst::
 class Abstract;
 } // ods::inst::
 
-enum class Id : int16_t
+
+using TagIdType = u16;
+enum class Id : TagIdType
 {
 	None = 0,
 	DcDate,

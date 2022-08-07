@@ -17,6 +17,8 @@ class LineStyle;
 class Master;
 class Ns;
 class Prefix;
+class Record;
+class Records;
 class Reference;
 class Row;
 class Sheet;

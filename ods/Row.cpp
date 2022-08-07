@@ -38,17 +38,18 @@ Row::~Row()
 }
 
 Cell*
-Row::At(const int place, int &vec_index) {
+Row::At(cint place, int &vec_index)
+{
 	int so_far = 0;
-	const int count = cells_.size();
+	cint count = cells_.size();
 	
-	for (int i = 0; i < count; i++) {
+	for (int i = 0; i < count; i++)
+	{
 		ods::Cell *cell = cells_[i];
 		so_far += cell->ncr();
-//		mtl_line("place: %d, so_far: %d, i=%d", place, so_far, i);
-		if (so_far > place) {
+		if (so_far > place)
+		{
 			vec_index = i;
-//			mtl_line("vec_index=%d", vec_index);
 			return cell;
 		}
 	}
@@ -78,7 +79,7 @@ Row::Clone(inst::Abstract *parent) const
 }
 
 ods::Cell*
-Row::GetCell(const int place)
+Row::GetCell(cint place)
 {
 	CHECK_TRUE_NULL((place >= 0));
 	int at = -1;
@@ -111,7 +112,7 @@ Row::Init(ods::Tag *tag)
 void
 Row::InitDefault()
 {
-	const int max = sheet_->num_cols();
+	cint max = sheet_->num_cols();
 	int count = 0;
 	
 	for (Cell *cell: cells_)
@@ -121,13 +122,13 @@ Row::InitDefault()
 		return;
 	
 	auto *cell = new Cell(this);
-	const int diff = max - count;
+	cint diff = max - count;
 	cell->ncr(diff);
 	cells_.append(cell);
 }
 
 void
-Row::DeleteCellRegion(ods::Cell *cell, const int vec_index)
+Row::DeleteCellRegion(ods::Cell *cell, cint vec_index)
 {
 	const ods::DeleteRegion &dr = cell->delete_region();
 	
@@ -137,8 +138,8 @@ Row::DeleteCellRegion(ods::Cell *cell, const int vec_index)
 		return;
 	}
 	
-	const int ncr = cell->ncr();
-	const int region_len = dr.start + dr.count;
+	cint ncr = cell->ncr();
+	cint region_len = dr.start + dr.count;
 	
 	if (dr.start > 0 && region_len < ncr) {
 		Cell *cell2 = static_cast<Cell*>(cell->Clone());
@@ -153,26 +154,24 @@ Row::DeleteCellRegion(ods::Cell *cell, const int vec_index)
 }
 
 void
-Row::MarkDeleteRegion(int from, int remaining)
+Row::MarkDeleteRegion(cint from, cint remaining)
 {
-	const int cell_count = cells_.size();
+	cint cell_count = cells_.size();
 	int so_far = 0;
-	const int till = from + remaining;
+	cint till = from + remaining;
 	
-	for (int i = 0; i < cell_count; i++) {
-		auto *cell = cells_[i];
-		const int cell_start = so_far;
+	for (int i = 0; i < cell_count; i++)
+	{
+		ods::Cell *cell = cells_[i];
+		cint cell_start = so_far;
 		so_far += cell->ncr();
-		const int cell_end = so_far;
+		cint cell_end = so_far;
 		
 		if (till < cell_start || from > cell_end)
 			continue;
 		
-		int range_start = std::max(from, cell_start);
-		int range_end = std::min(till, cell_end);
-//		printf("\n(%d, %d) - (%d, %d) = (%d, %d)\n",
-//			cell_start, cell_end, from, till, range_start, range_end);
-		
+		cint range_start = std::max(from, cell_start);
+		cint range_end = std::min(till, cell_end);
 		if (range_end - range_start <= 0)
 			continue;
 		
@@ -181,15 +180,13 @@ Row::MarkDeleteRegion(int from, int remaining)
 		region.start = range_start - cell_start;
 		region.count = range_end - range_start;
 		cell->delete_region(region);
-//		printf("DeleteRegion [%d, %d] (%d, %d)\n",
-//			region.start, region.count, range_start, range_end);
 	}
 }
 
 void
-Row::MarkCoveredCellsAfter(ods::Cell *cell, const int vec_index)
+Row::MarkCoveredCellsAfter(ods::Cell *cell, cint vec_index)
 {
-	const int vec_size = cells_.size();
+	cint vec_size = cells_.size();
 	const bool more_cells_follow = vec_index < vec_size - 1;
 	
 	if (!more_cells_follow || cell->ncs() <= 1)
@@ -219,7 +216,7 @@ Row::MarkCoveredCellsAfter(ods::Cell *cell, const int vec_index)
 }
 
 Cell*
-Row::NewCellAt(const int place, const int ncr, const int ncs)
+Row::NewCellAt(cint place, cint ncr, cint ncs)
 {
 	MarkDeleteRegion(place, ncr);
 	int total = 0;
@@ -405,8 +402,8 @@ Row::WriteData(QXmlStreamWriter &xml)
 		xml.writeAttribute(ns_->table()->With(ods::ns::kStyleName),
 		table_style_name_);
 	
-	for (auto *next: cells_)
-		next->Write(xml);
+	for (auto *cell: cells_)
+		cell->Write(xml);
 }
 
 } // ods::

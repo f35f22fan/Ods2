@@ -90,6 +90,7 @@ private:
 	ods::Prefix *prefix_ = nullptr;
 	ods::Ns *ns_ = nullptr;
 	QString name_;
+	i32 current_tag_index_ = -1;
 };
 
 } // ods::

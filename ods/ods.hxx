@@ -7,6 +7,11 @@
 
 namespace ods { // ods::
 
+struct TagAddress {
+	i32 tag_index = -1;
+	i32 file_index = -1;
+};
+
 enum class ToStringArgs: u8 {
 	None,
 	IncludeQuotMarks
@@ -54,7 +59,18 @@ const double kPointsInACm = 28.3464567;
 const double kInchesInACm = 0.393701;
 const double kCmInAnInch = 2.54;
 
-enum class AddIfNeeded: u8
+enum class QuickSave: i8 {
+	Yes,
+	No
+};
+
+enum class AddIfNeeded: i8
+{
+	Yes,
+	No
+};
+
+enum class CreateIfNeeded: i8
 {
 	Yes,
 	No

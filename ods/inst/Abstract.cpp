@@ -172,6 +172,14 @@ Abstract::IsTextP() const
 	return id_ == Id::TextP;
 }
 
+bool
+Abstract::quick_save() const { return book_->quick_save(); }
+
+Records* Abstract::records()
+{
+	return book_->records();
+}
+
 void
 Abstract::ScanString(Tag *tag)
 {

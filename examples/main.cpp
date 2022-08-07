@@ -6,14 +6,15 @@
 #include "examples2.hh"
 #include "Invoice.hpp"
 
+#include <ods/types.hxx>
+
 int
 main(int argc, char *argv[])
 {
-	QGuiApplication app(argc, argv);
-	
+	QGuiApplication qapp(argc, argv);
 //	TestBug();
 	
-//	SetColumnWidths();
+	SetColumnWidths();
 //	ReadColumnWidths();
 	
 //	CreateFont();
@@ -57,7 +58,7 @@ main(int argc, char *argv[])
 //	ReadFormulaCustom();
 	
 // CreateFormulaFunctions();
-	new sample::Invoice();
+//	new sample::Invoice();
 	
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();

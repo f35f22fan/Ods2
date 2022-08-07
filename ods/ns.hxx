@@ -10,6 +10,7 @@
 #include <QtGlobal>
 
 namespace ods	{ // ods::
+
 namespace ns	{ // ods::ns::
 
 const char * const kActuate				= "actuate";

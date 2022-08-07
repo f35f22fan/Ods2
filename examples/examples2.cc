@@ -16,7 +16,7 @@ CreateCurrency()
 	auto *row = sheet->NewRowAt(0);
 	auto *cell = row->NewCellAt(0);
 	
-	ods::Currency usd = ods::currency::USD(49.2);
+	const ods::Currency usd = ods::currency::USD(49.2);
 	cell->SetCurrency(usd);
 	
 	// other currency info and formatting rules:
