@@ -9,8 +9,7 @@
 #include "../ods.hh"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 TableNamedRange::TableNamedRange(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TableNamedRange)
@@ -37,6 +36,8 @@ TableNamedRange::Clone(Abstract *parent) const
 	
 	if (parent != nullptr)
 		p->parent(parent);
+	
+	p->CloneChildrenOf(this);
 	
 	return p;
 }
@@ -76,24 +77,42 @@ TableNamedRange::GetSheet()
 void
 TableNamedRange::Init(Tag *tag)
 {
-	tag->Copy(ns_->table(), ods::ns::kName, name_);
-	tag->Copy(ns_->table(), ods::ns::kBaseCellAddress, table_base_cell_address_);
-	tag->Copy(ns_->table(), ods::ns::kCellRangeAddress, table_cell_range_address_);
+	tag->Copy(ns_->table(), ns::kName, name_);
+	tag->Copy(ns_->table(), ns::kBaseCellAddress, table_base_cell_address_);
+	tag->Copy(ns_->table(), ns::kCellRangeAddress, table_cell_range_address_);
 }
 
-void
-TableNamedRange::InitDefault()
+void TableNamedRange::InitDefault()
 {}
 
-void
-TableNamedRange::WriteData(QXmlStreamWriter &xml)
+void TableNamedRange::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	Write(xml, ns_->table(), ods::ns::kName, name_);
-	Write(xml, ns_->table(), ods::ns::kBaseCellAddress, table_base_cell_address_);
-	Write(xml, ns_->table(), ods::ns::kCellRangeAddress, table_cell_range_address_);
+	inst::AddKeywords({tag_name(), ns::kName, ns::kBaseCellAddress,
+		ns::kCellRangeAddress}, list);
+}
+
+void TableNamedRange::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->table(), list);
+}
+
+void TableNamedRange::WriteData(QXmlStreamWriter &xml)
+{
+	Write(xml, ns_->table(), ns::kName, name_);
+	Write(xml, ns_->table(), ns::kBaseCellAddress, table_base_cell_address_);
+	Write(xml, ns_->table(), ns::kCellRangeAddress, table_cell_range_address_);
 	WriteNodes(xml);
 }
 
+void TableNamedRange::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kName, name_);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kBaseCellAddress, table_base_cell_address_);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kCellRangeAddress, table_cell_range_address_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::
  

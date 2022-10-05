@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API NumberSeconds: public Abstract
 {
@@ -17,28 +16,25 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	int8_t
-	decimal_places() const { return number_decimal_places_; }
+	i8 decimal_places() const { return number_decimal_places_; }
+	void decimal_places(const i8 n) { number_decimal_places_ = n; }
 	
-	void
-	decimal_places(const int8_t n) { number_decimal_places_ = n; }
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
 	const QString&
 	style() const { return number_style_; }
 	
-	void
-	style(const QString &s) { number_style_ = s; }
+	void style(const QString &s) { number_style_ = s; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(ods::Tag *tag);
 	
 	QString number_style_;
-	int8_t number_decimal_places_ = -1;
+	i8 number_decimal_places_ = -1;
 };
 
 } // ods::inst::
-} // ods::

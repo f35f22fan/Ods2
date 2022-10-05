@@ -11,12 +11,11 @@
 
 #include <cmath>
 
-namespace ods { // ods::
+namespace ods {
 
 static double dpi = -1.0;
 
-void
-ApplyBool(const QString &str, ods::Bool &b)
+void ApplyBool(const QString &str, ods::Bool &b)
 {
 	if (str.isEmpty()) {
 		b = ods::Bool::None;
@@ -80,6 +79,26 @@ ColumnNumberToLetters(const int column)
 	}
 	
 	return ret;
+}
+
+u32 CRC_32b(const char *s, ci64 n)
+{
+	u32 crc = 0xFFFFFFFF;
+	
+	for(i64 i = 0; i < n; i++)
+	{
+		char ch = s[i];
+		for(i8 bit = 0; bit < 8; bit++)
+		{
+			cu32 b = (ch ^ crc) & 1;
+			crc >>= 1;
+			if (b)
+				crc = crc ^ 0xEDB88320;
+			ch >>= 1;
+		}
+	}
+	
+	return ~crc;
 }
 
 CellRef*
@@ -259,47 +278,46 @@ ParseTableName(QStringView address, QStringView &name, int *ret_dot)
 }
 
 ods::ValueType
-TypeFromString(const QString &value_type)
+TypeFromString(QStringView value_type)
 {
 	if (value_type.isEmpty())
 		return ods::ValueType::None;
-	if (value_type == ods::ns::kDouble)
+	if (value_type == ns::kDouble)
 		return ods::ValueType::Double;
-	if (value_type == ods::ns::kString)
+	if (value_type == ns::kString)
 		// string support implemented as TextP
 		return ods::ValueType::String;
-	if (value_type == ods::ns::kCurrency)
+	if (value_type == ns::kCurrency)
 		return ods::ValueType::Currency;
-	if (value_type == ods::ns::kPercentage)
+	if (value_type == ns::kPercentage)
 		return ods::ValueType::Percentage;
-	if (value_type == ods::ns::kDate)
+	if (value_type == ns::kDate)
 		return ods::ValueType::Date;
-	if (value_type == ods::ns::kDateTime)
+	if (value_type == ns::kDateTime)
 		return ods::ValueType::DateTime;
-	if (value_type == ods::ns::kTime)
+	if (value_type == ns::kTime)
 		return ods::ValueType::Time;
-	if (value_type == ods::ns::kBoolean)
+	if (value_type == ns::kBoolean)
 		return ods::ValueType::Bool;
 	
 	it_happened();
 	return ods::ValueType::None;
 }
 
-const char*
+QStringView
 TypeToString(const ods::ValueType value_type)
 {
 	switch (value_type)
 	{
-	case ods::ValueType::Double: return ods::ns::kDouble;
-	case ods::ValueType::String: return ods::ns::kString;
-	case ods::ValueType::Currency: return ods::ns::kCurrency;
-	case ods::ValueType::Percentage: return ods::ns::kPercentage;
-	case ods::ValueType::Date: return ods::ns::kDate;
-	case ods::ValueType::DateTime: return ods::ns::kDateTime;
-	case ods::ValueType::Time: return ods::ns::kTime;
-	case ods::ValueType::Bool: return ods::ns::kBoolean;
-	case ods::ValueType::None: return "[not set]";
-	default: it_happened(); return "";
+	case ods::ValueType::Double: return ns::kDouble;
+	case ods::ValueType::String: return ns::kString;
+	case ods::ValueType::Currency: return ns::kCurrency;
+	case ods::ValueType::Percentage: return ns::kPercentage;
+	case ods::ValueType::Date: return ns::kDate;
+	case ods::ValueType::DateTime: return ns::kDateTime;
+	case ods::ValueType::Time: return ns::kTime;
+	case ods::ValueType::Bool: return ns::kBoolean;
+	default: it_happened(); return QString();
 	}
 }
 
@@ -330,4 +348,4 @@ FromString(const QString &s) {
 	return Brace::None;
 }
 
-} // ods::
+}

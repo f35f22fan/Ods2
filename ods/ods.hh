@@ -9,6 +9,8 @@
 
 namespace ods { // ods::
 
+u32 CRC_32b(const char *s, ci64 count);
+
 i32 FindIndexThatEndsWith(const QStringList &vec, QStringView s);
 
 ODS_API QString ToString(const Brace p);
@@ -40,9 +42,9 @@ ODS_API QString ColumnNumberToLetters(const int kColumn);
 bool ParseTableName(QStringView address, QStringView &name,
 	int *ret_dot = nullptr);
 
-ODS_API ValueType TypeFromString(const QString &ods_type);
+ODS_API ValueType TypeFromString(QStringView value_type);
 
 // nullptr if not found
-ODS_API const char* TypeToString(const ValueType value_type);
+ODS_API QStringView TypeToString(const ValueType value_type);
 
 } // ods::

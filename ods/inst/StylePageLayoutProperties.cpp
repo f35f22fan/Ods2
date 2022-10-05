@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 StylePageLayoutProperties::StylePageLayoutProperties(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::StylePageLayoutProperties)
@@ -29,23 +28,39 @@ StylePageLayoutProperties::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->style_writing_mode_ = style_writing_mode_;
+	p->CloneChildrenOf(this);
 	
 	return p;
 }
 
-void
-StylePageLayoutProperties::Init(ods::Tag *tag)
+void StylePageLayoutProperties::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->style(), ods::ns::kWritingMode, style_writing_mode_);
+	tag->Copy(ns_->style(), ns::kWritingMode, style_writing_mode_);
 	ScanString(tag);
 }
 
-void
-StylePageLayoutProperties::WriteData(QXmlStreamWriter &xml)
+void StylePageLayoutProperties::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	Write(xml, ns_->style(), ods::ns::kWritingMode, style_writing_mode_);
+	inst::AddKeywords({tag_name(), ns::kWritingMode}, list);
+}
+
+void StylePageLayoutProperties::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->style(), list);
+}
+
+void StylePageLayoutProperties::WriteData(QXmlStreamWriter &xml)
+{
+	Write(xml, ns_->style(), ns::kWritingMode, style_writing_mode_);
 	WriteNodes(xml);
 }
 
+void StylePageLayoutProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kWritingMode, style_writing_mode_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

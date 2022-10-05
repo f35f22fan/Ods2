@@ -12,8 +12,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberDateStyle::NumberDateStyle(Abstract *parent, Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberDateStyle)
@@ -41,18 +40,32 @@ NumberDateStyle::Clone(Abstract *parent) const
 	p->number_country_ = number_country_;
 	p->number_language_ = number_language_;
 	p->style_name_ = style_name_;
+	p->CloneChildrenOf(this, ClonePart::Text);
 	
 	return p;
 }
 
-void
-NumberDateStyle::Init(ods::Tag *tag)
+void NumberDateStyle::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->number(), ods::ns::kAutomaticOrder, number_automatic_order_);
-	tag->Copy(ns_->number(), ods::ns::kCountry, number_country_);
-	tag->Copy(ns_->number(), ods::ns::kLanguage, number_language_);
-	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
+	tag->Copy(ns_->number(), ns::kAutomaticOrder, number_automatic_order_);
+	tag->Copy(ns_->number(), ns::kCountry, number_country_);
+	tag->Copy(ns_->number(), ns::kLanguage, number_language_);
+	tag->Copy(ns_->style(), ns::kName, style_name_);
 	Scan(tag);
+}
+
+void NumberDateStyle::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kAutomaticOrder,
+		ns::kCountry, ns::kLanguage, ns::kName}, list);
+}
+
+void NumberDateStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+	
+	if (!style_name_.isEmpty())
+		Add(ns_->style(), list);
 }
 
 NumberDay*
@@ -112,8 +125,7 @@ NumberDateStyle::NewYear()
 	return p;
 }
 
-void
-NumberDateStyle::Scan(ods::Tag *scan_tag)
+void NumberDateStyle::Scan(ods::Tag *scan_tag)
 {
 	foreach (auto *x, scan_tag->nodes())
 	{
@@ -124,19 +136,19 @@ NumberDateStyle::Scan(ods::Tag *scan_tag)
 		
 		if (tag->Has(ns_->number()))
 		{
-			if (tag->Has(ods::ns::kDay))
+			if (tag->Has(ns::kDay))
 				Append(new NumberDay(this, tag));
-			else if (tag->Has(ods::ns::kHours))
+			else if (tag->Has(ns::kHours))
 				Append(new NumberHours(this, tag));
-			else if (tag->Has(ods::ns::kMinutes))
+			else if (tag->Has(ns::kMinutes))
 				Append(new NumberMinutes(this, tag));
-			else if (tag->Has(ods::ns::kMonth))
+			else if (tag->Has(ns::kMonth))
 				Append(new NumberMonth(this, tag));
-			else if (tag->Has(ods::ns::kSeconds))
+			else if (tag->Has(ns::kSeconds))
 				Append(new NumberSeconds(this, tag));
-			else if (tag->Has(ods::ns::kText))
+			else if (tag->Has(ns::kText))
 				Append(new NumberText(this, tag));
-			else if (tag->Has(ods::ns::kYear))
+			else if (tag->Has(ns::kYear))
 				Append(new NumberYear(this, tag));
 		} else {
 			Scan(tag);
@@ -144,16 +156,25 @@ NumberDateStyle::Scan(ods::Tag *scan_tag)
 	}
 }
 
-void
-NumberDateStyle::WriteData(QXmlStreamWriter &xml)
+void NumberDateStyle::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->number(), ods::ns::kAutomaticOrder, number_automatic_order_);
-	Write(xml, ns_->number(), ods::ns::kCountry, number_country_);
-	Write(xml, ns_->number(), ods::ns::kLanguage, number_language_);
-	Write(xml, ns_->style(), ods::ns::kName, style_name_);
+	Write(xml, ns_->number(), ns::kAutomaticOrder, number_automatic_order_);
+	Write(xml, ns_->number(), ns::kCountry, number_country_);
+	Write(xml, ns_->number(), ns::kLanguage, number_language_);
+	Write(xml, ns_->style(), ns::kName, style_name_);
 	
 	WriteNodes(xml);
 }
 
+void NumberDateStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->number(), ns::kAutomaticOrder, number_automatic_order_);
+	WriteNdffProp(kw, *ba, ns_->number(), ns::kCountry, number_country_);
+	WriteNdffProp(kw, *ba, ns_->number(), ns::kLanguage, number_language_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

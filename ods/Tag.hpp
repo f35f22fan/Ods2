@@ -27,59 +27,34 @@ public:
 	QVector<ods::Attr*>&
 	attrs() { return attrs_; }
 	
-	void
-	Copy(ods::Prefix *prefix, const char *name, ods::Bool &into);
-	
-	void
-	Copy(ods::Prefix *prefix, const char *name, ods::Length **size);
-	
-	void
-	Copy(ods::Prefix *prefix, const char *name, QString &into);
-	
-	void
-	Copy(ods::Prefix *prefix, const char *name, int32_t &into);
-	
-	void
-	Copy(ods::Prefix *prefix, const char *name, int8_t &into);
+	void Copy(ods::Prefix *prefix, QStringView name, ods::Bool &into);
+	void Copy(ods::Prefix *prefix, QStringView name, ods::Length **size);
+	void Copy(ods::Prefix *prefix, QStringView name, QString &into);
+	void Copy(ods::Prefix *prefix, QStringView name, i32 &into);
+	void Copy(ods::Prefix *prefix, QStringView name, i8 &into);
 	
 	static Tag*
 	From(QXmlStreamReader &xml, ods::Ns *ns);
 	
-	QString
-	FullName() const;
+	QString FullName() const;
+	ods::Attr* GetAttr(ods::Prefix *prefix, QStringView name);
+	bool Has(const ods::Prefix *prefix) const;
+	bool Has(QStringView name) const { return name_ == name; }
+	bool Is(const ods::Prefix *prefix, const QString &name) const;
+	bool IsAnyCell() const;
+	bool IsTextP() const;
 	
-	ods::Attr*
-	Get(ods::Prefix *prefix, const char *name);
-	
-	bool
-	Has(const ods::Prefix *prefix) const;
-	
-	bool
-	Has(const char *name) const { return name_ == name; }
-	
-	bool
-	Is(const ods::Prefix *prefix, const QString &name) const;
-	
-	bool
-	IsAnyCell() const;
-	
-	bool
-	IsTextP() const;
-	
-	const QString&
-	name() const { return name_; }
+	const QString& name() const { return name_; }
 	
 	QVector<StringOrTag*>&
 	nodes() { return nodes_; }
 	
-	ods::Ns*
-	ns() const { return ns_; }
+	ods::Ns* ns() const { return ns_; }
 	
 	ods::Prefix*
 	prefix() { return prefix_; }
 	
-	void
-	SetAttributes(const QXmlStreamAttributes &attrs);
+	void SetAttributes(const QXmlStreamAttributes &attrs);
 	
 private:
 	NO_ASSIGN_COPY_MOVE(Tag);

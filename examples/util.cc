@@ -170,17 +170,15 @@ PrintWidth(ods::inst::TableTableColumn *col)
 	
 	if (tcp == nullptr)
 	{
-		const auto &vec = style->nodes();
-
-		for (ods::StringOrInst *soi : vec)
+		for (ods::StringOrInst *node: *style->nodes())
 		{
-			if (soi->is_string())
+			if (node->is_string())
 			{
 				mtl_info("[String]");
-				qDebug() << *soi->as_string();
-			} else if (soi->is_inst()) {
+				qDebug() << node->as_string();
+			} else if (node->is_inst()) {
 				mtl_info("[Inst]");
-				ods::inst::Abstract *p = soi->as_inst();
+				ods::inst::Abstract *p = node->as_inst();
 				mtl_info("func: %p", (void*)p->func());
 				mtl_info("tcp func: %p", (void*) ods::id::StyleTableColumnProperties);
 
@@ -192,7 +190,7 @@ PrintWidth(ods::inst::TableTableColumn *col)
 			}
 		}
 
-		const int size = style->nodes().size();
+		const int size = style->nodes()->size();
 		mtl_warn("No table column properties, nodes count: %d", size);
 		return;
 	}
@@ -217,11 +215,9 @@ Save(ods::Book *book, const char *file_name)
 	QString err;
 	if (book->Save(file, &err))
 	{
-		auto ba = file.fileName().toLocal8Bit();
-		mtl_info("Saved to: %s", ba.data());
+		mtl_info("Saved to: %s", qPrintable(file.fileName()));
 	} else {
-		auto ba = err.toLocal8Bit();
-		mtl_warn("%s", ba.data());
+		mtl_warn("%s", qPrintable(err));
 	}
 }
 

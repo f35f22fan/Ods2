@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleFontFace : public Abstract
 {
@@ -20,27 +19,23 @@ public:
 	static StyleFontFace*
 	FromTag(ods::inst::Abstract*, ods::Tag*);
 	
-	bool
-	IsFont(const QString &font_name) const;
-	
-	QString*
-	style_name() override { return &style_name_; }
+	bool IsFont(const QString &font_name) const;
 	
 	const QString&
 	font_family() const { return svg_font_family_; }
 	
-	void
-	font_family_generic(const QString &s);
+	void font_family_generic(const QString &s);
+	void font_pitch(const QString &s);
 	
-	void
-	font_pitch(const QString &s);
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
-	void
-	Set(const QString &s);
+	void Set(const QString &s);
 
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	QString* style_name() override { return &style_name_; }
 	
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(ods::Tag *tag);
@@ -52,4 +47,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API OfficeBody : public Abstract
 {
@@ -16,13 +15,15 @@ public:
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
+	bool has_children(const IncludingText itx) const override { return office_spreadsheet_; }
+	void ListChildren(QVector<StringOrInst*> &vec, const Recursively r) override;
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
 	OfficeSpreadsheet*
 	spreadsheet() const { return office_spreadsheet_; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void WriteData(QXmlStreamWriter &xml) override;
 private:
 	
 	void Init(Tag *tag);
@@ -33,4 +34,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

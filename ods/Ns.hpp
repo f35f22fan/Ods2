@@ -5,18 +5,18 @@
 #include "global.hxx"
 #include "inst/decl.hxx"
 #include "types.hxx"
+#include "ndff/decl.hxx"
+#include "ndff/ndff.hh"
 
 #include <QMap>
 #include <QXmlStreamReader>
 
-namespace ods { // ods::
+namespace ods {
 
 enum class WillInitFromXml: i8 {
 	Yes,
 	No
 };
-
-using UriId = u8;
 
 struct UriIds
 { // Not using an enum because these values will differ based
@@ -56,6 +56,7 @@ public:
 	
 	static Ns* Default();
 	static Ns* FromXml(QXmlStreamReader &xml, ci32 file_index);
+	static Ns* FromNDFF(ndff::Container *ndff);
 	
 	Prefix* anim() const { return anim_; }
 	Prefix* calcext() const { return calcext_; }
@@ -86,7 +87,9 @@ public:
 	
 	i32 file_index() const { return file_index_; }
 	ods::Prefix* GetPrefix(QStringView s);
+	const QVector<Prefix*>& prefixes() const { return prefixes_; }
 	void Read(QXmlStreamReader &xml, ci32 file_index);
+	void Read(ndff::Container *ptr);
 	void WriteNamespaces(QXmlStreamWriter &xml, inst::Abstract *top);
 
 private:
@@ -124,6 +127,8 @@ private:
 	QVector<Prefix*> prefixes_;
 	i32 file_index_ = -1;
 	UriIds uri_ids_ = {};
+	
+	ndff::Container *ndff_ = nullptr;
 };
 
 } // ods::

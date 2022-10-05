@@ -3,8 +3,7 @@
 #include "../Ns.hpp"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberBoolean::NumberBoolean(Abstract *parent, ods::Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberBoolean)
@@ -30,11 +29,19 @@ NumberBoolean::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-NumberBoolean::WriteData(QXmlStreamWriter &xml)
+void NumberBoolean::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void NumberBoolean::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+}
+
+void NumberBoolean::WriteData(QXmlStreamWriter &xml)
 {
 //	WriteNodes(xml); // cannot have any children
 }
 
 } // ods::inst::
-} // ods::

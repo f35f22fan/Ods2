@@ -9,8 +9,7 @@
 #include "../Sheet.hpp"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 OfficeDocumentMeta::OfficeDocumentMeta(ods::Book *book, ods::Ns *ns, ods::Tag *tag)
 : Abstract(nullptr, ns, id::OfficeDocumentMeta)
@@ -43,22 +42,29 @@ OfficeDocumentMeta::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-OfficeDocumentMeta::Init(Tag *tag)
+void OfficeDocumentMeta::Init(Tag *tag)
 {
 	tag->Copy(ns_->office(), ods::ns::kVersion, office_version_);
 	Scan(tag);
 }
 
-void
-OfficeDocumentMeta::InitDefault()
+void OfficeDocumentMeta::InitDefault()
 {
 	Append(new OfficeMeta(this));
 	office_version_ = QLatin1String("1.2");
 }
 
-void
-OfficeDocumentMeta::Scan(Tag *tag)
+void OfficeDocumentMeta::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	AddKeywords({tag_name(), ns::kVersion}, list);
+}
+
+void OfficeDocumentMeta::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
+}
+
+void OfficeDocumentMeta::Scan(Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -76,13 +82,18 @@ OfficeDocumentMeta::Scan(Tag *tag)
 	}
 }
 
-void
-OfficeDocumentMeta::WriteData(QXmlStreamWriter &xml)
+void OfficeDocumentMeta::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->office(), ods::ns::kVersion, office_version_);
-	
 	WriteNodes(xml);
 }
 
+void OfficeDocumentMeta::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->office(), ods::ns::kVersion, office_version_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

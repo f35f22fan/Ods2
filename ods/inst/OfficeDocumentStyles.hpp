@@ -6,8 +6,7 @@
 #include "../decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API OfficeDocumentStyles : public Abstract
 {
@@ -25,15 +24,25 @@ public:
 	Abstract*
 	GetAnyStyle(const QString &name);
 	
+	bool has_children(const IncludingText itx) const override {
+		return office_automatic_styles_ || office_font_face_decls_ ||
+		office_styles_ || office_master_styles_;
+	}
+	
+	void ListChildren(QVector<StringOrInst*> &vec,
+		const Recursively r = Recursively::No) override;
+	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	
 	ods::inst::OfficeFontFaceDecls*
 	office_font_face_decls() const { return office_font_face_decls_; }
 	
 	ods::inst::OfficeStyles*
 	office_styles() const { return office_styles_; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(ods::Tag *tag);
@@ -50,4 +59,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

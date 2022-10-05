@@ -6,8 +6,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 StyleRegionRight::StyleRegionRight(Abstract *parent, Tag *tag)
 : Abstract (parent, parent->ns(), id::StyleRegionRight)
@@ -31,17 +30,27 @@ StyleRegionRight::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-StyleRegionRight::Init(Tag *tag)
+void StyleRegionRight::Init(Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-StyleRegionRight::Scan(ods::Tag *tag)
+void StyleRegionRight::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void StyleRegionRight::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->style(), list);
+}
+
+void StyleRegionRight::Scan(ods::Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -58,11 +67,9 @@ StyleRegionRight::Scan(ods::Tag *tag)
 	}
 }
 
-void
-StyleRegionRight::WriteData(QXmlStreamWriter &xml)
+void StyleRegionRight::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

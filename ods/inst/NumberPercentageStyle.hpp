@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API NumberPercentageStyle : public Abstract
 {
@@ -33,6 +32,9 @@ public:
 	
 	inst::NumberText*
 	GetNumberText() const;
+
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
 	inst::NumberNumber*
 	NewNumberStyle();
@@ -40,12 +42,10 @@ public:
 	NumberText*
 	NewNumberText();
 	
-	void
-	style_name(const QString &s) { style_name_ = s; }
+	void style_name(const QString &s) { style_name_ = s; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(ods::Tag*);
@@ -55,4 +55,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

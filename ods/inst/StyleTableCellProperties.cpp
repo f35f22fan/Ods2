@@ -7,8 +7,7 @@
 #include "../Tag.hpp"
 #include "../VAlign.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 StyleTableCellProperties::StyleTableCellProperties(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::StyleTableCellProperties)
@@ -33,8 +32,7 @@ StyleTableCellProperties::~StyleTableCellProperties()
 	delete style_border_line_width_;
 }
 
-void
-StyleTableCellProperties::border(ods::attr::Border *border)
+void StyleTableCellProperties::border(ods::attr::Border *border)
 {
 	delete fo_border_;
 	
@@ -44,8 +42,7 @@ StyleTableCellProperties::border(ods::attr::Border *border)
 		fo_border_ = border->Clone();
 }
 
-void
-StyleTableCellProperties::border_left(ods::attr::Border *border)
+void StyleTableCellProperties::border_left(ods::attr::Border *border)
 {
 	delete fo_border_left_;
 	
@@ -55,8 +52,7 @@ StyleTableCellProperties::border_left(ods::attr::Border *border)
 		fo_border_left_ = border->Clone();
 }
 
-void
-StyleTableCellProperties::border_top(ods::attr::Border *border)
+void StyleTableCellProperties::border_top(ods::attr::Border *border)
 {
 	delete fo_border_top_;
 	
@@ -66,8 +62,7 @@ StyleTableCellProperties::border_top(ods::attr::Border *border)
 		fo_border_top_ = border->Clone();
 }
 
-void
-StyleTableCellProperties::border_right(ods::attr::Border *border)
+void StyleTableCellProperties::border_right(ods::attr::Border *border)
 {
 	delete fo_border_right_;
 	
@@ -77,8 +72,7 @@ StyleTableCellProperties::border_right(ods::attr::Border *border)
 		fo_border_right_ = border->Clone();
 }
 
-void
-StyleTableCellProperties::border_bottom(ods::attr::Border *border)
+void StyleTableCellProperties::border_bottom(ods::attr::Border *border)
 {
 	delete fo_border_bottom_;
 	
@@ -127,11 +121,10 @@ StyleTableCellProperties::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-StyleTableCellProperties::Init(ods::Tag *tag)
+void StyleTableCellProperties::Init(ods::Tag *tag)
 {
 	QString str;
-	tag->Copy(ns_->fo(), ods::ns::kBackgroundColor, str);
+	tag->Copy(ns_->fo(), ns::kBackgroundColor, str);
 	
 	if (QColor::isValidColor(str))
 	{
@@ -139,44 +132,63 @@ StyleTableCellProperties::Init(ods::Tag *tag)
 		fo_background_color_ = new QColor(str);
 	}
 	
-	tag->Copy(ns_->style(), ods::ns::kDiagonalBlTr, style_diagonal_bl_tr_);
-	tag->Copy(ns_->style(), ods::ns::kDiagonalTlBr, style_diagonal_tl_br_);
+	tag->Copy(ns_->style(), ns::kDiagonalBlTr, style_diagonal_bl_tr_);
+	tag->Copy(ns_->style(), ns::kDiagonalTlBr, style_diagonal_tl_br_);
 	
-	tag->Copy(ns_->fo(), ods::ns::kBorder, str);
+	tag->Copy(ns_->fo(), ns::kBorder, str);
 	fo_border_ = ods::attr::Border::FromString(str);
 	
-	tag->Copy(ns_->fo(), ods::ns::kBorderLeft, str);
+	tag->Copy(ns_->fo(), ns::kBorderLeft, str);
 	fo_border_left_ = ods::attr::Border::FromString(str);
 	
-	tag->Copy(ns_->fo(), ods::ns::kBorderTop, str);
+	tag->Copy(ns_->fo(), ns::kBorderTop, str);
 	fo_border_top_ = ods::attr::Border::FromString(str);
 	
-	tag->Copy(ns_->fo(), ods::ns::kBorderRight, str);
+	tag->Copy(ns_->fo(), ns::kBorderRight, str);
 	fo_border_right_ = ods::attr::Border::FromString(str);
 	
-	tag->Copy(ns_->fo(), ods::ns::kBorderBottom, str);
+	tag->Copy(ns_->fo(), ns::kBorderBottom, str);
 	fo_border_bottom_ = ods::attr::Border::FromString(str);
 	
-	tag->Copy(ns_->style(), ods::ns::kBorderLineWidth, str);
+	tag->Copy(ns_->style(), ns::kBorderLineWidth, str);
 	style_border_line_width_ = ods::attr::StyleBorderLineWidth::FromString(str);
 	
-	tag->Copy(ns_->fo(), ods::ns::kWrapOption, fo_wrap_option_);
+	tag->Copy(ns_->fo(), ns::kWrapOption, fo_wrap_option_);
 	
-	tag->Copy(ns_->style(), ods::ns::kVerticalAlign, str);
+	tag->Copy(ns_->style(), ns::kVerticalAlign, str);
 	style_vertical_align_ = VAlign::FromString(str);
 	
 	ScanString(tag);
 }
 
-void
-StyleTableCellProperties::SetBackgroundColor(const QColor &c)
+void StyleTableCellProperties::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kBackgroundColor,
+		ns::kDiagonalBlTr, ns::kDiagonalTlBr, ns::kBorder,
+		ns::kBorderLeft, ns::kBorderTop, ns::kBorderRight,
+		ns::kBorderBottom, ns::kBorderLineWidth,
+		ns::kWrapOption, ns::kVerticalAlign}, list);
+}
+
+void StyleTableCellProperties::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->style(), list);
+	
+	if (fo_background_color_ || fo_border_ || fo_border_left_ ||
+		fo_border_right_ || fo_border_bottom_ || fo_border_top_ ||
+		!fo_wrap_option_.isEmpty())
+	{
+		Add(ns_->fo(), list);
+	}
+}
+
+void StyleTableCellProperties::SetBackgroundColor(const QColor &c)
 {
 	delete fo_background_color_;
 	fo_background_color_ = new QColor(c);
 }
 
-void
-StyleTableCellProperties::SetWrapOption(const bool flag)
+void StyleTableCellProperties::SetWrapOption(const bool flag)
 {
 	if (flag)
 		fo_wrap_option_ = QLatin1String("wrap");
@@ -184,8 +196,7 @@ StyleTableCellProperties::SetWrapOption(const bool flag)
 		fo_wrap_option_.clear();
 }
 
-void
-StyleTableCellProperties::style_border_line_width
+void StyleTableCellProperties::style_border_line_width
 	(const ods::attr::StyleBorderLineWidth *p)
 {
 	delete style_border_line_width_;
@@ -196,8 +207,7 @@ StyleTableCellProperties::style_border_line_width
 		style_border_line_width_ = p->Clone();
 }
 
-void
-StyleTableCellProperties::vertical_align(VAlign *p)
+void StyleTableCellProperties::vertical_align(VAlign *p)
 {
 	delete style_vertical_align_;
 	
@@ -209,49 +219,91 @@ StyleTableCellProperties::vertical_align(VAlign *p)
 	}
 }
 
-void
-StyleTableCellProperties::WriteData(QXmlStreamWriter &xml)
+void StyleTableCellProperties::WriteData(QXmlStreamWriter &xml)
 {
 	if (fo_background_color_ != nullptr)
 	{
-		Write(xml, ns_->fo(), ods::ns::kBackgroundColor,
+		Write(xml, ns_->fo(), ns::kBackgroundColor,
 			fo_background_color_->name());
 	}
 	
 	if (style_vertical_align_ != nullptr)
 	{
-		Write(xml, ns_->style(), ods::ns::kVerticalAlign,
+		Write(xml, ns_->style(), ns::kVerticalAlign,
 			style_vertical_align_->toString());
 	}
 	
-	Write(xml, ns_->style(), ods::ns::kDiagonalBlTr, style_diagonal_bl_tr_);
-	Write(xml, ns_->style(), ods::ns::kDiagonalTlBr, style_diagonal_tl_br_);
+	Write(xml, ns_->style(), ns::kDiagonalBlTr, style_diagonal_bl_tr_);
+	Write(xml, ns_->style(), ns::kDiagonalTlBr, style_diagonal_tl_br_);
 	
 	if (fo_border_ != nullptr)
-		Write(xml, ns_->fo(), ods::ns::kBorder, fo_border_->toString());
+		Write(xml, ns_->fo(), ns::kBorder, fo_border_->toString());
 	
 	if (fo_border_left_ != nullptr)
-		Write(xml, ns_->fo(), ods::ns::kBorderLeft, fo_border_left_->toString());
+		Write(xml, ns_->fo(), ns::kBorderLeft, fo_border_left_->toString());
 	
 	if (fo_border_top_ != nullptr)
-		Write(xml, ns_->fo(), ods::ns::kBorderTop, fo_border_top_->toString());
+		Write(xml, ns_->fo(), ns::kBorderTop, fo_border_top_->toString());
 	
 	if (fo_border_right_ != nullptr)
-		Write(xml, ns_->fo(), ods::ns::kBorderRight, fo_border_right_->toString());
+		Write(xml, ns_->fo(), ns::kBorderRight, fo_border_right_->toString());
 	
 	if (fo_border_bottom_ != nullptr)
-		Write(xml, ns_->fo(), ods::ns::kBorderBottom, fo_border_bottom_->toString());
+		Write(xml, ns_->fo(), ns::kBorderBottom, fo_border_bottom_->toString());
 	
 	if (style_border_line_width_ != nullptr)
 	{
-		Write(xml, ns_->style(), ods::ns::kBorderLineWidth,
+		Write(xml, ns_->style(), ns::kBorderLineWidth,
 			style_border_line_width_->toString());
 	}
 	
-	Write(xml, ns_->fo(), ods::ns::kWrapOption, fo_wrap_option_);
+	Write(xml, ns_->fo(), ns::kWrapOption, fo_wrap_option_);
 	
 	WriteNodes(xml);
 }
 
+void StyleTableCellProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	if (fo_background_color_ != nullptr)
+	{
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBackgroundColor,
+			fo_background_color_->name());
+	}
+	
+	if (style_vertical_align_ != nullptr)
+	{
+		WriteNdffProp(kw, *ba, ns_->style(), ns::kVerticalAlign,
+			style_vertical_align_->toString());
+	}
+	
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kDiagonalBlTr, style_diagonal_bl_tr_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kDiagonalTlBr, style_diagonal_tl_br_);
+	
+	if (fo_border_ != nullptr)
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorder, fo_border_->toString());
+	
+	if (fo_border_left_ != nullptr)
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorderLeft, fo_border_left_->toString());
+	
+	if (fo_border_top_ != nullptr)
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorderTop, fo_border_top_->toString());
+	
+	if (fo_border_right_ != nullptr)
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorderRight, fo_border_right_->toString());
+	
+	if (fo_border_bottom_ != nullptr)
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorderBottom, fo_border_bottom_->toString());
+	
+	if (style_border_line_width_ != nullptr)
+	{
+		WriteNdffProp(kw, *ba, ns_->style(), ns::kBorderLineWidth,
+			style_border_line_width_->toString());
+	}
+	
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kWrapOption, fo_wrap_option_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

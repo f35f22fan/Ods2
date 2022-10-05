@@ -9,11 +9,9 @@
 
 #include "../Ns.hpp"
 #include "../ns.hxx"
-#include "../record.hh"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 TextP::TextP(Abstract *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::TextP)
@@ -28,14 +26,13 @@ TextP::TextP(const TextP &cloner) : Abstract(cloner)
 TextP::~TextP()
 {}
 
-void
-TextP::AppendString(const QString &s)
+void TextP::AppendString(const QString &s)
 {
-	for (StringOrInst *next : nodes_)
+	for (StringOrInst *node: nodes_)
 	{
-		if (next->is_string())
+		if (node->is_string())
 		{
-			next->AppendString(s);
+			node->AppendString(s);
 			return;
 		}
 	}
@@ -54,33 +51,41 @@ TextP::Clone(Abstract *parent) const
 	return p;
 }
 
-QString*
+const QString*
 TextP::GetFirstString() const
 {
-	for (StringOrInst *x: nodes_)
+	for (StringOrInst *node: nodes_)
 	{
-		if (x->is_string())
-			return x->as_string();
+		if (node->is_string())
+			return node->as_str_ptr();
 	}
 	
 	return nullptr;
 }
 
-void
-TextP::Init(ods::Tag *tag)
+void TextP::Init(ods::Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-TextP::Scan(ods::Tag *tag)
+void TextP::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	for (auto *x: tag->nodes())
+	AddKeywords({tag_name()}, list);
+}
+
+void TextP::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->text(), list);
+}
+
+void TextP::Scan(ods::Tag *tag)
+{
+	for (StringOrTag *node: tag->nodes())
 	{
-		if (AddText(x))
+		if (AddText(node))
 			continue;
 		
-		auto *next = x->as_tag();
+		Tag *next = node->as_tag();
 		
 		if (next->Is(ns_->text(), ods::ns::kPageNumber)) {
 			Append(new TextPageNumber(this, next));
@@ -100,14 +105,13 @@ TextP::Scan(ods::Tag *tag)
 	}
 }
 
-void
-TextP::SetFirstString(const QString &s)
+void TextP::SetFirstString(const QString &s)
 {
-	for (auto *next : nodes_)
+	for (StringOrInst *node: nodes_)
 	{
-		if (next->is_string())
+		if (node->is_string())
 		{
-			next->SetString(s);
+			node->SetString(s);
 			return;
 		}
 	}
@@ -115,11 +119,17 @@ TextP::SetFirstString(const QString &s)
 	Append(s);
 }
 
-void
-TextP::WriteData(QXmlStreamWriter &xml)
+void TextP::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
+void TextP::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	CloseWriteNodesAndClose(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::
+

@@ -6,8 +6,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 OfficeBody::OfficeBody(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::OfficeBody)
@@ -41,20 +40,38 @@ OfficeBody::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-OfficeBody::Init(Tag *tag)
+void OfficeBody::Init(Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-OfficeBody::InitDefault()
+void OfficeBody::InitDefault()
 {
 	office_spreadsheet_ = new inst::OfficeSpreadsheet(this);
 }
 
-void
-OfficeBody::Scan(Tag *tag)
+void OfficeBody::ListChildren(QVector<StringOrInst*> &vec,
+	const Recursively r)
+{
+	if (office_spreadsheet_)
+	{
+		vec.append(new StringOrInst(office_spreadsheet_, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			office_spreadsheet_->ListChildren(vec, r);
+	}
+}
+
+void OfficeBody::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void OfficeBody::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
+}
+
+void OfficeBody::Scan(Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -71,12 +88,10 @@ OfficeBody::Scan(Tag *tag)
 	}
 }
 
-void
-OfficeBody::WriteData(QXmlStreamWriter &xml)
+void OfficeBody::WriteData(QXmlStreamWriter &xml)
 {
-	if (office_spreadsheet_ != nullptr)
+	if (office_spreadsheet_)
 		office_spreadsheet_->Write(xml);
 }
 
 } // ods::inst::
-} // ods::

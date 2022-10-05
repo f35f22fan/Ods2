@@ -23,17 +23,10 @@ public:
 	
 	virtual ~StringOrTag();
 	
-	bool
-	is_tag() const { return type_ == StringOrTagType::Tag; }
-	
-	bool
-	is_string() const { return type_ == StringOrTagType::String; }
-	
-	ods::Tag*
-	as_tag() const { return (ods::Tag*)data_; }
-	
-	QString*
-	as_string() const { return (QString*)data_; }
+	bool is_tag() const { return type_ == StringOrTagType::Tag; }
+	bool is_string() const { return type_ == StringOrTagType::String; }
+	ods::Tag* as_tag() const { return (ods::Tag*)data_; }
+	QString* as_string() const { return (QString*)data_; }
 	
 private:
 	void DeleteData();

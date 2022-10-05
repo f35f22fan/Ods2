@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 MetaCreationDate::MetaCreationDate(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::MetaCreationDate)
@@ -31,17 +30,24 @@ MetaCreationDate::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-MetaCreationDate::Init(Tag *tag)
+void MetaCreationDate::Init(Tag *tag)
 {
 	ScanString(tag);
 }
 
-void
-MetaCreationDate::WriteData(QXmlStreamWriter &xml)
+void MetaCreationDate::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void MetaCreationDate::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->meta(), list);
+}
+
+void MetaCreationDate::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

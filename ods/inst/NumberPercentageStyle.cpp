@@ -7,8 +7,7 @@
 #include "NumberNumber.hpp"
 #include "NumberText.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberPercentageStyle::NumberPercentageStyle(ods::inst::Abstract *parent,
 	ods::Tag *tag)
@@ -34,6 +33,7 @@ NumberPercentageStyle::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->style_name_ = style_name_;
+	p->CloneChildrenOf(this);
 	
 	return p;
 }
@@ -82,11 +82,21 @@ NumberPercentageStyle::GetNumberText() const
 	return (inst::NumberText*) p;
 }
 
-void
-NumberPercentageStyle::Init(ods::Tag *tag)
+void NumberPercentageStyle::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
 	Scan(tag);
+}
+
+void NumberPercentageStyle::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kName}, list);
+}
+
+void NumberPercentageStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+	Add(ns_->style(), list);
 }
 
 inst::NumberNumber*
@@ -105,8 +115,7 @@ NumberPercentageStyle::NewNumberText()
 	return nt;
 }
 
-void
-NumberPercentageStyle::Scan(ods::Tag *tag)
+void NumberPercentageStyle::Scan(ods::Tag *tag)
 {
 	foreach (auto *x, tag->nodes())
 	{
@@ -126,12 +135,18 @@ NumberPercentageStyle::Scan(ods::Tag *tag)
 	}
 }
 
-void
-NumberPercentageStyle::WriteData(QXmlStreamWriter &xml)
+void NumberPercentageStyle::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->style(), ods::ns::kName, style_name_);
 	WriteNodes(xml);
 }
 
+void NumberPercentageStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ods::ns::kName, style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

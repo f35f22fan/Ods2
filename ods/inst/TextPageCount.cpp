@@ -3,8 +3,7 @@
 #include "../Ns.hpp"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 TextPageCount::TextPageCount(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TextPageCount)
@@ -27,20 +26,29 @@ TextPageCount::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-TextPageCount::Init(ods::Tag *tag)
+void TextPageCount::Init(ods::Tag *tag)
 {
 	ScanString(tag);
 }
 
-void
-TextPageCount::WriteData(QXmlStreamWriter &xml)
+void TextPageCount::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void TextPageCount::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->text(), list);
+}
+
+void TextPageCount::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

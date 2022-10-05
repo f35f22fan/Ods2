@@ -1,7 +1,8 @@
 #include "TextS.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../Ns.hpp"
+
+namespace ods::inst {
 
 TextS::TextS(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TextS)
@@ -27,17 +28,24 @@ TextS::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-TextS::Init(ods::Tag *tag)
+void TextS::Init(ods::Tag *tag)
 {
 	ScanString(tag);
 }
 
-void
-TextS::WriteData(QXmlStreamWriter &xml)
+void TextS::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void TextS::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->text(), list);
+}
+
+void TextS::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

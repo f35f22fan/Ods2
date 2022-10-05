@@ -6,8 +6,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberTextStyle::NumberTextStyle(Abstract *parent, Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberTextStyle)
@@ -32,19 +31,29 @@ NumberTextStyle::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->style_name_ = style_name_;
+	p->CloneChildrenOf(this);
 
 	return p;
 }
 
-void
-NumberTextStyle::Init(ods::Tag *tag)
+void NumberTextStyle::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
+	tag->Copy(ns_->style(), ns::kName, style_name_);
 	Scan(tag);
 }
 
-void
-NumberTextStyle::Scan(ods::Tag *tag)
+void NumberTextStyle::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kName}, list);
+}
+
+void NumberTextStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+	Add(ns_->style(), list);
+}
+
+void NumberTextStyle::Scan(ods::Tag *tag)
 {
 	foreach (auto *x, tag->nodes())
 	{
@@ -62,12 +71,18 @@ NumberTextStyle::Scan(ods::Tag *tag)
 	}
 }
 
-void
-NumberTextStyle::WriteData(QXmlStreamWriter &xml)
+void NumberTextStyle::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->style(), ods::ns::kName, style_name_);
+	Write(xml, ns_->style(), ns::kName, style_name_);
 	WriteNodes(xml);
 }
 
+void NumberTextStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

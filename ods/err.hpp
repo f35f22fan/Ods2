@@ -18,7 +18,7 @@
     #define MTL_BLINK_START     "\e[5m"
     #define MTL_BLINK_END       "\e[25m"
     #define MTL_BOLD            "\e[1m"
-    #define MTL_NON_BOLD        "\e[21"
+    #define MTL_BOLD_END        "\x1B[0m"
 	#define MTL_INVERTED		"\e[7m"
 	#define MTL_INVERTED_CANCEL "\e[27m"
 #else
@@ -31,7 +31,7 @@
     #define MTL_BLINK_START     ""
     #define MTL_BLINK_END       ""
     #define MTL_BOLD            ""
-    #define MTL_NON_BOLD        ""
+    #define MTL_BOLD_END        ""
 	#define MTL_INVERTED        ""
 	#define MTL_INVERTED_CANCEL ""
 #endif
@@ -87,12 +87,16 @@
 #else
 #define mtl_trace(fmt, args...) fprintf(stderr, \
 	"%s%s[%s:%.3d %s]%s " fmt "%s\n", MTL_BOLD, MTL_COLOR_MAGENTA, SRC_FILE_NAME, \
-	__LINE__, __FUNCTION__, MTL_NON_BOLD, ##args, MTL_COLOR_DEFAULT)
+	__LINE__, __FUNCTION__, MTL_BOLD_END, ##args, MTL_COLOR_DEFAULT)
 #endif
 
 #define mtl_status(status) fprintf (stderr, "%s[%s %.3d] %s%s\n", \
 	MTL_COLOR_RED, SRC_FILE_NAME, \
 	__LINE__, strerror(status), MTL_COLOR_DEFAULT)
+
+#define mtl_tbd() {\
+	mtl_trace("TBD");\
+}
 
 #define mtl_printq(s) {\
 	auto ba = s.toLocal8Bit();\

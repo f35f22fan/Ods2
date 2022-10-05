@@ -6,8 +6,7 @@
 #include "../decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API OfficeSpreadsheet : public Abstract
 {
@@ -25,20 +24,25 @@ public:
 	ods::Sheet*
 	GetSheet(QStringView name) const;
 	
+	bool has_children(const IncludingText itx) const override
+	{
+		return  (tables_.size() > 0) ||table_calculation_settings_ ||
+			named_expressions_;
+	}
+	void ListChildren(QVector<StringOrInst *> &vec, const Recursively r) override;
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	
 	TableNamedExpressions*
 	named_expressions() const { return named_expressions_; }
 	
 	ods::Sheet*
 	NewSheet(const QString &name);
 	
-	int
-	sheet_count() const { return tables_.size(); }
+	int sheet_count() const { return tables_.size(); }
+	QVector<ods::Sheet*>& tables() { return tables_; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
-	QVector<ods::Sheet*>&
-	tables() { return tables_; }
+	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
 	
@@ -52,4 +56,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

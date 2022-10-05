@@ -8,8 +8,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 ManifestManifest::ManifestManifest(ods::Book *book, Ns *ns, Tag *tag)
 : Abstract(nullptr, ns, id::ManifestManifest)
@@ -32,21 +31,22 @@ ManifestManifest::ManifestManifest(const ManifestManifest &cloner)
 ManifestManifest::~ManifestManifest() {}
 
 ManifestFileEntry*
-ManifestManifest::Add(const QString &path, const QString &media_type)
+ManifestManifest::AddEntry(const QString &path)
 {
 	auto *p = new ManifestFileEntry(this);
-	Append(p);
 	p->full_path(path);
-	p->media_type(media_type);
+	Append(p);
 	return p;
 }
 
 ManifestFileEntry*
-ManifestManifest::Add(const QString &path)
+ManifestManifest::AddEntry2(const QString &path, const QString &media_type)
 {
 	auto *p = new ManifestFileEntry(this);
-	Append(p);
 	p->full_path(path);
+	p->media_type(media_type);
+	Append(p);
+
 	return p;
 }
 
@@ -61,15 +61,13 @@ ManifestManifest::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-ManifestManifest::Init(Tag *tag)
+void ManifestManifest::Init(Tag *tag)
 {
-	tag->Copy(ns_->manifest(), ods::ns::kVersion, manifest_version_);
+	tag->Copy(ns_->manifest(), ns::kVersion, manifest_version_);
 	Scan(tag);
 }
 
-void
-ManifestManifest::InitDefault()
+void ManifestManifest::InitDefault()
 {
 	manifest_version_ = QLatin1String("1.2");
 /*
@@ -94,18 +92,27 @@ ManifestManifest::InitDefault()
 	</manifest:manifest>
 */
 	
-	auto *p = Add("/", "application/vnd.oasis.opendocument.spreadsheet");
+	auto *p = AddEntry2("/", "application/vnd.oasis.opendocument.spreadsheet");
 	p->version(manifest_version_);
-	Add(ods::filename::ContentXml, "text/xml");
-	Add(ods::filename::MetaXml, "text/xml");
-	Add(ods::filename::StylesXml, "text/xml");
+	AddEntry2(ods::filename::ContentXml, "text/xml");
+	AddEntry2(ods::filename::MetaXml, "text/xml");
+	AddEntry2(ods::filename::StylesXml, "text/xml");
 	
 	// Not needed by default nor implemented:
 	// Add(ods::filename::SettingsXml, "text/xml");
 }
 
-void
-ManifestManifest::Scan(Tag *tag)
+void ManifestManifest::ListUsedNamespaces(NsHash &list)
+{
+	inst::Add(ns_->manifest(), list);
+}
+
+void ManifestManifest::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	AddKeywords({tag_name(), ns::kFileEntry, ns::kVersion}, list);
+}
+
+void ManifestManifest::Scan(Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -114,7 +121,7 @@ ManifestManifest::Scan(Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->manifest(), ods::ns::kFileEntry)) {
+		if (next->Is(ns_->manifest(), ns::kFileEntry)) {
 			Append(new ManifestFileEntry(this, next));
 		} else {
 			Scan(next);
@@ -122,13 +129,19 @@ ManifestManifest::Scan(Tag *tag)
 	}
 }
 
-void
-ManifestManifest::WriteData(QXmlStreamWriter &xml)
+void ManifestManifest::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->manifest(), ods::ns::kVersion, manifest_version_);
 	
 	WriteNodes(xml);
 }
 
+void ManifestManifest::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->manifest(), ods::ns::kVersion, manifest_version_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

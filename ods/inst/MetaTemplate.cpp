@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 MetaTemplate::MetaTemplate(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::MetaTemplate)
@@ -38,25 +37,47 @@ MetaTemplate::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-MetaTemplate::Init(Tag *tag)
+void MetaTemplate::Init(Tag *tag)
 {
-	tag->Copy(ns_->xlink(), ods::ns::kType, xlink_type_);
-	tag->Copy(ns_->xlink(), ods::ns::kActuate, xlink_actuate_);
-	tag->Copy(ns_->xlink(), ods::ns::kTitle, xlink_title_);
-	tag->Copy(ns_->xlink(), ods::ns::kHref, xlink_href_);
-	tag->Copy(ns_->meta(), ods::ns::kDate, meta_date_);
+	tag->Copy(ns_->xlink(), ns::kType, xlink_type_);
+	tag->Copy(ns_->xlink(), ns::kActuate, xlink_actuate_);
+	tag->Copy(ns_->xlink(), ns::kTitle, xlink_title_);
+	tag->Copy(ns_->xlink(), ns::kHref, xlink_href_);
+	tag->Copy(ns_->meta(), ns::kDate, meta_date_);
 }
 
-void
-MetaTemplate::WriteData(QXmlStreamWriter &xml)
+void MetaTemplate::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	Write(xml, ns_->xlink(), ods::ns::kType, xlink_type_);
-	Write(xml, ns_->xlink(), ods::ns::kActuate, xlink_actuate_);
-	Write(xml, ns_->xlink(), ods::ns::kTitle, xlink_title_);
-	Write(xml, ns_->xlink(), ods::ns::kHref, xlink_href_);
-	Write(xml, ns_->meta(), ods::ns::kDate, meta_date_);
+	inst::AddKeywords({tag_name(),
+		ns::kType, ns::kActuate, ns::kTitle,
+		ns::kHref, ns::kDate}, list);
+}
+
+void MetaTemplate::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->meta(), list);
+	Add(ns_->xlink(), list);
+}
+
+void MetaTemplate::WriteData(QXmlStreamWriter &xml)
+{
+	Write(xml, ns_->xlink(), ns::kType, xlink_type_);
+	Write(xml, ns_->xlink(), ns::kActuate, xlink_actuate_);
+	Write(xml, ns_->xlink(), ns::kTitle, xlink_title_);
+	Write(xml, ns_->xlink(), ns::kHref, xlink_href_);
+	Write(xml, ns_->meta(), ns::kDate, meta_date_);
+}
+
+void MetaTemplate::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kType, xlink_type_);
+	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kActuate, xlink_actuate_);
+	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kTitle, xlink_title_);
+	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kHref, xlink_href_);
+	WriteNdffProp(kw, *ba, ns_->meta(), ns::kDate, meta_date_);
+	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::
-} // ods::

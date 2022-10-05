@@ -1,7 +1,8 @@
 #include "OfficeScripts.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../Ns.hpp"
+
+namespace ods::inst {
 
 OfficeScripts::OfficeScripts(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::OfficeScripts)
@@ -26,6 +27,8 @@ OfficeScripts::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
@@ -35,15 +38,21 @@ OfficeScripts::Init(Tag *tag)
 	ScanString(tag);
 }
 
-void
-OfficeScripts::InitDefault()
-{}
+void OfficeScripts::InitDefault() {}
 
-void
-OfficeScripts::WriteData(QXmlStreamWriter &xml)
+void OfficeScripts::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void OfficeScripts::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
+}
+
+void OfficeScripts::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

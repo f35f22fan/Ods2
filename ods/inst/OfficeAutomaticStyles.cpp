@@ -15,8 +15,7 @@
 #include "../style.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 OfficeAutomaticStyles::OfficeAutomaticStyles(Abstract *parent, Tag *tag) :
 Abstract(parent, parent->ns(), id::OfficeAutomaticStyles)
@@ -35,12 +34,12 @@ OfficeAutomaticStyles::~OfficeAutomaticStyles()
 Abstract*
 OfficeAutomaticStyles::ByStyleName(const QString &name) const
 {
-	for (auto *x: nodes_)
+	for (StringOrInst *node: nodes_)
 	{
-		if (!x->is_inst())
+		if (!node->is_inst())
 			continue;
 		
-		Abstract *p = x->as_inst();
+		Abstract *p = node->as_inst();
 		
 		if (p->IsStyle())
 		{
@@ -62,13 +61,24 @@ OfficeAutomaticStyles::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-OfficeAutomaticStyles::Init(ods::Tag *tag)
+void OfficeAutomaticStyles::Init(ods::Tag *tag)
 {
 	Scan(tag);
+}
+
+void OfficeAutomaticStyles::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void OfficeAutomaticStyles::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
 }
 
 NumberBooleanStyle*
@@ -135,12 +145,13 @@ StyleStyle*
 OfficeAutomaticStyles::NewStyleStyle(const style::Family f)
 {
 	QString new_name = book_->GenUniqueStyleName(f);
-	auto *p = new StyleStyle(this);
-	p->style_name(new_name);
-	p->SetFamily(f);
-	Append(p);
+	auto *ss = new StyleStyle(this);
+	//mtl_info("%s", qPrintable(new_name));
+	ss->style_name(new_name);
+	ss->SetFamily(f);
+	Append(ss);
 	
-	return p;
+	return ss;
 }
 
 void
@@ -182,4 +193,3 @@ OfficeAutomaticStyles::WriteData(QXmlStreamWriter &xml)
 }
 
 } // ods::inst::
-} // ods::

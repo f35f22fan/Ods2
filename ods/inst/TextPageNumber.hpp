@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API TextPageNumber : public Abstract
 {
@@ -17,8 +16,9 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void WriteData(QXmlStreamWriter &xml) override;
 
 private:
 	
@@ -26,4 +26,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

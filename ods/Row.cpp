@@ -78,57 +78,7 @@ Row::Clone(inst::Abstract *parent) const
 	return p;
 }
 
-ods::Cell*
-Row::GetCell(cint place)
-{
-	CHECK_TRUE_NULL((place >= 0));
-	int at = -1;
-	
-	for (ods::Cell *cell: cells_)
-	{
-		at += cell->ncr(); /// ncr = "number columns repeated", default=1
-		
-		if (at >= place)
-			return cell;
-	}
-	
-	return nullptr;
-}
-
-inst::StyleStyle*
-Row::GetStyle() const
-{
-	return Get(table_style_name_);
-}
-
-void
-Row::Init(ods::Tag *tag)
-{
-	tag->Copy(ns_->table(), ods::ns::kNumberRowsRepeated, nrr_);
-	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
-	Scan(tag);
-}
-
-void
-Row::InitDefault()
-{
-	cint max = sheet_->num_cols();
-	int count = 0;
-	
-	for (Cell *cell: cells_)
-		count += cell->ncr();
-	
-	if (count >= max)
-		return;
-	
-	auto *cell = new Cell(this);
-	cint diff = max - count;
-	cell->ncr(diff);
-	cells_.append(cell);
-}
-
-void
-Row::DeleteCellRegion(ods::Cell *cell, cint vec_index)
+void Row::DeleteCellRegion(ods::Cell *cell, cint vec_index)
 {
 	const ods::DeleteRegion &dr = cell->delete_region();
 	
@@ -153,8 +103,77 @@ Row::DeleteCellRegion(ods::Cell *cell, cint vec_index)
 	cell->delete_region({-1, -1, -1});
 }
 
-void
-Row::MarkDeleteRegion(cint from, cint remaining)
+ods::Cell*
+Row::GetCell(cint place)
+{
+	CHECK_TRUE_NULL((place >= 0));
+	int at = -1;
+	
+	for (ods::Cell *cell: cells_)
+	{
+		at += cell->ncr(); /// ncr = "number columns repeated", default=1
+		
+		if (at >= place)
+			return cell;
+	}
+	
+	return nullptr;
+}
+
+inst::StyleStyle*
+Row::GetStyle() const
+{
+	return Get(table_style_name_);
+}
+
+void Row::Init(ods::Tag *tag)
+{
+	tag->Copy(ns_->table(), ns::kNumberRowsRepeated, nrr_);
+	tag->Copy(ns_->table(), ns::kStyleName, table_style_name_);
+	Scan(tag);
+}
+
+void Row::InitDefault()
+{
+	cint max = sheet_->num_cols();
+	int count = 0;
+	
+	for (Cell *cell: cells_)
+		count += cell->ncr();
+	
+	if (count >= max)
+		return;
+	
+	auto *cell = new Cell(this);
+	cint diff = max - count;
+	cell->ncr(diff);
+	cells_.append(cell);
+}
+
+void Row::ListChildren(QVector<StringOrInst*> &vec, const Recursively r)
+{
+	for (auto *cell: cells_)
+	{
+		vec.append(new StringOrInst(cell, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			cell->ListChildren(vec, r);
+	}
+}
+
+void Row::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(),
+		ns::kNumberRowsRepeated,
+		ns::kStyleName}, list);
+}
+
+void Row::ListUsedNamespaces(inst::NsHash &list)
+{
+	if (nrr_ != 1 || !table_style_name_.isEmpty())
+		inst::Add(ns_->table(), list);
+}
+
+void Row::MarkDeleteRegion(cint from, cint remaining)
 {
 	cint cell_count = cells_.size();
 	int so_far = 0;
@@ -183,8 +202,7 @@ Row::MarkDeleteRegion(cint from, cint remaining)
 	}
 }
 
-void
-Row::MarkCoveredCellsAfter(ods::Cell *cell, cint vec_index)
+void Row::MarkCoveredCellsAfter(ods::Cell *cell, cint vec_index)
 {
 	cint vec_size = cells_.size();
 	const bool more_cells_follow = vec_index < vec_size - 1;
@@ -215,8 +233,7 @@ Row::MarkCoveredCellsAfter(ods::Cell *cell, cint vec_index)
 	}
 }
 
-Cell*
-Row::NewCellAt(cint place, cint ncr, cint ncs)
+Cell* Row::NewCellAt(cint place, cint ncr, cint ncs)
 {
 	MarkDeleteRegion(place, ncr);
 	int total = 0;
@@ -257,8 +274,7 @@ Row::NewStyle()
 	return style;
 }
 
-void
-Row::Print() const
+void Row::Print() const
 {
 	int count = 0;
 	for (auto *cell: cells_) {
@@ -291,8 +307,7 @@ Row::QueryOptimalHeight() const
 	return tallest;
 }
 
-int
-Row::QueryCellStart(const Cell *cell) const
+int Row::QueryCellStart(const Cell *cell) const
 {
 	int index = 0;
 	
@@ -307,14 +322,12 @@ Row::QueryCellStart(const Cell *cell) const
 	return -1;
 }
 
-int
-Row::QueryStart() const
+int Row::QueryStart() const
 {
 	return sheet_->QueryRowStart(this);
 }
 
-void
-Row::Scan(ods::Tag *tag)
+void Row::Scan(ods::Tag *tag)
 {
 	foreach (StringOrTag *x, tag->nodes())
 	{
@@ -332,8 +345,7 @@ Row::Scan(ods::Tag *tag)
 	}
 }
 
-void
-Row::SetOptimalHeight()
+void Row::SetOptimalHeight()
 {
 	Length *size = QueryOptimalHeight();
 	
@@ -353,8 +365,7 @@ Row::SetOptimalHeight()
 	trp->SetOptimal(size);
 }
 
-void
-Row::SetStyle(const ods::Row *p)
+void Row::SetStyle(const ods::Row *p)
 {
 	if (p == nullptr)
 		table_style_name_.clear();
@@ -362,8 +373,7 @@ Row::SetStyle(const ods::Row *p)
 		table_style_name_ = p->table_style_name_;
 }
 
-void
-Row::SetStyle(inst::StyleStyle *p)
+void Row::SetStyle(inst::StyleStyle *p)
 {
 	if (p == nullptr)
 		table_style_name_.clear();
@@ -372,8 +382,7 @@ Row::SetStyle(inst::StyleStyle *p)
 		
 }
 
-QString
-Row::ToSchemaString() const
+QString Row::ToSchemaString() const
 {
 	QString s;
 	if (covered()) {
@@ -391,19 +400,32 @@ Row::ToSchemaString() const
 	return s;
 }
 
-void
-Row::WriteData(QXmlStreamWriter &xml)
+void Row::WriteData(QXmlStreamWriter &xml)
 {
 	if (nrr_ != 1)
-		xml.writeAttribute(ns_->table()->With(ods::ns::kNumberRowsRepeated),
+		xml.writeAttribute(ns_->table()->With(ns::kNumberRowsRepeated),
 			QString::number(nrr_));
 	
 	if (!table_style_name_.isEmpty())
-		xml.writeAttribute(ns_->table()->With(ods::ns::kStyleName),
+		xml.writeAttribute(ns_->table()->With(ns::kStyleName),
 		table_style_name_);
 	
 	for (auto *cell: cells_)
 		cell->Write(xml);
+}
+
+void Row::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	if (nrr_ != 1)
+	{
+		WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberRowsRepeated,
+			QString::number(nrr_));
+	}
+	
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::

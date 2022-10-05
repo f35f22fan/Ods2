@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API NumberNumber : public Abstract
 {
@@ -17,32 +16,19 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	int8_t
-	decimal_places() const { return number_decimal_places_; }
+	i8 decimal_places() const { return number_decimal_places_; }
+	void decimal_places(const i8 n) { number_decimal_places_ = n; }
 	
-	void
-	decimal_places(const int8_t n) { number_decimal_places_ = n; }
+	i8 grouping() const { return number_grouping_; }
+	void grouping(const i8 n) { number_grouping_ = n; }
 	
-	int8_t
-	grouping() const { return number_grouping_; }
+	i8 min_integer_digits() const { return number_min_integer_digits_; }
+	void min_integer_digits(const i8 n) { number_min_integer_digits_ = n; }
 	
-	void
-	grouping(const int8_t n) { number_grouping_ = n; }
-	
-//	int8_t
-//	min_decimal_places() const { return loext_min_decimal_places_; }
-	
-//	void
-//	min_decimal_places(const int8_t n) { loext_min_decimal_places_ = n; }
-
-	int8_t
-	min_integer_digits() const { return number_min_integer_digits_; }
-	
-	void
-	min_integer_digits(const int8_t n) { number_min_integer_digits_ = n; }
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 	
 private:
 	
@@ -51,13 +37,11 @@ private:
 	// <number:number number:decimal-places="2" loext:min-decimal-places="2"
 	// number:min-integer-digits="1"/>
 	
-	//int8_t loext_min_decimal_places_ = -1;
-	int8_t number_decimal_places_ = -1;
-	int8_t number_min_integer_digits_ = -1;
+	i8 number_decimal_places_ = -1;
+	i8 number_min_integer_digits_ = -1;
 	
 	// it's a boolean: -1 not set, 0 false, 1 true
-	int8_t number_grouping_ = -1;
+	i8 number_grouping_ = -1;
 };
 
 } // ods::inst::
-} // ods::

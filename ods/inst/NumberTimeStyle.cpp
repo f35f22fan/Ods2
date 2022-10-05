@@ -12,8 +12,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberTimeStyle::NumberTimeStyle(Abstract *parent, Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberTimeStyle)
@@ -38,15 +37,26 @@ NumberTimeStyle::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->style_name_ = style_name_;
+	p->CloneChildrenOf(this);
 	
 	return p;
 }
 
-void
-NumberTimeStyle::Init(ods::Tag *tag)
+void NumberTimeStyle::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
 	Scan(tag);
+}
+
+void NumberTimeStyle::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kName}, list);
+}
+
+void NumberTimeStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+	Add(ns_->style(), list);
 }
 
 NumberDay*
@@ -106,8 +116,7 @@ NumberTimeStyle::NewYear()
 	return p;
 }
 
-void
-NumberTimeStyle::Scan(ods::Tag *scan_tag)
+void NumberTimeStyle::Scan(ods::Tag *scan_tag)
 {
 	foreach (auto *x, scan_tag->nodes())
 	{
@@ -138,12 +147,18 @@ NumberTimeStyle::Scan(ods::Tag *scan_tag)
 	}
 }
 
-void
-NumberTimeStyle::WriteData(QXmlStreamWriter &xml)
+void NumberTimeStyle::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->style(), ods::ns::kName, style_name_);
 	WriteNodes(xml);
 }
 
+void NumberTimeStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ods::ns::kName, style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

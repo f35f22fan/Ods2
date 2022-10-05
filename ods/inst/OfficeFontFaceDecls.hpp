@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API OfficeFontFaceDecls : public Abstract
 {
@@ -20,11 +19,13 @@ public:
 	StyleFontFace*
 	GetFontFace(const QString &font_name, const AddIfNeeded ain);
 	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	
 	StyleFontFace*
 	Register(const QString &font_name);
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
 	
@@ -35,4 +36,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

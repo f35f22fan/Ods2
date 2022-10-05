@@ -7,8 +7,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberBooleanStyle::NumberBooleanStyle(Abstract *parent, ods::Tag *tag)
  : Abstract(parent, parent->ns(), id::NumberBooleanStyle)
@@ -63,8 +62,7 @@ NumberBooleanStyle::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-NumberBooleanStyle::Init(ods::Tag *tag)
+void NumberBooleanStyle::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->number(), ods::ns::kCountry, number_country_);
 	tag->Copy(ns_->number(), ods::ns::kLanguage, number_language_);
@@ -80,6 +78,24 @@ NumberBooleanStyle::Init(ods::Tag *tag)
 	tag->Copy(ns_->style(), ods::ns::kVolatile, style_volatile_);
 	
 	Scan(tag);
+}
+
+void NumberBooleanStyle::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kCountry,
+		ns::kLanguage, ns::kRfcLanguageTag,
+		ns::kScript, ns::kTitle,
+		ns::kTransliterationCountry,
+		ns::kTransliterationFormat,
+		ns::kTransliterationLanguage,
+		ns::kTransliterationStyle,
+		ns::kDisplayName, ns::kName, ns::kVolatile}, list);
+}
+
+void NumberBooleanStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+	Add(ns_->style(), list);
 }
 
 NumberBoolean*
@@ -99,8 +115,7 @@ NumberBooleanStyle::NewText(const QString &s)
 	return p;
 }
 
-void
-NumberBooleanStyle::Scan(ods::Tag *tag)
+void NumberBooleanStyle::Scan(ods::Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -120,12 +135,41 @@ NumberBooleanStyle::Scan(ods::Tag *tag)
 	}
 }
 
-void
-NumberBooleanStyle::WriteData(QXmlStreamWriter &xml)
+void NumberBooleanStyle::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->style(), ods::ns::kName, style_name_);
+	Write(xml, ns_->style(), ods::ns::kVolatile, style_volatile_);
+	Write(xml, ns_->number(), ods::ns::kCountry, number_country_);
+	Write(xml, ns_->number(), ods::ns::kLanguage, number_language_);
+	Write(xml, ns_->number(), ods::ns::kRfcLanguageTag, number_rfc_language_tag_);
+	Write(xml, ns_->number(), ods::ns::kScript, number_script_);
+	Write(xml, ns_->number(), ods::ns::kTitle, number_title_);
+	Write(xml, ns_->number(), ods::ns::kTransliterationCountry, number_transliteration_country_);
+	Write(xml, ns_->number(), ods::ns::kTransliterationFormat, number_transliteration_format_);
+	Write(xml, ns_->number(), ods::ns::kTransliterationLanguage, number_translitaration_language_);
+	Write(xml, ns_->number(), ods::ns::kTransliterationStyle, number_transliteration_style_);
+	Write(xml, ns_->style(), ods::ns::kDisplayName, style_display_name_);
+	
 	WriteNodes(xml);
 }
 
+void NumberBooleanStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ods::ns::kName, style_name_);
+	WriteNdffProp(kw, *ba, ns_->style(), ods::ns::kVolatile, style_volatile_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kCountry, number_country_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kLanguage, number_language_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kRfcLanguageTag, number_rfc_language_tag_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kScript, number_script_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kTitle, number_title_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kTransliterationCountry, number_transliteration_country_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kTransliterationFormat, number_transliteration_format_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kTransliterationLanguage, number_translitaration_language_);
+	WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kTransliterationStyle, number_transliteration_style_);
+	WriteNdffProp(kw, *ba, ns_->style(), ods::ns::kDisplayName, style_display_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

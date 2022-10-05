@@ -9,8 +9,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 DrawFrame::DrawFrame(Abstract *parent, Tag *tag)
 : Abstract (parent, parent->ns(), id::DrawFrame)
@@ -76,25 +75,46 @@ DrawFrame::Init(ods::Tag *tag)
 {
 	QString str;
 	
-	tag->Copy(ns_->svg(), ods::ns::kX, str);
+	tag->Copy(ns_->svg(), ns::kX, str);
 	svg_x_ = Length::FromString(str);
 	
-	tag->Copy(ns_->svg(), ods::ns::kY, str);
+	tag->Copy(ns_->svg(), ns::kY, str);
 	svg_y_ = Length::FromString(str);
 	
-	tag->Copy(ns_->svg(), ods::ns::kHeight, str);
+	tag->Copy(ns_->svg(), ns::kHeight, str);
 	svg_height_ = Length::FromString(str);
 	
-	tag->Copy(ns_->svg(), ods::ns::kWidth, str);
+	tag->Copy(ns_->svg(), ns::kWidth, str);
 	svg_width_ = Length::FromString(str);
 	
-	tag->Copy(ns_->draw(), ods::ns::kZIndex, draw_z_index_);
-	tag->Copy(ns_->draw(), ods::ns::kId, draw_id_);
-	tag->Copy(ns_->draw(), ods::ns::kName, draw_name_);
-	tag->Copy(ns_->style(), ods::ns::kRelWidth, style_rel_width_);
-	tag->Copy(ns_->style(), ods::ns::kRelHeight, style_rel_height_);
+	tag->Copy(ns_->draw(), ns::kZIndex, draw_z_index_);
+	tag->Copy(ns_->draw(), ns::kId, draw_id_);
+	tag->Copy(ns_->draw(), ns::kName, draw_name_);
+	tag->Copy(ns_->style(), ns::kRelWidth, style_rel_width_);
+	tag->Copy(ns_->style(), ns::kRelHeight, style_rel_height_);
 	
 	Scan(tag);
+}
+
+void DrawFrame::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(),
+		ns::kX, ns::kY,
+		ns::kHeight, ns::kWidth,
+		ns::kZIndex, ns::kId,
+		ns::kName, ns::kRelWidth,
+		ns::kRelHeight}, list);
+}
+
+void DrawFrame::ListUsedNamespaces(NsHash &list)
+{
+	if (svg_x_ || svg_y_ || svg_width_ || svg_height_)
+	{
+		Add(ns_->svg(), list);
+	}
+	
+	Add(ns_->draw(), list);
+	Add(ns_->style(), list);
 }
 
 inst::DrawImage*
@@ -131,11 +151,11 @@ DrawFrame::Scan(ods::Tag *scan_tag)
 		
 		auto *tag = x->as_tag();
 		
-		if (tag->Is(ns_->draw(), ods::ns::kImage))
+		if (tag->Is(ns_->draw(), ns::kImage))
 			Append(new DrawImage(this, tag));
-		else if (tag->Is(ns_->svg(), ods::ns::kDesc))
+		else if (tag->Is(ns_->svg(), ns::kDesc))
 			Append(new SvgDesc(this, tag));
-		else if (tag->Is(ns_->svg(), ods::ns::kTitle))
+		else if (tag->Is(ns_->svg(), ns::kTitle))
 			Append(new SvgTitle(this, tag));
 		else
 			Scan(tag);
@@ -189,25 +209,46 @@ void
 DrawFrame::WriteData(QXmlStreamWriter &xml)
 {
 	if (svg_x_ != nullptr)
-		Write(xml, ns_->svg(), ods::ns::kX, svg_x_->toString());
+		Write(xml, ns_->svg(), ns::kX, svg_x_->toString());
 	
 	if (svg_y_ != nullptr)
-		Write(xml, ns_->svg(), ods::ns::kY, svg_y_->toString());
+		Write(xml, ns_->svg(), ns::kY, svg_y_->toString());
 	
 	if (svg_width_ != nullptr)
-		Write(xml, ns_->svg(), ods::ns::kWidth, svg_width_->toString());
+		Write(xml, ns_->svg(), ns::kWidth, svg_width_->toString());
 	
 	if (svg_height_ != nullptr)
-		Write(xml, ns_->svg(), ods::ns::kHeight, svg_height_->toString());
+		Write(xml, ns_->svg(), ns::kHeight, svg_height_->toString());
 	
-	Write(xml, ns_->draw(), ods::ns::kZIndex, draw_z_index_);
-	Write(xml, ns_->draw(), ods::ns::kId, draw_id_);
-	Write(xml, ns_->draw(), ods::ns::kName, draw_name_);
-	Write(xml, ns_->style(), ods::ns::kRelWidth, style_rel_width_);
-	Write(xml, ns_->style(), ods::ns::kRelHeight, style_rel_height_);
+	Write(xml, ns_->draw(), ns::kZIndex, draw_z_index_);
+	Write(xml, ns_->draw(), ns::kId, draw_id_);
+	Write(xml, ns_->draw(), ns::kName, draw_name_);
+	Write(xml, ns_->style(), ns::kRelWidth, style_rel_width_);
+	Write(xml, ns_->style(), ns::kRelHeight, style_rel_height_);
 	
 	WriteNodes(xml);
 }
 
+void DrawFrame::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	if (svg_x_)
+		WriteNdffProp(kw, *ba, ns_->svg(), ns::kX, svg_x_->toString());
+	if (svg_y_)
+		WriteNdffProp(kw, *ba, ns_->svg(), ns::kY, svg_y_->toString());
+	if (svg_width_)
+		WriteNdffProp(kw, *ba, ns_->svg(), ns::kWidth, svg_width_->toString());
+	if (svg_height_)
+		WriteNdffProp(kw, *ba, ns_->svg(), ns::kHeight, svg_height_->toString());
+	
+	WriteNdffProp(kw, *ba, ns_->draw(), ns::kZIndex, draw_z_index_);
+	WriteNdffProp(kw, *ba, ns_->draw(), ns::kId, draw_id_);
+	WriteNdffProp(kw, *ba, ns_->draw(), ns::kName, draw_name_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kRelWidth, style_rel_width_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kRelHeight, style_rel_height_);
+	
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

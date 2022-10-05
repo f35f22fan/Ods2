@@ -6,8 +6,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 StyleHeaderFooterProperties::StyleHeaderFooterProperties(Abstract *parent,
 	ods::Tag *tag)
@@ -39,27 +38,46 @@ StyleHeaderFooterProperties::Clone(Abstract *parent) const
 	p->fo_margin_top_ = fo_margin_top_;
 	p->fo_margin_right_ = fo_margin_right_;
 	p->fo_margin_bottom_ = fo_margin_bottom_;
+	p->CloneChildrenOf(this);
 	
 	return p;
 }
 
-void
-StyleHeaderFooterProperties::Init(ods::Tag *tag)
+void StyleHeaderFooterProperties::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->fo(), ods::ns::kBackgroundColor, fo_background_color_);
-	tag->Copy(ns_->fo(), ods::ns::kBorder, fo_border_);
-	tag->Copy(ns_->fo(), ods::ns::kPadding, fo_padding_);
-	tag->Copy(ns_->fo(), ods::ns::kMinHeight, fo_min_height_);
-	tag->Copy(ns_->fo(), ods::ns::kMarginLeft, fo_margin_left_);
-	tag->Copy(ns_->fo(), ods::ns::kMarginTop, fo_margin_top_);
-	tag->Copy(ns_->fo(), ods::ns::kMarginRight, fo_margin_right_);
-	tag->Copy(ns_->fo(), ods::ns::kMarginBottom, fo_margin_bottom_);
+	tag->Copy(ns_->fo(), ns::kBackgroundColor, fo_background_color_);
+	tag->Copy(ns_->fo(), ns::kBorder, fo_border_);
+	tag->Copy(ns_->fo(), ns::kPadding, fo_padding_);
+	tag->Copy(ns_->fo(), ns::kMinHeight, fo_min_height_);
+	tag->Copy(ns_->fo(), ns::kMarginLeft, fo_margin_left_);
+	tag->Copy(ns_->fo(), ns::kMarginTop, fo_margin_top_);
+	tag->Copy(ns_->fo(), ns::kMarginRight, fo_margin_right_);
+	tag->Copy(ns_->fo(), ns::kMarginBottom, fo_margin_bottom_);
 	
 	Scan(tag);
 }
 
-void
-StyleHeaderFooterProperties::Scan(Tag *tag)
+void StyleHeaderFooterProperties::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kBackgroundColor,
+		ns::kBorder, ns::kPadding, ns::kMinHeight, ns::kMarginLeft,
+		ns::kMarginTop, ns::kMarginRight, ns::kMarginBottom}, list);
+}
+
+void StyleHeaderFooterProperties::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->style(), list);
+	
+	if (!fo_background_color_.isEmpty() || !fo_border_.isEmpty() ||
+		!fo_padding_.isEmpty() || !fo_min_height_.isEmpty() ||
+		!fo_margin_left_.isEmpty() || !fo_margin_top_.isEmpty() ||
+		!fo_margin_right_.isEmpty() || !fo_margin_bottom_.isEmpty())
+	{
+		Add(ns_->fo(), list);
+	}
+}
+
+void StyleHeaderFooterProperties::Scan(Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -68,7 +86,7 @@ StyleHeaderFooterProperties::Scan(Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->style(), ods::ns::kBackgroundImage)) {
+		if (next->Is(ns_->style(), ns::kBackgroundImage)) {
 			Append(new StyleBackgroundImage(this, next));
 		} else {
 			Scan(next);
@@ -76,19 +94,32 @@ StyleHeaderFooterProperties::Scan(Tag *tag)
 	}
 }
 
-void
-StyleHeaderFooterProperties::WriteData(QXmlStreamWriter &xml)
+void StyleHeaderFooterProperties::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->fo(), ods::ns::kBackgroundColor, fo_background_color_);
-	Write(xml, ns_->fo(), ods::ns::kBorder, fo_border_);
-	Write(xml, ns_->fo(), ods::ns::kPadding, fo_padding_);
-	Write(xml, ns_->fo(), ods::ns::kMinHeight, fo_min_height_);
-	Write(xml, ns_->fo(), ods::ns::kMarginLeft, fo_margin_left_);
-	Write(xml, ns_->fo(), ods::ns::kMarginTop, fo_margin_top_);
-	Write(xml, ns_->fo(), ods::ns::kMarginRight, fo_margin_right_);
-	Write(xml, ns_->fo(), ods::ns::kMarginBottom, fo_margin_bottom_);
+	Write(xml, ns_->fo(), ns::kBackgroundColor, fo_background_color_);
+	Write(xml, ns_->fo(), ns::kBorder, fo_border_);
+	Write(xml, ns_->fo(), ns::kPadding, fo_padding_);
+	Write(xml, ns_->fo(), ns::kMinHeight, fo_min_height_);
+	Write(xml, ns_->fo(), ns::kMarginLeft, fo_margin_left_);
+	Write(xml, ns_->fo(), ns::kMarginTop, fo_margin_top_);
+	Write(xml, ns_->fo(), ns::kMarginRight, fo_margin_right_);
+	Write(xml, ns_->fo(), ns::kMarginBottom, fo_margin_bottom_);
 	WriteNodes(xml);
 }
 
+void StyleHeaderFooterProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kBackgroundColor, fo_background_color_);
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorder, fo_border_);
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kPadding, fo_padding_);
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kMinHeight, fo_min_height_);
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kMarginLeft, fo_margin_left_);
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kMarginTop, fo_margin_top_);
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kMarginRight, fo_margin_right_);
+	WriteNdffProp(kw, *ba, ns_->fo(), ns::kMarginBottom, fo_margin_bottom_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

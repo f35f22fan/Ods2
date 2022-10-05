@@ -2,28 +2,98 @@
 
 #include "decl.hxx"
 
+#include "../ByteArray.hpp"
 #include "../decl.hxx"
 #include "../err.hpp"
 #include "../id.hh"
+#include "../ndff/ndff.hh"
 #include "../ods.hxx"
-#include "../record.hh"
+#include "../Prefix.hpp"
 #include "../style.hxx"
 
 #include "../StringOrInst.hpp"
 #include "../StringOrTag.hpp"
 
 #include <cstdint>
+#include <QFile>
+#include <QHash>
 #include <QXmlStreamWriter>
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
-const u16 StyleBit              = 1 << 0;
-const u16 ChangedPropertiesBit  = 1 << 1;
-const u16 ChangedSubnodesBit    = 1 << 2;
+enum class IncludingText: i8 {
+	Yes,
+	No
+};
+
+using NsHash = QHash<UriId, QString>;
+
+class IdAndCount {
+public:
+	i32 count = 0;
+	i32 id = 0;
+	
+	static IdAndCount FromId(ci32 id) {
+		return IdAndCount {.count = 1, .id = id};
+	}
+	
+	inline bool operator < (const IdAndCount &e1) const
+	{
+		return count < e1.count;
+	}
+	
+	bool operator==(const IdAndCount &rhs) const noexcept
+	{
+		return id == rhs.id && count == rhs.count;
+	}
+};
+
+using Keywords = QHash<QString, IdAndCount>;
+
+enum class LimitTo: i8 {
+	Used,
+	All
+};
+
+enum class ClonePart: u8 {
+	Text = 1,
+	Class = 1 << 1,
+};
+
+inline ClonePart operator | (ClonePart a, ClonePart b)
+{
+	return static_cast<ClonePart>(a | b);
+}
+
+inline bool operator & (ClonePart a, ClonePart b) {
+	return a & b;
+}
+
+inline void Add(const Prefix *prefix, NsHash &list)
+{
+	if (!list.contains(prefix->id()))
+		list.insert(prefix->id(), prefix->uri());
+}
+
+inline void AddKeywords(const QVector<QString> &words, Keywords &list)
+{
+	for (const QString &word: words)
+	{
+		if (list.contains(word)) {
+			list[word].count++;
+		} else {
+			IdAndCount ac = { .count = 1, .id = list.count() + 1 };
+			list.insert(word, ac);
+		}
+	}
+}
 
 class ODS_API Abstract {
 public:
+	static const u16 StyleBit              = 1 << 0;
+	static const u16 ChangedPropertiesBit  = 1 << 1;
+	static const u16 ChangedSubnodesBit    = 1 << 2;
+	static const u16 InsideForeignTagBit   = 1 << 3;
 	
 	Abstract(Abstract *parent, Ns *ns, ods::id::func f);
 	Abstract(const Abstract &cloner);
@@ -46,26 +116,25 @@ public:
 		style_name() { return nullptr; }
 	//<== Style Interface
 	
-	bool
-	AddText(ods::StringOrTag *tot);
+	bool AddText(ods::StringOrTag *tot);
+	void Append(Abstract *a);
+	void Append(const QString &s);
 	
-	void
-	Append(Abstract *a);
+	uint16_t& bits() { return bits_; }
+	ods::Book* book() const { return book_; }
+	bool changed() const;
+	bool changed_properties() const {
+		return (bits_ & ChangedPropertiesBit) || (loc_within_file_ == -1); }
+	bool changed_subnodes() const {
+		return (bits_ & ChangedSubnodesBit) || (loc_within_file_ == -1);
+	}
 	
-	void
-	Append(const QString &s);
-	
-	uint16_t&
-	bits() { return bits_; }
-	
-	ods::Book*
-	book() const { return book_; }
+	bool CheckChanged(const Recursively r);
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const = 0;
 	
-	void
-	DeleteNodes();
+	void DeleteNodes();
 	
 	virtual QString
 	FullName() const;
@@ -85,6 +154,11 @@ public:
 	inst::Abstract*
 	GetAnyStyle(const QString &style_name) const;
 	
+	/* If you only need to know if it has children use this method
+	(because it's much faster) instead of calling ListChildren(..)
+	and then calling size() on the vector */
+	virtual bool has_children(const IncludingText itx = IncludingText::Yes) const;
+	
 	ods::Id
 	id() const { return id_; }
 	
@@ -98,13 +172,24 @@ public:
 	is_root() const { return parent_ == nullptr; }
 	
 	bool
-	IsTextP() const;
+	IsTextP() const { return id_ == Id::TextP; }
 	
-	const QVector<StringOrInst*>&
-	nodes() const { return nodes_; }
+	virtual void ListChildren(QVector<StringOrInst*> &vec,
+		const Recursively r = Recursively::No);
 	
-	QVector<StringOrInst*>&
-	nodes_mut() { return nodes_; }
+/** Lists the XML namespaces it currently uses but not
+	the namespaces of its children, for the latter one has
+	to call its children separately.
+	This method is used to add to the document only the
+	XML namespaces that are actually used. */
+	virtual void ListUsedNamespaces(NsHash &list) = 0;
+	
+	virtual void ListKeywords(Keywords &list, const LimitTo lt) = 0;
+	
+	bool ndff() const;
+	
+	QVector<StringOrInst*>*
+	nodes() { return &nodes_; }
 	
 	ods::Ns*
 	ns() const { return ns_; }
@@ -122,10 +207,6 @@ public:
 	
 	void prefix(ods::Prefix *p) { prefix_ = p; }
 	
-	bool quick_save() const;
-	
-	Records* records();
-	
 	void ScanString(Tag *tag);
 	
 	const QString&
@@ -138,12 +219,24 @@ public:
 	virtual void
 	WriteData(QXmlStreamWriter &xml) = 0;
 	
+	virtual void
+	WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba);
+	
+	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
+		Prefix *p, QString key, QStringView value);
+	
+	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
+		ods::Prefix *prefix, QString name, const ods::Bool value);
+	
+	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
+		ods::Prefix *prefix, QString name, const ods::Length *value);
+	
+	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
+		Prefix *prefix, QString name, cint num, cint except);
+	
 	void WriteNodes(QXmlStreamWriter &xml);
 	
 protected:
-	
-	bool changed_properties() const { return bits_ & ChangedPropertiesBit; }
-	bool changed_subnodes() const { return bits_ & ChangedSubnodesBit; }
 	
 	void changed_properties(const bool b) {
 		if (b)
@@ -159,28 +252,56 @@ protected:
 			bits_ &= ~ChangedSubnodesBit;
 	}
 	
-	void
-	Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
-		const QString &value);
-	void
-	Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
+	void CloneChildrenOf(const Abstract *rhs,
+		const ClonePart co = ClonePart::Text | ClonePart::Class);
+	
+	void Write(QXmlStreamWriter &xml, ods::Prefix *prefix, QStringView name,
+		QStringView value);
+	
+	void Write(QXmlStreamWriter &xml, ods::Prefix *prefix, QStringView name,
 		const ods::Bool value);
 	
-	void
-	Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
+	void Write(QXmlStreamWriter &xml, ods::Prefix *prefix, QStringView name,
 		const ods::Length *value);
 	
-	void
-	Write(QXmlStreamWriter &xml, QString &str);
+	void Write(QXmlStreamWriter &xml, QStringView str);
 	
-	void
-	Write(QXmlStreamWriter &xml, Prefix *prefix, const char *name,
+	void Write(QXmlStreamWriter &xml, Abstract *a);
+	
+	void Write(QXmlStreamWriter &xml, Prefix *prefix, QStringView name,
 		const int num, const int except);
 	
-	void
-	Write(QXmlStreamWriter &xml, Abstract *a);
+	inline void WriteContentFollows(ByteArray &ba) {
+		ba.add_u8(ndff::Op::TCF_CMS);
+	}
+	void WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba);
+	inline void WriteSCT(ByteArray &ba) {
+		ba.add_u8(ndff::Op::SCT);
+	}
+	void WriteTag(Keywords &kw, ByteArray &ba);
 	
-	ods::Id id_ = ods::Id::None;
+	inline void CloseBasedOnChildren(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
+	{
+		if (has_children(IncludingText::Yes))
+			CloseWriteNodesAndClose(h, kw, file, ba);
+		else
+			CloseTag(file, ba);
+	}
+	
+	
+	inline void CloseTag(QFileDevice *file, ByteArray *ba)
+	{
+		ba->add_u8(ndff::Op::U4_TE);
+	}
+	
+	inline void CloseWriteNodesAndClose(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
+	{
+		CHECK_PTR_VOID(ba);
+		WriteContentFollows(*ba);
+		WriteNodes(h, kw, *ba);
+		WriteSCT(*ba);
+	}
+	
 	ods::id::func func_;
 	ods::Ns *ns_ = nullptr;
 	inst::Abstract *parent_ = nullptr;
@@ -188,9 +309,10 @@ protected:
 	QString tag_name_;
 	QVector<StringOrInst*> nodes_;
 	ods::Book *book_ = nullptr;
+	i64 loc_within_file_ = -1;
 	u16 bits_ = 0;
-	i32 tag_index_ = -1;
+	ods::Id id_ = ods::Id::None;
 };
 
-}} // ods::inst::
+} // ods::inst::
 

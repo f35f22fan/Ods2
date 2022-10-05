@@ -13,8 +13,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 OfficeMeta::OfficeMeta(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::OfficeMeta)
@@ -39,17 +38,17 @@ OfficeMeta::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-OfficeMeta::Init(Tag *tag)
+void OfficeMeta::Init(Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-OfficeMeta::InitDefault()
+void OfficeMeta::InitDefault()
 {
 /*
 	<office:meta>
@@ -68,8 +67,17 @@ OfficeMeta::InitDefault()
 */
 }
 
-void
-OfficeMeta::Scan(Tag *tag)
+void OfficeMeta::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void OfficeMeta::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
+}
+
+void OfficeMeta::Scan(Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -101,11 +109,9 @@ OfficeMeta::Scan(Tag *tag)
 	}
 }
 
-void
-OfficeMeta::WriteData(QXmlStreamWriter &xml)
+void OfficeMeta::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

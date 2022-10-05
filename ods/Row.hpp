@@ -7,7 +7,7 @@
 
 #include "inst/Abstract.hpp"
 
-namespace ods { // ods::
+namespace ods {
 
 class ODS_API Row : public ods::inst::Abstract
 {
@@ -23,11 +23,8 @@ public:
 	virtual inst::Abstract*
 	Clone(inst::Abstract *parent = nullptr) const override;
 	
-	bool
-	covered() const { return bits_ & ods::CoveredBit; }
-	
-	void
-	covered(const bool do_set) {
+	bool covered() const { return bits_ & ods::CoveredBit; }
+	void covered(const bool do_set) {
 		if (do_set)
 			bits_ |= CoveredBit;
 		else
@@ -37,11 +34,17 @@ public:
 	ods::Cell*
 	GetCell(cint place);
 	
-	int
-	GetColumnIndex(const ods::Cell *cell) const;
+	int GetColumnIndex(const ods::Cell *cell) const;
 	
 	inst::StyleStyle*
 	GetStyle() const;
+	
+	bool has_children(const inst::IncludingText itx) const override {
+		return cells_.size() > 0 || Abstract::has_children(itx);
+	}
+	void ListChildren(QVector<StringOrInst *> &vec, const Recursively r) override;
+	void ListKeywords(inst::Keywords &list, const inst::LimitTo lt) override;
+	void ListUsedNamespaces(inst::NsHash &list) override;
 	
 	Cell*
 	NewCellAt(cint place, cint ncr = 1, cint ncs = 1);
@@ -81,9 +84,8 @@ public:
 	ods::Sheet*
 	sheet() const { return sheet_; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	void delete_region(const DeleteRegion &dr) {
 		delete_region_ = dr;
@@ -92,8 +94,7 @@ private:
 	const DeleteRegion&
 	delete_region() const { return delete_region_; }
 	
-	bool
-	has_delete_region() const { return delete_region_.start != -1; }
+	bool has_delete_region() const { return delete_region_.start != -1; }
 	
 	Cell* At(cint place, int &vec_index);
 	void DeleteCellRegion(ods::Cell *cell, cint vec_index);

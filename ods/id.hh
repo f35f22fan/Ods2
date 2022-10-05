@@ -3,16 +3,14 @@
 #include "global.hxx"
 #include "types.hxx"
 
-namespace ods { // ods::
+namespace ods {
 class Ns;
 
-namespace inst { // ods::inst::
+namespace inst {
 class Abstract;
-} // ods::inst::
+}
 
-
-using TagIdType = u16;
-enum class Id : TagIdType
+enum class Id: u16
 {
 	None = 0,
 	DcDate,

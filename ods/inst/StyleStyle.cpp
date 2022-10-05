@@ -25,8 +25,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 StyleStyle::StyleStyle(Abstract *parent, ods::Tag *tag)
 : Abstract (parent, parent->ns(), id::StyleStyle)
@@ -57,6 +56,8 @@ StyleStyle::Clone(Abstract *parent) const
 	p->style_master_page_name_ = style_master_page_name_;
 	p->style_name_ = style_name_;
 	p->style_parent_style_name_ = style_parent_style_name_;
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
@@ -230,21 +231,32 @@ StyleStyle::GetTimeStyle() const
 	return nullptr;
 }
 
-void
-StyleStyle::Init(ods::Tag *tag)
+void StyleStyle::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->style(), ods::ns::kDataStyleName, style_data_style_name_);
+	tag->Copy(ns_->style(), ns::kDataStyleName, style_data_style_name_);
 	
 	QString str;
-	tag->Copy(ns_->style(), ods::ns::kFamily, str);
+	tag->Copy(ns_->style(), ns::kFamily, str);
 	style_family_ = style::FamilyFromString(str);
 	
-	tag->Copy(ns_->style(), ods::ns::kMasterPageName, style_master_page_name_);
-	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
-	tag->Copy(ns_->style(), ods::ns::kParentStyleName, style_parent_style_name_);
-	tag->Copy(ns_->style(), ods::ns::kDisplayName, style_display_name_);
+	tag->Copy(ns_->style(), ns::kMasterPageName, style_master_page_name_);
+	tag->Copy(ns_->style(), ns::kName, style_name_);
+	tag->Copy(ns_->style(), ns::kParentStyleName, style_parent_style_name_);
+	tag->Copy(ns_->style(), ns::kDisplayName, style_display_name_);
 	
 	Scan(tag);
+}
+
+void StyleStyle::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kDataStyleName,
+		ns::kFamily, ns::kMasterPageName, ns::kMasterPageName,
+		ns::kName, ns::kParentStyleName, ns::kDisplayName}, list);
+}
+
+void StyleStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->style(), list);
 }
 
 NumberBooleanStyle*
@@ -340,8 +352,7 @@ StyleStyle::QueryFontFace() const
 	return tp->font_face();
 }
 
-void
-StyleStyle::Scan(ods::Tag *tag)
+void StyleStyle::Scan(ods::Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -350,18 +361,18 @@ StyleStyle::Scan(ods::Tag *tag)
 
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->style(), ods::ns::kTextProperties))
+		if (next->Is(ns_->style(), ns::kTextProperties))
 		{
 			Append(new StyleTextProperties(this, next));
-		} else if (next->Is(ns_->style(), ods::ns::kTableCellProperties)) {
+		} else if (next->Is(ns_->style(), ns::kTableCellProperties)) {
 			Append(new StyleTableCellProperties(this, next));
-		} else if (next->Is(ns_->style(), ods::ns::kTableColumnProperties)) {
+		} else if (next->Is(ns_->style(), ns::kTableColumnProperties)) {
 			Append(new StyleTableColumnProperties(this, next));
-		} else if (next->Is(ns_->style(), ods::ns::kTableProperties)) {
+		} else if (next->Is(ns_->style(), ns::kTableProperties)) {
 			Append(new StyleTableProperties(this, next));
-		} else if (next->Is(ns_->style(), ods::ns::kTableRowProperties)) {
+		} else if (next->Is(ns_->style(), ns::kTableRowProperties)) {
 			Append(new StyleTableRowProperties(this, next));
-		} else if (next->Is(ns_->style(), ods::ns::kParagraphProperties)) {
+		} else if (next->Is(ns_->style(), ns::kParagraphProperties)) {
 			Append(new StyleParagraphProperties(this, next));
 		} else {
 			Scan(next);
@@ -369,16 +380,14 @@ StyleStyle::Scan(ods::Tag *tag)
 	}
 }
 
-void
-StyleStyle::SetBackgroundColor(const QColor &color)
+void StyleStyle::SetBackgroundColor(const QColor &color)
 {
 	// set background color:
 	auto *stcp = FetchStyleTableCellProperties();
 	stcp->SetBackgroundColor(color);
 }
 
-void
-StyleStyle::SetBoldText(const bool bold)
+void StyleStyle::SetBoldText(const bool bold)
 {
 	ods::inst::StyleTextProperties *tp = FetchStyleTextProperties();
 
@@ -393,8 +402,7 @@ StyleStyle::SetBoldText(const bool bold)
 	tp->SetFontWeight(font_weight);
 }
 
-void
-StyleStyle::SetBorder(const ods::Length &width, const QColor &color,
+void StyleStyle::SetBorder(const ods::Length &width, const QColor &color,
 	const ods::line::Style &line_style, const u8 sides)
 {
 	auto *tcp = FetchTableCellProperties();
@@ -420,27 +428,23 @@ StyleStyle::SetBorder(const ods::Length &width, const QColor &color,
 		tcp->border_bottom(&border);
 }
 
-void
-StyleStyle::SetDataStyle(NumberCurrencyStyle *p) {
+void StyleStyle::SetDataStyle(NumberCurrencyStyle *p) {
 	style_data_style_name_ = *p->style_name();
 }
 
-void
-StyleStyle::SetFamily(const style::Family f)
+void StyleStyle::SetFamily(const style::Family f)
 {
 	style_family_ = f;
 }
 
-void
-StyleStyle::SetFontStyle(const ods::attr::FontStyle font_style)
+void StyleStyle::SetFontStyle(const ods::attr::FontStyle font_style)
 {
 	ods::inst::StyleTextProperties *tp = FetchStyleTextProperties();
 	auto *fo_font_style = new ods::attr::FoFontStyle(font_style);
 	tp->SetFontStyle(fo_font_style);
 }
 
-void
-StyleStyle::SetHAlignment(const HAlignSide place)
+void StyleStyle::SetHAlignment(const HAlignSide place)
 {
 	auto *spp = (ods::inst::StyleParagraphProperties*)
 		Get(ods::Id::StyleParagraphProperties);
@@ -452,8 +456,7 @@ StyleStyle::SetHAlignment(const HAlignSide place)
 	spp->text_align(&ha);
 }
 
-void
-StyleStyle::SetVAlignment(const VAlignSide place)
+void StyleStyle::SetVAlignment(const VAlignSide place)
 {
 	auto *tcp = (ods::inst::StyleTableCellProperties*)
 		Get(ods::Id::StyleTableCellProperties);
@@ -465,32 +468,27 @@ StyleStyle::SetVAlignment(const VAlignSide place)
 	tcp->vertical_align(&va);
 }
 
-void
-StyleStyle::SetMasterPageName(const QString &s)
+void StyleStyle::SetMasterPageName(const QString &s)
 {
 	style_master_page_name_ = s;
 }
 
-void
-StyleStyle::SetName(const QString &s)
+void StyleStyle::SetName(const QString &s)
 {
 	style_name_ = s;
 }
 
-void
-StyleStyle::SetParentStyle(StyleStyle *s)
+void StyleStyle::SetParentStyle(StyleStyle *s)
 {
 	SetParentStyleName(*s->style_name());
 }
 
-void
-StyleStyle::SetParentStyleName(const QString &s)
+void StyleStyle::SetParentStyleName(const QString &s)
 {
 	style_parent_style_name_ = s;
 }
 
-void
-StyleStyle::SetPercentage(const int min_integer_digits, const int decimal_places)
+void StyleStyle::SetPercentage(const int min_integer_digits, const int decimal_places)
 {
 	ods::inst::NumberPercentageStyle *percent_style = FetchPercentageStyle();
 	auto *ns = percent_style->FetchNumberStyle();
@@ -503,24 +501,42 @@ StyleStyle::SetPercentage(const int min_integer_digits, const int decimal_places
 	percent_style->FetchNumberText()->SetFirstString(QLatin1String("%"));
 }
 
-void
-StyleStyle::WriteData(QXmlStreamWriter &xml)
+void StyleStyle::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->style(), ods::ns::kDataStyleName, style_data_style_name_);
+	Write(xml, ns_->style(), ns::kDataStyleName, style_data_style_name_);
 	
 	if (style_family_ != style::Family::None)
 	{
-		auto *str = style::FamilyToString(style_family_);
-		Write(xml, ns_->style(), ods::ns::kFamily, str);
+		auto str = style::FamilyToString(style_family_);
+		Write(xml, ns_->style(), ns::kFamily, str);
 	}
 	
-	Write(xml, ns_->style(), ods::ns::kMasterPageName, style_master_page_name_);
-	Write(xml, ns_->style(), ods::ns::kName, style_name_);
-	Write(xml, ns_->style(), ods::ns::kParentStyleName, style_parent_style_name_);
-	Write(xml, ns_->style(), ods::ns::kDisplayName, style_display_name_);
+	Write(xml, ns_->style(), ns::kMasterPageName, style_master_page_name_);
+	Write(xml, ns_->style(), ns::kName, style_name_);
+	Write(xml, ns_->style(), ns::kParentStyleName, style_parent_style_name_);
+	Write(xml, ns_->style(), ns::kDisplayName, style_display_name_);
 	
 	WriteNodes(xml);
 }
 
+void StyleStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kDataStyleName, style_data_style_name_);
+	
+	if (style_family_ != style::Family::None)
+	{
+		auto str = style::FamilyToString(style_family_);
+		WriteNdffProp(kw, *ba, ns_->style(), ns::kFamily, str);
+	}
+	
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kMasterPageName, style_master_page_name_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kParentStyleName, style_parent_style_name_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kDisplayName, style_display_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

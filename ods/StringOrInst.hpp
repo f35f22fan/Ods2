@@ -1,6 +1,7 @@
 #pragma once
 
 #include "decl.hxx"
+#include "err.hpp"
 #include "global.hxx"
 #include "id.hh"
 #include "ods.hxx"
@@ -12,50 +13,33 @@
 
 namespace ods {
 
-enum class StringOrInstType : quint8 {
-	None,
-	String,
-	Inst,
-};
-
 class ODS_API StringOrInst
 {
 public:
 	StringOrInst(const QString &s);
-	
-	StringOrInst(inst::Abstract *inst);
+	StringOrInst(inst::Abstract *inst, const TakeOwnership to);
 	
 	virtual ~StringOrInst();
-	void
-	AppendString(const QString &s);
 	
-	inst::Abstract*
-	as_inst() const { return (inst::Abstract*) data_; }
-	
-	QString*
-	as_string() const { return (QString*)data_; }
-	
-	StringOrInst*
-	Clone() const;
-	
-	void
-	DeleteData();
-	
-	bool
-	Is(const Id id1, const Id id2 = Id::None) const;
-	
-	bool
-	is_inst() const { return type_ == StringOrInstType::Inst; }
-	
-	bool
-	is_string() const { return type_ == StringOrInstType::String; }
-	
-	void
-	SetString(const QString &s);
+	void AppendString(const QString &s);
+	inst::Abstract* as_inst() const { return inst_; }
+	const QString& as_string() const { return s_; }
+	const QString* as_str_ptr() const { return &s_; }
+	StringOrInst* Clone() const;
+	void DeleteData();
+	bool Is(const Id id1, const Id id2 = Id::None) const;
+	bool is_inst() const { return inst_ != nullptr; }
+	bool is_string() const { return is_string_; }
+	void SetInst(inst::Abstract *a, const TakeOwnership to);
+	void SetString(const QString &s);
 	
 private:
-	void *data_ = nullptr;
-	StringOrInstType type_ = StringOrInstType::None;
+	NO_ASSIGN_COPY_MOVE(StringOrInst);
+	
+	inst::Abstract *inst_ = nullptr;
+	QString s_;
+	Owns owns_inst_ = Owns::No;
+	bool is_string_ = false;
 };
 
 

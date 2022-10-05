@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 TableCalculationSettings::TableCalculationSettings(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TableCalculationSettings)
@@ -37,33 +36,52 @@ TableCalculationSettings::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-TableCalculationSettings::Init(Tag *tag)
+void TableCalculationSettings::Init(Tag *tag)
 {
-	tag->Copy(ns_->table(), ods::ns::kAutomaticFindLabels,
+	tag->Copy(ns_->table(), ns::kAutomaticFindLabels,
 		table_automatic_find_labels_);
-	tag->Copy(ns_->table(), ods::ns::kUseRegularExpressions,
+	tag->Copy(ns_->table(), ns::kUseRegularExpressions,
 		table_use_regular_expressions_);
-	tag->Copy(ns_->table(), ods::ns::kUseWildcards, table_use_wildcards_);
+	tag->Copy(ns_->table(), ns::kUseWildcards, table_use_wildcards_);
 }
 
-void
-TableCalculationSettings::InitDefault()
+void TableCalculationSettings::InitDefault()
 {
 	table_automatic_find_labels_ = QLatin1String("false");
 	table_use_regular_expressions_ = QLatin1String("false");
 	table_use_wildcards_ = QLatin1String("true");
 }
 
-void
-TableCalculationSettings::WriteData(QXmlStreamWriter &xml)
+void TableCalculationSettings::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	Write(xml, ns_->table(), ods::ns::kAutomaticFindLabels,
+	inst::AddKeywords({tag_name(), ns::kAutomaticFindLabels,
+		ns::kUseRegularExpressions, ns::kUseWildcards}, list);
+}
+
+void TableCalculationSettings::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->table(), list);
+}
+
+void TableCalculationSettings::WriteData(QXmlStreamWriter &xml)
+{
+	Write(xml, ns_->table(), ns::kAutomaticFindLabels,
 		table_automatic_find_labels_);
-	Write(xml, ns_->table(), ods::ns::kUseRegularExpressions,
+	Write(xml, ns_->table(), ns::kUseRegularExpressions,
 		table_use_regular_expressions_);
-	Write(xml, ns_->table(), ods::ns::kUseWildcards, table_use_wildcards_);
+	Write(xml, ns_->table(), ns::kUseWildcards, table_use_wildcards_);
+}
+
+void TableCalculationSettings::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kAutomaticFindLabels,
+		table_automatic_find_labels_);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kUseRegularExpressions,
+		table_use_regular_expressions_);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kUseWildcards, table_use_wildcards_);
+	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::
-} // ods::

@@ -11,6 +11,7 @@
 #include "ods.hh"
 #include "Row.hpp"
 #include "Sheet.hpp"
+#include "str.hxx"
 #include "StringOrInst.hpp"
 #include "StringOrTag.hpp"
 #include "Tag.hpp"
@@ -149,12 +150,12 @@ QString
 Cell::FullName() const
 {
 	if (covered())
-		return prefix_->With(ods::ns::kCoveredTableCell);
+		return prefix_->With(ns::kCoveredTableCell);
 	
 	return prefix_->With(tag_name_);
 }
 
-QString*
+const QString*
 Cell::GetFirstString() const
 {
 	auto *inst = Get(Id::TextP);
@@ -175,29 +176,54 @@ Cell::GetStyle(const CreateIfNeeded cin)
 		NewStyle() : style;
 }
 
-void
-Cell::Init(ods::Tag *tag)
+void Cell::Init(ods::Tag *tag)
 {
 	ReadValue(tag);
-	tag->Copy(ns_->table(), ods::ns::kNumberColumnsRepeated, ncr_);
-	tag->Copy(ns_->table(), ods::ns::kNumberColumnsSpanned, ncs_);
-	tag->Copy(ns_->table(), ods::ns::kNumberRowsSpanned, nrs_);
-	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
+	tag->Copy(ns_->table(), ns::kNumberColumnsRepeated, ncr_);
+	tag->Copy(ns_->table(), ns::kNumberColumnsSpanned, ncs_);
+	tag->Copy(ns_->table(), ns::kNumberRowsSpanned, nrs_);
+	tag->Copy(ns_->table(), ns::kStyleName, table_style_name_);
 	 // calcext:value-type="time"
 	QString str;
 	if (office_value_type_ == ValueType::None) {
-		tag->Copy(ns_->office(), ods::ns::kValueType, str);
+		tag->Copy(ns_->office(), ns::kValueType, str);
 		
 		if (!str.isEmpty())
 			office_value_type_ = ods::TypeFromString(str);
 	}
 	
-	tag->Copy(ns_->office(), ods::ns::kCurrency, office_currency_);
+	tag->Copy(ns_->office(), ns::kCurrency, office_currency_);
 	
-	tag->Copy(ns_->table(), ods::ns::kFormula, str);
+	tag->Copy(ns_->table(), ns::kFormula, str);
 	formula_ = ods::Formula::FromString(str, this);
 	
 	Scan(tag);
+}
+
+void Cell::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(),
+		ns::kNumberColumnsRepeated,
+		ns::kNumberColumnsSpanned,
+		ns::kNumberRowsSpanned,
+		ns::kStyleName,
+		ns::kValueType,
+		ns::kCurrency,
+		ns::kFormula,
+		ns::kValue,
+		ns::kDateValue,
+		ns::kTimeValue,
+		ns::kBooleanValue}, list);
+}
+
+void Cell::ListUsedNamespaces(inst::NsHash &list)
+{
+	inst::Add(ns_->table(), list);
+	
+	if (is_value_set())
+	{
+		inst::Add(ns_->office(), list);
+	}
 }
 
 inst::DrawFrame*
@@ -445,17 +471,15 @@ Cell::QueryFontFace(inst::StyleStyle *cell_style,
 	return default_cell_style->QueryFontFace();
 }
 
-int
-Cell::QueryStart() const
+int Cell::QueryStart() const
 {
 	return row_->QueryCellStart(this);
 }
 
-void
-Cell::ReadValue(ods::Tag *tag)
+void Cell::ReadValue(ods::Tag *tag)
 {
 	auto *ns = tag->ns();
-	auto *type_attr = tag->Get(ns->office(), ods::ns::kValueType);
+	auto *type_attr = tag->GetAttr(ns->office(), ns::kValueType);
 
 	if (type_attr == nullptr)
 	{
@@ -468,7 +492,7 @@ Cell::ReadValue(ods::Tag *tag)
 	
 	if (is_double() || is_currency() || is_percentage())
 	{
-		auto *value_attr = tag->Get(ns->office(), ods::ns::kValue);
+		auto *value_attr = tag->GetAttr(ns->office(), ns::kValue);
 		
 		if (value_attr != nullptr)
 		{
@@ -484,7 +508,7 @@ Cell::ReadValue(ods::Tag *tag)
 		// office:value-type="date" can be represented as
 		// a date or date-time, so check for ":" to guess which one.
 		
-		auto *custom_attr = tag->Get(ns->office(), ods::ns::kDateValue);
+		auto *custom_attr = tag->GetAttr(ns->office(), ns::kDateValue);
 		CHECK_PTR_VOID(custom_attr);
 		
 		const QString str = custom_attr->value();
@@ -496,7 +520,7 @@ Cell::ReadValue(ods::Tag *tag)
 			SetDate(new QDate(dt));
 		}
 	} else if (is_time()) {
-		auto *custom_attr = tag->Get(ns->office(), ods::ns::kTimeValue);
+		auto *custom_attr = tag->GetAttr(ns->office(), ns::kTimeValue);
 		CHECK_PTR_VOID(custom_attr);
 		auto *t = new ods::Time();
 		if (!t->Parse(custom_attr->value())) {
@@ -505,7 +529,7 @@ Cell::ReadValue(ods::Tag *tag)
 		}
 		SetValue(t, office_value_type_);
 	} else if (is_boolean()) {
-		auto *custom_attr = tag->Get(ns->office(), ods::ns::kBooleanValue);
+		auto *custom_attr = tag->GetAttr(ns->office(), ns::kBooleanValue);
 		
 		if (custom_attr != nullptr)
 			SetBooleanFromString(custom_attr->value());
@@ -516,8 +540,7 @@ Cell::ReadValue(ods::Tag *tag)
 	}
 }
 
-void
-Cell::Scan(ods::Tag *scan_tag)
+void Cell::Scan(ods::Tag *scan_tag)
 {
 	foreach (StringOrTag *x, scan_tag->nodes())
 	{
@@ -529,7 +552,7 @@ Cell::Scan(ods::Tag *scan_tag)
 		if (tag->IsTextP())
 		{
 			Append(new inst::TextP(this, tag));
-		} else if (tag->Is(ns_->draw(), ods::ns::kFrame)) {
+		} else if (tag->Is(ns_->draw(), ns::kFrame)) {
 			Append(new inst::DrawFrame(this, tag));
 		} else {
 			Scan(tag);
@@ -537,23 +560,20 @@ Cell::Scan(ods::Tag *scan_tag)
 	}
 }
 
-void
-Cell::SetBoolean(const bool flag)
+void Cell::SetBoolean(const bool flag)
 {
 	ClearValue(true);
 	value_data_ = new bool(flag);
 	office_value_type_ = ods::ValueType::Bool;
 }
 
-void
-Cell::SetBooleanFromString(const QString &s)
+void Cell::SetBooleanFromString(const QString &s)
 {
 	const bool flag = s.toLower() == QLatin1String("true");
 	SetValue(new bool(flag), office_value_type_);
 }
 
-void
-Cell::SetCurrency(const Currency &c)
+void Cell::SetCurrency(const Currency &c)
 {
 	SetDouble(c.qtty);
 	office_value_type_ = ods::ValueType::Currency;
@@ -561,8 +581,7 @@ Cell::SetCurrency(const Currency &c)
 	office_currency_ = info.str;
 }
 
-void
-Cell::SetDate(QDate *p)
+void Cell::SetDate(QDate *p)
 {
 	ClearValue(true);
 	
@@ -573,8 +592,7 @@ Cell::SetDate(QDate *p)
 	}
 }
 
-void
-Cell::SetDateTime(QDateTime *p)
+void Cell::SetDateTime(QDateTime *p)
 {
 	ClearValue(true);
 	
@@ -584,16 +602,14 @@ Cell::SetDateTime(QDateTime *p)
 	}
 }
 
-void
-Cell::SetDouble(const double d)
+void Cell::SetDouble(const double d)
 {
 	ClearValue(true);
 	office_value_type_ = ods::ValueType::Double;
 	value_data_ = new double(d);
 }
 
-void
-Cell::SetFirstString(const QString &s, bool change_value_type)
+void Cell::SetFirstString(const QString &s, bool change_value_type)
 {
 	auto *inst = Get(Id::TextP);
 	
@@ -611,28 +627,24 @@ Cell::SetFirstString(const QString &s, bool change_value_type)
 		office_value_type_ = ods::ValueType::String;
 }
 
-void
-Cell::SetFormula(ods::Formula *p)
+void Cell::SetFormula(ods::Formula *p)
 {
 	delete formula_;
 	formula_ = p;
 }
 
-void
-Cell::SetPercentage(const double d)
+void Cell::SetPercentage(const double d)
 {
 	SetDouble(d);
 	office_value_type_ = ods::ValueType::Percentage;
 }
 
-void
-Cell::SetRowColSpan(int rows, int cols) {
+void Cell::SetRowColSpan(int rows, int cols) {
 	number_rows_spanned(rows);
 	number_columns_spanned(cols);
 }
 
-void
-Cell::SetStyle(Abstract *inst)
+void Cell::SetStyle(Abstract *inst)
 {
 	if (!inst->IsStyle())
 	{
@@ -654,8 +666,7 @@ Cell::SetStyle(Abstract *inst)
 	}
 }
 
-void
-Cell::SetTime(ods::Time *p)
+void Cell::SetTime(ods::Time *p)
 {
 	ClearValue(true);
 	
@@ -692,7 +703,7 @@ Cell::TypeAndValueString() const
 {
 	if (is_string())
 	{
-		QString *s = GetFirstString();
+		const QString *s = GetFirstString();
 		QString ret("[String] ");
 		
 		if (s != nullptr)
@@ -726,7 +737,7 @@ Cell::ValueToString() const
 	if (is_boolean())
 		return *as_boolean() ? QLatin1String("true") : QLatin1String("false");
 	if (is_string()) {
-		QString *s = GetFirstString();
+		const QString *s = GetFirstString();
 		return (s == nullptr) ? empty : *s;
 	}
 	
@@ -734,10 +745,9 @@ Cell::ValueToString() const
 	return empty;
 }
 
-void
-Cell::WriteData(QXmlStreamWriter &xml)
+void Cell::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->table(), ods::ns::kNumberColumnsRepeated, ncr_, 1);
+	Write(xml, ns_->table(), ns::kNumberColumnsRepeated, ncr_, 1);
 	
 	{
 		/// Workaround for MS Office (2019): if ncs_ > 1
@@ -747,35 +757,68 @@ Cell::WriteData(QXmlStreamWriter &xml)
 		/// Update 2: Both ncs_ and nrs_ must be written out in case
 		/// any of them is != 1
 		
-		int force_if_needed = (ncs_ != 1 || nrs_ != 1) ? -1 : 1;
+		cint force_if_needed = (ncs_ != 1 || nrs_ != 1) ? -1 : 1;
 		
-		Write(xml, ns_->table(), ods::ns::kNumberRowsSpanned, nrs_, force_if_needed);
-		Write(xml, ns_->table(), ods::ns::kNumberColumnsSpanned, ncs_, force_if_needed);
+		Write(xml, ns_->table(), ns::kNumberRowsSpanned, nrs_, force_if_needed);
+		Write(xml, ns_->table(), ns::kNumberColumnsSpanned, ncs_, force_if_needed);
 	}
 	
-	Write(xml, ns_->table(), ods::ns::kStyleName, table_style_name_);
+	Write(xml, ns_->table(), ns::kStyleName, table_style_name_);
 	
 	if (is_value_set())
 	{
 		auto str = ods::TypeToString(office_value_type_);
-		Write(xml, ns_->office(), ods::ns::kValueType, str);
+		Write(xml, ns_->office(), ns::kValueType, str);
 	}
 	
 	WriteValue(xml);
 	WriteNodes(xml);
 }
 
-void
-Cell::WriteValue(QXmlStreamWriter &xml)
+void Cell::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberColumnsRepeated, ncr_, 1);
+	
+	{
+		/// Workaround for MS Office (2019): if ncs_ > 1
+		/// one must print out the nrs_ too, otherwise MS Office
+		/// will treat ncs_ as 1 regardless of its real value
+		
+		/// Update 2: Both ncs_ and nrs_ must be written out in case
+		/// any of them is != 1
+		
+		cint force_if_needed = (ncs_ != 1 || nrs_ != 1) ? -1 : 1;
+		
+		WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberRowsSpanned, nrs_, force_if_needed);
+		WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberColumnsSpanned, ncs_, force_if_needed);
+	}
+	
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);
+	
+	if (is_value_set())
+	{
+		auto str = ods::TypeToString(office_value_type_);
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kValueType, str);
+	}
+	
+	WriteValueNDFF(h, kw, file, ba);
+	
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
+void Cell::WriteValue(QXmlStreamWriter &xml)
 {
 	if (is_double())
 	{
-		Write(xml, ns_->office(), ods::ns::kValue, QString::number(*as_double()));
+		Write(xml, ns_->office(), ns::kValue, QString::number(*as_double()));
 	} else if (is_currency()) {
-		Write(xml, ns_->office(), ods::ns::kValue, QString::number(*as_double()));
-		Write(xml, ns_->office(), ods::ns::kCurrency, office_currency_);
+		Write(xml, ns_->office(), ns::kValue, QString::number(*as_double()));
+		Write(xml, ns_->office(), ns::kCurrency, office_currency_);
 	} else if (is_percentage()) {
-		Write(xml, ns_->office(), ods::ns::kValue, QString::number(*as_double()));
+		Write(xml, ns_->office(), ns::kValue, QString::number(*as_double()));
 	} else if (is_date()) {
 //<table:table-cell table:style-name="ce5" office:value-type="date"
 //		office:date-value="1983-12-30">
@@ -783,19 +826,19 @@ Cell::WriteValue(QXmlStreamWriter &xml)
 //</table:table-cell>
 		auto *dt = as_date();
 		QString date_value = dt->toString(Qt::ISODate);
-		Write(xml, ns_->office(), ods::ns::kDateValue, date_value);
+		Write(xml, ns_->office(), ns::kDateValue, date_value);
 	} else if (is_date_time()) {
 		QDateTime *dt = as_date_time();
 		QString date_value = dt->toString(Qt::ISODate);
-		Write(xml, ns_->office(), ods::ns::kDateValue, date_value);
+		Write(xml, ns_->office(), ns::kDateValue, date_value);
 	} else if (is_time()) {
 		auto *dd = as_time();
 		CHECK_PTR_VOID(dd);
 		QString dur_value = dd->toString();
-		Write(xml, ns_->office(), ods::ns::kTimeValue, dur_value);
+		Write(xml, ns_->office(), ns::kTimeValue, dur_value);
 	} else if (is_boolean()) {
 		QString str = *as_boolean() ? QLatin1String("true") : QLatin1String("false");
-		Write(xml, ns_->office(), ods::ns::kBooleanValue, str);
+		Write(xml, ns_->office(), ns::kBooleanValue, str);
 	} else if (is_string()) {
 		// do nothing
 	} else if (!is_value_set()) {
@@ -804,11 +847,55 @@ Cell::WriteValue(QXmlStreamWriter &xml)
 		auto *sheet = row_->sheet();
 		QString s = str + QLatin1String(", sheet name: ") + sheet->name();
 		mtl_printq(s);
-		it_happened();
 	}
 	
 	if (formula_ != nullptr) {
-		Write(xml, ns_->table(), ods::ns::kFormula, formula_->ToXmlString());
+		Write(xml, ns_->table(), ns::kFormula, formula_->ToXmlString());
+	}
+}
+
+void Cell::WriteValueNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	if (is_double())
+	{
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kValue, QString::number(*as_double()));
+	} else if (is_currency()) {
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kValue, QString::number(*as_double()));
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kCurrency, office_currency_);
+	} else if (is_percentage()) {
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kValue, QString::number(*as_double()));
+	} else if (is_date()) {
+//<table:table-cell table:style-name="ce5" office:value-type="date"
+//		office:date-value="1983-12-30">
+//<text:p>30.12.1983</text:p>
+//</table:table-cell>
+		auto *dt = as_date();
+		QString date_value = dt->toString(Qt::ISODate);
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kDateValue, date_value);
+	} else if (is_date_time()) {
+		QDateTime *dt = as_date_time();
+		QString date_value = dt->toString(Qt::ISODate);
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kDateValue, date_value);
+	} else if (is_time()) {
+		auto *dd = as_time();
+		CHECK_PTR_VOID(dd);
+		QString dur_value = dd->toString();
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kTimeValue, dur_value);
+	} else if (is_boolean()) {
+		QString str = *as_boolean() ? ods::str::True : ods::str::False;
+		WriteNdffProp(kw, *ba, ns_->office(), ns::kBooleanValue, str);
+	} else if (is_string()) {
+		// do nothing
+	} else if (!is_value_set()) {
+	} else {
+		auto str = QueryAddress();
+		auto *sheet = row_->sheet();
+		QString s = str + QLatin1String(", sheet name: ") + sheet->name();
+		mtl_printq(s);
+	}
+	
+	if (formula_ != nullptr) {
+		WriteNdffProp(kw, *ba, ns_->table(), ns::kFormula, formula_->ToXmlString());
 	}
 }
 

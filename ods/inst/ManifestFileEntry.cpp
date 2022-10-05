@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 ManifestFileEntry::ManifestFileEntry(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::ManifestFileEntry)
@@ -35,21 +34,39 @@ ManifestFileEntry::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-ManifestFileEntry::Init(Tag *tag)
+void ManifestFileEntry::Init(Tag *tag)
 {
-	tag->Copy(ns_->manifest(), ods::ns::kFullPath, manifest_full_path_);
-	tag->Copy(ns_->manifest(), ods::ns::kMediaType, manifest_media_type_);
-	tag->Copy(ns_->manifest(), ods::ns::kVersion, manifest_version_);
+	tag->Copy(ns_->manifest(), ns::kFullPath, manifest_full_path_);
+	tag->Copy(ns_->manifest(), ns::kMediaType, manifest_media_type_);
+	tag->Copy(ns_->manifest(), ns::kVersion, manifest_version_);
 }
 
-void
-ManifestFileEntry::WriteData(QXmlStreamWriter &xml)
+void ManifestFileEntry::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	Write(xml, ns_->manifest(), ods::ns::kFullPath, manifest_full_path_);
-	Write(xml, ns_->manifest(), ods::ns::kMediaType, manifest_media_type_);
-	Write(xml, ns_->manifest(), ods::ns::kVersion, manifest_version_);
+	AddKeywords({tag_name(), ns::kFullPath,
+		ns::kMediaType, ns::kVersion}, list);
+}
+
+void ManifestFileEntry::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->manifest(), list);
+}
+
+void ManifestFileEntry::WriteData(QXmlStreamWriter &xml)
+{
+	Write(xml, ns_->manifest(), ns::kFullPath, manifest_full_path_);
+	Write(xml, ns_->manifest(), ns::kMediaType, manifest_media_type_);
+	Write(xml, ns_->manifest(), ns::kVersion, manifest_version_);
+}
+
+void ManifestFileEntry::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->manifest(), ns::kFullPath, manifest_full_path_);
+	WriteNdffProp(kw, *ba, ns_->manifest(), ns::kMediaType, manifest_media_type_);
+	WriteNdffProp(kw, *ba, ns_->manifest(), ns::kVersion, manifest_version_);
+	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::
-} // ods::

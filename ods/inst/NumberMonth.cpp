@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberMonth::NumberMonth(Abstract *parent, Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberMonth)
@@ -29,23 +28,39 @@ NumberMonth::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->number_style_ = number_style_;
+	p->CloneChildrenOf(this, ClonePart::Text);
 	
 	return p;
 }
 
-void
-NumberMonth::Init(ods::Tag *tag)
+void NumberMonth::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->number(), ods::ns::kStyle, number_style_);
+	tag->Copy(ns_->number(), ns::kStyle, number_style_);
 	ScanString(tag);
 }
 
-void
-NumberMonth::WriteData(QXmlStreamWriter &xml)
+void NumberMonth::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	AddKeywords({tag_name(), ns::kStyle}, list);
+}
+
+void NumberMonth::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+}
+
+void NumberMonth::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->number(), ods::ns::kStyle, number_style_);
 	WriteNodes(xml);
 }
 
+void NumberMonth::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->number(), ns::kStyle, number_style_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

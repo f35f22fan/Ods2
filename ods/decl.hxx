@@ -4,6 +4,7 @@ namespace ods {
 
 class Attr;
 class Book;
+class ByteArray;
 class Cell;
 class CellRef;
 class DurationInfo;
@@ -17,8 +18,6 @@ class LineStyle;
 class Master;
 class Ns;
 class Prefix;
-class Record;
-class Records;
 class Reference;
 class Row;
 class Sheet;

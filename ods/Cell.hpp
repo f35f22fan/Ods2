@@ -11,6 +11,7 @@
 #include "inst/decl.hxx"
 
 #include <QDateTime>
+#include <QFileDevice>
 
 namespace ods { // ods::
 
@@ -73,8 +74,7 @@ public:
 	FullName() const override;
 	
 	// returns the text value of first TextP
-	QString*
-	GetFirstString() const;
+	const QString *GetFirstString() const;
 	
 	inst::StyleStyle*
 	GetStyle() const
@@ -125,6 +125,12 @@ public:
 	bool
 	is_empty() const { return (formula_ == nullptr) && !is_value_set(); }
 	
+	bool has_children(const inst::IncludingText itx) const override {
+		return nodes_.size() > 0;
+	}
+	void ListKeywords(inst::Keywords &list, const inst::LimitTo lt) override;
+	void ListUsedNamespaces(inst::NsHash &list) override;
+	
 	inst::DrawFrame*
 	NewDrawFrame();
 	
@@ -170,69 +176,31 @@ public:
 	QueryFontFace(inst::StyleStyle *cell_style = nullptr,
 		inst::TableTableColumn *table_column = nullptr) const;
 	
-	int
-	QueryStart() const;
-	
-	void
-	ReadValue(ods::Tag *tag);
-	
-	ods::Row*
-	row() const { return row_; }
-	
-	void
-	SetBoolean(const bool flag);
-	
-	void
-	SetBooleanFromString(const QString &s);
-
-	void
-	SetCurrency(const Currency &c);
-
-	void
-	SetDate(QDate *p);
-	
-	void
-	SetDateTime(QDateTime *p);
-	
-	void
-	SetDouble(const double d);
-
-	void
-	SetTime(Time *p);
-	
-	void
-	SetFirstString(const QString &s, bool change_value_type = true);
-	
-	void
-	SetRowColSpan(int rows, int cols);
-	
-	void
-	SetString(const QString &s) { SetFirstString(s); }
-
-	void
-	SetFormula(ods::Formula *p);
-	
-	void
-	SetPercentage(const double d);
-	
-	void
-	SetStyle(Abstract *a);
-	
-	void
-	SetValue(const QString &s) { SetString(s); }
-	
-	void
-	SetValue(const i64 n) { SetDouble(double(n)); }
-	
-	void
-	SetValue(void *value)
+	int QueryStart() const;
+	void ReadValue(ods::Tag *tag);
+	ods::Row* row() const { return row_; }
+	void SetBoolean(const bool flag);
+	void SetBooleanFromString(const QString &s);
+	void SetCurrency(const Currency &c);
+	void SetDate(QDate *p);
+	void SetDateTime(QDateTime *p);
+	void SetDouble(const double d);
+	void SetTime(Time *p);
+	void SetFirstString(const QString &s, bool change_value_type = true);
+	void SetRowColSpan(int rows, int cols);
+	void SetString(const QString &s) { SetFirstString(s); }
+	void SetFormula(ods::Formula *p);
+	void SetPercentage(const double d);
+	void SetStyle(Abstract *a);
+	void SetValue(const QString &s) { SetString(s); }
+	void SetValue(const i64 n) { SetDouble(double(n)); }
+	void SetValue(void *value)
 	{
 		ClearValue(true);
 		value_data_ = value;
 	}
 	
-	void
-	SetValue(void *value, const ods::ValueType kType)
+	void SetValue(void *value, const ods::ValueType kType)
 	{
 		ClearValue(true);
 		value_data_ = value;
@@ -245,7 +213,7 @@ public:
 	QByteArray
 	TypeAndValueString() const;
 	
-	const char*
+	QStringView
 	TypeToString() const { return ods::TypeToString(office_value_type_); }
 	
 	QString
@@ -254,12 +222,9 @@ public:
 	ods::ValueType
 	value_type() const { return office_value_type_; }
 	
-	void
-	value_type_set(const ods::ValueType kType) { office_value_type_ = kType; }
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void value_type_set(const ods::ValueType kType) { office_value_type_ = kType; }
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void* CloneValue() const;
@@ -288,8 +253,8 @@ private:
 	QString
 	ToSchemaString() const;
 	
-	void
-	WriteValue(QXmlStreamWriter &xml);
+	void WriteValue(QXmlStreamWriter &xml);
+	void WriteValueNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba);
 	
 	ods::Row *row_ = nullptr;
 	void *value_data_ = nullptr;

@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 MetaEditingCycles::MetaEditingCycles(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::MetaEditingCycles)
@@ -31,17 +30,24 @@ MetaEditingCycles::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-MetaEditingCycles::Init(Tag *tag)
+void MetaEditingCycles::Init(Tag *tag)
 {
 	ScanString(tag);
 }
 
-void
-MetaEditingCycles::WriteData(QXmlStreamWriter &xml)
+void MetaEditingCycles::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void MetaEditingCycles::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->meta(), list);
+}
+
+void MetaEditingCycles::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

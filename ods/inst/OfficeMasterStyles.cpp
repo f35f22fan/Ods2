@@ -6,8 +6,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 OfficeMasterStyles::OfficeMasterStyles(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::OfficeMasterStyles)
@@ -31,17 +30,27 @@ OfficeMasterStyles::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-OfficeMasterStyles::Init(Tag *tag)
+void OfficeMasterStyles::Init(Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-OfficeMasterStyles::Scan(Tag *tag)
+void OfficeMasterStyles::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void OfficeMasterStyles::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
+}
+
+void OfficeMasterStyles::Scan(Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -58,11 +67,9 @@ OfficeMasterStyles::Scan(Tag *tag)
 	}
 }
 
-void
-OfficeMasterStyles::WriteData(QXmlStreamWriter &xml)
+void OfficeMasterStyles::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

@@ -15,7 +15,7 @@ Attr::FullName() const
 }
 
 bool
-Attr::Is(ods::Prefix *prefix, const char *name) const
+Attr::Is(ods::Prefix *prefix, QStringView name) const
 {
 	return (prefix_->id() == prefix->id()) && (name_ == name);
 }

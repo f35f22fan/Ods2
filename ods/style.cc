@@ -2,39 +2,36 @@
 
 #include "ns.hxx"
 
-namespace ods { // ods::
-namespace style { // ods::style::
+namespace ods::style {
 
 style::Family
-FamilyFromString(const QString &s)
+FamilyFromString(QStringView s)
 {
-	if (s == ods::ns::kTableCell)
+	if (s == ns::kTableCell)
 		return style::Family::Cell;
 	
-	if (s == ods::ns::kTableRow)
+	if (s == ns::kTableRow)
 		return style::Family::Row;
 	
-	if (s == ods::ns::kTable)
+	if (s == ns::kTable)
 		return style::Family::Table;
 	
-	if (s == ods::ns::kTableColumn)
+	if (s == ns::kTableColumn)
 		return style::Family::Column;
 	
 	return style::Family::None;
 }
 
-const char*
-FamilyToString(const style::Family f)
+QStringView FamilyToString(const style::Family f)
 {
 	switch (f)
 	{
-	case style::Family::Cell: return ods::ns::kTableCell;
-	case style::Family::Row: return ods::ns::kTableRow;
-	case style::Family::Table: return ods::ns::kTable;
-	case style::Family::Column: return ods::ns::kTableColumn;
-	default: return nullptr;
+	case style::Family::Cell: return ns::kTableCell;
+	case style::Family::Row: return ns::kTableRow;
+	case style::Family::Table: return ns::kTable;
+	case style::Family::Column: return ns::kTableColumn;
+	default: return QString();
 	}
 }
 
 } // ods::style::
-} // ods::

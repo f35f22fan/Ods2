@@ -27,33 +27,21 @@ public:
 	inst::StyleStyle*
 	GetStyle() const;
 	
-	int
-	num() const { return ncr_; }
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
-	void
-	num(const int n) { ncr_ = n; }
-	
-	int
-	number_columns_repeated() const { return ncr_; }
-	
-	void
-	number_columns_repeated(const int n)
-	{
-		ncr_ = n;
-	}
+	int num() const { return ncr_; }
+	void num(const int n) { ncr_ = n; }
+	int number_columns_repeated() const { return ncr_; }
+	void number_columns_repeated(const int n) { ncr_ = n; }
 
-	Length* // caller must not delete returned value
-	QueryColumnWidth() const;
+	 // caller must not delete returned value
+	Length* QueryColumnWidth() const;
 	
-	void
-	SetStyle(inst::StyleStyle *style);
-	
-	void
-	SetWidth(Length *length);
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void SetStyle(inst::StyleStyle *style);
+	void SetWidth(Length *length);
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void delete_region(const DeleteRegion &dr) {

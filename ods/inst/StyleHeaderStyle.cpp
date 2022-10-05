@@ -6,8 +6,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 StyleHeaderStyle::StyleHeaderStyle(Abstract *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::StyleHeaderStyle)
@@ -32,19 +31,28 @@ StyleHeaderStyle::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->style_name_ = style_name_;
-
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-StyleHeaderStyle::Init(ods::Tag *tag)
+void StyleHeaderStyle::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
+	tag->Copy(ns_->style(), ns::kName, style_name_);
 	Scan(tag);
 }
 
-void
-StyleHeaderStyle::Scan(ods::Tag *tag)
+void StyleHeaderStyle::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kName}, list);
+}
+
+void StyleHeaderStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+}
+
+void StyleHeaderStyle::Scan(ods::Tag *tag)
 {
 	foreach (auto *x, tag->nodes())
 	{
@@ -53,7 +61,7 @@ StyleHeaderStyle::Scan(ods::Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->style(), ods::ns::kHeaderFooterProperties))
+		if (next->Is(ns_->style(), ns::kHeaderFooterProperties))
 		{
 			Append(new StyleHeaderFooterProperties(this, next));
 		} else {
@@ -62,12 +70,18 @@ StyleHeaderStyle::Scan(ods::Tag *tag)
 	}
 }
 
-void
-StyleHeaderStyle::WriteData(QXmlStreamWriter &xml)
+void StyleHeaderStyle::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->style(), ods::ns::kName, style_name_);
+	Write(xml, ns_->style(), ns::kName, style_name_);
 	WriteNodes(xml);
 }
 
+void StyleHeaderStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

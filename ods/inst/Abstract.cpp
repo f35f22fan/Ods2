@@ -13,8 +13,7 @@
 #include "../str.hxx"
 #include "../Tag.hpp"
 
-namespace ods {
-namespace inst {
+namespace ods::inst {
 
 Abstract::Abstract(Abstract *parent, ods::Ns *ns, ods::id::func f)
 : parent_(parent)
@@ -30,8 +29,8 @@ Abstract::Abstract(const Abstract &cloner)
 {
 	(cloner.func())(cloner.ns(), this);
 	
-	for (auto *next: cloner.nodes())
-		nodes_.append(next->Clone());
+	for (auto next: cloner.nodes_)
+		nodes_.append(next);
 }
 
 Abstract::~Abstract()
@@ -39,12 +38,11 @@ Abstract::~Abstract()
 	if (is_root())
 		delete ns_;
 	
-	for (auto *next: nodes_)
-		delete next;
+	for (auto *node: nodes_)
+		delete node;
 }
 
-bool
-Abstract::AddText(StringOrTag *tot)
+bool Abstract::AddText(StringOrTag *tot)
 {
 	if (tot->is_string())
 	{
@@ -55,20 +53,64 @@ Abstract::AddText(StringOrTag *tot)
 	return false;
 }
 
-void
-Abstract::Append(const QString &s)
+void Abstract::Append(const QString &s)
 {
 	nodes_.append(new StringOrInst(s));
 }
 
-void
-Abstract::Append(Abstract *a)
+void Abstract::Append(Abstract *a)
 {
-	nodes_.append(new StringOrInst(a));
+	nodes_.append(new StringOrInst(a, TakeOwnership::Yes));
 }
 
-void
-Abstract::DeleteNodes()
+bool Abstract::changed() const
+{
+	// Returns whether the tag has changed or if it was created
+	// and not yet saved (loc_within_file = -1)
+	
+	return changed_properties() || changed_subnodes();
+}
+
+bool Abstract::CheckChanged(const Recursively r)
+{
+	if (changed())
+		return true;
+	
+	if (r == Recursively::Yes)
+	{
+		QVector<StringOrInst*> vec;
+		ListChildren(vec, Recursively::Yes);
+		
+		for (StringOrInst *item: vec)
+		{
+			if (item->is_inst())
+			{
+				Abstract *inst = item->as_inst();
+				if (inst->CheckChanged(Recursively::No))
+					return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
+void Abstract::CloneChildrenOf(const Abstract *rhs, const ClonePart co)
+{
+	for (StringOrInst *node: rhs->nodes_)
+	{
+		if (node->is_string())
+		{
+			if (co & ClonePart::Text)
+				Append(node->as_string());
+		} else {
+			if (co & ClonePart::Class)
+				Append(node->as_inst()->Clone());
+		}
+	}
+}
+
+void Abstract::DeleteNodes()
 {
 	for (auto *next: nodes_)
 		delete next;
@@ -85,10 +127,10 @@ Abstract::FullName() const
 Abstract*
 Abstract::Get(const Id id) const
 {
-	for (auto *x: nodes_)
+	for (StringOrInst *node: nodes_)
 	{
-		if (x->Is(id))
-			return x->as_inst();
+		if (node->Is(id))
+			return node->as_inst();
 	}
 	
 	return nullptr;
@@ -132,19 +174,18 @@ Abstract::GetStyleRecursive(const QString &name)
 {
 	if (IsStyle())
 	{
-		auto *n = style_name();
+		auto *sn = style_name();
 		
-		if ((n != nullptr) && (*n == name))
+		if ((sn != nullptr) && (*sn == name))
 			return this;
 	}
 	
-	for (auto *x: nodes_)
+	for (StringOrInst *node: nodes_)
 	{
-		if (!x->is_inst())
+		if (!node->is_inst())
 			continue;
 		
-		auto *inst = x->as_inst();
-		
+		auto *inst = node->as_inst();
 		if (!inst->IsStyle())
 			continue;
 		
@@ -157,8 +198,21 @@ Abstract::GetStyleRecursive(const QString &name)
 	return nullptr;
 }
 
-bool
-Abstract::Is(const Id id1, const Id id2) const
+bool Abstract::has_children(const IncludingText itx) const
+{
+	if (itx == IncludingText::Yes)
+		return nodes_.size() > 0;
+	
+	for (StringOrInst *node: nodes_)
+	{
+		if (node->is_inst())
+			return true;
+	}
+	
+	return false;
+}
+
+bool Abstract::Is(const Id id1, const Id id2) const
 {
 	if (id_ != id1)
 		return false;
@@ -166,22 +220,23 @@ Abstract::Is(const Id id1, const Id id2) const
 	return (id2 == Id::None || id_ == id2);
 }
 
-bool
-Abstract::IsTextP() const
+void Abstract::ListChildren(QVector<StringOrInst*> &vec,
+	const Recursively r)
 {
-	return id_ == Id::TextP;
+	for (StringOrInst *node: nodes_)
+	{
+		vec.append(node);
+		
+		if (r == Recursively::Yes && node->is_inst())
+		{
+			node->as_inst()->ListChildren(vec, r);
+		}
+	}
 }
 
-bool
-Abstract::quick_save() const { return book_->quick_save(); }
+bool Abstract::ndff() const { return book_->ndff(); }
 
-Records* Abstract::records()
-{
-	return book_->records();
-}
-
-void
-Abstract::ScanString(Tag *tag)
+void Abstract::ScanString(Tag *tag)
 {
 	for (StringOrTag *x: tag->nodes())
 	{
@@ -190,8 +245,7 @@ Abstract::ScanString(Tag *tag)
 	}
 }
 
-void
-Abstract::Write(QXmlStreamWriter &xml)
+void Abstract::Write(QXmlStreamWriter &xml)
 {
 	xml.writeStartElement(FullName());
 	
@@ -202,30 +256,26 @@ Abstract::Write(QXmlStreamWriter &xml)
 	xml.writeEndElement();
 }
 
-void
-Abstract::Write(QXmlStreamWriter &xml, Abstract *a)
+void Abstract::Write(QXmlStreamWriter &xml, Abstract *a)
 {
 	if (a != nullptr)
 		a->Write(xml);
 }
 
-void
-Abstract::Write(QXmlStreamWriter &xml, QString &str)
+void Abstract::Write(QXmlStreamWriter &xml, QStringView str)
 {
 	if (!str.isEmpty())
-		xml.writeCharacters(str);
+		xml.writeCharacters(str.toString());
 }
 
-void
-Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix,
-	const char *name, const QString &value)
+void Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix,
+	QStringView name, QStringView value)
 {
 	if (!value.isEmpty())
-		xml.writeAttribute(prefix->With(name), value);
+		xml.writeAttribute(prefix->With(name), value.toString());
 }
 
-void
-Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
+void Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, QStringView name,
 	const ods::Bool value)
 {
 	if (value != ods::Bool::None) {
@@ -234,34 +284,105 @@ Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
 	}
 }
 
-void
-Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, const char *name,
+void Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, QStringView name,
 	const ods::Length *value)
 {
 	if (value != nullptr)
 		xml.writeAttribute(prefix->With(name), value->toString());
 }
 
-void
-Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix,
-	const char *name, const int num, const int except)
+void Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix,
+	QStringView name, cint num, cint except)
 {
 	if (num != except)
 		xml.writeAttribute(prefix->With(name), QString::number(num));
 }
 
-void
-Abstract::WriteNodes(QXmlStreamWriter &xml)
+void Abstract::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	for (ods::StringOrInst *next: nodes_)
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
+void Abstract::WriteNdffProp(inst::Keywords &kw,
+	ByteArray &ba, Prefix *p, QString key, QStringView value)
+{
+	if (value.isEmpty())
+		return;
+	
+	ba.add_u8(ndff::Op::S4_PS);
+	ba.add_u8(p->id());
+	i32 id = kw[key].id;
+	ba.add_unum(u32(id));
+	ba.add_string(value, Pack::NDFF);
+}
+
+void Abstract::WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
+	ods::Prefix *prefix, QString name, const ods::Bool value)
+{
+	if (value != Bool::None)
 	{
-		if (next->is_string())
-			xml.writeCharacters(*next->as_string());
-		else
-			next->as_inst()->Write(xml);
+		QString s = (value == Bool::True) ? ods::str::True : ods::str::False;
+		WriteNdffProp(kw, ba, prefix, name, s);
 	}
 }
 
+void Abstract::WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
+	ods::Prefix *prefix, QString name, const ods::Length *value)
+{
+	if (value) {
+		QString v = value->toString();
+		WriteNdffProp(kw, ba, prefix, name, v);
+	}
+}
 
+void Abstract::WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
+	Prefix *prefix, QString name,
+	cint num, cint except)
+{
+	if (num != except)
+		WriteNdffProp(kw, ba, prefix, name, QString::number(num));
+}
 
-}} // ods::inst::
+void Abstract::WriteNodes(QXmlStreamWriter &xml)
+{
+	for (StringOrInst *node: nodes_)
+	{
+		if (node->is_string())
+			xml.writeCharacters(node->as_string());
+		else
+			node->as_inst()->Write(xml);
+	}
+}
+
+void Abstract::WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba)
+{
+	QVector<StringOrInst*> vec;
+	ListChildren(vec, Recursively::No);
+	for (StringOrInst *sis: vec)
+	{
+		if (sis->is_inst()) {
+			sis->as_inst()->WriteNDFF(h, kw, nullptr, &ba);
+		} else {
+			ba.add_string(sis->as_string(), Pack::NDFF);
+		}
+	}
+}
+
+void Abstract::WriteTag(Keywords &kw, ByteArray &ba)
+{
+	ci32 tag_id = kw.value(tag_name(), {0, 0}).id;
+	if (tag_id == 0)
+	{
+		mtl_warn("No id for tag \"%s\"", qPrintable(tag_name()));
+		return;
+	}
+	mtl_info("tag: \"%s\", id: %d", qPrintable(tag_name()), tag_id);
+	//mtl_info("Writing tag %s", qPrintable(FullName()));
+	ba.add_u8(ndff::Op::TS);
+	ba.add_unum(prefix_->id());
+	ba.add_unum(tag_id);
+}
+
+} // ods::inst::

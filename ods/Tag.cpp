@@ -16,8 +16,11 @@ Tag::Tag(ods::Ns *ns, ods::Prefix *prefix, const QString &name) :
 
 Tag::~Tag() {
 	
-	for (auto *a: attrs_)
-		delete a;
+	for (auto *attr: attrs_)
+		delete attr;
+	
+	for (auto *node: nodes_)
+		delete node;
 }
 
 void
@@ -32,16 +35,14 @@ Tag::Append(ods::Tag *tag)
 	nodes_.append(new StringOrTag(tag));
 }
 
-void
-Tag::Copy(ods::Prefix *prefix, const char *name, ods::Bool &into)
+void Tag::Copy(ods::Prefix *prefix, QStringView name, ods::Bool &into)
 {
 	QString s;
 	Copy(prefix, name, s);
 	ods::ApplyBool(s, into);
 }
 
-void
-Tag::Copy(ods::Prefix *prefix, const char *name, ods::Length **size)
+void Tag::Copy(ods::Prefix *prefix, QStringView name, ods::Length **size)
 {
 	QString value;
 	Copy(prefix, name, value);
@@ -51,41 +52,35 @@ Tag::Copy(ods::Prefix *prefix, const char *name, ods::Length **size)
 		*size = l;
 }
 
-void
-Tag::Copy(ods::Prefix *prefix, const char *name, QString &into)
+void Tag::Copy(ods::Prefix *prefix, QStringView name, QString &into)
 {
-	auto *a = Get(prefix, name);
+	ods::Attr *attr = GetAttr(prefix, name);
 
-	if (a != nullptr)
-		into = a->value();
+	if (attr != nullptr)
+		into = attr->value();
 	else
 		into.clear();
 }
 
-void
-Tag::Copy(ods::Prefix *prefix, const char *name, int32_t &into)
+void Tag::Copy(ods::Prefix *prefix, QStringView name, i32 &into)
 {
-	auto *a = Get(prefix, name);
+	ods::Attr *a = GetAttr(prefix, name);
 	
 	if (a != nullptr)
 		a->ToInt32(into);
 }
 
-void
-Tag::Copy(ods::Prefix *prefix, const char *name, int8_t &into)
+void Tag::Copy(ods::Prefix *prefix, QStringView name, i8 &into)
 {
-	auto *a = Get(prefix, name);
+	ods::Attr *a = GetAttr(prefix, name);
+	if (!a)
+		return;
 	
-	if (a != nullptr)
-	{
-		QString v = a->value();
-		bool ok;
-		auto n = v.toShort(&ok);
-		
-		if (ok)
-			into = n;
-		
-	}
+	QString v = a->value();
+	bool ok;
+	auto n = v.toShort(&ok);
+	if (ok)
+		into = n;
 }
 
 Tag*
@@ -119,7 +114,7 @@ Tag::FullName() const
 }
 
 ods::Attr*
-Tag::Get(ods::Prefix *prefix, const char *name)
+Tag::GetAttr(ods::Prefix *prefix, QStringView name)
 {
 	foreach (auto *attr, attrs_)
 	{
@@ -130,20 +125,17 @@ Tag::Get(ods::Prefix *prefix, const char *name)
 	return nullptr;
 }
 
-bool
-Tag::Has(const ods::Prefix *prefix) const
+bool Tag::Has(const ods::Prefix *prefix) const
 {
 	return prefix_->id() == prefix->id();
 }
 
-bool
-Tag::Is(const ods::Prefix *prefix, const QString &name) const
+bool Tag::Is(const ods::Prefix *prefix, const QString &name) const
 {
 	return prefix_->id() == prefix->id() && name_ == name;
 }
 
-bool
-Tag::IsAnyCell() const
+bool Tag::IsAnyCell() const
 {
 	if (prefix_->id() != ns_->table()->id())
 		return false;
@@ -152,14 +144,12 @@ Tag::IsAnyCell() const
 		(name_ == ods::ns::kCoveredTableCell);
 }
 
-bool
-Tag::IsTextP() const
+bool Tag::IsTextP() const
 {
 	return Is(ns_->text(), ods::ns::kP);
 }
 
-void
-Tag::SetAttributes(const QXmlStreamAttributes &attrs)
+void Tag::SetAttributes(const QXmlStreamAttributes &attrs)
 {
 	for (auto &attr: attrs)
 	{

@@ -5,8 +5,7 @@
 
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleTableColumnProperties : public Abstract
 {
@@ -21,12 +20,11 @@ public:
 	Length*
 	column_width() const { return style_column_width_; }
 	
-	void
-	SetColumnWidth(Length *length);
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void SetColumnWidth(Length *length);
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(ods::Tag *tag);
@@ -36,4 +34,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

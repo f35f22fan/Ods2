@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleParagraphProperties : public ods::inst::Abstract
 {
@@ -18,15 +17,15 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	
 	ods::HAlign*
 	text_align() const { return fo_text_align_; }
 	
-	void
-	text_align(ods::HAlign *a);
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void text_align(ods::HAlign *a);
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(ods::Tag *tag);
@@ -37,4 +36,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

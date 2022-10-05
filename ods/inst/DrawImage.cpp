@@ -11,8 +11,7 @@
 #include <QImageReader>
 #include <QMimeDatabase>
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 DrawImage::DrawImage(Abstract *parent, Tag *tag)
 : Abstract (parent, parent->ns(), id::DrawImage)
@@ -43,17 +42,27 @@ DrawImage::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-DrawImage::Init(ods::Tag *tag)
+void DrawImage::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->xlink(), ods::ns::kHref, xlink_href_);
-	tag->Copy(ns_->xlink(), ods::ns::kType, xlink_type_);
-	tag->Copy(ns_->xlink(), ods::ns::kShow, xlink_show_);
-	tag->Copy(ns_->xlink(), ods::ns::kActuate, xlink_actuate_);
+	tag->Copy(ns_->xlink(), ns::kHref, xlink_href_);
+	tag->Copy(ns_->xlink(), ns::kType, xlink_type_);
+	tag->Copy(ns_->xlink(), ns::kShow, xlink_show_);
+	tag->Copy(ns_->xlink(), ns::kActuate, xlink_actuate_);
 }
 
-void
-DrawImage::LoadImage(const QString &full_path, QSize &sz)
+void DrawImage::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name(),
+		ns::kHref, ns::kType, ns::kShow, ns::kActuate}, list);
+}
+
+void DrawImage::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->draw(), list);
+	Add(ns_->xlink(), list);
+}
+
+void DrawImage::LoadImage(const QString &full_path, QSize &sz)
 {
 	QImageReader reader(full_path);
 	sz = reader.size();
@@ -107,7 +116,7 @@ DrawImage::LoadImage(const QString &full_path, QSize &sz)
 	xlink_href_ = ods::filename::MediaDirName;
 	xlink_href_.append('/');
 	xlink_href_.append(chosen_file_name);
-	manifest->Add(xlink_href_);
+	manifest->AddEntry(xlink_href_);
 	
 	xlink_type_ = QLatin1String("simple");
 	xlink_show_ = QLatin1String("embed");
@@ -117,13 +126,23 @@ DrawImage::LoadImage(const QString &full_path, QSize &sz)
 void
 DrawImage::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->xlink(), ods::ns::kHref, xlink_href_);
-	Write(xml, ns_->xlink(), ods::ns::kType, xlink_type_);
-	Write(xml, ns_->xlink(), ods::ns::kShow, xlink_show_);
-	Write(xml, ns_->xlink(), ods::ns::kActuate, xlink_actuate_);
+	Write(xml, ns_->xlink(), ns::kHref, xlink_href_);
+	Write(xml, ns_->xlink(), ns::kType, xlink_type_);
+	Write(xml, ns_->xlink(), ns::kShow, xlink_show_);
+	Write(xml, ns_->xlink(), ns::kActuate, xlink_actuate_);
 	
 	WriteNodes(xml);
 }
 
+void DrawImage::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kHref, xlink_href_);
+	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kType, xlink_type_);
+	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kShow, xlink_show_);
+	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kActuate, xlink_actuate_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

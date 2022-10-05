@@ -5,8 +5,7 @@
 #include "../err.hpp"
 #include "../types.hxx"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 const u8 TriedLoadingAddressBit = 1u << 0;
 const u8 IsGlobalBit = 1u << 1;
@@ -24,6 +23,7 @@ public:
 	const QString& name() const { return name_; }
 	const QString& cell_range_address() const { return table_cell_range_address_; }
 	ods::Reference* GetReference();
+	ods::Sheet* GetSheet();
 	bool global() const { return bits_ & IsGlobalBit; }
 	void global(const bool flag) {
 		if (flag)
@@ -32,12 +32,10 @@ public:
 			bits_ &= ~IsGlobalBit;
 	}
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
-	ods::Sheet*
-	GetSheet();
-	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(ods::Tag *tag);
@@ -54,4 +52,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

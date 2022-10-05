@@ -5,19 +5,49 @@
 #include <QtGlobal>
 #include <QString>
 
-namespace ods { // ods::
+namespace ods {
 
-struct TagAddress {
-	i32 tag_index = -1;
-	i32 file_index = -1;
+enum class ODS_API ClearTheRest: i8 {
+	Yes,
+	No
 };
 
-enum class ToStringArgs: u8 {
+enum class ODS_API DevMode: i8 {
+	Yes,
+	No
+};
+
+enum class ODS_API Owns: i8 {
+	Yes,
+	No
+};
+
+enum class ODS_API Recursively: i8 {
+	Yes,
+	No
+};
+
+enum class ODS_API TakeOwnership: i8 {
+	Yes,
+	No
+};
+
+enum class ODS_API From: i8 {
+	Start,
+	CurrentPosition
+};
+
+enum class ODS_API ExactSize: i8 {
+	Yes,
+	No
+};
+
+enum class ODS_API ToStringArgs: u8 {
 	None,
 	IncludeQuotMarks
 };
 
-enum class ValueType: u8
+enum class ODS_API ValueType: u8
 {
 	Bool = 1,
 	Currency,
@@ -30,13 +60,13 @@ enum class ValueType: u8
 	String, // string support implemented as TextP
 };
 
-enum class Brace : u8 {
+enum class ODS_API Brace : u8 {
 	None,
 	Open,
 	Close
 };
 
-enum class Bool : u8 {
+enum class ODS_API Bool : u8 {
 	None,
 	True,
 	False,
@@ -59,24 +89,24 @@ const double kPointsInACm = 28.3464567;
 const double kInchesInACm = 0.393701;
 const double kCmInAnInch = 2.54;
 
-enum class QuickSave: i8 {
+enum class ODS_API UseNDFF: i8 {
 	Yes,
 	No
 };
 
-enum class AddIfNeeded: i8
+enum class ODS_API AddIfNeeded: i8
 {
 	Yes,
 	No
 };
 
-enum class CreateIfNeeded: i8
+enum class ODS_API CreateIfNeeded: i8
 {
 	Yes,
 	No
 };
 
-enum class Place : u8
+enum class ODS_API Place : u8
 {
 	ContentFile,
 	StylesFile,
@@ -84,7 +114,7 @@ enum class Place : u8
 };
 
 
-enum class FormError: i16 {
+enum class ODS_API FormError: i16 {
 // https://wiki.openoffice.org/wiki/Calc_Error_Codes
 	None				= 0,
 	

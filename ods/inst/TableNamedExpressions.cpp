@@ -6,8 +6,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 TableNamedExpressions::TableNamedExpressions(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TableNamedExpressions)
@@ -35,26 +34,43 @@ TableNamedExpressions::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-TableNamedExpressions::CopyNamedRangesTo(QVector<TableNamedRange*> *v)
+void TableNamedExpressions::CopyNamedRangesTo(QVector<TableNamedRange*> *v)
 {
 	CHECK_PTR_VOID(v);
 	for (auto *item : named_ranges_)
 		v->append(item);
 }
 
-void
-TableNamedExpressions::Init(Tag *tag)
+void TableNamedExpressions::Init(Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-TableNamedExpressions::InitDefault()
+void TableNamedExpressions::InitDefault()
 {}
 
-void
-TableNamedExpressions::Scan(ods::Tag *tag)
+void TableNamedExpressions::ListChildren(QVector<StringOrInst*> &vec,
+	const Recursively r)
+{
+	for (auto *item: named_ranges_)
+	{
+		vec.append(new StringOrInst(item, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			item->ListChildren(vec, r);
+	}
+}
+
+void TableNamedExpressions::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void TableNamedExpressions::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->table(), list);
+}
+
+void TableNamedExpressions::Scan(ods::Tag *tag)
 {
 	foreach (auto *x, tag->nodes())
 	{
@@ -71,8 +87,7 @@ TableNamedExpressions::Scan(ods::Tag *tag)
 	}
 }
 
-void
-TableNamedExpressions::WriteData(QXmlStreamWriter &xml)
+void TableNamedExpressions::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 	
@@ -83,4 +98,3 @@ TableNamedExpressions::WriteData(QXmlStreamWriter &xml)
 }
 
 } // ods::inst::
-} // ods::

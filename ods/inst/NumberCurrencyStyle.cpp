@@ -10,8 +10,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberCurrencyStyle::NumberCurrencyStyle(Abstract *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::NumberCurrencyStyle)
@@ -37,6 +36,7 @@ NumberCurrencyStyle::Clone(Abstract *parent) const
 	
 	p->style_name_ = style_name_;
 	p->style_volatile_ = style_volatile_;
+	p->CloneChildrenOf(this);
 
 	return p;
 }
@@ -64,13 +64,23 @@ NumberCurrencyStyle::FetchNumber()
 	return p;
 }
 
-void
-NumberCurrencyStyle::Init(ods::Tag *tag)
+void NumberCurrencyStyle::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
-	tag->Copy(ns_->style(), ods::ns::kVolatile, style_volatile_);
+	tag->Copy(ns_->style(), ns::kName, style_name_);
+	tag->Copy(ns_->style(), ns::kVolatile, style_volatile_);
 	
 	Scan(tag);
+}
+
+void NumberCurrencyStyle::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kName, ns::kVolatile}, list);
+}
+
+void NumberCurrencyStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+	Add(ns_->style(), list);
 }
 
 inst::NumberCurrencySymbol*
@@ -89,8 +99,7 @@ NumberCurrencyStyle::NewNumber()
 	return p;
 }
 
-void
-NumberCurrencyStyle::Scan(ods::Tag *tag)
+void NumberCurrencyStyle::Scan(ods::Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -99,15 +108,15 @@ NumberCurrencyStyle::Scan(ods::Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->number(), ods::ns::kCurrencySymbol)) {
+		if (next->Is(ns_->number(), ns::kCurrencySymbol)) {
 			Append(new NumberCurrencySymbol(this, next));
-		} else if (next->Is(ns_->number(), ods::ns::kNumber)) {
+		} else if (next->Is(ns_->number(), ns::kNumber)) {
 			Append(new NumberNumber(this, next));
-		} else if (next->Is(ns_->number(), ods::ns::kText)) {
+		} else if (next->Is(ns_->number(), ns::kText)) {
 			Append(new NumberText(this, next));
-		} else if (next->Is(ns_->style(), ods::ns::kMap)) {
+		} else if (next->Is(ns_->style(), ns::kMap)) {
 			Append(new StyleMap(this, next));
-		} else if (next->Is(ns_->style(), ods::ns::kTextProperties)) {
+		} else if (next->Is(ns_->style(), ns::kTextProperties)) {
 			Append(new StyleTextProperties(this, next));
 		} else {
 			Scan(next);
@@ -115,14 +124,21 @@ NumberCurrencyStyle::Scan(ods::Tag *tag)
 	}
 }
 
-void
-NumberCurrencyStyle::WriteData(QXmlStreamWriter &xml)
+void NumberCurrencyStyle::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->style(), ods::ns::kName, style_name_);
-	Write(xml, ns_->style(), ods::ns::kVolatile, style_volatile_);
+	Write(xml, ns_->style(), ns::kName, style_name_);
+	Write(xml, ns_->style(), ns::kVolatile, style_volatile_);
 	
 	WriteNodes(xml);
 }
 
+void NumberCurrencyStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kVolatile, style_volatile_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

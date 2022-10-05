@@ -5,8 +5,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API NumberCurrencySymbol : public Abstract
 {
@@ -21,24 +20,21 @@ public:
 	const QString&
 	country() const { return number_country_; }
 	
-	void
-	country(const QString &s) { number_country_ = s; }
+	void country(const QString &s) { number_country_ = s; }
 	
 	const QString&
 	language() const { return number_language_; }
 	
-	void
-	language(const QString &s) { number_language_ = s; }
-	
-	void
-	SetSymbol(const ods::Currency &c);
+	void language(const QString &s) { number_language_ = s; }
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void SetSymbol(const ods::Currency &c);
 	
 	QString
 	GetSymbol();
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(Tag *tag);
@@ -51,4 +47,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

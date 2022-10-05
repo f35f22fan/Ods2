@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 DcTitle::DcTitle(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::DcTitle)
@@ -30,17 +29,24 @@ DcTitle::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-DcTitle::Init(Tag *tag)
+void DcTitle::Init(Tag *tag)
 {
 	ScanString(tag);
 }
 
-void
-DcTitle::WriteData(QXmlStreamWriter &xml)
+void DcTitle::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void DcTitle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->dc(), list);
+}
+
+void DcTitle::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

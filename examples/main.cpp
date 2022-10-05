@@ -14,7 +14,7 @@ main(int argc, char *argv[])
 	QGuiApplication qapp(argc, argv);
 //	TestBug();
 	
-	SetColumnWidths();
+//	SetColumnWidths();
 //	ReadColumnWidths();
 	
 //	CreateFont();
@@ -41,7 +41,8 @@ main(int argc, char *argv[])
 //	CreateImage();
 //	ReadImage();
 	
-//	CreateDate();
+	CreateDate();
+	ReadNDFF(); /// Nevermind this function, it's purely for development purposes
 //	ReadDate();
 	
 //	CreateCurrency();

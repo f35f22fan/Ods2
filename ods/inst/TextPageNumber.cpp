@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 TextPageNumber::TextPageNumber(Abstract *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::TextPageNumber)
@@ -28,20 +27,29 @@ TextPageNumber::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-TextPageNumber::Init(ods::Tag *tag)
+void TextPageNumber::Init(ods::Tag *tag)
 {
 	ScanString(tag);
 }
 
-void
-TextPageNumber::WriteData(QXmlStreamWriter &xml)
+void TextPageNumber::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void TextPageNumber::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->text(), list);
+}
+
+void TextPageNumber::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

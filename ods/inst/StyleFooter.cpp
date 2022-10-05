@@ -6,8 +6,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 StyleFooter::StyleFooter(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::StyleFooter)
@@ -31,17 +30,27 @@ StyleFooter::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-StyleFooter::Init(ods::Tag *tag)
+void StyleFooter::Init(ods::Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-StyleFooter::Scan(ods::Tag *tag)
+void StyleFooter::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void StyleFooter::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->style(), list);
+}
+
+void StyleFooter::Scan(ods::Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -65,4 +74,3 @@ StyleFooter::WriteData(QXmlStreamWriter &xml)
 }
 
 } // ods::inst::
-} // ods::

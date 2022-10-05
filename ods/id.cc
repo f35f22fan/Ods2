@@ -15,7 +15,7 @@ DcDate(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->manifest());
-	a->tag_name(QLatin1String(ods::ns::kManifest));
+	a->tag_name(ns::kManifest);
 	a->func(DcDate);
 	a->id(Id::DcDate);
 }
@@ -25,7 +25,7 @@ DcTitle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->dc());
-	a->tag_name(QLatin1String(ods::ns::kTitle));
+	a->tag_name(ns::kTitle);
 	a->func(DcTitle);
 	a->id(Id::DcTitle);
 }
@@ -35,7 +35,7 @@ DrawFrame(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->draw());
-	a->tag_name(QLatin1String(ods::ns::kFrame));
+	a->tag_name(ns::kFrame);
 	a->func(DrawFrame);
 	a->id(Id::DrawFrame);
 }
@@ -45,7 +45,7 @@ DrawImage(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->draw());
-	a->tag_name(QLatin1String(ods::ns::kImage));
+	a->tag_name(ns::kImage);
 	a->func(DrawImage);
 	a->id(Id::DrawImage);
 }
@@ -55,7 +55,7 @@ ManifestFileEntry(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->manifest());
-	a->tag_name(QLatin1String(ods::ns::kFileEntry));
+	a->tag_name(ns::kFileEntry);
 	a->func(ManifestFileEntry);
 	a->id(Id::ManifestFileEntry);
 }
@@ -65,7 +65,7 @@ ManifestManifest(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->manifest());
-    a->tag_name(QLatin1String(ods::ns::kManifest));
+	a->tag_name(ns::kManifest);
 	a->func(ManifestManifest);
 	a->id(Id::ManifestManifest);
 }
@@ -75,7 +75,7 @@ MetaCreationDate(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(QLatin1String(ods::ns::kCreationDate));
+	a->tag_name(ns::kCreationDate);
 	a->func(MetaCreationDate);
 	a->id(Id::MetaCreationDate);
 }
@@ -85,7 +85,7 @@ MetaDocumentStatistic(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(QLatin1String(ods::ns::kDocumentStatistic));
+	a->tag_name(ns::kDocumentStatistic);
 	a->func(MetaDocumentStatistic);
 	a->id(Id::MetaDocumentStatistic);
 }
@@ -95,7 +95,7 @@ MetaEditingCycles(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(QLatin1String(ods::ns::kEditingCycles));
+	a->tag_name(ns::kEditingCycles);
 	a->func(MetaEditingCycles);
 	a->id(Id::MetaEditingCycles);
 }
@@ -105,7 +105,7 @@ MetaEditingDuration(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(QLatin1String(ods::ns::kEditingDuration));
+	a->tag_name(ns::kEditingDuration);
 	a->func(MetaEditingDuration);
 	a->id(Id::MetaEditingDuration);
 }
@@ -115,7 +115,7 @@ MetaGenerator(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(QLatin1String(ods::ns::kGenerator));
+	a->tag_name(ns::kGenerator);
 	a->func(MetaGenerator);
 	a->id(Id::MetaGenerator);
 }
@@ -125,7 +125,7 @@ MetaTemplate(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->meta());
-	a->tag_name(QLatin1String(ods::ns::kTemplate));
+	a->tag_name(ns::kTemplate);
 	a->func(MetaTemplate);
 	a->id(Id::MetaTemplate);
 }
@@ -135,7 +135,7 @@ NumberBoolean(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kBoolean));
+	a->tag_name(ns::kBoolean);
 	a->func(NumberBoolean);
 	a->id(Id::NumberBoolean);
 }
@@ -145,9 +145,9 @@ NumberBooleanStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kBooleanStyle));
+	a->tag_name(ns::kBooleanStyle);
 	a->func(NumberBooleanStyle);
-	a->bits() |= inst::StyleBit;
+	a->bits() |= inst::Abstract::StyleBit;
 	a->id(Id::NumberBooleanStyle);
 }
 
@@ -156,9 +156,9 @@ NumberCurrencyStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kCurrencyStyle));
+	a->tag_name(ns::kCurrencyStyle);
 	a->func(NumberCurrencyStyle);
-	a->bits() |= inst::StyleBit;
+	a->bits() |= inst::Abstract::StyleBit;
 	a->id(Id::NumberCurrencyStyle);
 }
 
@@ -167,7 +167,7 @@ NumberCurrencySymbol(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kCurrencySymbol));
+	a->tag_name(ns::kCurrencySymbol);
 	a->func(NumberCurrencySymbol);
 	a->id(Id::NumberCurrencySymbol);
 }
@@ -177,9 +177,9 @@ NumberDateStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kDateStyle));
+	a->tag_name(ns::kDateStyle);
 	a->func(NumberDateStyle);
-	a->bits() |= inst::StyleBit;
+	a->bits() |= inst::Abstract::StyleBit;
 	a->id(Id::NumberDateStyle);
 }
 
@@ -188,7 +188,7 @@ NumberDay(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kDay));
+	a->tag_name(ns::kDay);
 	a->func(NumberDay);
 	a->id(Id::NumberDay);
 }
@@ -198,7 +198,7 @@ NumberHours(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kHours));
+	a->tag_name(ns::kHours);
 	a->func(NumberHours);
 	a->id(Id::NumberHours);
 }
@@ -208,7 +208,7 @@ NumberMinutes(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kMinutes));
+	a->tag_name(ns::kMinutes);
 	a->func(NumberMinutes);
 	a->id(Id::NumberMinutes);
 }
@@ -218,7 +218,7 @@ NumberMonth(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kMonth));
+	a->tag_name(ns::kMonth);
 	a->func(NumberMonth);
 	a->id(Id::NumberMonth);
 }
@@ -228,7 +228,7 @@ NumberNumber(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kNumber));
+	a->tag_name(ns::kNumber);
 	a->func(NumberNumber);
 	a->id(Id::NumberNumber);
 }
@@ -238,9 +238,9 @@ NumberNumberStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kNumberStyle));
+	a->tag_name(ns::kNumberStyle);
 	a->func(NumberNumberStyle);
-	a->bits() |= inst::StyleBit;
+	a->bits() |= inst::Abstract::StyleBit;
 	a->id(Id::NumberNumberStyle);
 }
 
@@ -249,9 +249,9 @@ NumberPercentageStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kPercentageStyle));
+	a->tag_name(ns::kPercentageStyle);
 	a->func(NumberPercentageStyle);
-	a->bits() |= inst::StyleBit;
+	a->bits() |= inst::Abstract::StyleBit;
 	a->id(Id::NumberPercentageStyle);
 }
 
@@ -260,7 +260,7 @@ NumberSeconds(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kSeconds));
+	a->tag_name(ns::kSeconds);
 	a->func(NumberSeconds);
 	a->id(Id::NumberSeconds);
 }
@@ -270,7 +270,7 @@ NumberText(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kText));
+	a->tag_name(ns::kText);
 	a->func(NumberText);
 	a->id(Id::NumberText);
 }
@@ -280,7 +280,7 @@ NumberTextContent(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kTextContent));
+	a->tag_name(ns::kTextContent);
 	a->func(NumberTextContent);
 	a->id(Id::NumberTextContent);
 }
@@ -290,9 +290,9 @@ NumberTextStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kTextStyle));
+	a->tag_name(ns::kTextStyle);
 	a->func(NumberTextStyle);
-	a->bits() |= inst::StyleBit;
+	a->bits() |= inst::Abstract::StyleBit;
 	a->id(Id::NumberTextStyle);
 }
 
@@ -301,9 +301,9 @@ NumberTimeStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kTimeStyle));
+	a->tag_name(ns::kTimeStyle);
 	a->func(NumberTimeStyle);
-	a->bits() |= inst::StyleBit;
+	a->bits() |= inst::Abstract::StyleBit;
 	a->id(Id::NumberTimeStyle);
 }
 
@@ -312,7 +312,7 @@ NumberYear(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->number());
-	a->tag_name(QLatin1String(ods::ns::kYear));
+	a->tag_name(ns::kYear);
 	a->func(NumberYear);
 	a->id(Id::NumberYear);
 }
@@ -322,7 +322,7 @@ OfficeAutomaticStyles(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(QLatin1String(ods::ns::kAutomaticStyles));
+	a->tag_name(ns::kAutomaticStyles);
 	a->func(OfficeAutomaticStyles);
 	a->id(Id::OfficeAutomaticStyles);
 }
@@ -332,7 +332,7 @@ OfficeBody(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kBody);
+	a->tag_name(ns::kBody);
 	a->func(OfficeBody);
 	a->id(Id::OfficeBody);
 }
@@ -342,7 +342,7 @@ OfficeDocumentContent(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(QLatin1String(ods::ns::kDocumentContent));
+	a->tag_name(ns::kDocumentContent);
 	a->func(OfficeDocumentContent);
 	a->id(Id::OfficeDocumentContent);
 }
@@ -352,7 +352,7 @@ OfficeDocumentMeta(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kDocumentMeta);
+	a->tag_name(ns::kDocumentMeta);
 	a->func(OfficeDocumentMeta);
 	a->id(Id::OfficeDocumentMeta);
 }
@@ -362,7 +362,7 @@ OfficeDocumentStyles(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kDocumentStyles);
+	a->tag_name(ns::kDocumentStyles);
 	a->func(OfficeDocumentStyles);
 	a->id(Id::OfficeDocumentStyles);
 }
@@ -372,7 +372,7 @@ OfficeFontFaceDecls(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kFontFaceDecls);
+	a->tag_name(ns::kFontFaceDecls);
 	a->func(OfficeFontFaceDecls);
 	a->id(Id::OfficeFontFaceDecls);
 }
@@ -382,7 +382,7 @@ OfficeMasterStyles(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kMasterStyles);
+	a->tag_name(ns::kMasterStyles);
 	a->func(OfficeMasterStyles);
 	a->id(Id::OfficeMasterStyles);
 }
@@ -392,7 +392,7 @@ OfficeMeta(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kMeta);
+	a->tag_name(ns::kMeta);
 	a->func(OfficeMeta);
 	a->id(Id::OfficeMeta);
 }
@@ -402,7 +402,7 @@ OfficeScripts(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kScripts);
+	a->tag_name(ns::kScripts);
 	a->func(OfficeScripts);
 	a->id(Id::OfficeScripts);
 }
@@ -412,7 +412,7 @@ OfficeSpreadsheet(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kSpreadsheet);
+	a->tag_name(ns::kSpreadsheet);
 	a->func(OfficeSpreadsheet);
 	a->id(Id::OfficeSpreadsheet);
 }
@@ -422,7 +422,7 @@ OfficeStyles(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->office());
-	a->tag_name(ods::ns::kStyles);
+	a->tag_name(ns::kStyles);
 	a->func(OfficeStyles);
 	a->id(Id::OfficeStyles);
 }
@@ -432,7 +432,7 @@ StyleBackgroundImage(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kBackgroundImage);
+	a->tag_name(ns::kBackgroundImage);
 	a->func(StyleBackgroundImage);
 	a->id(Id::StyleBackgroundImage);
 }
@@ -442,7 +442,7 @@ StyleDefaultStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kDefaultStyle);
+	a->tag_name(ns::kDefaultStyle);
 	a->func(StyleDefaultStyle);
 	a->id(Id::StyleDefaultStyle);
 }
@@ -452,7 +452,7 @@ StyleFontFace(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kFontFace);
+	a->tag_name(ns::kFontFace);
 	a->func(StyleFontFace);
 	a->id(Id::StyleFontFace);
 }
@@ -462,7 +462,7 @@ StyleFooter(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kFooter);
+	a->tag_name(ns::kFooter);
 	a->func(StyleFooter);
 	a->id(Id::StyleFooter);
 }
@@ -472,7 +472,7 @@ StyleFooterLeft(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kFooterLeft);
+	a->tag_name(ns::kFooterLeft);
 	a->func(StyleFooterLeft);
 	a->id(Id::StyleFooterLeft);
 }
@@ -482,7 +482,7 @@ StyleFooterStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kFooterStyle);
+	a->tag_name(ns::kFooterStyle);
 	a->func(StyleFooterStyle);
 	a->id(Id::StyleFooterStyle);
 }
@@ -492,7 +492,7 @@ StyleHeader(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kHeader);
+	a->tag_name(ns::kHeader);
 	a->func(StyleHeader);
 	a->id(Id::StyleHeader);
 }
@@ -502,7 +502,7 @@ StyleHeaderFooterProperties(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kHeaderFooterProperties);
+	a->tag_name(ns::kHeaderFooterProperties);
 	a->func(StyleHeaderFooterProperties);
 	a->id(Id::StyleHeaderFooterProperties);
 }
@@ -512,7 +512,7 @@ StyleHeaderLeft(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kHeaderLeft);
+	a->tag_name(ns::kHeaderLeft);
 	a->func(StyleHeaderLeft);
 	a->id(Id::StyleHeaderLeft);
 }
@@ -522,7 +522,7 @@ StyleHeaderStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kHeaderStyle);
+	a->tag_name(ns::kHeaderStyle);
 	a->func(StyleHeaderStyle);
 	a->id(Id::StyleHeaderStyle);
 }
@@ -532,7 +532,7 @@ StyleMap(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kMap);
+	a->tag_name(ns::kMap);
 	a->func(StyleMap);
 	a->id(Id::StyleMap);
 }
@@ -542,7 +542,7 @@ StyleMasterPage(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kMasterPage);
+	a->tag_name(ns::kMasterPage);
 	a->func(StyleMasterPage);
 	a->id(Id::StyleMasterPage);
 }
@@ -552,7 +552,7 @@ StylePageLayout(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kPageLayout);
+	a->tag_name(ns::kPageLayout);
 	a->func(StylePageLayout);
 	a->id(Id::StylePageLayout);
 }
@@ -562,7 +562,7 @@ StylePageLayoutProperties(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kPageLayoutProperties);
+	a->tag_name(ns::kPageLayoutProperties);
 	a->func(StylePageLayoutProperties);
 	a->id(Id::StylePageLayoutProperties);
 }
@@ -572,7 +572,7 @@ StyleParagraphProperties(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kParagraphProperties);
+	a->tag_name(ns::kParagraphProperties);
 	a->func(StyleParagraphProperties);
 	a->id(Id::StyleParagraphProperties);
 }
@@ -582,7 +582,7 @@ StyleRegionLeft(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kRegionLeft);
+	a->tag_name(ns::kRegionLeft);
 	a->func(StyleRegionLeft);
 	a->id(Id::StyleRegionLeft);
 }
@@ -592,7 +592,7 @@ StyleRegionRight(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kRegionRight);
+	a->tag_name(ns::kRegionRight);
 	a->func(StyleRegionRight);
 	a->id(Id::StyleRegionRight);
 }
@@ -602,9 +602,9 @@ StyleStyle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kStyle);
+	a->tag_name(ns::kStyle);
 	a->func(StyleStyle);
-	a->bits() |= inst::StyleBit;
+	a->bits() |= inst::Abstract::StyleBit;
 	a->id(Id::StyleStyle);
 }
 
@@ -613,7 +613,7 @@ StyleTableCellProperties(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kTableCellProperties);
+	a->tag_name(ns::kTableCellProperties);
 	a->func(StyleTableCellProperties);
 	a->id(Id::StyleTableCellProperties);
 }
@@ -623,7 +623,7 @@ StyleTableColumnProperties(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kTableColumnProperties);
+	a->tag_name(ns::kTableColumnProperties);
 	a->func(StyleTableColumnProperties);
 	a->id(Id::StyleTableColumnProperties);
 }
@@ -633,7 +633,7 @@ StyleTableProperties(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kTableProperties);
+	a->tag_name(ns::kTableProperties);
 	a->func(StyleTableProperties);
 	a->id(Id::StyleTableProperties);
 }
@@ -643,7 +643,7 @@ StyleTableRowProperties(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kTableRowProperties);
+	a->tag_name(ns::kTableRowProperties);
 	a->func(StyleTableRowProperties);
 	a->id(Id::StyleTableRowProperties);
 }
@@ -653,7 +653,7 @@ StyleTextProperties(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->style());
-	a->tag_name(ods::ns::kTextProperties);
+	a->tag_name(ns::kTextProperties);
 	a->func(StyleTextProperties);
 	a->id(Id::StyleTextProperties);
 }
@@ -663,7 +663,7 @@ SvgDesc(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->svg());
-	a->tag_name(ods::ns::kDesc);
+	a->tag_name(ns::kDesc);
 	a->func(SvgDesc);
 	a->id(Id::SvgDesc);
 }
@@ -673,7 +673,7 @@ SvgTitle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->svg());
-	a->tag_name(ods::ns::kTitle);
+	a->tag_name(ns::kTitle);
 	a->func(SvgTitle);
 	a->id(Id::SvgTitle);
 }
@@ -683,7 +683,7 @@ TableCalculationSettings(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->table());
-	a->tag_name(ods::ns::kCalculationSettings);
+	a->tag_name(ns::kCalculationSettings);
 	a->func(TableCalculationSettings);
 	a->id(Id::TableCalculationSettings);
 }
@@ -693,7 +693,7 @@ TableNamedExpressions(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->table());
-	a->tag_name(ods::ns::kNamedExpressions);
+	a->tag_name(ns::kNamedExpressions);
 	a->func(TableNamedExpressions);
 	a->id(Id::TableNamedExpressions);
 }
@@ -703,7 +703,7 @@ TableNamedRange(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->table());
-	a->tag_name(ods::ns::kNamedRange);
+	a->tag_name(ns::kNamedRange);
 	a->func(TableNamedRange);
 	a->id(Id::TableNamedRange);
 }
@@ -713,7 +713,7 @@ TableTable(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->table());
-	a->tag_name(ods::ns::kTable);
+	a->tag_name(ns::kTable);
 	a->func(TableTable);
 	a->id(Id::TableTable);
 }
@@ -723,7 +723,7 @@ TableTableCell(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->table());
-	a->tag_name(ods::ns::kTableCell);
+	a->tag_name(ns::kTableCell);
 	a->func(TableTableCell);
 	a->id(Id::TableTableCell);
 }
@@ -733,7 +733,7 @@ TableTableColumn(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->table());
-	a->tag_name(ods::ns::kTableColumn);
+	a->tag_name(ns::kTableColumn);
 	a->func(TableTableColumn);
 	a->id(Id::TableTableColumn);
 }
@@ -743,7 +743,7 @@ TableTableRow(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->table());
-	a->tag_name(ods::ns::kTableRow);
+	a->tag_name(ns::kTableRow);
 	a->func(TableTableRow);
 	a->id(Id::TableTableRow);
 }
@@ -753,7 +753,7 @@ TextDate(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->text());
-	a->tag_name(ods::ns::kDate);
+	a->tag_name(ns::kDate);
 	a->func(TextDate);
 	a->id(Id::TextDate);
 }
@@ -763,7 +763,7 @@ TextP(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->text());
-	a->tag_name(ods::ns::kP);
+	a->tag_name(ns::kP);
 	a->func(TextP);
 	a->id(Id::TextP);
 }
@@ -773,7 +773,7 @@ TextPageCount(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->text());
-	a->tag_name(ods::ns::kPageCount);
+	a->tag_name(ns::kPageCount);
 	a->func(TextPageCount);
 	a->id(Id::TextPageCount);
 }
@@ -783,7 +783,7 @@ TextPageNumber(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->text());
-	a->tag_name(ods::ns::kPageNumber);
+	a->tag_name(ns::kPageNumber);
 	a->func(TextPageNumber);
 	a->id(Id::TextPageNumber);
 }
@@ -793,7 +793,7 @@ TextS(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->text());
-	a->tag_name(ods::ns::kS);
+	a->tag_name(ns::kS);
 	a->func(TextS);
 	a->id(Id::TextS);
 }
@@ -803,7 +803,7 @@ TextSheetName(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->text());
-	a->tag_name(ods::ns::kSheetName);
+	a->tag_name(ns::kSheetName);
 	a->func(TextSheetName);
 	a->id(Id::TextSheetName);
 }
@@ -813,7 +813,7 @@ TextTime(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->text());
-	a->tag_name(ods::ns::kTime);
+	a->tag_name(ns::kTime);
 	a->func(TextTime);
 	a->id(Id::TextTime);
 }
@@ -823,7 +823,7 @@ TextTitle(Ns *ns, inst::Abstract *a)
 {
 	a->ns(ns);
 	a->prefix(ns->text());
-	a->tag_name(ods::ns::kTitle);
+	a->tag_name(ns::kTitle);
 	a->func(TextTitle);
 	a->id(Id::TextTitle);
 }

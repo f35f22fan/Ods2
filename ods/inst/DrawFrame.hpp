@@ -6,8 +6,7 @@
 
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API DrawFrame : public Abstract
 {
@@ -20,45 +19,29 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	Length*
-	height() const { return svg_height_; }
+	Length* height() const { return svg_height_; }
+	void height(const Length *l);
 	
-	void
-	height(const Length *l);
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
-	inst::DrawImage*
-	NewDrawImage();
-	
-	inst::SvgDesc*
-	NewSvgDesc();
-	
-	inst::SvgTitle*
-	NewSvgTitle();
-	
-	void
-	SetSize(int w, int h, ods::Unit m);
-	
-	Length*
-	width() const { return svg_width_; }
-	
-	void
-	width(const Length *l);
-	
-	Length*
-	x() const { return svg_x_; }
-	
-	void
-	x(const Length *l);
-	
-	Length*
-	y() const { return svg_y_; }
-	
-	void
-	y(const Length *l);
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	inst::DrawImage* NewDrawImage();
+	inst::SvgDesc* NewSvgDesc();
+	inst::SvgTitle* NewSvgTitle();
 
+	void SetSize(int w, int h, ods::Unit m);
+	
+	Length* width() const { return svg_width_; }
+	void width(const Length *l);
+	
+	Length* x() const { return svg_x_; }
+	void x(const Length *l);
+	
+	Length* y() const { return svg_y_; }
+	void y(const Length *l);
+	
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void Init(ods::Tag*);
@@ -77,4 +60,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

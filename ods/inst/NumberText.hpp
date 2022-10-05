@@ -4,8 +4,7 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API NumberText : public Abstract
 {
@@ -17,14 +16,12 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	QString*
-	GetFirstString() const;
+	const QString *GetFirstString() const;
 	
-	void
-	SetFirstString(const QString &s);
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void SetFirstString(const QString &s);
+	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
 	
@@ -32,4 +29,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

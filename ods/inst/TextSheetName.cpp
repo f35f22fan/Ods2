@@ -3,8 +3,7 @@
 #include "../Ns.hpp"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 TextSheetName::TextSheetName(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TextSheetName)
@@ -27,20 +26,29 @@ TextSheetName::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-TextSheetName::Init(Tag *tag)
+void TextSheetName::Init(Tag *tag)
 {
 	ScanString(tag);
 }
 
-void
-TextSheetName::WriteData(QXmlStreamWriter &xml)
+void TextSheetName::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void TextSheetName::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->text(), list);
+}
+
+void TextSheetName::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 NumberDay::NumberDay(ods::inst::Abstract *parent, ods::Tag *tag)
  : Abstract(parent, parent->ns(), id::NumberDay)
@@ -29,25 +28,40 @@ NumberDay::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->number_style_ = number_style_;
+	p->CloneChildrenOf(this, ClonePart::Text);
 	
 	return p;
 }
 
-void
-NumberDay::Init(ods::Tag *tag)
+void NumberDay::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->number(), ods::ns::kStyle, number_style_);
-	
+	tag->Copy(ns_->number(), ns::kStyle, number_style_);
 	ScanString(tag);
 }
 
-void
-NumberDay::WriteData(QXmlStreamWriter &xml)
+void NumberDay::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	Write(xml, ns_->number(), ods::ns::kStyle, number_style_);
+	inst::AddKeywords({tag_name(), ns::kStyle}, list);
+}
+
+void NumberDay::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+}
+
+void NumberDay::WriteData(QXmlStreamWriter &xml)
+{
+	Write(xml, ns_->number(), ns::kStyle, number_style_);
 	
 	WriteNodes(xml);
 }
 
+void NumberDay::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->number(), ns::kStyle, number_style_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

@@ -4,6 +4,7 @@
 #include "Prefix.hpp"
 
 #include "inst/Abstract.hpp"
+#include "ndff/Container.hpp"
 
 #include <algorithm>
 
@@ -35,6 +36,15 @@ Ns* Ns::FromXml(QXmlStreamReader &xml, ci32 file_index)
 	return ns;
 }
 
+Ns* Ns::FromNDFF(ndff::Container *ndff)
+{
+	Ns *ns = new Ns();
+	ns->InitDefault(WillInitFromXml::Yes);
+	ns->Read(ndff);
+	
+	return ns;
+}
+
 ods::Prefix*
 Ns::GetPrefix(QStringView s)
 {
@@ -50,16 +60,6 @@ Ns::GetPrefix(QStringView s)
 void
 Ns::InitDefault(const WillInitFromXml atr)
 {
-//	QMap<int, QString> m = {{3, "Ace"}, {1, "bush"}, {4, "Jordan"},
-//		{0, "Monika"}};
-//	QMap<int, QString>::const_iterator i = m.constBegin();
-//	while (i != m.constEnd())
-//	{
-//		mtl_info("%d: %s", i.key(), qPrintable(i.value()));
-//		++i;
-//	}
-	
-	
 	anim_ = Prefix::Create(uri_ids_.Animation, QLatin1String("anim"),
 		QLatin1String("urn:oasis:names:tc:opendocument:xmlns:animation:1.0"));
 	chart_ = Prefix::Create(uri_ids_.Chart, QLatin1String("chart"),
@@ -144,6 +144,35 @@ Ns::InitDefault(const WillInitFromXml atr)
 	}
 }
 
+void Ns::Read(ndff::Container *ptr)
+{
+	ndff_ = ptr;
+	UriId largest = 0;
+	auto &h = ndff_->ns_hash();
+	QString base_name = QLatin1String("ns");
+	for (auto it = h.constBegin(); it != h.constEnd(); it++)
+	{
+		cauto decl_uri = it.value();
+		for (Prefix *prefix: prefixes_)
+		{
+	// Almost all URIs start with the same chars and only differ at
+	// the end - thus an optimization is to compare them from the end:
+			if (prefix->uri().endsWith(decl_uri))
+			{
+				cauto uri_id = it.key();
+				QString name = base_name + QString::number(uri_id);
+				prefix->set_name(name);
+				prefix->set_id(uri_id);
+				
+				if (largest < uri_id)
+					largest = uri_id;
+				
+				break;
+			}
+		}
+	}
+}
+
 void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
 {
 	file_index_ = file_index;
@@ -153,16 +182,14 @@ void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
 	for (int i = 0; i < count; i++)
 	{
 		const auto &decl = decls[i];
-		cauto uri = decl.namespaceUri();
+		cauto decl_uri = decl.namespaceUri();
 		for (Prefix *prefix: prefixes_)
 		{
 // Almost all URIs start with the same chars and only differ at
 // the end - thus an optimization is to compare them from the end:
-			if (prefix->uri().endsWith(uri))
+			if (prefix->uri().endsWith(decl_uri))
 			{
-				cauto name = decl.prefix().toString();
-				prefix->set_name(name);
-				//mtl_info("Setting %s %d to %d", qPrintable(name), prefix->id(), i);
+				prefix->set_name(decl.prefix().toString());
 				prefix->set_id(i);
 				largest = i;
 				break;
@@ -181,8 +208,8 @@ void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
 		{
 			prefix->set_id(largest + next);
 			next++;
-			mtl_info("(NEW)%d: %s, largest: %d",
-				prefix->id(), qPrintable(prefix->name()), largest);
+//			mtl_info("(NEW)%d: %s, largest: %d",
+//				prefix->id(), qPrintable(prefix->name()), largest);
 		}
 	}
 	

@@ -1,7 +1,8 @@
 #include "StyleBackgroundImage.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../Ns.hpp"
+
+namespace ods::inst {
 
 StyleBackgroundImage::StyleBackgroundImage(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::StyleBackgroundImage)
@@ -27,12 +28,21 @@ StyleBackgroundImage::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-StyleBackgroundImage::Init(Tag *tag) {}
+void StyleBackgroundImage::Init(Tag *tag) {}
 
-void
-StyleBackgroundImage::WriteData(QXmlStreamWriter &xml)
-{}
+void StyleBackgroundImage::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void StyleBackgroundImage::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->style(), list);
+}
+
+void StyleBackgroundImage::WriteData(QXmlStreamWriter &xml)
+{
+	WriteNodes(xml);
+}
 
 } // ods::inst::
-} // ods::

@@ -9,8 +9,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 OfficeSpreadsheet::OfficeSpreadsheet(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::OfficeSpreadsheet)
@@ -92,11 +91,45 @@ OfficeSpreadsheet::Init(Tag *tag)
 	Scan(tag);
 }
 
-void
-OfficeSpreadsheet::InitDefault()
+void OfficeSpreadsheet::InitDefault()
 {
 	table_calculation_settings_ = new TableCalculationSettings(this);
 	named_expressions_ = new TableNamedExpressions(this);
+}
+
+void OfficeSpreadsheet::ListChildren(QVector<StringOrInst*> &vec,
+	const Recursively r)
+{
+	if (table_calculation_settings_)
+	{
+		vec.append(new StringOrInst(table_calculation_settings_, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			table_calculation_settings_->ListChildren(vec, r);
+	}
+	
+	for (auto *table: tables_)
+	{
+		vec.append(new StringOrInst(table, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			table->ListChildren(vec, r);
+	}
+	
+	if (named_expressions_)
+	{
+		vec.append(new StringOrInst(named_expressions_, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			named_expressions_->ListChildren(vec, r);
+	}
+}
+
+void OfficeSpreadsheet::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void OfficeSpreadsheet::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
 }
 
 ods::Sheet*
@@ -117,8 +150,7 @@ OfficeSpreadsheet::NewSheet(const QString &name)
 	return sheet;
 }
 
-void
-OfficeSpreadsheet::Scan(Tag *tag)
+void OfficeSpreadsheet::Scan(Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -146,16 +178,14 @@ OfficeSpreadsheet::Scan(Tag *tag)
 	}
 }
 
-void
-OfficeSpreadsheet::WriteData(QXmlStreamWriter &xml)
+void OfficeSpreadsheet::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, table_calculation_settings_);
 	
-	for (auto *next: tables_)
-		next->Write(xml);
+	for (auto *table: tables_)
+		table->Write(xml);
 	
 	Write(xml, named_expressions_);
 }
 
 } // ods::inst::
-} // ods::

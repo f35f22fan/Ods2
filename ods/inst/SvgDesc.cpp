@@ -4,8 +4,7 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 SvgDesc::SvgDesc(Abstract *parent, Tag * tag)
 : Abstract (parent, parent->ns(), id::SvgDesc)
@@ -31,32 +30,40 @@ SvgDesc::Clone(Abstract *parent) const
 	return p;
 }
 
-QString*
+const QString*
 SvgDesc::GetFirstString() const
 {
-	for (StringOrInst *x: nodes_)
+	for (StringOrInst *node: nodes_)
 	{
-		if (x->is_string())
-			return x->as_string();
+		if (node->is_string())
+			return node->as_str_ptr();
 	}
 	
 	return nullptr;
 }
 
-void
-SvgDesc::Init(ods::Tag *tag)
+void SvgDesc::Init(ods::Tag *tag)
 {
 	ScanString(tag);
 }
 
-void
-SvgDesc::SetFirstString(const QString &s)
+void SvgDesc::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
 {
-	for (auto *next : nodes_)
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void SvgDesc::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->svg(), list);
+}
+
+void SvgDesc::SetFirstString(const QString &s)
+{
+	for (StringOrInst *node: nodes_)
 	{
-		if (next->is_string())
+		if (node->is_string())
 		{
-			next->SetString(s);
+			node->SetString(s);
 			return;
 		}
 	}
@@ -64,11 +71,9 @@ SvgDesc::SetFirstString(const QString &s)
 	Append(s);
 }
 
-void
-SvgDesc::WriteData(QXmlStreamWriter &xml)
+void SvgDesc::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::
