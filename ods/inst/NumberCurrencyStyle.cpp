@@ -89,6 +89,14 @@ NumberCurrencyStyle::NewNumber()
 	return p;
 }
 
+inst::NumberText*
+NumberCurrencyStyle::NewText()
+{
+	auto *p = new NumberText(this);
+	Append(p);
+	return p;
+}
+
 void
 NumberCurrencyStyle::Scan(ods::Tag *tag)
 {

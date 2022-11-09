@@ -83,6 +83,8 @@ Cell::ClearValue(const bool delete_data)
 	{
 		if (is_double() || is_percentage() || is_currency())
 			delete as_double();
+		else if (is_date_time())
+			delete as_date_time();
 		else if (is_date())
 			delete as_date();
 		else if (is_time())

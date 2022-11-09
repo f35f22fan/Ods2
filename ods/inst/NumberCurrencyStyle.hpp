@@ -32,6 +32,9 @@ public:
 	
 	inst::NumberNumber*
 	NewNumber();
+
+	inst::NumberText*
+	NewText();
 	
 	virtual QString*
 	style_name() override { return &style_name_; }

@@ -139,9 +139,9 @@ void
 OfficeDocumentContent::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->office(), ods::ns::kVersion, office_version_);
-	auto &ids = ns_->ids();
-	UriId tag_id = ids.Office;
-	mtl_info("office id: %d, style_id: %d", tag_id, ids.Style);
+//	auto &ids = ns_->ids();
+//	UriId tag_id = ids.Office;
+//mtl_info("office id: %d, style_id: %d", tag_id, ids.Style);
 	office_scripts_->Write(xml);
 	office_font_face_decls_->Write(xml);
 	office_automatic_styles_->Write(xml);

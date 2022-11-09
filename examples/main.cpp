@@ -14,7 +14,7 @@ main(int argc, char *argv[])
 	QGuiApplication qapp(argc, argv);
 //	TestBug();
 	
-	SetColumnWidths();
+//	SetColumnWidths();
 //	ReadColumnWidths();
 	
 //	CreateFont();
@@ -58,7 +58,7 @@ main(int argc, char *argv[])
 //	ReadFormulaCustom();
 	
 // CreateFormulaFunctions();
-//	new sample::Invoice();
+	new sample::Invoice();
 	
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
