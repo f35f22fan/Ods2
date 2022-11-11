@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API StyleBackgroundImage : public Abstract
 {
 public:
-	StyleBackgroundImage(Abstract *parent, Tag *tag = nullptr);
+	StyleBackgroundImage(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	StyleBackgroundImage(const StyleBackgroundImage &cloner);
 	virtual ~StyleBackgroundImage();
 	
@@ -24,7 +24,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 };
 

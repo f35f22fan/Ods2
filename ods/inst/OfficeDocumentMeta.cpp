@@ -50,7 +50,7 @@ void OfficeDocumentMeta::Init(Tag *tag)
 
 void OfficeDocumentMeta::InitDefault()
 {
-	Append(new OfficeMeta(this));
+	Append(new OfficeMeta(this), TakeOwnership::Yes);
 	office_version_ = QLatin1String("1.2");
 }
 
@@ -75,7 +75,7 @@ void OfficeDocumentMeta::Scan(Tag *tag)
 		
 		if (next->Is(ns_->office(), ods::ns::kMeta))
 		{
-			Append(new OfficeMeta(this, next));
+			Append(new OfficeMeta(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

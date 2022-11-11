@@ -61,7 +61,7 @@ OfficeStyles::NewNumberCurrencyStyle()
 		id::NumberCurrencyStyle);
 	auto *p = new NumberCurrencyStyle(this);
 	p->style_name(new_name);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	
 	return p;
 }
@@ -73,7 +73,7 @@ OfficeStyles::NewStyleStyle(const style::Family f)
 	auto *p = new StyleStyle(this);
 	p->style_name(new_name);
 	p->SetFamily(f);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	
 	return p;
 }
@@ -90,11 +90,11 @@ OfficeStyles::Scan(ods::Tag *tag)
 		
 		if (next->Is(ns_->style(), ods::ns::kDefaultStyle))
 		{
-			Append(new StyleDefaultStyle(this, next));
+			Append(new StyleDefaultStyle(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->number(), ods::ns::kNumberStyle)) {
-			Append(new NumberNumberStyle(this, next));
+			Append(new NumberNumberStyle(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ods::ns::kStyle)) {
-			Append(new StyleStyle(this, next));
+			Append(new StyleStyle(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

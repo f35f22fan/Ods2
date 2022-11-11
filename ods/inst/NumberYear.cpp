@@ -4,12 +4,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-NumberYear::NumberYear(Abstract *parent, ods::Tag *tag)
+NumberYear::NumberYear(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::NumberYear)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -24,13 +29,35 @@ NumberYear::Clone(Abstract *parent) const
 {
 	auto *p = new NumberYear(*this);
 	
-	if (parent != nullptr)
+	if (parent)
 		p->parent(parent);
 	
 	p->number_style_ = number_style_;
 	p->CloneChildrenOf(this, ClonePart::Text);
 	
 	return p;
+}
+
+void NumberYear::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->number(), ns::kStyle, number_style_);
+	
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	if (ndff::is_text(op))
+		Append(cntr->NextString());
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
 }
 
 void NumberYear::Init(ods::Tag *tag)

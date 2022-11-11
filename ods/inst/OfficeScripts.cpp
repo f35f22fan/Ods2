@@ -1,13 +1,18 @@
 #include "OfficeScripts.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 #include "../Ns.hpp"
 
 namespace ods::inst {
 
-OfficeScripts::OfficeScripts(Abstract *parent, Tag *tag)
+OfficeScripts::OfficeScripts(Abstract *parent, Tag *tag,
+	ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::OfficeScripts)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -32,8 +37,34 @@ OfficeScripts::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-OfficeScripts::Init(Tag *tag)
+void OfficeScripts::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> h;
+	Op op = cntr->Next(prop, Op::TS, &h);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->office()))
+		{
+			mtl_info("Tag start: %s", qPrintable(prop.name));
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
+}
+
+void OfficeScripts::Init(Tag *tag)
 {
 	ScanString(tag);
 }

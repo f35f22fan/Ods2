@@ -13,7 +13,7 @@
 
 namespace ods {
 
-enum class WillInitFromXml: i8 {
+enum class WillInitFromData: i8 {
 	Yes,
 	No
 };
@@ -21,7 +21,7 @@ enum class WillInitFromXml: i8 {
 struct UriIds
 { // Not using an enum because these values will differ based
 	// on the order of namespaces appearance in documents.
-	static const UriId None = 255;
+	static const UriId None = 4095;
 	UriId Animation    = 0;
 	UriId Calcext      = 1;
 	UriId Chart        = 2;
@@ -96,7 +96,7 @@ private:
 	Ns();
 	NO_ASSIGN_COPY_MOVE(Ns);
 	
-	void InitDefault(const WillInitFromXml atr);
+	void InitDefault(const WillInitFromData atr);
 	
 	Prefix *anim_ = nullptr;
 	Prefix *calcext_ = nullptr;

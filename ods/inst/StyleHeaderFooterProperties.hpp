@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API StyleHeaderFooterProperties : public Abstract
 {
 public:
-	StyleHeaderFooterProperties(Abstract *parent, ods::Tag *tag = nullptr);
+	StyleHeaderFooterProperties(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	StyleHeaderFooterProperties(const StyleHeaderFooterProperties &cloner);
 	virtual ~StyleHeaderFooterProperties();
 	
@@ -21,7 +21,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	void Scan(Tag *tag);
 	

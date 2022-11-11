@@ -53,6 +53,9 @@ public:
 	void add_str_size(cu64 n);
 	void add_unum(cu64 n);
 	void add_inum(ci64 n);
+	ndff::Op next_op() { 
+		return (ndff::Op) (next_u8() & 0xFu);
+	}
 	
 	i8 next_i8();
 	u8 next_u8();
@@ -64,10 +67,11 @@ public:
 	u64 next_u64();
 	f32 next_f32();
 	f64 next_f64();
+	
 	QString next_string(const Pack p = Pack::Standard);
 	QByteArray next_string_utf8(ci64 len);
 	u64 next_str_size();
-	u64 next_snum();
+	i64 next_inum();
 	u64 next_unum();
 	
 	inline void set_i32(cisize at, ci32 value) {

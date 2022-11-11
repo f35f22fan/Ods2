@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberDateStyle : public Abstract
 {
 public:
-	NumberDateStyle(Abstract *parent, ods::Tag *tag = nullptr);
+	NumberDateStyle(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberDateStyle(const NumberDateStyle &cloner);
 	virtual ~NumberDateStyle();
 	
@@ -48,8 +48,9 @@ public:
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
-	void Init(ods::Tag *tag);
-	void Scan(ods::Tag *tag);
+	void Init(ndff::Container *cntr);
+	void Init(Tag *tag);
+	void Scan(Tag *tag);
 	
 	// <number:date-style style:name="N10036" number:language="ru"
 	// number:country="RU" number:automatic-order="true">

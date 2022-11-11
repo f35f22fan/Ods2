@@ -9,6 +9,7 @@
 #include "../ByteArray.hpp"
 #include "../filename.hxx"
 #include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../ods.hh"
@@ -18,13 +19,15 @@
 namespace ods::inst {
 
 OfficeDocumentContent::OfficeDocumentContent
-(ods::Book *book, ods::Ns *ns, ods::Tag *tag)
+(ods::Book *book, ods::Ns *ns, ods::Tag *tag, ndff::Container *cntr)
 : Abstract(nullptr, ns, id::OfficeDocumentContent)
 {
 	book_ = book;
 	book_->document_content_ = this;
 	
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -40,57 +43,6 @@ OfficeDocumentContent::~OfficeDocumentContent()
 	delete office_body_;
 	delete office_font_face_decls_;
 	delete office_scripts_;
-}
-
-OfficeDocumentContent* OfficeDocumentContent::From(Ns *ns,
-	ndff::Container *cntr)
-{
-	if (false) {
-	enum Op_: u8 { // Only up to 4 bits can be used!
-		F8 = 0, // separate to be able to store an f64 with no loss
-		S1 = 1, // string inline (0 - 15)
-		S2 = 2, // string inline (0 - 4095)
-		S4_PS = 3, // string inline (0 – 268435455), PS=PropertyStart
-		S8 = 4, // string inline (60 bits for size)
-		U1 = 5, // inline (0 - 15)
-		U2 = 6, // inline (0 - 4095)
-		U4_TE = 7, // inline (0 - 268435455) TE=TagEnd "/>"
-		U8 = 8, // separate, to be able to store max value
-		TS = 9, // TagStart "<"
-		TCF_CMS = 10, // TagContentsFollow ">", CMS=Compressed
-		SCT = 11, // SeparateClosingTag "</tag name>"
-		FS1 = 12, // FreeSpace1
-		FS8 = 13,
-		JB4 = 14, // JumpBy4 is an unsigned number
-		JB8 = 15, // JumpBy8 is unsigned
-	};}
-	auto &ba = cntr->buf();
-	auto &kw = cntr->keywords(); // using Keywords = QHash<QStringView, IdAndCount>;
-	cu8 b1 = ba.next_u8();
-	using ndff::Op;
-	cu8 op = b1 & 0xFu;
-	if (op == Op::TS) {
-		mtl_info("Tag start");
-		UriId uri_id = ba.next_unum();
-		if (uri_id == ns->office()->id()) {
-			mtl_info("It's the 'office' id!");
-		} else {
-			mtl_info("Not office id...");
-		}
-		ci32 tag_id = ba.next_unum();
-		mtl_info("prefix id: %d, tag_id: %d", (i32)uri_id, tag_id);
-		QString tag_name;
-		if (cntr->GetKey(tag_id, tag_name)) {
-			auto b = tag_name.toLocal8Bit();
-			mtl_info("tag name: \"%s\"", b.data());
-		} else {
-			mtl_warn("Couldn't find tag name by id %d", tag_id);
-		}
-	} else {
-		mtl_info("Other: %d", (i32)op);
-		//if (b1 == Op::)
-	}
-	return nullptr;
 }
 
 Abstract*
@@ -139,8 +91,50 @@ OfficeDocumentContent::GetAnyStyle(const QString &name)
 
 void OfficeDocumentContent::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->office(), ods::ns::kVersion, office_version_);
+	tag->Copy(ns_->office(), ns::kVersion, office_version_);
 	Scan(tag);
+}
+
+void OfficeDocumentContent::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	
+	Op op = cntr->Next(prop, Op::None);
+	QHash<UriId, QVector<ndff::Property>> h;
+	op = cntr->Next(prop, op, &h);
+	
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->office()))
+		{
+			if (prop.name == ns::kScripts) {
+				office_scripts_ = new OfficeScripts(this, 0, cntr);
+			} else if (prop.name == ns::kFontFaceDecls) {
+				office_font_face_decls_ = new OfficeFontFaceDecls(this, 0, cntr);
+			} else if (prop.name == ns::kAutomaticStyles) {
+				office_automatic_styles_ = new OfficeAutomaticStyles(this, 0, cntr);
+			} else if (prop.name == ns::kBody) {
+				office_body_ = new OfficeBody(this, 0, cntr);
+			}
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op == Op::SCT)
+	{
+		return;
+	}
+	
+	mtl_trace("op: %d", op);
 }
 
 void OfficeDocumentContent::InitDefault()

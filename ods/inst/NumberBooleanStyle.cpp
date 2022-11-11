@@ -7,12 +7,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Property.hpp"
+#include "../ndff/Container.hpp"
+
 namespace ods::inst {
 
-NumberBooleanStyle::NumberBooleanStyle(Abstract *parent, ods::Tag *tag)
+NumberBooleanStyle::NumberBooleanStyle(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
  : Abstract(parent, parent->ns(), id::NumberBooleanStyle)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -62,6 +67,60 @@ NumberBooleanStyle::Clone(Abstract *parent) const
 	return p;
 }
 
+void NumberBooleanStyle::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	
+	if (attrs.contains(ns_->number()->id()))
+	{
+		CopyAttr(attrs, ns_->number(), ods::ns::kCountry, number_country_);
+		CopyAttr(attrs, ns_->number(), ods::ns::kLanguage, number_language_);
+		CopyAttr(attrs, ns_->number(), ods::ns::kRfcLanguageTag, number_rfc_language_tag_);
+		CopyAttr(attrs, ns_->number(), ods::ns::kScript, number_script_);
+		CopyAttr(attrs, ns_->number(), ods::ns::kTitle, number_title_);
+		CopyAttr(attrs, ns_->number(), ods::ns::kTransliterationCountry, number_transliteration_country_);
+		CopyAttr(attrs, ns_->number(), ods::ns::kTransliterationFormat, number_transliteration_format_);
+		CopyAttr(attrs, ns_->number(), ods::ns::kTransliterationLanguage, number_translitaration_language_);
+		CopyAttr(attrs, ns_->number(), ods::ns::kTransliterationStyle, number_transliteration_style_);
+	}
+	
+	CopyAttr(attrs, ns_->style(), ods::ns::kDisplayName, style_display_name_);
+	CopyAttr(attrs, ns_->style(), ods::ns::kName, style_name_);
+	CopyAttr(attrs, ns_->style(), ods::ns::kVolatile, style_volatile_);
+	
+	if (op == Op::N32_TE)
+	{
+		mtl_info("Op::TE");
+		return;
+	}
+	
+	if (op == Op::TCF_CMS)
+	{
+		mtl_info("Op::TCF");
+		op = cntr->Next(prop, op);
+	}
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->number()))
+		{
+			if (prop.name == ns::kBoolean)
+				Append(new NumberBoolean(this, 0, cntr), TakeOwnership::Yes);
+			else if (prop.name == ns::kText)
+				Append(new NumberText(this, 0, cntr), TakeOwnership::Yes);
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
+}
+
 void NumberBooleanStyle::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->number(), ods::ns::kCountry, number_country_);
@@ -102,7 +161,7 @@ NumberBoolean*
 NumberBooleanStyle::NewBoolean()
 {
 	auto *p = new NumberBoolean(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -111,7 +170,7 @@ NumberBooleanStyle::NewText(const QString &s)
 {
 	auto *p = new NumberText(this);
 	p->SetFirstString(s);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -124,11 +183,11 @@ void NumberBooleanStyle::Scan(ods::Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->number(), ods::ns::kBoolean))
+		if (next->Is(ns_->number(), ns::kBoolean))
 		{
-			Append(new NumberBoolean(this, next));
-		} else if (next->Is(ns_->number(), ods::ns::kText)) {
-			Append(new NumberText(this, next));
+			Append(new NumberBoolean(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->number(), ns::kText)) {
+			Append(new NumberText(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

@@ -4,12 +4,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-NumberSeconds::NumberSeconds(Abstract *parent, ods::Tag *tag)
+NumberSeconds::NumberSeconds(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::NumberSeconds)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -32,6 +37,29 @@ NumberSeconds::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this, ClonePart::Text);
 	
 	return p;
+}
+
+void NumberSeconds::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->number(), ns::kStyle, number_style_);
+	CopyAttrI8(attrs, ns_->number(), ns::kDecimalPlaces, number_decimal_places_);
+	
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	if (ndff::is_text(op))
+		Append(cntr->NextString());
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
 }
 
 void NumberSeconds::Init(ods::Tag *tag)

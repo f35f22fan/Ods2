@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberPercentageStyle : public Abstract
 {
 public:
-	NumberPercentageStyle(Abstract *parent, ods::Tag *tag = nullptr);
+	NumberPercentageStyle(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberPercentageStyle(const NumberPercentageStyle &cloner);
 	virtual ~NumberPercentageStyle();
 	
@@ -47,7 +47,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag*);
 	void Scan(ods::Tag*);
 	

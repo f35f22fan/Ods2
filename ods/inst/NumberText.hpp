@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberText : public Abstract
 {
 public:
-	NumberText(Abstract *parent, ods::Tag *tag = nullptr);
+	NumberText(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberText(const NumberText &cloner);
 	virtual ~NumberText();
 	
@@ -25,7 +25,8 @@ public:
 	
 private:
 	
-	void Init(ods::Tag *tag);
+	void Init(ndff::Container *cntr);
+	void Init(Tag *tag);
 };
 
 } // ods::inst::

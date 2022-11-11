@@ -60,7 +60,7 @@ void OfficeMasterStyles::Scan(Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->style(), ods::ns::kMasterPage)) {
-			Append(new StyleMasterPage(this, next));
+			Append(new StyleMasterPage(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

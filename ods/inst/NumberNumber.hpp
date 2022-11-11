@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberNumber : public Abstract
 {
 public:
-	NumberNumber(Abstract *parent, ods::Tag *tag = nullptr);
+	NumberNumber(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberNumber(const NumberNumber &cloner);
 	virtual ~NumberNumber();
 	
@@ -31,8 +31,8 @@ public:
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 	
 private:
-	
-	void Init(ods::Tag *tag);
+	void Init(ndff::Container *cntr);
+	void Init(Tag *tag);
 	
 	// <number:number number:decimal-places="2" loext:min-decimal-places="2"
 	// number:min-integer-digits="1"/>

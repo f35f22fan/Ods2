@@ -21,7 +21,6 @@
 #include "inst/OfficeSpreadsheet.hpp"
 #include "inst/OfficeStyles.hpp"
 #include "inst/TableNamedExpressions.hpp"
-#include "inst/TableNamedRange.hpp"
 
 #include <QElapsedTimer>
 #include <QGuiApplication>
@@ -68,12 +67,10 @@ void Book::CreateDictionaryRegion(ByteArray &buffer, inst::Keywords &list)
 	QueryKeywords(list);
 	QVector<StringCount> vec;
 	
-	auto it = list.constBegin();
-	while (it != list.constEnd())
+	for (auto it = list.constBegin(); it != list.constEnd(); it++)
 	{
 		QStringView word = it.key();
 		const inst::IdAndCount idc = it.value();
-		it++;
 		vec.append({ .keyword = word.toString(), .count = idc.count,
 			.id = idc.id});
 	}
@@ -85,15 +82,15 @@ void Book::CreateDictionaryRegion(ByteArray &buffer, inst::Keywords &list)
 	buffer.add_i64(-1); // next block address, -1 = no more
 	for (StringCount &next: vec)
 	{
-		//mtl_info("Dictionary entry id: %u, \"%s\"", id, qPrintable(next.keyword));
-		buffer.add_unum(next.id);
+		//mtl_info("Dictionary entry id: %d \"%s\"", next.id, qPrintable(next.keyword));
+		buffer.add_inum(next.id);
 		buffer.add_string(next.keyword, Pack::NDFF);
 	}
 	cu32 block_size = buffer.at() - block_start;
 	cu32 no_compression = 0; // 0=None, 1=Zstd
 	cu32 block_info = (block_size << 3) | no_compression;
 	buffer.set_u32(block_start, block_info);
-	//mtl_info("Dictionary occupies %u bytes", block_size);
+	mtl_info("Dictionary occupies %u bytes", block_size);
 }
 
 void Book::CreateMainHeader(ByteArray &ba)
@@ -324,8 +321,7 @@ void Book::InitTempDir()
 
 bool Book::InitNDFF(QStringView full_path)
 {
-	ndff(true);
-	CHECK_TRUE(ndff_.Init(full_path));
+	CHECK_TRUE(ndff_.Init(this, full_path));
 	LoadContentNDFF();
 	return true;
 }
@@ -383,8 +379,7 @@ void Book::LoadContentNDFF()
 	ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::ContentXml);
 	auto &ba = ndff_.buf();
 	ba.to(fei->content_start());
-	Ns *ns = Ns::FromNDFF(&ndff_);
-	document_content_ = inst::OfficeDocumentContent::From(ns, &ndff_);
+	document_content_ = new inst::OfficeDocumentContent(this, ndff_.ns(), 0, &ndff_);
 }
 
 void Book::LoadContentXml(ci32 file_index, QString *err)

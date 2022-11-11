@@ -64,7 +64,7 @@ void NumberNumberStyle::Scan(ods::Tag *tag)
 		
 		if (next->Is(ns_->number(), ods::ns::kNumber))
 		{
-			Append(new NumberNumber(this, next));
+			Append(new NumberNumber(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

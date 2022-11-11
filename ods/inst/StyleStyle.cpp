@@ -27,10 +27,12 @@
 
 namespace ods::inst {
 
-StyleStyle::StyleStyle(Abstract *parent, ods::Tag *tag)
+StyleStyle::StyleStyle(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
 : Abstract (parent, parent->ns(), id::StyleStyle)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -99,7 +101,7 @@ StyleStyle::FetchStyleTableCellProperties()
 	
 	if (p == nullptr) {
 		p = new StyleTableCellProperties(this);
-		Append(p);
+		Append(p, TakeOwnership::Yes);
 	}
 	
 	return p;
@@ -112,7 +114,7 @@ StyleStyle::FetchTableColumnProperties()
 	
 	if (p == nullptr) {
 		p = new StyleTableColumnProperties(this);
-		Append(p);
+		Append(p, TakeOwnership::Yes);
 	}
 	
 	return p;
@@ -125,7 +127,7 @@ StyleStyle::FetchStyleTextProperties()
 	
 	if (p == nullptr) {
 		p = new StyleTextProperties(this);
-		Append(p);
+		Append(p, TakeOwnership::Yes);
 	}
 	
 	return p;
@@ -231,6 +233,45 @@ StyleStyle::GetTimeStyle() const
 	return nullptr;
 }
 
+void StyleStyle::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kDataStyleName, style_data_style_name_);
+	QString style_family;
+	CopyAttr(attrs, ns_->style(), ns::kFamily, style_family);
+	style_family_ = style::FamilyFromString(style_family);
+	CopyAttr(attrs, ns_->style(), ns::kMasterPageName, style_master_page_name_);
+	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
+	CopyAttr(attrs, ns_->style(), ns::kParentStyleName, style_parent_style_name_);
+	CopyAttr(attrs, ns_->style(), ns::kDisplayName, style_display_name_);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->style()))
+		{
+			if (prop.name == ns::kTableColumnProperties) {
+				Append(new StyleTableColumnProperties(this, 0, cntr), TakeOwnership::Yes);
+			}
+			mtl_info("Tag start: %s", qPrintable(prop.name));
+			
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
+}
+
 void StyleStyle::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ns::kDataStyleName, style_data_style_name_);
@@ -293,7 +334,7 @@ inst::StyleParagraphProperties*
 StyleStyle::NewParagraphProperties()
 {
 	auto *p = new StyleParagraphProperties(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -311,7 +352,7 @@ StyleTableCellProperties*
 StyleStyle::NewTableCellProperties()
 {
 	auto *p = new StyleTableCellProperties(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -319,7 +360,7 @@ StyleTableColumnProperties*
 StyleStyle::NewTableColumnProperties()
 {
 	auto *tcp = new StyleTableColumnProperties(this);
-	Append(tcp);
+	Append(tcp, TakeOwnership::Yes);
 	return tcp;
 }
 
@@ -327,7 +368,7 @@ StyleTableRowProperties*
 StyleStyle::NewTableRowProperties()
 {
 	auto *p = new StyleTableRowProperties(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -363,17 +404,17 @@ void StyleStyle::Scan(ods::Tag *tag)
 		
 		if (next->Is(ns_->style(), ns::kTextProperties))
 		{
-			Append(new StyleTextProperties(this, next));
+			Append(new StyleTextProperties(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kTableCellProperties)) {
-			Append(new StyleTableCellProperties(this, next));
+			Append(new StyleTableCellProperties(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kTableColumnProperties)) {
-			Append(new StyleTableColumnProperties(this, next));
+			Append(new StyleTableColumnProperties(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kTableProperties)) {
-			Append(new StyleTableProperties(this, next));
+			Append(new StyleTableProperties(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kTableRowProperties)) {
-			Append(new StyleTableRowProperties(this, next));
+			Append(new StyleTableRowProperties(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kParagraphProperties)) {
-			Append(new StyleParagraphProperties(this, next));
+			Append(new StyleParagraphProperties(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

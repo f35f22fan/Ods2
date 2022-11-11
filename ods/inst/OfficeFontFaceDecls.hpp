@@ -3,13 +3,14 @@
 #include "Abstract.hpp"
 #include "decl.hxx"
 #include "../err.hpp"
+#include "../ndff/ndff.hh"
 
 namespace ods::inst {
 
 class ODS_API OfficeFontFaceDecls : public Abstract
 {
 public:
-	OfficeFontFaceDecls(Abstract *parent, ods::Tag *tag = nullptr);
+	OfficeFontFaceDecls(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	OfficeFontFaceDecls(const OfficeFontFaceDecls &cloner);
 	virtual ~OfficeFontFaceDecls();
 	
@@ -29,6 +30,7 @@ public:
 	
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void Scan(ods::Tag *parent);

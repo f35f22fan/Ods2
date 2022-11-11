@@ -7,13 +7,18 @@
 #include "NumberNumber.hpp"
 #include "NumberText.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
 NumberPercentageStyle::NumberPercentageStyle(ods::inst::Abstract *parent,
-	ods::Tag *tag)
+	ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::NumberPercentageStyle)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -82,6 +87,42 @@ NumberPercentageStyle::GetNumberText() const
 	return (inst::NumberText*) p;
 }
 
+void NumberPercentageStyle::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
+	
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	if (ndff::is_text(op))
+		Append(cntr->NextString());
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->number()))
+		{
+			if (prop.name == ns::kNumber)
+				Append(new NumberNumber(this, 0, cntr), TakeOwnership::Yes);
+			else if (prop.name == ns::kText)
+				Append(new NumberText(this, 0, cntr), TakeOwnership::Yes);
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
+}
+
 void NumberPercentageStyle::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
@@ -103,7 +144,7 @@ inst::NumberNumber*
 NumberPercentageStyle::NewNumberStyle()
 {
 	auto *p = new NumberNumber(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -111,7 +152,7 @@ NumberText*
 NumberPercentageStyle::NewNumberText()
 {
 	auto *nt = new NumberText(this);
-	Append(nt);
+	Append(nt, TakeOwnership::Yes);
 	return nt;
 }
 
@@ -126,9 +167,9 @@ void NumberPercentageStyle::Scan(ods::Tag *tag)
 		
 		if (next->Is(ns_->number(), ods::ns::kNumber))
 		{
-			Append(new NumberNumber(this, next));
-		} else if (next->Is(ns_->number(), ods::ns::kText)) {
-			Append(new NumberText(this, next));
+			Append(new NumberNumber(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->number(), ns::kText)) {
+			Append(new NumberText(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

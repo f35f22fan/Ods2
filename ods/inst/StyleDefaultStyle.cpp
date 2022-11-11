@@ -64,9 +64,9 @@ void StyleDefaultStyle::Scan(ods::Tag *tag)
 		
 		if (next->Is(ns_->style(), ns::kParagraphProperties))
 		{
-			Append(new StyleParagraphProperties(this, next));
+			Append(new StyleParagraphProperties(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kTextProperties)) {
-			Append(new StyleTextProperties(this, next));
+			Append(new StyleTextProperties(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

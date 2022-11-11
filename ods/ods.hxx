@@ -7,6 +7,11 @@
 
 namespace ods {
 
+enum class ODS_API DocumentFormat: i8 {
+	Text,
+	Binary
+};
+
 enum class ODS_API ClearTheRest: i8 {
 	Yes,
 	No

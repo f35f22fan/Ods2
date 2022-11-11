@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberBooleanStyle : public Abstract
 {
 public:
-	NumberBooleanStyle(Abstract *parent, Tag *tag = nullptr);
+	NumberBooleanStyle(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberBooleanStyle(const NumberBooleanStyle &cloner);
 	virtual ~NumberBooleanStyle();
 	
@@ -33,8 +33,9 @@ public:
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
-	void Init(ods::Tag *tag);
-	void Scan(ods::Tag *tag);
+	void Init(ndff::Container *cntr);
+	void Init(Tag *tag);
+	void Scan(Tag *tag);
 	
 	QString number_country_;
 	QString number_language_;

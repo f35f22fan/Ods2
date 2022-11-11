@@ -121,7 +121,7 @@ inst::DrawImage*
 DrawFrame::NewDrawImage()
 {
 	auto *p = new DrawImage(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -129,7 +129,7 @@ inst::SvgDesc*
 DrawFrame::NewSvgDesc()
 {
 	auto *p = new SvgDesc(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -137,7 +137,7 @@ inst::SvgTitle*
 DrawFrame::NewSvgTitle()
 {
 	auto *p = new SvgTitle(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -152,11 +152,11 @@ DrawFrame::Scan(ods::Tag *scan_tag)
 		auto *tag = x->as_tag();
 		
 		if (tag->Is(ns_->draw(), ns::kImage))
-			Append(new DrawImage(this, tag));
+			Append(new DrawImage(this, tag), TakeOwnership::Yes);
 		else if (tag->Is(ns_->svg(), ns::kDesc))
-			Append(new SvgDesc(this, tag));
+			Append(new SvgDesc(this, tag), TakeOwnership::Yes);
 		else if (tag->Is(ns_->svg(), ns::kTitle))
-			Append(new SvgTitle(this, tag));
+			Append(new SvgTitle(this, tag), TakeOwnership::Yes);
 		else
 			Scan(tag);
 	}

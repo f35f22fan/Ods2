@@ -137,43 +137,79 @@ void ByteArray::add_string(QStringView s, const Pack p)
 	}
 }
 
+void ByteArray::add_str_size(cu64 n)
+{
+	// ndff::OP must be in the first byte
+	if (n <= (0xFFu >> 4)) {
+		add_u8((u8(n) << 4) | ndff::Op::S8);
+	} else if (n <= (0xFFFFu >> 4)) {
+		add_u16((u16(n) << 4) | u16(ndff::Op::S16));
+	} else if (n <= (0xFFFFFFFFu >> 4)) {
+		add_u32((u32(n) << 4) | u32(ndff::Op::S32_PS));
+	} else {
+		add_u64((n << 4) | u64(ndff::Op::S64));
+	}
+}
+
 void ByteArray::add_inum(ci64 n)
 { // ndff::OP must be in the first byte
-	if (n <= (0xFF >> 4)) {
-		add_i8((i8(n) << 4) | ndff::Op::U1);
-	} else if (n <= (0xFFFF >> 4)) {
-		add_i16((i16(n) << 4) | i16(ndff::Op::U2));
-	} else if (n <= (0xFFFFFFFF >> 4)) {
-		add_i32((i32(n) << 4) | i32(ndff::Op::U4_TE));
+	cint shift = 5;
+	if (n < (0xFF >> shift)) {
+		add_i8((i8(n) << 4) | ndff::Op::N8);
+	} else if (n < (0xFFFF >> shift)) {
+		add_i16((i16(n) << 4) | i16(ndff::Op::N16));
+	} else if (n < (0xFFFFFFFF >> shift)) {
+		add_i32((i32(n) << 4) | i32(ndff::Op::N32_TE));
 	} else {
-		add_u64((n << 4) | i64(ndff::Op::U8));
+		add_u8(ndff::Op::N64);
+		add_i64(n);
 	}
 }
 
 void ByteArray::add_unum(cu64 n)
 { // ndff::OP must be in the first byte
 	if (n <= (0xFFu >> 4)) {
-		add_u8((u8(n) << 4) | ndff::Op::U1);
+		add_u8((u8(n) << 4) | ndff::Op::N8);
 	} else if (n <= (0xFFFFu >> 4)) {
-		add_u16((u16(n) << 4) | u16(ndff::Op::U2));
+		add_u16((u16(n) << 4) | u16(ndff::Op::N16));
 	} else if (n <= (0xFFFFFFFFu >> 4)) {
-		add_u32((u32(n) << 4) | u32(ndff::Op::U4_TE));
+		add_u32((u32(n) << 4) | u32(ndff::Op::N32_TE));
 	} else {
-		add_u64((n << 4) | u64(ndff::Op::U8));
+		add_u8(ndff::Op::N64);
+		add_u64(n);
 	}
 }
 
-u64 ByteArray::next_snum()
+i64 ByteArray::next_inum()
+{
+	cu8 bits = next_u8() & 0x0F;
+	skip_read(-1);
+	if (bits == ndff::Op::N8) {
+		return next_i8() >> 4;
+	} else if (bits == ndff::Op::N16) {
+		return next_i16() >> 4;
+	} else if (bits == ndff::Op::N32_TE) {
+		return next_i32() >> 4;
+	} else if (bits == ndff::Op::N64) {
+		skip_read(1); // because it's not inline
+		return next_i64();
+	}
+	
+	mtl_warn();
+	return -1;
+}
+
+u64 ByteArray::next_str_size()
 {
 	cu8 bits = next_u8() & 0x0Fu;
 	skip_read(-1);
-	if (bits == ndff::Op::S1) {
+	if (bits == ndff::Op::S8) {
 		return next_u8() >> 4;
-	} else if (bits == ndff::Op::S2) {
+	} else if (bits == ndff::Op::S16) {
 		return next_u16() >> 4;
-	} else if (bits == ndff::Op::S4_PS) {
+	} else if (bits == ndff::Op::S32_PS) {
 		return next_u32() >> 4;
-	} else if (bits == ndff::Op::S8) {
+	} else if (bits == ndff::Op::S64) {
 		return next_u64() >> 4;
 	} else {
 		mtl_warn();
@@ -185,47 +221,19 @@ u64 ByteArray::next_unum()
 {
 	cu8 bits = next_u8() & 0x0F;
 	skip_read(-1);
-	if (bits == ndff::Op::U1) {
+	if (bits == ndff::Op::N8) {
 		return next_u8() >> 4;
-	} else if (bits == ndff::Op::U2) {
+	} else if (bits == ndff::Op::N16) {
 		return next_u16() >> 4;
-	} else if (bits == ndff::Op::U4_TE) {
+	} else if (bits == ndff::Op::N32_TE) {
 		return next_u32() >> 4;
-	} else if (bits == ndff::Op::U8) {
-		return next_u64() >> 4;
+	} else if (bits == ndff::Op::N64) {
+		skip_read(1); // because it's not inline
+		return next_u64();
 	} else {
 		mtl_warn();
-		return -1;
+		return 0;
 	}
-}
-
-void ByteArray::add_str_size(cu64 n)
-{
-	// ndff::OP must be in the first byte
-	if (n <= (0xFFu >> 4)) {
-		add_u8((u8(n) << 4) | ndff::Op::S1);
-	} else if (n <= (0xFFFFu >> 4)) {
-		add_u16((u16(n) << 4) | u16(ndff::Op::S2));
-	} else if (n <= (0xFFFFFFFFu >> 4)) {
-		add_u32((u32(n) << 4) | u32(ndff::Op::S4_PS));
-	} else {
-		add_u64((n << 4) | u64(ndff::Op::S8));
-	}
-}
-
-u64 ByteArray::next_str_size()
-{
-	cu8 bits = next_u8() & 0x0F;
-	skip_read(-1);
-	if (bits == ndff::Op::S1) {
-		return next_u8() >> 4;
-	} else if (bits == ndff::Op::S2) {
-		return next_u16() >> 4;
-	} else if (bits == ndff::Op::S4_PS) {
-		return next_u32() >> 4;
-	}
-	
-	return next_u64() >> 4;
 }
 
 void ByteArray::alloc(const isize n)
@@ -347,6 +355,5 @@ QByteArray ByteArray::next_string_utf8(ci64 len)
 	at_ += len;
 	return s;
 }
-
 
 }

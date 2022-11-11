@@ -1,5 +1,7 @@
 #include "StyleFontFace.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 #include "OfficeFontFaceDecls.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
@@ -7,10 +9,12 @@
 
 namespace ods::inst {
 
-StyleFontFace::StyleFontFace(Abstract *parent, Tag *tag)
+StyleFontFace::StyleFontFace(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleFontFace)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -43,6 +47,41 @@ void StyleFontFace::font_family_generic(const QString &s)
 void StyleFontFace::font_pitch(const QString &s)
 {
 	style_font_pitch_ = s;
+}
+
+void StyleFontFace::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
+	CopyAttr(attrs, ns_->svg(), ns::kFontFamily, svg_font_family_);
+	CopyAttr(attrs, ns_->style(), ns::kFontFamilyGeneric, style_font_family_generic_);
+	CopyAttr(attrs, ns_->style(), ns::kFontPitch, style_font_pitch_);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	/* while (op == Op::TS)
+	{
+		if (prop.is(ns_->style()))
+		{
+			if (prop.name == ns::kFontFace) {
+				Append(new StyleFontFace(this, 0, cntr), TakeOwnership::Yes);
+			}
+			mtl_info("Tag start: %s", qPrintable(prop.name));
+			
+		}
+		
+		op = cntr->Next(prop, op);
+	} */
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
 }
 
 void StyleFontFace::Init(ods::Tag *tag)

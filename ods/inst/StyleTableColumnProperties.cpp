@@ -5,12 +5,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
 StyleTableColumnProperties::StyleTableColumnProperties(Abstract *parent,
-ods::Tag *tag) : Abstract(parent, parent->ns(), ods::id::StyleTableColumnProperties)
+ods::Tag *tag, ndff::Container *cntr) : Abstract(parent, parent->ns(), ods::id::StyleTableColumnProperties)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -39,6 +44,42 @@ StyleTableColumnProperties::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
+}
+
+void StyleTableColumnProperties::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	QString col_width;
+	CopyAttr(attrs, ns_->style(), ns::kColumnWidth, col_width);
+	style_column_width_ = Length::FromString(col_width);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (op == Op::TS)
+	{
+		mtl_tbd();
+//		if (prop.is(ns_->style()))
+//		{
+//			if (prop.name == ns::kTableColumnProperties) {
+//				Append(new StyleTableColumnProperties(this, 0, cntr), TakeOwnership::Yes);
+//			}
+//			mtl_info("Tag start: %s", qPrintable(prop.name));
+			
+//		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
 }
 
 void StyleTableColumnProperties::Init(ods::Tag *tag)

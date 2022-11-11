@@ -3,6 +3,8 @@
 #include "OfficeDocumentStyles.hpp"
 #include "StyleFontFace.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Tag.hpp"
@@ -12,10 +14,13 @@ namespace ods::inst {
 static const auto SwissStr = QStringLiteral("swiss");
 static const auto VariableStr = QStringLiteral("variable");
 
-OfficeFontFaceDecls::OfficeFontFaceDecls(ods::inst::Abstract *parent, Tag *tag)
+OfficeFontFaceDecls::OfficeFontFaceDecls(ods::inst::Abstract *parent, Tag *tag,
+	ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::OfficeFontFaceDecls)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -61,38 +66,67 @@ OfficeFontFaceDecls::GetFontFace(const QString &font_name, const AddIfNeeded ain
 	return nullptr;
 }
 
-void
-OfficeFontFaceDecls::Init(ods::Tag *tag)
+void OfficeFontFaceDecls::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->style()))
+		{
+			if (prop.name == ns::kFontFace) {
+				Append(new StyleFontFace(this, 0, cntr), TakeOwnership::Yes);
+			} else {
+				mtl_info("Unprocessed tag: %s", qPrintable(prop.name));
+			}
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
+}
+
+void OfficeFontFaceDecls::Init(ods::Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-OfficeFontFaceDecls::InitDefault()
+void OfficeFontFaceDecls::InitDefault()
 {
 	auto *sff = new inst::StyleFontFace(this);
 	sff->Set(QLatin1String("Liberation Sans"));
 	sff->font_family_generic(SwissStr);
 	sff->font_pitch(VariableStr);
-	Append(sff);
+	Append(sff, TakeOwnership::Yes);
 	
 	sff = new inst::StyleFontFace(this);
 	sff->Set(QLatin1String("DejaVu Sans"));
 	sff->font_family_generic(SwissStr);
 	sff->font_pitch(VariableStr);
-	Append(sff);
+	Append(sff, TakeOwnership::Yes);
 	
 	sff = new inst::StyleFontFace(this);
 	sff->Set(QLatin1String("Lohit Devanagari"));
 	sff->font_family_generic(SwissStr);
 	sff->font_pitch(VariableStr);
-	Append(sff);
+	Append(sff, TakeOwnership::Yes);
 	
 	sff = new inst::StyleFontFace(this);
 	sff->Set(QLatin1String("Noto Sans CJK SC Regular"));
 	sff->font_family_generic(SwissStr);
 	sff->font_pitch(VariableStr);
-	Append(sff);
+	Append(sff, TakeOwnership::Yes);
 }
 
 void OfficeFontFaceDecls::ListKeywords(Keywords &list, const LimitTo lt)
@@ -108,10 +142,11 @@ void OfficeFontFaceDecls::ListUsedNamespaces(NsHash &list)
 StyleFontFace*
 OfficeFontFaceDecls::Register(const QString &font_name)
 {
-	auto *sff = new StyleFontFace(this);
-	sff->Set(font_name);
-	Append(sff);
-	return sff;
+	auto *p = new StyleFontFace(this);
+	p->Set(font_name);
+	Append(p, TakeOwnership::Yes);
+	
+	return p;
 }
 
 void
@@ -126,7 +161,7 @@ OfficeFontFaceDecls::Scan(ods::Tag *tag)
 		
 		if (next->Is(ns_->style(), ods::ns::kFontFace))
 		{
-			Append(new StyleFontFace(this, next));
+			Append(new StyleFontFace(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

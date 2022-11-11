@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API OfficeBody : public Abstract
 {
 public:
-	OfficeBody(Abstract *parent, Tag *tag = nullptr);
+	OfficeBody(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	OfficeBody(const OfficeBody &cloner);
 	virtual ~OfficeBody();
 	
@@ -26,6 +26,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	void InitDefault();
 	void Scan(Tag *tag);

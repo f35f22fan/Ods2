@@ -15,12 +15,17 @@
 #include "../attr/StyleTextUnderlineColor.hpp"
 #include "../attr/StyleTextUnderlineWidth.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-StyleTextProperties::StyleTextProperties(Abstract *parent, ods::Tag *tag)
+StyleTextProperties::StyleTextProperties(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleTextProperties)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -123,6 +128,103 @@ StyleTextProperties::Clone(Abstract *parent) const
 	p->style_font_pitch_complex_ = style_font_pitch_complex_;
 	
 	return p;
+}
+
+void StyleTextProperties::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	
+	QString str;
+	CopyAttr(attrs, ns_->fo(), ns::kColor, str);
+	
+	if (QColor::isValidColor(str))
+		fo_color_ = new QColor(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kBackgroundColor, str);
+	
+	if (QColor::isValidColor(str))
+		fo_background_color_ = new QColor(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kCountry, fo_country_);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kFontSize, str);
+	fo_font_size_ = Length::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kFontStyle, str);
+	fo_font_style_ = attr::FoFontStyle::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kFontWeight, str);
+	fo_font_weight_ = attr::FoFontWeight::FromString(str);
+	
+	CopyAttr(attrs, ns_->style(), ns::kTextUnderlineColor, str);
+	style_text_underline_color_ = attr::StyleTextUnderlineColor::FromString(str);
+	
+	CopyAttr(attrs, ns_->style(), ns::kTextUnderlineStyle, str);
+	style_text_underline_style_ = ods::LineStyle::FromString(str);
+	
+	CopyAttr(attrs, ns_->style(), ns::kTextUnderlineWidth, str);
+	style_text_underline_width_ = attr::StyleTextUnderlineWidth::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kHyphenate, fo_hyphenate_);
+	CopyAttr(attrs, ns_->fo(), ns::kLanguage, fo_language_);
+	
+	auto *font_factory = book_->GetFontFaceDecls();
+	
+	CopyAttr(attrs, ns_->style(), ns::kFontName, str);
+	style_font_name_ = font_factory->GetFontFace(str, AddIfNeeded::No);
+	
+	CopyAttr(attrs, ns_->style(), ns::kFontNameAsian, str);
+	style_font_name_asian_ = font_factory->GetFontFace(str, AddIfNeeded::No);
+	
+	CopyAttr(attrs, ns_->style(), ns::kFontNameComplex, str);
+	style_font_name_complex_ = font_factory->GetFontFace(str, AddIfNeeded::No);
+	
+	CopyAttr(attrs, ns_->style(), ns::kLanguageAsian, style_language_asian_);
+	CopyAttr(attrs, ns_->style(), ns::kCountryAsian, style_country_asian_);
+	
+	CopyAttr(attrs, ns_->style(), ns::kFontSizeAsian, str);
+	style_font_size_asian_ = Length::FromString(str);
+	
+	CopyAttr(attrs, ns_->style(), ns::kFontSizeComplex, str);
+	style_font_size_complex_ = Length::FromString(str);
+	
+	CopyAttr(attrs, ns_->style(), ns::kLanguageComplex, style_language_complex_);
+	CopyAttr(attrs, ns_->style(), ns::kCountryComplex, style_country_complex_);
+	
+	CopyAttr(attrs, ns_->style(), ns::kFontFamilyAsian, style_font_family_asian_);
+	CopyAttr(attrs, ns_->style(), ns::kFontFamilyComplex, style_font_family_complex_);
+	CopyAttr(attrs, ns_->style(), ns::kFontFamilyGenericAsian, style_font_family_generic_asian_);
+	CopyAttr(attrs, ns_->style(), ns::kFontFamilyGenericComplex, style_font_family_generic_complex_);
+	CopyAttr(attrs, ns_->style(), ns::kFontPitchAsian, style_font_pitch_asian_);
+	CopyAttr(attrs, ns_->style(), ns::kFontPitchComplex, style_font_pitch_complex_);
+	
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	if (ndff::is_text(op))
+		Append(cntr->NextString());
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->number()))
+		{
+			mtl_tbd();
+//			if (prop.name == ns::kEmbeddedText)
+//				Append(new NumberEmbeddedText(this, 0, cntr), TakeOwnership::Yes);
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
 }
 
 void StyleTextProperties::Init(ods::Tag *tag)

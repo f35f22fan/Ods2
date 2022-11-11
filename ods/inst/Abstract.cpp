@@ -15,10 +15,23 @@
 
 namespace ods::inst {
 
-Abstract::Abstract(Abstract *parent, ods::Ns *ns, ods::id::func f)
-: parent_(parent)
+void AddKeywords(const QVector<QString> &words, Keywords &list)
 {
-	if (parent_ != nullptr)
+	for (const QString &word: words)
+	{
+		if (list.contains(word)) {
+			list[word].count++;
+		} else {
+			ci32 id = list.count() + 1;
+			IdAndCount ac = { .count = 1, .id = id };
+			list.insert(word, ac);
+		}
+	}
+}
+
+Abstract::Abstract(Abstract *parent, ods::Ns *ns, ods::id::func f) : parent_(parent)
+{
+	if (parent_)
 		book_ = parent_->book();
 	
 	f(ns, this);
@@ -55,12 +68,13 @@ bool Abstract::AddText(StringOrTag *tot)
 
 void Abstract::Append(const QString &s)
 {
-	nodes_.append(new StringOrInst(s));
+	if (!s.isEmpty())
+		nodes_.append(new StringOrInst(s));
 }
 
-void Abstract::Append(Abstract *a)
+void Abstract::Append(Abstract *a, const TakeOwnership to)
 {
-	nodes_.append(new StringOrInst(a, TakeOwnership::Yes));
+	nodes_.append(new StringOrInst(a, to));// TakeOwnership::Yes));
 }
 
 bool Abstract::changed() const
@@ -105,8 +119,41 @@ void Abstract::CloneChildrenOf(const Abstract *rhs, const ClonePart co)
 				Append(node->as_string());
 		} else {
 			if (co & ClonePart::Class)
-				Append(node->as_inst()->Clone());
+				Append(node->as_inst()->Clone(), TakeOwnership::Yes);
 		}
+	}
+}
+
+void Abstract::CopyAttr(QHash<UriId, QVector<ndff::Property>> &attrs,
+	ods::Prefix *prefix, QStringView attr_name, QString &result)
+{
+	if (!attrs.contains(prefix->id()))
+		return;
+	
+	QVector<ndff::Property> &props = attrs[prefix->id()];
+	
+	for (const ndff::Property &prop: props)
+	{
+		if (prop.name == attr_name)
+		{
+			result = prop.value;
+			break;
+		}
+	}
+}
+
+void Abstract::CopyAttrI8(QHash<UriId, QVector<ndff::Property> > &attrs,
+	Prefix *prefix, QStringView attr_name, i8 &result)
+{
+	QString s;
+	CopyAttr(attrs, prefix, attr_name, s);
+	
+	if (!s.isEmpty())
+	{
+		bool ok;
+		ci16 k = s.toShort(&ok);
+		if (ok)
+			result = k;
 	}
 }
 
@@ -234,8 +281,6 @@ void Abstract::ListChildren(QVector<StringOrInst*> &vec,
 	}
 }
 
-bool Abstract::ndff() const { return book_->ndff(); }
-
 void Abstract::ScanString(Tag *tag)
 {
 	for (StringOrTag *x: tag->nodes())
@@ -306,15 +351,15 @@ void Abstract::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *
 }
 
 void Abstract::WriteNdffProp(inst::Keywords &kw,
-	ByteArray &ba, Prefix *p, QString key, QStringView value)
+	ByteArray &ba, Prefix *prefix, QString key, QStringView value)
 {
 	if (value.isEmpty())
 		return;
 	
-	ba.add_u8(ndff::Op::S4_PS);
-	ba.add_u8(p->id());
-	i32 id = kw[key].id;
-	ba.add_unum(u32(id));
+	ba.add_u8(ndff::Op::S32_PS);
+	ba.add_unum(prefix->id());
+	ci32 string_id = kw[key].id;
+	ba.add_inum(string_id);
 	ba.add_string(value, Pack::NDFF);
 }
 
@@ -372,17 +417,16 @@ void Abstract::WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba)
 
 void Abstract::WriteTag(Keywords &kw, ByteArray &ba)
 {
-	ci32 tag_id = kw.value(tag_name(), {0, 0}).id;
-	if (tag_id == 0)
+	ci32 name_id = kw.value(tag_name(), {0, 0}).id;
+	if (name_id == 0)
 	{
 		mtl_warn("No id for tag \"%s\"", qPrintable(tag_name()));
 		return;
 	}
-	mtl_info("tag: \"%s\", id: %d", qPrintable(tag_name()), tag_id);
-	//mtl_info("Writing tag %s", qPrintable(FullName()));
+	//mtl_info("tag: \"%s\", id: %d", qPrintable(tag_name()), name_id);
 	ba.add_u8(ndff::Op::TS);
 	ba.add_unum(prefix_->id());
-	ba.add_unum(tag_id);
+	ba.add_inum(name_id);
 }
 
 } // ods::inst::

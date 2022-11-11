@@ -35,7 +35,7 @@ ManifestManifest::AddEntry(const QString &path)
 {
 	auto *p = new ManifestFileEntry(this);
 	p->full_path(path);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -45,7 +45,7 @@ ManifestManifest::AddEntry2(const QString &path, const QString &media_type)
 	auto *p = new ManifestFileEntry(this);
 	p->full_path(path);
 	p->media_type(media_type);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 
 	return p;
 }
@@ -122,7 +122,7 @@ void ManifestManifest::Scan(Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->manifest(), ns::kFileEntry)) {
-			Append(new ManifestFileEntry(this, next));
+			Append(new ManifestFileEntry(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

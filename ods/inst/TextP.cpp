@@ -88,17 +88,17 @@ void TextP::Scan(ods::Tag *tag)
 		Tag *next = node->as_tag();
 		
 		if (next->Is(ns_->text(), ods::ns::kPageNumber)) {
-			Append(new TextPageNumber(this, next));
+			Append(new TextPageNumber(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->text(), ods::ns::kS)) {
-			Append(new TextS(this, next));
+			Append(new TextS(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->text(), ods::ns::kSheetName)) {
-			Append(new TextSheetName(this, next));
+			Append(new TextSheetName(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->text(), ods::ns::kPageCount)) {
-			Append(new TextPageCount(this, next));
+			Append(new TextPageCount(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->text(), ods::ns::kTime)) {
-			Append(new TextTime(this, next));
+			Append(new TextTime(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->text(), ods::ns::kDate)) {
-			Append(new TextDate(this, next));
+			Append(new TextDate(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

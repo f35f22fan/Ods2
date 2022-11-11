@@ -5,12 +5,17 @@
 #include "../str.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-NumberNumber::NumberNumber(Abstract *parent, Tag *tag) :
+NumberNumber::NumberNumber(Abstract *parent, Tag *tag, ndff::Container *cntr) :
 Abstract(parent, parent->ns(), id::NumberNumber)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -38,7 +43,51 @@ NumberNumber::Clone(Abstract *parent) const
 	return p;
 }
 
-void NumberNumber::Init(ods::Tag *tag)
+void NumberNumber::Init(ndff::Container *cntr)
+{
+	// number:number(1.2) => has attrs, has children, no char data
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttrI8(attrs, ns_->number(), ns::kDecimalPlaces, number_decimal_places_);
+	CopyAttrI8(attrs, ns_->number(), ns::kMinIntegerDigits, number_min_integer_digits_);
+	
+	QString grouping;
+	CopyAttr(attrs, ns_->number(), ns::kGrouping, grouping);
+	if (!grouping.isEmpty())
+		number_grouping_ = (grouping == ods::str::True) ? 1 : 0;
+	
+	if (op == Op::N32_TE)
+	{
+		mtl_info("Op::TE");
+		return;
+	}
+	
+	if (op == Op::TCF_CMS)
+	{
+		mtl_info("Op::TCF");
+		op = cntr->Next(prop, op);
+	}
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->number()))
+		{
+			mtl_tbd();
+//			if (prop.name == ns::kEmbeddedText)
+//				Append(new NumberEmbeddedText(this, 0, cntr), TakeOwnership::Yes);
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
+}
+
+void NumberNumber::Init(Tag *tag)
 {
 	tag->Copy(ns_->number(), ns::kDecimalPlaces, number_decimal_places_);
 	tag->Copy(ns_->number(), ns::kMinIntegerDigits, number_min_integer_digits_);

@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberMinutes : public Abstract
 {
 public:
-	NumberMinutes(Abstract *parent, ods::Tag *tag = nullptr);
+	NumberMinutes(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberMinutes(const NumberMinutes &cloner);
 	virtual ~NumberMinutes();
 	
@@ -27,8 +27,8 @@ public:
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 	
 private:
-	
-	void Init(ods::Tag *tag);
+	void Init(ndff::Container *cntr);
+	void Init(Tag *tag);
 	
 	QString number_style_;
 };

@@ -29,7 +29,7 @@ void FileEntryInfo::Read(ods::ByteArray &buf)
 	info_ = buf.next_u16();
 	cu16 len = buf.next_u16();
 	path_ = buf.next_string_utf8(len);
-	mtl_info("Reading file: \"%s\"", path_.data());
+	//mtl_info("Reading file: \"%s\"", path_.data());
 	
 	if (has(FeiBit::CRC_32b))
 		crc_32b_ = buf.next_u32();

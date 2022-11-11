@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberDay : public Abstract
 {
 public:
-	NumberDay(ods::inst::Abstract *parent, ods::Tag *tag = nullptr);
+	NumberDay(ods::inst::Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberDay(const NumberDay &cloner);
 	virtual ~NumberDay();
 	
@@ -28,6 +28,7 @@ public:
 	
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	QString number_style_;

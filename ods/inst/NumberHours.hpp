@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberHours : public Abstract
 {
 public:
-	NumberHours(Abstract *parent, ods::Tag *tag = nullptr);
+	NumberHours(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberHours(const NumberHours &cloner);
 	virtual ~NumberHours();
 	
@@ -29,6 +29,7 @@ public:
 	
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	QString number_style_;

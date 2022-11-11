@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API NumberBoolean : public Abstract
 {
 public:
-	NumberBoolean(Abstract *parent, Tag *tag = nullptr);
+	NumberBoolean(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberBoolean(const NumberBoolean &cloner);
 	virtual ~NumberBoolean();
 	
@@ -21,6 +21,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
+	void Init(ndff::Container *cntr);
 };
 
 } // ods::inst::

@@ -10,7 +10,7 @@ namespace ods::inst {
 class ODS_API NumberCurrencyStyle : public Abstract
 {
 public:
-	NumberCurrencyStyle(Abstract *parent, Tag *tag = nullptr);
+	NumberCurrencyStyle(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberCurrencyStyle(const NumberCurrencyStyle &cloner);
 	virtual ~NumberCurrencyStyle();
 	
@@ -47,8 +47,9 @@ public:
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
-	void Init(ods::Tag *tag);
-	void Scan(ods::Tag *tag);
+	void Init(ndff::Container *cntr);
+	void Init(Tag *tag);
+	void Scan(Tag *tag);
 	
 /*
 <number:currency-symbol number:language="en" number:country="US">$</number:currency-symbol>

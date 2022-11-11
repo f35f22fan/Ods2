@@ -70,7 +70,7 @@ Cell::AppendString(const QString &s)
 	} else {
 		auto *textp = new inst::TextP(this);
 		textp->SetFirstString(s);
-		Append(textp);
+		Append(textp, TakeOwnership::Yes);
 	}
 }
 
@@ -230,7 +230,7 @@ inst::DrawFrame*
 Cell::NewDrawFrame()
 {
 	auto *p = new inst::DrawFrame(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -551,9 +551,9 @@ void Cell::Scan(ods::Tag *scan_tag)
 		
 		if (tag->IsTextP())
 		{
-			Append(new inst::TextP(this, tag));
+			Append(new inst::TextP(this, tag), TakeOwnership::Yes);
 		} else if (tag->Is(ns_->draw(), ns::kFrame)) {
-			Append(new inst::DrawFrame(this, tag));
+			Append(new inst::DrawFrame(this, tag), TakeOwnership::Yes);
 		} else {
 			Scan(tag);
 		}
@@ -620,7 +620,7 @@ void Cell::SetFirstString(const QString &s, bool change_value_type)
 	} else {
 		auto *textp = new inst::TextP(this);
 		textp->SetFirstString(s);
-		Append(textp);
+		Append(textp, TakeOwnership::Yes);
 	}
 	
 	if (change_value_type)

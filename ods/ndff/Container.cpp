@@ -1,22 +1,26 @@
 #include "Container.hpp"
 
+#include "../Book.hpp"
 #include "FileEntryInfo.hpp"
+#include "../Ns.hpp"
+#include "Property.hpp"
 #include "../io.hh"
 
 namespace ods::ndff {
 
-bool Container::GetKey(ci32 value, QString &ret_val)
+Container::Container() {}
+Container::~Container() {}
+
+bool Container::GetString(ci32 id, QString &ret_val)
 {
-	for (auto it = keywords_.constBegin(); it != keywords_.constEnd(); it++)
-	{
-		if (it.value().id == value)
-		{
-			ret_val = it.key();
-			return true;
-		}
-	}
+	ret_val = id_keyword_.value(id, QString());
 	
-	return false;
+	// An empty string could be valid, so if empty check
+	// if it was actually found:
+	if (ret_val.isEmpty())
+		return id_keyword_.contains(id);
+	
+	return true;
 }
 
 FileEntryInfo* Container::GetTopFile(QString filepath) const
@@ -31,10 +35,10 @@ FileEntryInfo* Container::GetTopFile(QString filepath) const
 	return nullptr;
 }
 
-
-
-bool Container::Init(QStringView full_path)
+bool Container::Init(Book *p, QStringView full_path)
 {
+	book_ = p;
+	book_->ndff(true);
 	io::ReadParams params = {};
 	params.can_rely = io::CanRelyOnStatxSize::Yes;
 	params.print_errors = io::PrintErrors::Yes;
@@ -64,13 +68,95 @@ bool Container::Init(QStringView full_path)
 	CHECK_TRUE(ReadDictionary());
 	CHECK_TRUE(ReadTopFiles(top_files_loc, top_files_));
 
+	ns_ = Ns::FromNDFF(this);
+	PrepareForParsing();
+	PrintKeywords();
+	
 	return true;
+}
+
+ndff::Op Container::Next(Property &prop, const Op last_op,
+	QHash<UriId, QVector<Property>> *h)
+{
+	prop.empty(true);
+	auto op = buf_.next_op();
+	
+	if (op == Op::TS)
+	{
+		prop.uri_id = buf_.next_unum();
+		prop.name_id = buf_.next_inum();
+		if (!GetString(prop.name_id, prop.name))
+			mtl_warn("Couldn't find name by id %d", prop.name_id);
+		
+//		mtl_info("UriId %d, tag_id: %d (%s)", (i32)prop.uri_id,
+//			prop.name_id, qPrintable(prop.name));
+		
+		return op;
+	}
+	
+	if (last_op == Op::TS)
+	{
+		while (op == Op::S32_PS)
+		{
+			prop.uri_id = buf_.next_unum();
+			prop.name_id = buf_.next_inum();
+			if (!GetString(prop.name_id, prop.name))
+			{
+				mtl_warn("Couldn't find name by id %d", prop.name_id);
+//				op = buf_.next_op();
+//				continue;
+			}
+			prop.value = buf_.next_string(Pack::NDFF);
+			mtl_printq2("Property value: ", prop.value);
+			((*h)[prop.uri_id]).append(prop);
+			op = buf_.next_op();
+		}
+		
+		return op;
+	}
+	
+	return op;
+
+//	if (op == Op::N32_TE || op == Op::TCF_CMS)
+//		return op;
+
+//	if (ndff::is_text(op))
+//		return op;
+	
+//	mtl_trace();
+//	return Op::None;
+}
+
+QString Container::NextString()
+{
+	buf_.skip_read(-1);
+	return buf_.next_string(Pack::NDFF);
+}
+
+void Container::PrepareForParsing()
+{
+	id_keyword_.clear();
+	
+	for (auto it = keywords_.constBegin(); it != keywords_.constEnd(); it++)
+	{
+		id_keyword_[it.value().id] = it.key();
+	}
+}
+
+void Container::PrintKeywords()
+{
+	mtl_info("KEYWORDS START ====>>>");
+	for (auto it = keywords_.constBegin(); it != keywords_.constEnd(); it++)
+	{
+		mtl_info("\"%s\", id: %d", qPrintable(it.key()), it.value().id);
+	}
+	mtl_info("KEYWORDS END   <<<====");
 }
 
 bool Container::ReadDictionary()
 {/// using Keywords = QHash<QStringView, IdAndCount>;
 	if (dictionary_loc == -1)
-		return true; // no dictionary allowed
+		return true; // having no dictionary is allowed
 	
 	buf_.to(dictionary_loc);
 	i64 next_block_addr = -1;
@@ -91,16 +177,16 @@ bool Container::ReadDictionary()
 			mtl_warn("Implement compression");
 		
 		ci64 block_size = info >> 3;
-		//mtl_info("Dictionary compression: %d, size: %ld", compression, block_size);
+		mtl_info("Dictionary compression: %d, size: %ld", compression, block_size);
 		while (true)
 		{
 			ci64 num_read = buf_.at() - block_starts_at;
 			if (num_read >= block_size)
 				break;
 			
-			cu32 id = buf_.next_unum();
+			ci32 id = buf_.next_inum();
 			QString word = buf_.next_string(Pack::NDFF);
-			mtl_info("Dictionary entry %u, \"%s\"", id, qPrintable(word));
+			//mtl_info("Dictionary entry %d, \"%s\"", id, qPrintable(word));
 			keywords_.insert(word, inst::IdAndCount::FromId(id));
 		}
 	} while (next_block_addr != -1);

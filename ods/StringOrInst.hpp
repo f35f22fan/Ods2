@@ -30,6 +30,7 @@ public:
 	bool Is(const Id id1, const Id id2 = Id::None) const;
 	bool is_inst() const { return inst_ != nullptr; }
 	bool is_string() const { return is_string_; }
+	void owns_inst(const Owns o) { owns_inst_ = o; }
 	void SetInst(inst::Abstract *a, const TakeOwnership to);
 	void SetString(const QString &s);
 	

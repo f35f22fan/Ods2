@@ -12,12 +12,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-NumberDateStyle::NumberDateStyle(Abstract *parent, Tag *tag) :
+NumberDateStyle::NumberDateStyle(Abstract *parent, Tag *tag, ndff::Container *cntr) :
 Abstract(parent, parent->ns(), id::NumberDateStyle)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -43,6 +48,62 @@ NumberDateStyle::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this, ClonePart::Text);
 	
 	return p;
+}
+
+void NumberDateStyle::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->number(), ns::kAutomaticOrder, number_automatic_order_);
+	CopyAttr(attrs, ns_->number(), ns::kCountry, number_country_);
+	CopyAttr(attrs, ns_->number(), ns::kLanguage, number_language_);
+	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
+	
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->number()))
+			{
+				if (prop.name == ns::kDay) {
+					mtl_info("<number-day>");
+					Append(new NumberDay(this, 0, cntr), TakeOwnership::Yes);
+					mtl_info("</number-day>");
+				} else if (prop.name == ns::kHours)
+					Append(new NumberHours(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kMinutes)
+					Append(new NumberMinutes(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kMonth)
+					Append(new NumberMonth(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kSeconds)
+					Append(new NumberSeconds(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kText) {
+					mtl_info("<number-text>");
+					Append(new NumberText(this, 0, cntr), TakeOwnership::Yes);
+					mtl_info("</number-text>");
+				} else if (prop.name == ns::kYear)
+					Append(new NumberYear(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
 }
 
 void NumberDateStyle::Init(ods::Tag *tag)
@@ -72,7 +133,7 @@ NumberDay*
 NumberDateStyle::NewDay()
 {
 	auto *p = new NumberDay(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -80,7 +141,7 @@ NumberHours*
 NumberDateStyle::NewHours()
 {
 	auto *p = new NumberHours(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -88,7 +149,7 @@ NumberMinutes*
 NumberDateStyle::NewMinutes()
 {
 	auto *p = new NumberMinutes(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -96,7 +157,7 @@ NumberMonth*
 NumberDateStyle::NewMonth()
 {
 	auto *p = new NumberMonth(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -104,7 +165,7 @@ NumberSeconds*
 NumberDateStyle::NewSeconds()
 {
 	auto *p = new NumberSeconds(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -113,7 +174,7 @@ NumberDateStyle::NewText(const QString &s)
 {
 	auto *p = new NumberText(this);
 	p->SetFirstString(s);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -121,7 +182,7 @@ NumberYear*
 NumberDateStyle::NewYear()
 {
 	auto *p = new NumberYear(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -137,19 +198,19 @@ void NumberDateStyle::Scan(ods::Tag *scan_tag)
 		if (tag->Has(ns_->number()))
 		{
 			if (tag->Has(ns::kDay))
-				Append(new NumberDay(this, tag));
+				Append(new NumberDay(this, tag), TakeOwnership::Yes);
 			else if (tag->Has(ns::kHours))
-				Append(new NumberHours(this, tag));
+				Append(new NumberHours(this, tag), TakeOwnership::Yes);
 			else if (tag->Has(ns::kMinutes))
-				Append(new NumberMinutes(this, tag));
+				Append(new NumberMinutes(this, tag), TakeOwnership::Yes);
 			else if (tag->Has(ns::kMonth))
-				Append(new NumberMonth(this, tag));
+				Append(new NumberMonth(this, tag), TakeOwnership::Yes);
 			else if (tag->Has(ns::kSeconds))
-				Append(new NumberSeconds(this, tag));
+				Append(new NumberSeconds(this, tag), TakeOwnership::Yes);
 			else if (tag->Has(ns::kText))
-				Append(new NumberText(this, tag));
+				Append(new NumberText(this, tag), TakeOwnership::Yes);
 			else if (tag->Has(ns::kYear))
-				Append(new NumberYear(this, tag));
+				Append(new NumberYear(this, tag), TakeOwnership::Yes);
 		} else {
 			Scan(tag);
 		}

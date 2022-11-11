@@ -88,21 +88,21 @@ void OfficeMeta::Scan(Tag *tag)
 		
 		if (next->Is(ns_->meta(), ods::ns::kCreationDate))
 		{
-			Append(new MetaCreationDate(this, next));
+			Append(new MetaCreationDate(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->dc(), ods::ns::kTitle)) {
-			Append(new DcTitle(this, next));
+			Append(new DcTitle(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->meta(), ods::ns::kEditingDuration)) {
-			Append(new MetaEditingDuration(this, next));
+			Append(new MetaEditingDuration(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->meta(), ods::ns::kEditingCycles)) {
-			Append(new MetaEditingCycles(this, next));
+			Append(new MetaEditingCycles(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->meta(), ods::ns::kGenerator)) {
-			Append(new MetaGenerator(this, next));
+			Append(new MetaGenerator(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->dc(), ods::ns::kDate)) {
-			Append(new DcDate(this, next));
+			Append(new DcDate(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->meta(), ods::ns::kDocumentStatistic)) {
-			Append(new MetaDocumentStatistic(this, next));
+			Append(new MetaDocumentStatistic(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->meta(), ods::ns::kTemplate)) {
-			Append(new MetaTemplate(this, next));
+			Append(new MetaTemplate(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

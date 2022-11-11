@@ -60,7 +60,7 @@ void StyleRegionRight::Scan(ods::Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->text(), ods::ns::kP)) {
-			Append(new TextP(this, next));
+			Append(new TextP(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

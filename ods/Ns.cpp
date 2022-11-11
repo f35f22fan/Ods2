@@ -24,14 +24,14 @@ Ns::~Ns() {}
 Ns* Ns::Default()
 {
 	Ns *ns = new Ns();
-	ns->InitDefault(WillInitFromXml::No);
+	ns->InitDefault(WillInitFromData::No);
 	return ns;
 }
 
 Ns* Ns::FromXml(QXmlStreamReader &xml, ci32 file_index)
 {
 	Ns *ns = new Ns();
-	ns->InitDefault(WillInitFromXml::Yes);
+	ns->InitDefault(WillInitFromData::Yes);
 	ns->Read(xml, file_index);
 	return ns;
 }
@@ -39,7 +39,7 @@ Ns* Ns::FromXml(QXmlStreamReader &xml, ci32 file_index)
 Ns* Ns::FromNDFF(ndff::Container *ndff)
 {
 	Ns *ns = new Ns();
-	ns->InitDefault(WillInitFromXml::Yes);
+	ns->InitDefault(WillInitFromData::Yes);
 	ns->Read(ndff);
 	
 	return ns;
@@ -57,8 +57,7 @@ Ns::GetPrefix(QStringView s)
 	return nullptr;
 }
 
-void
-Ns::InitDefault(const WillInitFromXml atr)
+void Ns::InitDefault(const WillInitFromData atr)
 {
 	anim_ = Prefix::Create(uri_ids_.Animation, QLatin1String("anim"),
 		QLatin1String("urn:oasis:names:tc:opendocument:xmlns:animation:1.0"));
@@ -135,7 +134,7 @@ Ns::InitDefault(const WillInitFromXml atr)
 	prefixes_.append(svg_);
 	prefixes_.append(xlink_);
 	
-	if (atr == WillInitFromXml::Yes)
+	if (atr == WillInitFromData::Yes)
 	{
 		for (Prefix *prefix: prefixes_)
 		{

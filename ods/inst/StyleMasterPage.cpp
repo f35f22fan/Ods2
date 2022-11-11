@@ -67,13 +67,13 @@ void StyleMasterPage::Scan(Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->style(), ns::kFooter)) {
-			Append(new StyleFooter(this, next));
+			Append(new StyleFooter(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kFooterLeft)) {
-			Append(new StyleFooterLeft(this, next));
+			Append(new StyleFooterLeft(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kHeader)) {
-			Append(new StyleHeader(this, next));
+			Append(new StyleHeader(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kHeaderLeft)) {
-			Append(new StyleHeaderLeft(this, next));
+			Append(new StyleHeaderLeft(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

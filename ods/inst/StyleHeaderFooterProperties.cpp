@@ -6,13 +6,18 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
 StyleHeaderFooterProperties::StyleHeaderFooterProperties(Abstract *parent,
-	ods::Tag *tag)
+	ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleHeaderFooterProperties)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -41,6 +46,48 @@ StyleHeaderFooterProperties::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
+}
+
+void StyleHeaderFooterProperties::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->fo(), ns::kBackgroundColor, fo_background_color_);
+	CopyAttr(attrs, ns_->fo(), ns::kBorder, fo_border_);
+	CopyAttr(attrs, ns_->fo(), ns::kPadding, fo_padding_);
+	CopyAttr(attrs, ns_->fo(), ns::kMinHeight, fo_min_height_);
+	CopyAttr(attrs, ns_->fo(), ns::kMarginLeft, fo_margin_left_);
+	CopyAttr(attrs, ns_->fo(), ns::kMarginTop, fo_margin_top_);
+	CopyAttr(attrs, ns_->fo(), ns::kMarginRight, fo_margin_right_);
+	CopyAttr(attrs, ns_->fo(), ns::kMarginBottom, fo_margin_bottom_);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->style()))
+			{
+				if (prop.name == ns::kBackgroundImage)
+					Append(new StyleBackgroundImage(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
 }
 
 void StyleHeaderFooterProperties::Init(ods::Tag *tag)
@@ -87,7 +134,7 @@ void StyleHeaderFooterProperties::Scan(Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->style(), ns::kBackgroundImage)) {
-			Append(new StyleBackgroundImage(this, next));
+			Append(new StyleBackgroundImage(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

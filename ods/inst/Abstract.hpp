@@ -6,6 +6,7 @@
 #include "../decl.hxx"
 #include "../err.hpp"
 #include "../id.hh"
+#include "../ndff/decl.hxx"
 #include "../ndff/ndff.hh"
 #include "../ods.hxx"
 #include "../Prefix.hpp"
@@ -75,25 +76,17 @@ inline void Add(const Prefix *prefix, NsHash &list)
 		list.insert(prefix->id(), prefix->uri());
 }
 
-inline void AddKeywords(const QVector<QString> &words, Keywords &list)
-{
-	for (const QString &word: words)
-	{
-		if (list.contains(word)) {
-			list[word].count++;
-		} else {
-			IdAndCount ac = { .count = 1, .id = list.count() + 1 };
-			list.insert(word, ac);
-		}
-	}
-}
+void AddKeywords(const QVector<QString> &words, Keywords &list);
 
 class ODS_API Abstract {
 public:
-	static const u16 StyleBit              = 1 << 0;
-	static const u16 ChangedPropertiesBit  = 1 << 1;
-	static const u16 ChangedSubnodesBit    = 1 << 2;
-	static const u16 InsideForeignTagBit   = 1 << 3;
+	using Bits = u16;
+	static const Bits StyleBit              = 1 << 0;
+	static const Bits ChangedPropertiesBit  = 1 << 1;
+	static const Bits ChangedSubnodesBit    = 1 << 2;
+	static const Bits InsideForeignTagBit   = 1 << 3;
+	static const Bits NdffBit               = 1 << 4;
+	static const Bits InitOkBit             = 1 << 4;
 	
 	Abstract(Abstract *parent, Ns *ns, ods::id::func f);
 	Abstract(const Abstract &cloner);
@@ -117,7 +110,7 @@ public:
 	//<== Style Interface
 	
 	bool AddText(ods::StringOrTag *tot);
-	void Append(Abstract *a);
+	void Append(Abstract *a, const TakeOwnership to);
 	void Append(const QString &s);
 	
 	uint16_t& bits() { return bits_; }
@@ -133,6 +126,9 @@ public:
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const = 0;
+	
+	void CopyAttr(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, QString &result);
+	void CopyAttrI8(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, i8 &result);
 	
 	void DeleteNodes();
 	
@@ -159,20 +155,12 @@ public:
 	and then calling size() on the vector */
 	virtual bool has_children(const IncludingText itx = IncludingText::Yes) const;
 	
-	ods::Id
-	id() const { return id_; }
+	ods::Id id() const { return id_; }
+	void id(const ods::Id n) { id_ = n; }
 	
-	void
-	id(const ods::Id n) { id_ = n; }
-	
-	bool
-	Is(const Id id1, const Id id2 = ods::Id::None) const;
-	
-	bool
-	is_root() const { return parent_ == nullptr; }
-	
-	bool
-	IsTextP() const { return id_ == Id::TextP; }
+	bool Is(const Id id1, const Id id2 = ods::Id::None) const;
+	bool is_root() const { return parent_ == nullptr; }
+	bool IsTextP() const { return id_ == Id::TextP; }
 	
 	virtual void ListChildren(QVector<StringOrInst*> &vec,
 		const Recursively r = Recursively::No);
@@ -186,32 +174,30 @@ public:
 	
 	virtual void ListKeywords(Keywords &list, const LimitTo lt) = 0;
 	
-	bool ndff() const;
+	bool ndff() const { return bits_ & NdffBit; }
+	void ndff(cbool b) {
+		if (b)
+			bits_ |= NdffBit;
+		else
+			bits_ &= ~NdffBit;
+	}
 	
 	QVector<StringOrInst*>*
 	nodes() { return &nodes_; }
 	
-	ods::Ns*
-	ns() const { return ns_; }
+	ods::Ns* ns() const { return ns_; }
 	
-	void
-	ns(ods::Ns *p) { ns_ = p; }
+	void ns(ods::Ns *p) { ns_ = p; }
 	
-	inst::Abstract*
-	parent() const { return parent_; }
-	
+	inst::Abstract* parent() const { return parent_; }
 	void parent(inst::Abstract *p) { parent_ = p; }
 	
-	ods::Prefix*
-	prefix() const { return prefix_; }
-	
+	ods::Prefix* prefix() const { return prefix_; }
 	void prefix(ods::Prefix *p) { prefix_ = p; }
 	
 	void ScanString(Tag *tag);
 	
-	const QString&
-	tag_name() const { return tag_name_; }
-	
+	const QString& tag_name() const { return tag_name_; }
 	void tag_name(const QString &n) { tag_name_ = n; }
 	
 	void Write(QXmlStreamWriter &xml);
@@ -223,7 +209,7 @@ public:
 	WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba);
 	
 	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
-		Prefix *p, QString key, QStringView value);
+		Prefix *prefix, QString key, QStringView value);
 	
 	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
 		ods::Prefix *prefix, QString name, const ods::Bool value);
@@ -291,7 +277,7 @@ protected:
 	
 	inline void CloseTag(QFileDevice *file, ByteArray *ba)
 	{
-		ba->add_u8(ndff::Op::U4_TE);
+		ba->add_u8(ndff::Op::N32_TE);
 	}
 	
 	inline void CloseWriteNodesAndClose(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
@@ -304,13 +290,13 @@ protected:
 	
 	ods::id::func func_;
 	ods::Ns *ns_ = nullptr;
-	inst::Abstract *parent_ = nullptr;
+	Abstract *parent_ = nullptr;
 	ods::Prefix *prefix_ = nullptr;
 	QString tag_name_;
 	QVector<StringOrInst*> nodes_;
 	ods::Book *book_ = nullptr;
 	i64 loc_within_file_ = -1;
-	u16 bits_ = 0;
+	Bits bits_ = 0;
 	ods::Id id_ = ods::Id::None;
 };
 

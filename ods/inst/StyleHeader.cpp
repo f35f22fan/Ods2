@@ -62,11 +62,11 @@ void StyleHeader::Scan(Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->style(), ods::ns::kRegionLeft)) {
-			Append(new StyleRegionLeft(this, next));
+			Append(new StyleRegionLeft(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ods::ns::kRegionRight)) {
-			Append(new StyleRegionRight(this, next));
+			Append(new StyleRegionRight(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->text(), ods::ns::kP)) {
-			Append(new TextP(this, next));
+			Append(new TextP(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

@@ -11,17 +11,15 @@ namespace ods::inst {
 class ODS_API OfficeDocumentContent : public Abstract
 {
 public:
-	OfficeDocumentContent(Book *book, Ns *ns, Tag *tag = nullptr);
+	OfficeDocumentContent(Book *book, Ns *ns, Tag *tag = nullptr,
+		ndff::Container *cntr = nullptr);
 	OfficeDocumentContent(const OfficeDocumentContent &cloner);
 	virtual ~OfficeDocumentContent();
-	
-	static OfficeDocumentContent* From(Ns *ns, ndff::Container *cntr);
 	
 	OfficeAutomaticStyles*
 	automatic_styles() const { return office_automatic_styles_; }
 	
-	OfficeBody*
-	body() const { return office_body_; }
+	OfficeBody* body() const { return office_body_; }
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
@@ -29,8 +27,7 @@ public:
 	OfficeFontFaceDecls*
 	font_face_decls() const { return office_font_face_decls_; }
 	
-	Abstract*
-	GetAnyStyle(const QString &name);
+	Abstract* GetAnyStyle(const QString &name);
 	
 	bool has_children(const IncludingText itx) const override {
 		return office_scripts_ || office_font_face_decls_ ||
@@ -44,6 +41,7 @@ public:
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void Scan(ods::Tag *tag);

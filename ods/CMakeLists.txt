@@ -46,6 +46,7 @@ set(lib_files
 	ndff/Container.cpp ndff/Container.hpp
 	ndff/FileEntryInfo.cpp ndff/FileEntryInfo.hpp
 	ndff/ndff.cc ndff/ndff.hh
+	ndff/Property.cpp ndff/Property.hpp
 	Ns.cpp Ns.hpp ns.hxx
 	ods ods.cc ods.hh ods.hxx
 	op.cc op.hh

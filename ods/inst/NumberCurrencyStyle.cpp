@@ -10,12 +10,18 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-NumberCurrencyStyle::NumberCurrencyStyle(Abstract *parent, ods::Tag *tag)
+NumberCurrencyStyle::NumberCurrencyStyle(Abstract *parent, ods::Tag *tag,
+	ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::NumberCurrencyStyle)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -64,6 +70,55 @@ NumberCurrencyStyle::FetchNumber()
 	return p;
 }
 
+void NumberCurrencyStyle::Init(ndff::Container *cntr)
+{
+	ndff(true);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
+	CopyAttr(attrs, ns_->style(), ns::kVolatile, style_volatile_);
+	
+	if (op == Op::N32_TE)
+	{
+		mtl_info("Op::TE");
+		return;
+	}
+	
+	if (op == Op::TCF_CMS)
+	{
+		mtl_info("Op::TCF");
+		op = cntr->Next(prop, op);
+	}
+	
+	if (ndff::is_text(op))
+		Append(cntr->NextString());
+	
+	while (op == Op::TS)
+	{
+		if (prop.is(ns_->number()))
+		{
+			if (prop.name == ns::kCurrencySymbol)
+				Append(new NumberCurrencySymbol(this, 0, cntr), TakeOwnership::Yes);
+			else if (prop.name == ns::kNumber)
+				Append(new NumberNumber(this, 0, cntr), TakeOwnership::Yes);
+			else if (prop.name == ns::kText)
+				Append(new NumberText(this, 0, cntr), TakeOwnership::Yes);
+		} else if (prop.is(ns_->style())) {
+			if (prop.name == ns::kMap)
+				Append(new StyleMap(this, 0, cntr), TakeOwnership::Yes);
+			else if (prop.name == ns::kTextProperties)
+				Append(new StyleTextProperties(this, 0, cntr), TakeOwnership::Yes);
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("op: %d", op);
+}
+
 void NumberCurrencyStyle::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ns::kName, style_name_);
@@ -87,7 +142,7 @@ inst::NumberCurrencySymbol*
 NumberCurrencyStyle::NewCurrencySymbol()
 {
 	auto *p = new NumberCurrencySymbol(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -95,7 +150,7 @@ inst::NumberNumber*
 NumberCurrencyStyle::NewNumber()
 {
 	auto *p = new NumberNumber(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
@@ -109,15 +164,15 @@ void NumberCurrencyStyle::Scan(ods::Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->number(), ns::kCurrencySymbol)) {
-			Append(new NumberCurrencySymbol(this, next));
+			Append(new NumberCurrencySymbol(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->number(), ns::kNumber)) {
-			Append(new NumberNumber(this, next));
+			Append(new NumberNumber(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->number(), ns::kText)) {
-			Append(new NumberText(this, next));
+			Append(new NumberText(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kMap)) {
-			Append(new StyleMap(this, next));
+			Append(new StyleMap(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kTextProperties)) {
-			Append(new StyleTextProperties(this, next));
+			Append(new StyleTextProperties(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}
