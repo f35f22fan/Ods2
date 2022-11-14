@@ -6,6 +6,9 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
 OfficeBody::OfficeBody(Abstract *parent, Tag *tag, ndff::Container *cntr)
@@ -44,11 +47,9 @@ OfficeBody::Clone(Abstract *parent) const
 
 void OfficeBody::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
+	Op op = cntr->Next(prop, Op::TS);
 	if (op == Op::N32_TE)
 		return;
 
@@ -59,21 +60,22 @@ void OfficeBody::Init(ndff::Container *cntr)
 	{
 		if (op == Op::TS)
 		{
-			if (prop.is(ns_->style()))
+			if (prop.is(ns_->office()))
 			{
-				//				if (prop.name == ns::kBackgroundImage)
-				//					Append(new StyleBackgroundImage(this, 0, cntr), TakeOwnership::Yes);
+				if (prop.name == ns::kSpreadsheet)
+					Append(new inst::OfficeSpreadsheet(this, 0, cntr), TakeOwnership::Yes);
 			}
 		} else if (ndff::is_text(op)) {
 			Append(cntr->NextString());
 		} else {
 			break;
 		}
+		
 		op = cntr->Next(prop, op);
 	}
 
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void OfficeBody::Init(Tag *tag)

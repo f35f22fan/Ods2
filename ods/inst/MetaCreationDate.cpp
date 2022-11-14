@@ -32,7 +32,7 @@ MetaCreationDate::Clone(Abstract *parent) const
 
 void MetaCreationDate::Init(Tag *tag)
 {
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void MetaCreationDate::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)

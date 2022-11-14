@@ -9,12 +9,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-DrawFrame::DrawFrame(Abstract *parent, Tag *tag)
+DrawFrame::DrawFrame(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract (parent, parent->ns(), id::DrawFrame)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -28,6 +33,7 @@ DrawFrame::~DrawFrame()
 	delete svg_y_;
 	delete svg_height_;
 	delete svg_width_;
+	svg_x_ = svg_y_ = svg_height_ = svg_width_ = 0;
 }
 
 Abstract*
@@ -59,8 +65,7 @@ DrawFrame::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-DrawFrame::height(const Length *l)
+void DrawFrame::height(const Length *l)
 {
 	delete svg_height_;
 	
@@ -70,8 +75,65 @@ DrawFrame::height(const Length *l)
 		svg_height_ = l->Clone();
 }
 
-void
-DrawFrame::Init(ods::Tag *tag)
+void DrawFrame::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	QString str;
+	
+	CopyAttr(attrs, ns_->svg(), ns::kX, str);
+	svg_x_ = Length::FromString(str);
+	
+	CopyAttr(attrs, ns_->svg(), ns::kY, str);
+	svg_y_ = Length::FromString(str);
+	
+	CopyAttr(attrs, ns_->svg(), ns::kHeight, str);
+	svg_height_ = Length::FromString(str);
+	
+	CopyAttr(attrs, ns_->svg(), ns::kWidth, str);
+	svg_width_ = Length::FromString(str);
+	
+	CopyAttr(attrs, ns_->draw(), ns::kZIndex, draw_z_index_);
+	CopyAttr(attrs, ns_->draw(), ns::kId, draw_id_);
+	CopyAttr(attrs, ns_->draw(), ns::kName, draw_name_);
+	CopyAttr(attrs, ns_->style(), ns::kRelWidth, style_rel_width_);
+	CopyAttr(attrs, ns_->style(), ns::kRelHeight, style_rel_height_);
+
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->draw()))
+			{
+				if (prop.name == ns::kImage)
+					Append(new inst::DrawImage(this, 0, cntr), TakeOwnership::Yes);
+			} else if (prop.is(ns_->svg())) {
+				if (prop.name == ns::kDesc)
+					Append(new SvgDesc(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kTitle)
+					Append(new SvgTitle(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+void DrawFrame::Init(ods::Tag *tag)
 {
 	QString str;
 	

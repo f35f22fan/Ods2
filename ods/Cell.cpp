@@ -33,13 +33,19 @@
 #include <float.h>
 #include <QFontMetrics>
 
+#include "ndff/Container.hpp"
+#include "ndff/Property.hpp"
+
 namespace ods { // ods::
 
-Cell::Cell(Row *parent, ods::Tag *tag)
+Cell::Cell(Row *parent, ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::TableTableCell),
 row_(parent)
 {
-	Init(tag);
+	if (cntr)
+		Init(cntr);
+	else if (tag)
+		Init(tag);
 }
 
 Cell::Cell(Row *parent)
@@ -176,6 +182,59 @@ Cell::GetStyle(const CreateIfNeeded cin)
 		NewStyle() : style;
 }
 
+void Cell::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttrI32(attrs, ns_->table(), ns::kNumberColumnsRepeated, ncr_);
+	CopyAttrI32(attrs, ns_->table(), ns::kNumberColumnsSpanned, ncs_);
+	CopyAttrI32(attrs, ns_->table(), ns::kNumberRowsSpanned, nrs_);
+	CopyAttr(attrs, ns_->table(), ns::kStyleName, table_style_name_);
+	
+	QString str;
+	if (office_value_type_ == ValueType::None)
+	{
+		CopyAttr(attrs, ns_->office(), ns::kValueType, str);
+		if (!str.isEmpty())
+			office_value_type_ = ods::TypeFromString(str);
+	}
+	
+	CopyAttr(attrs, ns_->office(), ns::kCurrency, office_currency_);
+	CopyAttr(attrs, ns_->table(), ns::kFormula, str);
+	formula_ = ods::Formula::FromString(str, this);
+
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->text()))
+			{
+				if (prop.name == ns::kP)
+					Append(new inst::TextP(this, 0, cntr), TakeOwnership::Yes);
+			} else if (prop.is(ns_->draw())) {
+				if (prop.name == ns::kFrame)
+					Append(new inst::DrawFrame(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
 void Cell::Init(ods::Tag *tag)
 {
 	ReadValue(tag);
@@ -185,15 +244,14 @@ void Cell::Init(ods::Tag *tag)
 	tag->Copy(ns_->table(), ns::kStyleName, table_style_name_);
 	 // calcext:value-type="time"
 	QString str;
-	if (office_value_type_ == ValueType::None) {
+	if (office_value_type_ == ValueType::None)
+	{
 		tag->Copy(ns_->office(), ns::kValueType, str);
-		
 		if (!str.isEmpty())
 			office_value_type_ = ods::TypeFromString(str);
 	}
 	
 	tag->Copy(ns_->office(), ns::kCurrency, office_currency_);
-	
 	tag->Copy(ns_->table(), ns::kFormula, str);
 	formula_ = ods::Formula::FromString(str, this);
 	
@@ -229,7 +287,7 @@ void Cell::ListUsedNamespaces(inst::NsHash &list)
 inst::DrawFrame*
 Cell::NewDrawFrame()
 {
-	auto *p = new inst::DrawFrame(this);
+	auto *p = new inst::DrawFrame(this, 0);
 	Append(p, TakeOwnership::Yes);
 	return p;
 }

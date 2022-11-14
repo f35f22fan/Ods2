@@ -8,15 +8,20 @@
 
 #include "ManifestManifest.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 #include <QImageReader>
 #include <QMimeDatabase>
 
 namespace ods::inst {
 
-DrawImage::DrawImage(Abstract *parent, Tag *tag)
+DrawImage::DrawImage(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract (parent, parent->ns(), id::DrawImage)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -40,6 +45,44 @@ DrawImage::Clone(Abstract *parent) const
 	p->xlink_actuate_ = xlink_actuate_;
 	
 	return p;
+}
+
+void DrawImage::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->xlink(), ns::kHref, xlink_href_);
+	CopyAttr(attrs, ns_->xlink(), ns::kType, xlink_type_);
+	CopyAttr(attrs, ns_->xlink(), ns::kShow, xlink_show_);
+	CopyAttr(attrs, ns_->xlink(), ns::kActuate, xlink_actuate_);
+	
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+//			if (prop.is(ns_->table()))
+//			{
+//				if (prop.name == ns::kNamedRange)
+//					Append(new inst::TableNamedRange(this, 0, cntr), TakeOwnership::Yes);
+//			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void DrawImage::Init(ods::Tag *tag)
@@ -123,8 +166,7 @@ void DrawImage::LoadImage(const QString &full_path, QSize &sz)
 	xlink_actuate_ = QLatin1String("onLoad");
 }
 
-void
-DrawImage::WriteData(QXmlStreamWriter &xml)
+void DrawImage::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->xlink(), ns::kHref, xlink_href_);
 	Write(xml, ns_->xlink(), ns::kType, xlink_type_);

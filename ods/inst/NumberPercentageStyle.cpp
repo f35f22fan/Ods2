@@ -89,7 +89,6 @@ NumberPercentageStyle::GetNumberText() const
 
 void NumberPercentageStyle::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -102,25 +101,28 @@ void NumberPercentageStyle::Init(ndff::Container *cntr)
 	if (op == Op::TCF_CMS)
 		op = cntr->Next(prop, op);
 	
-	if (ndff::is_text(op))
-		Append(cntr->NextString());
-	
-	while (op == Op::TS)
+	while (true)
 	{
-		if (prop.is(ns_->number()))
+		if (op == Op::TS)
 		{
-			if (prop.name == ns::kNumber)
-				Append(new NumberNumber(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kText)
-				Append(new NumberText(this, 0, cntr), TakeOwnership::Yes);
+			if (prop.is(ns_->number()))
+			{
+				if (prop.name == ns::kNumber)
+					Append(new NumberNumber(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kText)
+					Append(new NumberText(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
 		}
 		
 		op = cntr->Next(prop, op);
 	}
 	
-	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void NumberPercentageStyle::Init(ods::Tag *tag)

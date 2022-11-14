@@ -71,12 +71,23 @@ void ByteArray::add(const ByteArray *rhs, const From from)
 	add(buf, buf_len, ExactSize::Yes);
 }
 
-void ByteArray::add(const char *p, const isize size, const ExactSize es)
+void ByteArray::add(const char *p, cisize size, const ExactSize es)
 {
 	MakeSure(size, es);
 	memcpy(data_ + at_, p, size);
 	at_ += size;
 	size_ += size;
+}
+
+void ByteArray::add_zeroes(cisize byte_count)
+{
+	if (byte_count > 0)
+	{
+		MakeSure(byte_count, ExactSize::Yes);
+		memset(data_ + at_, 0, byte_count);
+		at_ += byte_count;
+		size_ += byte_count;
+	}
 }
 
 void ByteArray::add_i8(const i8 n) {

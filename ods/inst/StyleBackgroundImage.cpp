@@ -11,9 +11,9 @@ StyleBackgroundImage::StyleBackgroundImage(Abstract *parent, Tag *tag, ndff::Con
 : Abstract(parent, parent->ns(), id::StyleBackgroundImage)
 {
 	if (cntr)
-		Init(cntr);
+		ReadStrings(cntr);
 	else if (tag)
-		Init(tag);
+		ReadStrings(tag);
 }
 
 StyleBackgroundImage::StyleBackgroundImage(const StyleBackgroundImage &cloner)
@@ -32,42 +32,6 @@ StyleBackgroundImage::Clone(Abstract *parent) const
 	
 	return p;
 }
-
-void StyleBackgroundImage::Init(ndff::Container *cntr)
-{
-	ndff(true);
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	if (op == Op::N32_TE)
-		return;
-	
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->style()))
-			{
-//				if (prop.name == ns::kBackgroundImage)
-//					Append(new StyleBackgroundImage(this, 0, cntr), TakeOwnership::Yes);
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
-}
-
-void StyleBackgroundImage::Init(Tag *tag) {}
 
 void StyleBackgroundImage::ListKeywords(Keywords &list, const LimitTo lt)
 {

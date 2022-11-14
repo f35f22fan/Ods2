@@ -140,8 +140,7 @@ bool Tag::IsAnyCell() const
 	if (prefix_->id() != ns_->table()->id())
 		return false;
 	
-	return (name_ == ods::ns::kTableCell) ||
-		(name_ == ods::ns::kCoveredTableCell);
+	return ods::IsAnyCell(name_);
 }
 
 bool Tag::IsTextP() const

@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API TableNamedExpressions : public Abstract
 {
 public:
-	TableNamedExpressions(Abstract *parent, Tag *tag = nullptr);
+	TableNamedExpressions(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	TableNamedExpressions(const TableNamedExpressions &cloner);
 	virtual ~TableNamedExpressions();
 	
@@ -28,6 +28,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void Scan(ods::Tag *tag);

@@ -50,8 +50,7 @@ int ColumnLettersToNumber(QStringView letters)
 	return col;
 }
 
-QString
-ColumnNumberToLetters(const int column)
+QString ColumnNumberToLetters(const int column)
 {
 	if (column < 0)
 		return QString();
@@ -231,8 +230,7 @@ int FindNonWhitespace(QStringView str, const int from)
 	return -1;
 }
 
-QString
-FontSizeToString(const double size, const style::FontSizeType size_type)
+QString FontSizeToString(const double size, const style::FontSizeType size_type)
 {
 	QString str = QString::number(size);
 	
@@ -246,8 +244,12 @@ FontSizeToString(const double size, const style::FontSizeType size_type)
 	return str;
 }
 
-bool
-ParseTableName(QStringView address, QStringView &name, int *ret_dot)
+bool IsAnyCell(QStringView s)
+{
+	return (s == ns::kTableCell) || (s == ns::kCoveredTableCell);
+}
+
+bool ParseTableName(QStringView address, QStringView &name, int *ret_dot)
 {
 	CHECK_TRUE((!address.isEmpty()));
 	int dot = address.lastIndexOf('.');

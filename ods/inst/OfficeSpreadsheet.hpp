@@ -11,7 +11,7 @@ namespace ods::inst {
 class ODS_API OfficeSpreadsheet : public Abstract
 {
 public:
-	OfficeSpreadsheet(Abstract *parent, Tag *tag = nullptr);
+	OfficeSpreadsheet(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	OfficeSpreadsheet(const OfficeSpreadsheet &cloner);
 	virtual ~OfficeSpreadsheet();
 	
@@ -46,6 +46,7 @@ public:
 	
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	void InitDefault();
 	void Scan(Tag *tag);

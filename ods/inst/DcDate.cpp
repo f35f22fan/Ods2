@@ -6,11 +6,13 @@
 
 namespace ods::inst {
 
-DcDate::DcDate(Abstract *parent, Tag *tag)
+DcDate::DcDate(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::DcDate)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 DcDate::DcDate(const DcDate &cloner)
@@ -28,11 +30,6 @@ DcDate::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	return p;
-}
-
-void DcDate::Init(Tag *tag)
-{
-	ScanString(tag);
 }
 
 void DcDate::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)

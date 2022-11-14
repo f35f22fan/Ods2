@@ -25,8 +25,9 @@ public:
 	
 	void alloc(const isize n);
 	
+	void add_zeroes(cisize byte_count);
 	void add(const ByteArray *rhs, const From from);
-	void add(const char *p, const isize size, const ExactSize es = ExactSize::No);
+	void add(const char *p, cisize size, const ExactSize es = ExactSize::No);
 	void add_i8(const i8 n);
 	void add_u8(const u8 n);
 	void add_i16(const i16 n);

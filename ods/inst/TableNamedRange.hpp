@@ -13,7 +13,7 @@ const u8 IsGlobalBit = 1u << 1;
 class ODS_API TableNamedRange : public Abstract
 {
 public:
-	TableNamedRange(Abstract *parent, Tag *tag = nullptr);
+	TableNamedRange(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	TableNamedRange(const TableNamedRange &cloner);
 	virtual ~TableNamedRange();
 	
@@ -37,7 +37,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	

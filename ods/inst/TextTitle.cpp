@@ -33,7 +33,7 @@ TextTitle::Clone(Abstract *parent) const
 
 void TextTitle::Init(Tag *tag)
 {
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void TextTitle::ListKeywords(Keywords &list, const LimitTo lt)

@@ -85,7 +85,6 @@ public:
 	static const Bits ChangedPropertiesBit  = 1 << 1;
 	static const Bits ChangedSubnodesBit    = 1 << 2;
 	static const Bits InsideForeignTagBit   = 1 << 3;
-	static const Bits NdffBit               = 1 << 4;
 	static const Bits InitOkBit             = 1 << 4;
 	
 	Abstract(Abstract *parent, Ns *ns, ods::id::func f);
@@ -129,6 +128,7 @@ public:
 	
 	void CopyAttr(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, QString &result);
 	void CopyAttrI8(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, i8 &result);
+	void CopyAttrI32(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, i32 &result);
 	
 	void DeleteNodes();
 	
@@ -174,16 +174,7 @@ public:
 	
 	virtual void ListKeywords(Keywords &list, const LimitTo lt) = 0;
 	
-	bool ndff() const { return bits_ & NdffBit; }
-	void ndff(cbool b) {
-		if (b)
-			bits_ |= NdffBit;
-		else
-			bits_ &= ~NdffBit;
-	}
-	
-	QVector<StringOrInst*>*
-	nodes() { return &nodes_; }
+	QVector<StringOrInst*>* nodes() { return &nodes_; }
 	
 	ods::Ns* ns() const { return ns_; }
 	
@@ -195,7 +186,9 @@ public:
 	ods::Prefix* prefix() const { return prefix_; }
 	void prefix(ods::Prefix *p) { prefix_ = p; }
 	
-	void ScanString(Tag *tag);
+	void ReadStrings(ndff::Container *cntr);
+	void ReadStrings(ndff::Container *cntr, ndff::Op op);
+	void ReadStrings(Tag *tag);
 	
 	const QString& tag_name() const { return tag_name_; }
 	void tag_name(const QString &n) { tag_name_ = n; }

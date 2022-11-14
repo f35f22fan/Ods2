@@ -7,7 +7,9 @@
 #include "op.hh"
 #include "style.hxx"
 
-namespace ods { // ods::
+namespace ods {
+
+bool IsAnyCell(const QStringView s);
 
 u32 CRC_32b(const char *s, ci64 count);
 

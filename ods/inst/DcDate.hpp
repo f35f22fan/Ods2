@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API DcDate : public Abstract
 {
 public:
-	DcDate(Abstract *parent, Tag *tag = nullptr);
+	DcDate(Abstract *parent, Tag *tag, ndff::Container *cntr = 0);
 	DcDate(const DcDate &cloner);
 	virtual ~DcDate();
 	
@@ -21,8 +21,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 
 private:
-	
-	void Init(Tag *tag);
 };
 
 } // ods::inst::

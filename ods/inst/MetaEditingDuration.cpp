@@ -32,7 +32,7 @@ MetaEditingDuration::Clone(Abstract *parent) const
 
 void MetaEditingDuration::Init(Tag *tag)
 {
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void MetaEditingDuration::ListKeywords(Keywords &list, const LimitTo lt)

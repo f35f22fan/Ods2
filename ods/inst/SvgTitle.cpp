@@ -4,13 +4,18 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-SvgTitle::SvgTitle(Abstract *parent, Tag *tag)
+SvgTitle::SvgTitle(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract (parent, parent->ns(), id::SvgTitle)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 SvgTitle::SvgTitle(const SvgTitle &cloner)
@@ -40,11 +45,6 @@ SvgTitle::GetFirstString() const
 	}
 	
 	return nullptr;
-}
-
-void SvgTitle::Init(ods::Tag *tag)
-{
-	ScanString(tag);
 }
 
 void SvgTitle::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)

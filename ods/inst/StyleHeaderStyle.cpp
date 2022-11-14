@@ -43,7 +43,6 @@ StyleHeaderStyle::Clone(Abstract *parent) const
 
 void StyleHeaderStyle::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -73,7 +72,7 @@ void StyleHeaderStyle::Init(ndff::Container *cntr)
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void StyleHeaderStyle::Init(ods::Tag *tag)

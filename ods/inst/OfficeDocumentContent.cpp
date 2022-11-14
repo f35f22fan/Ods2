@@ -97,10 +97,8 @@ void OfficeDocumentContent::Init(ods::Tag *tag)
 
 void OfficeDocumentContent::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
-	
 	Op op = cntr->Next(prop, Op::None);
 	QHash<UriId, QVector<ndff::Property>> h;
 	op = cntr->Next(prop, op, &h);
@@ -111,30 +109,33 @@ void OfficeDocumentContent::Init(ndff::Container *cntr)
 	if (op == Op::TCF_CMS)
 		op = cntr->Next(prop, op);
 	
-	while (op == Op::TS)
+	while (true)
 	{
-		if (prop.is(ns_->office()))
+		if (op == Op::TS)
 		{
-			if (prop.name == ns::kScripts) {
-				office_scripts_ = new OfficeScripts(this, 0, cntr);
-			} else if (prop.name == ns::kFontFaceDecls) {
-				office_font_face_decls_ = new OfficeFontFaceDecls(this, 0, cntr);
-			} else if (prop.name == ns::kAutomaticStyles) {
-				office_automatic_styles_ = new OfficeAutomaticStyles(this, 0, cntr);
-			} else if (prop.name == ns::kBody) {
-				office_body_ = new OfficeBody(this, 0, cntr);
+			if (prop.is(ns_->office()))
+			{
+				if (prop.name == ns::kScripts) {
+					office_scripts_ = new OfficeScripts(this, 0, cntr);
+				} else if (prop.name == ns::kFontFaceDecls) {
+					office_font_face_decls_ = new OfficeFontFaceDecls(this, 0, cntr);
+				} else if (prop.name == ns::kAutomaticStyles) {
+					office_automatic_styles_ = new OfficeAutomaticStyles(this, 0, cntr);
+				} else if (prop.name == ns::kBody) {
+					office_body_ = new OfficeBody(this, 0, cntr);
+				}
 			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
 		}
 		
 		op = cntr->Next(prop, op);
 	}
 	
-	if (op == Op::SCT)
-	{
-		return;
-	}
-	
-	mtl_trace("op: %d", op);
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void OfficeDocumentContent::InitDefault()

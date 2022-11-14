@@ -132,7 +132,6 @@ StyleTextProperties::Clone(Abstract *parent) const
 
 void StyleTextProperties::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -202,29 +201,7 @@ void StyleTextProperties::Init(ndff::Container *cntr)
 	CopyAttr(attrs, ns_->style(), ns::kFontPitchAsian, style_font_pitch_asian_);
 	CopyAttr(attrs, ns_->style(), ns::kFontPitchComplex, style_font_pitch_complex_);
 	
-	if (op == Op::N32_TE)
-		return;
-	
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	if (ndff::is_text(op))
-		Append(cntr->NextString());
-	
-	while (op == Op::TS)
-	{
-		if (prop.is(ns_->number()))
-		{
-			mtl_tbd();
-//			if (prop.name == ns::kEmbeddedText)
-//				Append(new NumberEmbeddedText(this, 0, cntr), TakeOwnership::Yes);
-		}
-		
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+	ReadStrings(cntr, op);
 }
 
 void StyleTextProperties::Init(ods::Tag *tag)
@@ -293,7 +270,7 @@ void StyleTextProperties::Init(ods::Tag *tag)
 	tag->Copy(ns_->style(), ns::kFontPitchAsian, style_font_pitch_asian_);
 	tag->Copy(ns_->style(), ns::kFontPitchComplex, style_font_pitch_complex_);
 	
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void StyleTextProperties::ListKeywords(Keywords &list, const LimitTo lt)

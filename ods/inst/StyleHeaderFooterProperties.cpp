@@ -50,7 +50,6 @@ StyleHeaderFooterProperties::Clone(Abstract *parent) const
 
 void StyleHeaderFooterProperties::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -83,11 +82,12 @@ void StyleHeaderFooterProperties::Init(ndff::Container *cntr)
 		} else {
 			break;
 		}
+		
 		op = cntr->Next(prop, op);
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void StyleHeaderFooterProperties::Init(ods::Tag *tag)

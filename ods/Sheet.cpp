@@ -14,12 +14,18 @@
 #include "inst/TableTableColumn.hpp"
 #include "inst/TableNamedExpressions.hpp"
 
-namespace ods { // ods::
+#include "ndff/Container.hpp"
+#include "ndff/Property.hpp"
 
-Sheet::Sheet(ods::inst::Abstract *parent, Tag *tag) :
+namespace ods {
+
+Sheet::Sheet(ods::inst::Abstract *parent, Tag *tag, ndff::Container *cntr) :
 	Abstract(parent, parent->ns(), id::TableTable)
 {
-	Init(tag);
+	if (cntr)
+		Init(cntr);
+	else if (tag)
+		Init(tag);
 	CountColumns();
 }
 
@@ -107,8 +113,7 @@ Sheet::ColumnAt(cint place, int &vec_index)
 	return nullptr;
 }
 
-int
-Sheet::CountColumns()
+int Sheet::CountColumns()
 {
 	num_cols_ = 0;
 	
@@ -118,8 +123,7 @@ Sheet::CountColumns()
 	return num_cols_;
 }
 
-int
-Sheet::CountRows() const
+int Sheet::CountRows() const
 {
 	int n = 0;
 	
@@ -129,8 +133,7 @@ Sheet::CountRows() const
 	return n;
 }
 
-void
-Sheet::DeleteColumnRegion(inst::TableTableColumn *col, cint vec_index)
+void Sheet::DeleteColumnRegion(inst::TableTableColumn *col, cint vec_index)
 {
 	const ods::DeleteRegion &dr = col->delete_region();
 	
@@ -155,8 +158,7 @@ Sheet::DeleteColumnRegion(inst::TableTableColumn *col, cint vec_index)
 	col->delete_region({-1, -1, -1});
 }
 
-void
-Sheet::DeleteRowRegion(ods::Row *row, cint vec_index)
+void Sheet::DeleteRowRegion(ods::Row *row, cint vec_index)
 {
 	const ods::DeleteRegion &dr = row->delete_region();
 	
@@ -228,23 +230,62 @@ Sheet::GetRow(cint place)
 	return nullptr;
 }
 
-void
-Sheet::Init(ods::Tag *tag)
+void Sheet::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->table(), ns::kName, table_name_);
+	CopyAttr(attrs, ns_->table(), ns::kStyleName, table_style_name_);
+
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->table()))
+			{
+				if (prop.name == ns::kTableRow)
+					rows_.append(new ods::Row(this, 0, cntr));
+				else if (prop.name == ns::kTableColumn)
+					columns_.append(new inst::TableTableColumn(this, 0, cntr));
+				else if (prop.name == ns::kNamedExpressions)
+					named_expressions_ = new inst::TableNamedExpressions(this, 0, cntr);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+void Sheet::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->table(), ns::kName, table_name_);
 	tag->Copy(ns_->table(), ns::kStyleName, table_style_name_);
 	Scan(tag);
 }
 
-void
-Sheet::InitDefault()
+void Sheet::InitDefault()
 {
 	auto *column = new inst::TableTableColumn(this);
 	num_cols_ = DefaultColumnCountPerSheet;
 	column->number_columns_repeated(num_cols_);
 	columns_.append(column);
 	
-	auto *row = new ods::Row(this);
+	ods::Tag *tag = nullptr;
+	auto *row = new ods::Row(this, tag, 0);
 	row->num(DefaultRowCountPerSheet);
 	rows_.append(row);
 }

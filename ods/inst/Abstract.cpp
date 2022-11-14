@@ -157,6 +157,21 @@ void Abstract::CopyAttrI8(QHash<UriId, QVector<ndff::Property> > &attrs,
 	}
 }
 
+void Abstract::CopyAttrI32(QHash<UriId, QVector<ndff::Property> > &attrs,
+	Prefix *prefix, QStringView attr_name, i32 &result)
+{
+	QString s;
+	CopyAttr(attrs, prefix, attr_name, s);
+	
+	if (!s.isEmpty())
+	{
+		bool ok;
+		ci16 k = s.toInt(&ok);
+		if (ok)
+			result = k;
+	}
+}
+
 void Abstract::DeleteNodes()
 {
 	for (auto *next: nodes_)
@@ -281,7 +296,42 @@ void Abstract::ListChildren(QVector<StringOrInst*> &vec,
 	}
 }
 
-void Abstract::ScanString(Tag *tag)
+void Abstract::ReadStrings(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	Op op = cntr->Next(prop, Op::TS);
+	ReadStrings(cntr, op);
+}
+
+void Abstract::ReadStrings(ndff::Container *cntr, ndff::Op op)
+{
+	using Op = ndff::Op;
+	if (op == Op::N32_TE)
+		return;
+	
+	ndff::Property prop;
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+
+void Abstract::ReadStrings(Tag *tag)
 {
 	for (StringOrTag *x: tag->nodes())
 	{

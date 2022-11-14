@@ -12,7 +12,7 @@ namespace ods {
 class ODS_API Row : public ods::inst::Abstract
 {
 public:
-	Row(ods::Sheet *parent, ods::Tag *row_tag);
+	Row(ods::Sheet *parent, ods::Tag *row_tag, ndff::Container *cntr = 0);
 	Row(Sheet *parent);
 	Row(const Row &cloner);
 	virtual ~Row();
@@ -100,6 +100,7 @@ private:
 	void DeleteCellRegion(ods::Cell *cell, cint vec_index);
 	void MarkDeleteRegion(cint from, cint remaining);
 	void MarkCoveredCellsAfter(ods::Cell *cell, cint vec_index);
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void Scan(ods::Tag *tag);

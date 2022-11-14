@@ -12,13 +12,19 @@
 #include "inst/StyleTableRowProperties.hpp"
 #include "inst/StyleTextProperties.hpp"
 
-namespace ods { // ods::
+#include "ndff/Container.hpp"
+#include "ndff/Property.hpp"
 
-Row::Row(ods::Sheet *parent, ods::Tag *tag)
+namespace ods {
+
+Row::Row(ods::Sheet *parent, ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::TableTableRow),
 sheet_(parent)
 {
-	Init(tag);
+	if (cntr)
+		Init(cntr);
+	else if (tag)
+		Init(tag);
 }
 
 Row::Row(Sheet *parent)
@@ -126,6 +132,42 @@ Row::GetStyle() const
 	return Get(table_style_name_);
 }
 
+void Row::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttrI32(attrs, ns_->table(), ns::kNumberRowsRepeated, nrr_);
+	CopyAttr(attrs, ns_->table(), ns::kStyleName, table_style_name_);
+
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->table()))
+			{
+				if (ods::IsAnyCell(prop.name))
+					cells_.append(new ods::Cell(this, 0, cntr));
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
 void Row::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->table(), ns::kNumberRowsRepeated, nrr_);
@@ -135,19 +177,23 @@ void Row::Init(ods::Tag *tag)
 
 void Row::InitDefault()
 {
-	cint max = sheet_->num_cols();
-	int count = 0;
+	cint sheet_cols = sheet_->num_cols();
+	int row_col_count = 0;
 	
 	for (Cell *cell: cells_)
-		count += cell->ncr();
+		row_col_count += cell->ncr();
 	
-	if (count >= max)
+	if (row_col_count >= sheet_cols)
 		return;
 	
-	auto *cell = new Cell(this);
-	cint diff = max - count;
-	cell->ncr(diff);
-	cells_.append(cell);
+	cint cols_to_be_added = sheet_cols - row_col_count;
+	if (cols_to_be_added > 0)
+	{
+		ods::Tag *tag = nullptr;
+		auto *cell = new Cell(this, tag, 0);
+		cell->ncr(cols_to_be_added);
+		cells_.append(cell);
+	}
 }
 
 void Row::ListChildren(QVector<StringOrInst*> &vec, const Recursively r)
@@ -255,7 +301,8 @@ Cell* Row::NewCellAt(cint place, cint ncr, cint ncs)
 		return nullptr;
 	}
 
-	auto *cell = new Cell(this);
+	ods::Tag *tag = nullptr;
+	auto *cell = new Cell(this, tag, 0);
 	cell->ncr(ncr);
 	cell->ncs(ncs);
 	cell->selected(true);

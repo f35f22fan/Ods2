@@ -20,7 +20,7 @@ OfficeFontFaceDecls::OfficeFontFaceDecls(ods::inst::Abstract *parent, Tag *tag,
 {
 	if (cntr)
 		Init(cntr);
-	if (tag)
+	else if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -68,33 +68,38 @@ OfficeFontFaceDecls::GetFontFace(const QString &font_name, const AddIfNeeded ain
 
 void OfficeFontFaceDecls::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
+	Op op = cntr->Next(prop, Op::TS);
 	if (op == Op::N32_TE)
 		return;
 	
 	if (op == Op::TCF_CMS)
 		op = cntr->Next(prop, op);
 	
-	while (op == Op::TS)
+	while (true)
 	{
-		if (prop.is(ns_->style()))
+		if (op == Op::TS)
 		{
-			if (prop.name == ns::kFontFace) {
-				Append(new StyleFontFace(this, 0, cntr), TakeOwnership::Yes);
-			} else {
-				mtl_info("Unprocessed tag: %s", qPrintable(prop.name));
+			if (prop.is(ns_->style()))
+			{
+				if (prop.name == ns::kFontFace) {
+					Append(new StyleFontFace(this, 0, cntr), TakeOwnership::Yes);
+				} else {
+					mtl_info("Unprocessed tag: %s", qPrintable(prop.name));
+				}
 			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
 		}
 		
 		op = cntr->Next(prop, op);
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void OfficeFontFaceDecls::Init(ods::Tag *tag)

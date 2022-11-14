@@ -158,7 +158,7 @@ void StyleTableCellProperties::Init(ods::Tag *tag)
 	tag->Copy(ns_->style(), ns::kVerticalAlign, str);
 	style_vertical_align_ = VAlign::FromString(str);
 	
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void StyleTableCellProperties::ListKeywords(Keywords &list, const LimitTo lt)

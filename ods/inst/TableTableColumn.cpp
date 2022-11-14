@@ -8,12 +8,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-TableTableColumn::TableTableColumn(Abstract *parent, Tag *tag)
+TableTableColumn::TableTableColumn(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::TableTableColumn)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -65,6 +70,43 @@ inst::StyleStyle*
 TableTableColumn::GetStyle() const
 {
 	return Get(table_style_name_);
+}
+
+void TableTableColumn::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->draw(), ns::kStyleName, table_style_name_);
+	CopyAttrI32(attrs, ns_->draw(), ns::kNumberColumnsRepeated, ncr_);
+	CopyAttr(attrs, ns_->style(), ns::kDefaultCellStyleName, table_default_cell_style_name_);
+
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+//			if (prop.is(ns_->draw()))
+//			{
+//				if (prop.name == ns::kImage)
+//					Append(new inst::DrawImage(this, 0, cntr), TakeOwnership::Yes);
+//			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void TableTableColumn::Init(Tag *tag)

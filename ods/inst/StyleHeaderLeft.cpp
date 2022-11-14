@@ -37,7 +37,7 @@ StyleHeaderLeft::Clone(Abstract *parent) const
 void StyleHeaderLeft::Init(Tag *tag)
 {
 	tag->Copy(ns_->style(), ns::kDisplay, style_display_);
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void StyleHeaderLeft::ListKeywords(Keywords &list, const LimitTo lt)

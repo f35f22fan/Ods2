@@ -46,7 +46,6 @@ NumberNumber::Clone(Abstract *parent) const
 void NumberNumber::Init(ndff::Container *cntr)
 {
 	// number:number(1.2) => has attrs, has children, no char data
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -59,32 +58,7 @@ void NumberNumber::Init(ndff::Container *cntr)
 	if (!grouping.isEmpty())
 		number_grouping_ = (grouping == ods::str::True) ? 1 : 0;
 	
-	if (op == Op::N32_TE)
-	{
-		mtl_info("Op::TE");
-		return;
-	}
-	
-	if (op == Op::TCF_CMS)
-	{
-		mtl_info("Op::TCF");
-		op = cntr->Next(prop, op);
-	}
-	
-	while (op == Op::TS)
-	{
-		if (prop.is(ns_->number()))
-		{
-			mtl_tbd();
-//			if (prop.name == ns::kEmbeddedText)
-//				Append(new NumberEmbeddedText(this, 0, cntr), TakeOwnership::Yes);
-		}
-		
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+	ReadStrings(cntr, op);
 }
 
 void NumberNumber::Init(Tag *tag)
@@ -98,7 +72,7 @@ void NumberNumber::Init(Tag *tag)
 	if (!str.isEmpty())
 		number_grouping_ = (str == ods::str::True) ? 1 : 0;
 	
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void NumberNumber::ListKeywords(Keywords &list, const LimitTo lt)

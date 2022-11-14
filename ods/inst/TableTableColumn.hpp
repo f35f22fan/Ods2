@@ -5,13 +5,12 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API TableTableColumn : public Abstract
 {
 public:
-	TableTableColumn(Abstract *parent, Tag *tag = nullptr);
+	TableTableColumn(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	TableTableColumn(const TableTableColumn &cloner);
 	virtual ~TableTableColumn();
 	
@@ -50,10 +49,9 @@ private:
 	
 	const DeleteRegion&
 	delete_region() const { return delete_region_; }
+	bool has_delete_region() const { return delete_region_.start != -1; }
 	
-	bool
-	has_delete_region() const { return delete_region_.start != -1; }
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	QString ToSchemaString() const;
 	
@@ -77,4 +75,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

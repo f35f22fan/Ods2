@@ -57,7 +57,6 @@ NumberCurrencySymbol::GetSymbol()
 void NumberCurrencySymbol::Init(ndff::Container *cntr)
 {
 	// number:currency-symbol(1.2) => has attrs, no children, has char data
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -66,24 +65,7 @@ void NumberCurrencySymbol::Init(ndff::Container *cntr)
 	CopyAttr(attrs, ns_->number(), ns::kCountry, number_country_);
 	CopyAttr(attrs, ns_->number(), ns::kRfcLanguageTag, number_rfc_language_tag_);
 	CopyAttr(attrs, ns_->number(), ns::kScript, number_script_);
-	
-	if (op == Op::N32_TE)
-	{
-		mtl_info("Op::TE");
-		return;
-	}
-	
-	if (op == Op::TCF_CMS)
-	{
-		mtl_info("Op::TCF");
-		op = cntr->Next(prop, op);
-	}
-	
-	if (ndff::is_text(op))
-		Append(cntr->NextString());
-	
-	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+	ReadStrings(cntr, op);
 }
 
 void NumberCurrencySymbol::Init(ods::Tag *tag)
@@ -93,7 +75,7 @@ void NumberCurrencySymbol::Init(ods::Tag *tag)
 	tag->Copy(ns_->number(), ns::kRfcLanguageTag, number_rfc_language_tag_);
 	tag->Copy(ns_->number(), ns::kScript, number_script_);
 
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void NumberCurrencySymbol::ListKeywords(Keywords &list, const LimitTo lt)

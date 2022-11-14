@@ -48,7 +48,6 @@ StyleTableColumnProperties::Clone(Abstract *parent) const
 
 void StyleTableColumnProperties::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -57,29 +56,7 @@ void StyleTableColumnProperties::Init(ndff::Container *cntr)
 	QString col_width;
 	CopyAttr(attrs, ns_->style(), ns::kColumnWidth, col_width);
 	style_column_width_ = Length::FromString(col_width);
-	if (op == Op::N32_TE)
-		return;
-	
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	while (op == Op::TS)
-	{
-		mtl_tbd();
-//		if (prop.is(ns_->style()))
-//		{
-//			if (prop.name == ns::kTableColumnProperties) {
-//				Append(new StyleTableColumnProperties(this, 0, cntr), TakeOwnership::Yes);
-//			}
-//			mtl_info("Tag start: %s", qPrintable(prop.name));
-			
-//		}
-		
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+	ReadStrings(cntr, op);
 }
 
 void StyleTableColumnProperties::Init(ods::Tag *tag)
@@ -90,7 +67,7 @@ void StyleTableColumnProperties::Init(ods::Tag *tag)
 	tag->Copy(ns_->style(), ns::kColumnWidth, str);
 	style_column_width_ = Length::FromString(str);
 	
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void StyleTableColumnProperties::ListKeywords(Keywords &list, const LimitTo lt)

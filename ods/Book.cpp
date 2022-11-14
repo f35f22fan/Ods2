@@ -108,7 +108,13 @@ void Book::CreateMainHeader(ByteArray &ba)
 	const char *doc_type = "ods";
 	cu8 doc_type_len = strlen(doc_type);
 	ba.add_u8(doc_type_len); // string length
+	cu8 free_space = 64;
+	ba.add_u8(free_space);
 	ba.add(doc_type, doc_type_len, ExactSize::Yes); // the string itself
+	
+	if (free_space > 0)
+		ba.add_zeroes(free_space);
+
 }
 
 void Book::CreateNamespacesRegion(ByteArray &result, inst::NsHash &h)

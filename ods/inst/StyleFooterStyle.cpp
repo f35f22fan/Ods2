@@ -42,11 +42,9 @@ StyleFooterStyle::Clone(Abstract *parent) const
 
 void StyleFooterStyle::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
+	Op op = cntr->Next(prop, Op::TS);
 	if (op == Op::N32_TE)
 		return;
 	
@@ -71,7 +69,7 @@ void StyleFooterStyle::Init(ndff::Container *cntr)
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void StyleFooterStyle::Init(ods::Tag *tag)

@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API TextP : public Abstract
 {
 public:
-	TextP(Abstract *parent, ods::Tag *tag = nullptr);
+	TextP(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	TextP(const TextP &cloner);
 	virtual ~TextP();
 	
@@ -32,7 +32,7 @@ public:
 	void WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
 };

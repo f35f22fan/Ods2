@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API TextS : public Abstract
 {
 public:
-	TextS(Abstract *parent, Tag *tag = nullptr);
+	TextS(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	TextS(const TextS &cloner);
 	virtual ~TextS();
 	
@@ -21,7 +21,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
-	
 	void Init(Tag *tag);
 };
 

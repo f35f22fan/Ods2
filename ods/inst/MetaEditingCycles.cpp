@@ -32,7 +32,7 @@ MetaEditingCycles::Clone(Abstract *parent) const
 
 void MetaEditingCycles::Init(Tag *tag)
 {
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void MetaEditingCycles::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)

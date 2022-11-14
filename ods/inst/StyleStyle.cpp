@@ -235,7 +235,6 @@ StyleStyle::GetTimeStyle() const
 
 void StyleStyle::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -254,22 +253,29 @@ void StyleStyle::Init(ndff::Container *cntr)
 	if (op == Op::TCF_CMS)
 		op = cntr->Next(prop, op);
 	
-	while (op == Op::TS)
+	while (true)
 	{
-		if (prop.is(ns_->style()))
+		if (op == Op::TS)
 		{
-			if (prop.name == ns::kTableColumnProperties) {
-				Append(new StyleTableColumnProperties(this, 0, cntr), TakeOwnership::Yes);
+			if (prop.is(ns_->style()))
+			{
+				if (prop.name == ns::kTableColumnProperties) {
+					Append(new StyleTableColumnProperties(this, 0, cntr), TakeOwnership::Yes);
+				}
+				mtl_info("Tag start: %s", qPrintable(prop.name));
+				
 			}
-			mtl_info("Tag start: %s", qPrintable(prop.name));
-			
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
 		}
 		
 		op = cntr->Next(prop, op);
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void StyleStyle::Init(ods::Tag *tag)

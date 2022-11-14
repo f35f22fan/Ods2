@@ -36,7 +36,7 @@ StyleFooterLeft::Clone(Abstract *parent) const
 void StyleFooterLeft::Init(Tag *tag)
 {
 	tag->Copy(ns_->style(), ns::kDisplay, style_display_);
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void StyleFooterLeft::ListKeywords(Keywords &list, const LimitTo lt)

@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API TextTime : public Abstract
 {
 public:
-	TextTime(Abstract *parent, ods::Tag *tag = nullptr);
+	TextTime(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	TextTime(const TextTime &cloner);
 	virtual ~TextTime();
 	
@@ -26,6 +26,7 @@ private:
 <text:time style:data-style-name="N2"
 	text:time-value="18:57:07.989456592">00:00:00</text:time>
 	*/
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	QString style_data_style_name_;

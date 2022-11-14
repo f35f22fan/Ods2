@@ -41,44 +41,20 @@ StyleMap::Clone(Abstract *parent) const
 
 void StyleMap::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
 	Op op = cntr->Next(prop, Op::TS, &attrs);
 	CopyAttr(attrs, ns_->style(), ns::kCondition, style_condition_);
 	CopyAttr(attrs, ns_->style(), ns::kApplyStyleName, style_apply_style_name_);
-	
-	if (op == Op::N32_TE)
-		return;
-	
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	if (ndff::is_text(op))
-		Append(cntr->NextString());
-	
-	while (op == Op::TS)
-	{
-		if (prop.is(ns_->number()))
-		{
-			mtl_tbd();
-//			if (prop.name == ns::kEmbeddedText)
-//				Append(new NumberEmbeddedText(this, 0, cntr), TakeOwnership::Yes);
-		}
-		
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+	ReadStrings(cntr, op);
 }
 
 void StyleMap::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ns::kCondition, style_condition_);
 	tag->Copy(ns_->style(), ns::kApplyStyleName, style_apply_style_name_);
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void StyleMap::ListKeywords(Keywords &list, const LimitTo lt)

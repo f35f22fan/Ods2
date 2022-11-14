@@ -4,12 +4,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-ManifestFileEntry::ManifestFileEntry(Abstract *parent, Tag *tag)
+ManifestFileEntry::ManifestFileEntry(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::ManifestFileEntry)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -32,6 +37,18 @@ ManifestFileEntry::Clone(Abstract *parent) const
 	p->manifest_version_ = manifest_version_;
 	
 	return p;
+}
+
+void ManifestFileEntry::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->manifest(), ns::kFullPath, manifest_full_path_);
+	CopyAttr(attrs, ns_->manifest(), ns::kMediaType, manifest_media_type_);
+	CopyAttr(attrs, ns_->manifest(), ns::kVersion, manifest_version_);
+	ReadStrings(cntr, op);
 }
 
 void ManifestFileEntry::Init(Tag *tag)

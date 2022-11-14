@@ -5,11 +5,14 @@
 
 namespace ods::inst {
 
-TextPageCount::TextPageCount(Abstract *parent, Tag *tag)
+TextPageCount::TextPageCount(Abstract *parent, Tag *tag,
+	ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::TextPageCount)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 TextPageCount::TextPageCount(const TextPageCount &cloner)
@@ -29,11 +32,6 @@ TextPageCount::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
-}
-
-void TextPageCount::Init(ods::Tag *tag)
-{
-	ScanString(tag);
 }
 
 void TextPageCount::ListKeywords(Keywords &list, const LimitTo lt)

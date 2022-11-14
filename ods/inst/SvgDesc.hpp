@@ -10,7 +10,7 @@ namespace ods::inst {
 class ODS_API SvgDesc : public Abstract
 {
 public:
-	SvgDesc(Abstract *parent, ods::Tag *tag = nullptr);
+	SvgDesc(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	SvgDesc(const SvgDesc &cloner);
 	virtual ~SvgDesc();
 	
@@ -29,6 +29,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 
 private:
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag*);
 };
 

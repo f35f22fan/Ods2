@@ -45,36 +45,41 @@ StylePageLayout::Clone(Abstract *parent) const
 
 void StylePageLayout::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
 	Op op = cntr->Next(prop, Op::TS, &attrs);
 	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
-	
 	if (op == Op::N32_TE)
 		return;
 	
 	if (op == Op::TCF_CMS)
 		op = cntr->Next(prop, op);
 	
-	while (op == Op::TS)
+	while (true)
 	{
-		if (prop.is(ns_->style()))
+		if (op == Op::TS)
 		{
-			if (prop.name == ns::kPageLayoutProperties)
-				Append(new StylePageLayoutProperties(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kFooterStyle)
-				Append(new StyleFooterStyle(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kHeaderStyle)
-				Append(new StyleHeaderStyle(this, 0, cntr), TakeOwnership::Yes);
+			if (prop.is(ns_->style()))
+			{
+				if (prop.name == ns::kPageLayoutProperties)
+					Append(new StylePageLayoutProperties(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kFooterStyle)
+					Append(new StyleFooterStyle(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kHeaderStyle)
+					Append(new StyleHeaderStyle(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
 		}
 		
 		op = cntr->Next(prop, op);
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void StylePageLayout::Init(ods::Tag *tag)

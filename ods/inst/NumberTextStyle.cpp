@@ -43,7 +43,6 @@ NumberTextStyle::Clone(Abstract *parent) const
 
 void NumberTextStyle::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -74,7 +73,7 @@ void NumberTextStyle::Init(ndff::Container *cntr)
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void NumberTextStyle::Init(ods::Tag *tag)

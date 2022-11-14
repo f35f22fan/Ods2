@@ -6,11 +6,13 @@
 
 namespace ods::inst {
 
-DcTitle::DcTitle(Abstract *parent, Tag *tag)
+DcTitle::DcTitle(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::DcTitle)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 DcTitle::DcTitle(const DcTitle &cloner) : Abstract(cloner)
@@ -27,11 +29,6 @@ DcTitle::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	return p;
-}
-
-void DcTitle::Init(Tag *tag)
-{
-	ScanString(tag);
 }
 
 void DcTitle::ListKeywords(Keywords &list, const LimitTo lt)

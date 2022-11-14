@@ -32,7 +32,7 @@ MetaGenerator::Clone(Abstract *parent) const
 
 void MetaGenerator::Init(Tag *tag)
 {
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void MetaGenerator::ListKeywords(Keywords &list, const LimitTo lt)

@@ -46,7 +46,7 @@ void StyleTableRowProperties::Init(ods::Tag *tag)
 	tag->Copy(ns_->fo(), ns::kBreakBefore, fo_break_before_);
 	tag->Copy(ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
 	tag->Copy(ns_->style(), ns::kRowHeight, &style_row_height_);
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void StyleTableRowProperties::ListKeywords(Keywords &list, const LimitTo lt)

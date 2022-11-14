@@ -4,12 +4,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-TextTime::TextTime(Abstract *parent, Tag *tag)
+TextTime::TextTime(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract (parent, parent->ns(), id::TextTime)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -24,7 +29,7 @@ TextTime::Clone(Abstract *parent) const
 {
 	auto *p = new TextTime(*this);
 	
-	if (parent != nullptr)
+	if (parent)
 		p->parent(parent);
 	
 	p->style_data_style_name_ = style_data_style_name_;
@@ -34,11 +39,22 @@ TextTime::Clone(Abstract *parent) const
 	return p;
 }
 
+void TextTime::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kDataStyleName, style_data_style_name_);
+	CopyAttr(attrs, ns_->text(), ns::kTimeValue, text_time_value_);
+	ReadStrings(cntr, op);
+}
+
 void TextTime::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ns::kDataStyleName, style_data_style_name_);
 	tag->Copy(ns_->text(), ns::kTimeValue, text_time_value_);
-	ScanString(tag);
+	ReadStrings(tag);
 }
 
 void TextTime::ListKeywords(Keywords &list, const LimitTo lt)

@@ -52,7 +52,6 @@ NumberDateStyle::Clone(Abstract *parent) const
 
 void NumberDateStyle::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;

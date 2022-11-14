@@ -9,12 +9,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-OfficeSpreadsheet::OfficeSpreadsheet(Abstract *parent, Tag *tag)
+OfficeSpreadsheet::OfficeSpreadsheet(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::OfficeSpreadsheet)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -85,8 +90,47 @@ OfficeSpreadsheet::GetSheet(QStringView name) const
 	return nullptr;
 }
 
-void
-OfficeSpreadsheet::Init(Tag *tag)
+void OfficeSpreadsheet::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	Op op = cntr->Next(prop, Op::TS);
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->table()))
+			{
+				if (prop.name == ns::kTable)
+					tables_.append(new ods::Sheet(this, 0, cntr));
+				else if (prop.name == ns::kCalculationSettings)
+					table_calculation_settings_ = new TableCalculationSettings(this, 0, cntr);
+				else if (prop.name == ns::kNamedExpressions) {
+					named_expressions_ = new TableNamedExpressions(this, 0, cntr);
+					for (TableNamedRange *nr: named_expressions_->named_ranges()) {
+						nr->global(true);
+					}
+				}
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+void OfficeSpreadsheet::Init(Tag *tag)
 {
 	Scan(tag);
 }
@@ -143,6 +187,7 @@ OfficeSpreadsheet::NewSheet(const QString &name)
 	if (GetSheet(name) != nullptr)
 		return nullptr;
 	
+//	ods::Tag *tag = nullptr;
 	auto *sheet = new ods::Sheet(this);
 	sheet->name(name);
 	tables_.append(sheet);
@@ -160,10 +205,10 @@ void OfficeSpreadsheet::Scan(Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Has(ns_->table())) {
-			if (next->Has(ods::ns::kCalculationSettings)) {
-				table_calculation_settings_ = new TableCalculationSettings(this, next);
-			} else if (next->Has(ods::ns::kTable)) {
+			if (next->Has(ods::ns::kTable)) {
 				tables_.append(new ods::Sheet(this, next));
+			} else if (next->Has(ods::ns::kCalculationSettings)) {
+				table_calculation_settings_ = new TableCalculationSettings(this, next);
 			} else if (next->Has(ods::ns::kNamedExpressions)) {
 				named_expressions_ = new TableNamedExpressions(this, next);
 				for (TableNamedRange *nr: named_expressions_->named_ranges()) {

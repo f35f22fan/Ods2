@@ -21,8 +21,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
-	void Init(ndff::Container *cntr);
-	void Init(ods::Tag *tag);
 };
 
 } // ods::inst::

@@ -71,7 +71,6 @@ OfficeAutomaticStyles::Clone(Abstract *parent) const
 
 void OfficeAutomaticStyles::Init(ndff::Container *cntr)
 {
-	ndff(true);
 	using Op = ndff::Op;
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
@@ -82,34 +81,41 @@ void OfficeAutomaticStyles::Init(ndff::Container *cntr)
 	if (op == Op::TCF_CMS)
 		op = cntr->Next(prop, op);
 	
-	while (op == Op::TS)
+	while (true)
 	{
-		if (prop.is(ns_->style()))
+		if (op == Op::TS)
 		{
-			if (prop.name == ns::kStyle)
-				Append(new StyleStyle(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kPageLayout)
-				Append(new StylePageLayout(this, 0, cntr), TakeOwnership::Yes);
-		} else if (prop.is(ns_->number())) {
-			if (prop.name == ns::kBooleanStyle)
-				Append(new NumberBooleanStyle(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kCurrencyStyle)
-				Append(new NumberCurrencyStyle(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kDateStyle)
-				Append(new NumberDateStyle(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kPercentageStyle)
-				Append(new NumberPercentageStyle(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kTextStyle)
-				Append(new NumberTextStyle(this, 0, cntr), TakeOwnership::Yes);
-			else if (prop.name == ns::kTimeStyle)
-				Append(new NumberTimeStyle(this, 0, cntr), TakeOwnership::Yes);
+			if (prop.is(ns_->style()))
+			{
+				if (prop.name == ns::kStyle)
+					Append(new StyleStyle(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kPageLayout)
+					Append(new StylePageLayout(this, 0, cntr), TakeOwnership::Yes);
+			} else if (prop.is(ns_->number())) {
+				if (prop.name == ns::kBooleanStyle)
+					Append(new NumberBooleanStyle(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kCurrencyStyle)
+					Append(new NumberCurrencyStyle(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kDateStyle)
+					Append(new NumberDateStyle(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kPercentageStyle)
+					Append(new NumberPercentageStyle(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kTextStyle)
+					Append(new NumberTextStyle(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kTimeStyle)
+					Append(new NumberTimeStyle(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
 		}
 		
 		op = cntr->Next(prop, op);
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void OfficeAutomaticStyles::Init(ods::Tag *tag)

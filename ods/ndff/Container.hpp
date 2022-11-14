@@ -11,15 +11,6 @@
 
 namespace ods::ndff {
 
-enum class Next: i8 {
-	Unknown,
-	TS,
-	PS,
-	TE,
-	SCT, // Separate closing tag
-	
-};
-
 class Container {
 public:
 	Container();
@@ -31,6 +22,7 @@ public:
 	i64 dictionary_loc = -1;
 	i64 top_files_loc = -1;
 	u8 doc_type_len = 0;
+	u8 free_space_trailing = 0;
 	QString doc_type;
 	
 	Ns* CreateNs();

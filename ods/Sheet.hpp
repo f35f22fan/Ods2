@@ -12,7 +12,7 @@ namespace ods {
 class ODS_API Sheet : public ods::inst::Abstract
 {
 public:
-	Sheet(inst::Abstract *parent, Tag *sheet_tag);
+	Sheet(inst::Abstract *parent, Tag *sheet_tag, ndff::Container *cntr = 0);
 	Sheet(inst::Abstract *parent);
 	Sheet(const Sheet &cloner);
 	virtual ~Sheet();
@@ -70,6 +70,7 @@ private:
 	inst::TableTableColumn* ColumnAt(const int place, int &vec_index);
 	void DeleteRowRegion(ods::Row *row, const int vec_index);
 	void DeleteColumnRegion(inst::TableTableColumn *col, const int vec_index);
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *sheet_tag);
 	void InitDefault();
 	void MarkColumnDeleteRegion(int from, int remaining);

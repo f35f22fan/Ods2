@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API ManifestFileEntry : public Abstract
 {
 public:
-	ManifestFileEntry(Abstract *parent, Tag *tag = nullptr);
+	ManifestFileEntry(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	ManifestFileEntry(const ManifestFileEntry &cloner);
 	virtual ~ManifestFileEntry();
 
@@ -39,7 +39,7 @@ public:
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 	
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	
 // <manifest:file-entry manifest:full-path="content.xml"

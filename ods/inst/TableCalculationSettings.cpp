@@ -3,13 +3,17 @@
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Tag.hpp"
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 
 namespace ods::inst {
 
-TableCalculationSettings::TableCalculationSettings(Abstract *parent, Tag *tag)
+TableCalculationSettings::TableCalculationSettings(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::TableCalculationSettings)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -34,6 +38,20 @@ TableCalculationSettings::Clone(Abstract *parent) const
 	p->table_use_wildcards_ = table_use_wildcards_;
 	
 	return p;
+}
+
+void TableCalculationSettings::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->table(), ns::kAutomaticFindLabels,
+			 table_automatic_find_labels_);
+	CopyAttr(attrs, ns_->table(), ns::kUseRegularExpressions,
+			 table_use_regular_expressions_);
+	CopyAttr(attrs, ns_->table(), ns::kUseWildcards, table_use_wildcards_);
+	ReadStrings(cntr, op);
 }
 
 void TableCalculationSettings::Init(Tag *tag)

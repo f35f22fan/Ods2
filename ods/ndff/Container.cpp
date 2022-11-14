@@ -61,6 +61,8 @@ bool Container::Init(Book *p, QStringView full_path)
 		namespaces_loc, dictionary_loc, top_files_loc);
 	
 	doc_type_len = buf_.next_u8();
+	free_space_trailing = buf_.next_u8();
+	mtl_info("Free space trailing: %u bytes", free_space_trailing);
 	doc_type = buf_.next_string_utf8(doc_type_len);
 	mtl_info("Document type: \"%s\"", qPrintable(doc_type));
 	
@@ -70,7 +72,7 @@ bool Container::Init(Book *p, QStringView full_path)
 
 	ns_ = Ns::FromNDFF(this);
 	PrepareForParsing();
-	PrintKeywords();
+	//PrintKeywords();
 	
 	return true;
 }
@@ -88,9 +90,6 @@ ndff::Op Container::Next(Property &prop, const Op last_op,
 		if (!GetString(prop.name_id, prop.name))
 			mtl_warn("Couldn't find name by id %d", prop.name_id);
 		
-//		mtl_info("UriId %d, tag_id: %d (%s)", (i32)prop.uri_id,
-//			prop.name_id, qPrintable(prop.name));
-		
 		return op;
 	}
 	
@@ -100,15 +99,14 @@ ndff::Op Container::Next(Property &prop, const Op last_op,
 		{
 			prop.uri_id = buf_.next_unum();
 			prop.name_id = buf_.next_inum();
-			if (!GetString(prop.name_id, prop.name))
-			{
-				mtl_warn("Couldn't find name by id %d", prop.name_id);
-//				op = buf_.next_op();
-//				continue;
-			}
 			prop.value = buf_.next_string(Pack::NDFF);
-			mtl_printq2("Property value: ", prop.value);
-			((*h)[prop.uri_id]).append(prop);
+			if (h)
+			{
+				if (!GetString(prop.name_id, prop.name))
+					mtl_warn("Couldn't find name by id %d", prop.name_id);
+				mtl_printq2("Property value: ", prop.value);
+				((*h)[prop.uri_id]).append(prop);
+			}
 			op = buf_.next_op();
 		}
 		
@@ -116,15 +114,6 @@ ndff::Op Container::Next(Property &prop, const Op last_op,
 	}
 	
 	return op;
-
-//	if (op == Op::N32_TE || op == Op::TCF_CMS)
-//		return op;
-
-//	if (ndff::is_text(op))
-//		return op;
-	
-//	mtl_trace();
-//	return Op::None;
 }
 
 QString Container::NextString()
