@@ -11,8 +11,8 @@ namespace ods::inst {
 class ODS_API OfficeDocumentContent : public Abstract
 {
 public:
-	OfficeDocumentContent(Book *book, Ns *ns, Tag *tag = nullptr,
-		ndff::Container *cntr = nullptr);
+	OfficeDocumentContent(Book *book, Ns *ns, Tag *tag = 0,
+		ndff::Container *cntr = 0);
 	OfficeDocumentContent(const OfficeDocumentContent &cloner);
 	virtual ~OfficeDocumentContent();
 	

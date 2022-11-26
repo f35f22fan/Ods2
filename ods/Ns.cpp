@@ -19,7 +19,9 @@ bool SortPrefixes(Prefix *a, Prefix *b)
 }
 
 Ns::Ns() {}
-Ns::~Ns() {}
+Ns::~Ns() {
+	DeleteData();
+}
 
 Ns* Ns::Default()
 {
@@ -28,11 +30,61 @@ Ns* Ns::Default()
 	return ns;
 }
 
+void Ns::DeleteData()
+{
+	delete anim_;
+	anim_ = 0;
+	delete calcext_;
+	calcext_ = 0;
+	delete chart_;
+	chart_ = 0;
+	delete config_;
+	config_ = 0;
+	delete db_;
+	db_ = 0;
+	delete dc_;
+	dc_ = 0;
+	delete draw_;
+	draw_ = 0;
+	delete fo_;
+	fo_ = 0;
+	delete loext_;
+	loext_ = 0;
+	delete manifest_;
+	manifest_ = 0;
+	delete math_;
+	math_ = 0;
+	delete meta_;
+	meta_ = 0;
+	delete number_;
+	number_ = 0;
+	delete of_;
+	of_ = 0;
+	delete office_;
+	office_ = 0;
+	delete presentation_;
+	presentation_ = 0;
+	delete script_;
+	script_ = 0;
+	delete smil_;
+	smil_ = 0;
+	delete style_;
+	style_ = 0;
+	delete svg_;
+	svg_ = 0;
+	delete table_;
+	table_ = 0;
+	delete text_;
+	text_ = 0;
+	delete xlink_;
+	xlink_ = 0;
+}
+
 Ns* Ns::FromXml(QXmlStreamReader &xml, ci32 file_index)
 {
 	Ns *ns = new Ns();
 	ns->InitDefault(WillInitFromData::Yes);
-	ns->Read(xml, file_index);
+	ns->SyncWith(xml, file_index);
 	return ns;
 }
 
@@ -40,7 +92,7 @@ Ns* Ns::FromNDFF(ndff::Container *ndff)
 {
 	Ns *ns = new Ns();
 	ns->InitDefault(WillInitFromData::Yes);
-	ns->Read(ndff);
+	ns->SyncWith(ndff);
 	
 	return ns;
 }
@@ -143,13 +195,13 @@ void Ns::InitDefault(const WillInitFromData atr)
 	}
 }
 
-void Ns::Read(ndff::Container *ptr)
+void Ns::SyncWith(ndff::Container *ptr)
 {
 	ndff_ = ptr;
 	UriId largest = 0;
-	auto &h = ndff_->ns_hash();
+	auto &ns_hash = ndff_->ns_hash();
 	QString base_name = QLatin1String("ns");
-	for (auto it = h.constBegin(); it != h.constEnd(); it++)
+	for (auto it = ns_hash.constBegin(); it != ns_hash.constEnd(); it++)
 	{
 		cauto decl_uri = it.value();
 		for (Prefix *prefix: prefixes_)
@@ -159,8 +211,7 @@ void Ns::Read(ndff::Container *ptr)
 			if (prefix->uri().endsWith(decl_uri))
 			{
 				cauto uri_id = it.key();
-				QString name = base_name + QString::number(uri_id);
-				prefix->set_name(name);
+				prefix->set_name(base_name + QString::number(uri_id));
 				prefix->set_id(uri_id);
 				
 				if (largest < uri_id)
@@ -172,7 +223,7 @@ void Ns::Read(ndff::Container *ptr)
 	}
 }
 
-void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
+void Ns::SyncWith(QXmlStreamReader &xml, ci32 file_index)
 {
 	file_index_ = file_index;
 	const auto decls = xml.namespaceDeclarations();
@@ -213,7 +264,7 @@ void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
 	}
 	
 	auto attrs = xml.attributes();
-	auto ref = attrs.value(office()->With(ods::ns::kVersion));
+	auto ref = attrs.value(office()->With(ns::kVersion));
 	
 	if (ref.isEmpty())
 	{
@@ -228,8 +279,7 @@ void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
 	}
 }
 
-void
-Ns::WriteNamespaces(QXmlStreamWriter &xml, inst::Abstract *top)
+void Ns::WriteNamespaces(QXmlStreamWriter &xml, inst::Abstract *top)
 {
 	std::sort(prefixes_.begin(), prefixes_.end(), SortPrefixes);
 	for (auto *prefix: prefixes_)

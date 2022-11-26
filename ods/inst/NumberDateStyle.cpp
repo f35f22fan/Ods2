@@ -74,9 +74,7 @@ void NumberDateStyle::Init(ndff::Container *cntr)
 			if (prop.is(ns_->number()))
 			{
 				if (prop.name == ns::kDay) {
-					mtl_info("<number-day>");
 					Append(new NumberDay(this, 0, cntr), TakeOwnership::Yes);
-					mtl_info("</number-day>");
 				} else if (prop.name == ns::kHours)
 					Append(new NumberHours(this, 0, cntr), TakeOwnership::Yes);
 				else if (prop.name == ns::kMinutes)
@@ -86,9 +84,7 @@ void NumberDateStyle::Init(ndff::Container *cntr)
 				else if (prop.name == ns::kSeconds)
 					Append(new NumberSeconds(this, 0, cntr), TakeOwnership::Yes);
 				else if (prop.name == ns::kText) {
-					mtl_info("<number-text>");
 					Append(new NumberText(this, 0, cntr), TakeOwnership::Yes);
-					mtl_info("</number-text>");
 				} else if (prop.name == ns::kYear)
 					Append(new NumberYear(this, 0, cntr), TakeOwnership::Yes);
 			}
@@ -102,7 +98,7 @@ void NumberDateStyle::Init(ndff::Container *cntr)
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("op: %d", op);
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void NumberDateStyle::Init(ods::Tag *tag)
@@ -172,7 +168,7 @@ NumberText*
 NumberDateStyle::NewText(const QString &s)
 {
 	auto *p = new NumberText(this);
-	p->SetFirstString(s);
+	p->SetString(s);
 	Append(p, TakeOwnership::Yes);
 	return p;
 }

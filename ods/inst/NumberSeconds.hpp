@@ -13,8 +13,7 @@ public:
 	NumberSeconds(const NumberSeconds &cloner);
 	virtual ~NumberSeconds();
 	
-	virtual Abstract*
-	Clone(Abstract *parent = nullptr) const override;
+	virtual Abstract* Clone(Abstract *parent = nullptr) const override;
 	
 	i8 decimal_places() const { return number_decimal_places_; }
 	void decimal_places(const i8 n) { number_decimal_places_ = n; }
@@ -22,9 +21,7 @@ public:
 	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	void ListUsedNamespaces(NsHash &list) override;
 	
-	const QString&
-	style() const { return number_style_; }
-	
+	const QString& style() const { return number_style_; }
 	void style(const QString &s) { number_style_ = s; }
 	
 	void WriteData(QXmlStreamWriter &xml) override;

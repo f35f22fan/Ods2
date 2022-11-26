@@ -177,10 +177,10 @@ public:
 		inst::TableTableColumn *table_column = nullptr) const;
 	
 	int QueryStart() const;
-	void ReadValue(ods::Tag *tag);
+	void ReadValue(ods::Tag *tag, NdffAttrs *ndff_attrs);
 	ods::Row* row() const { return row_; }
 	void SetBoolean(const bool flag);
-	void SetBooleanFromString(const QString &s);
+	void SetBooleanFromString(QStringView s);
 	void SetCurrency(const Currency &c);
 	void SetDate(QDate *p);
 	void SetDateTime(QDateTime *p);
@@ -233,13 +233,12 @@ private:
 		delete_region_ = dr;
 	}
 	
-	const DeleteRegion&
-	delete_region() const { return delete_region_; }
+	const DeleteRegion& delete_region() const { return delete_region_; }
 	
 	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
-	
+	QString GetAttr(ods::Tag *tag, NdffAttrs *attrs, Prefix *prefix, QStringView key);
 	bool selected() const { return bits_ & SelectedBit; }
 	
 	void selected(const bool do_set) {

@@ -15,7 +15,7 @@ bool Container::GetString(ci32 id, QString &ret_val)
 {
 	ret_val = id_keyword_.value(id, QString());
 	
-	// An empty string could be valid, so if empty check
+	// An empty string could be valid? Not sure, so if empty check
 	// if it was actually found:
 	if (ret_val.isEmpty())
 		return id_keyword_.contains(id);
@@ -23,13 +23,12 @@ bool Container::GetString(ci32 id, QString &ret_val)
 	return true;
 }
 
-FileEntryInfo* Container::GetTopFile(QString filepath) const
+FileEntryInfo* Container::GetTopFile(QStringView filepath) const
 {
-	for (FileEntryInfo *next: top_files_)
+	for (FileEntryInfo *p: top_files_)
 	{
-		if (filepath == next->path()) {
-			return next;
-		}
+		if (filepath == QString(p->path()))
+			return p;
 	}
 	
 	return nullptr;
@@ -68,7 +67,7 @@ bool Container::Init(Book *p, QStringView full_path)
 	
 	CHECK_TRUE(ReadNamespaces());
 	CHECK_TRUE(ReadDictionary());
-	CHECK_TRUE(ReadTopFiles(top_files_loc, top_files_));
+	CHECK_TRUE(ReadFiles(top_files_loc, top_files_));
 
 	ns_ = Ns::FromNDFF(this);
 	PrepareForParsing();
@@ -89,12 +88,7 @@ ndff::Op Container::Next(Property &prop, const Op last_op,
 		prop.name_id = buf_.next_inum();
 		if (!GetString(prop.name_id, prop.name))
 			mtl_warn("Couldn't find name by id %d", prop.name_id);
-		
-		return op;
-	}
-	
-	if (last_op == Op::TS)
-	{
+	} else if (last_op == Op::TS) {
 		while (op == Op::S32_PS)
 		{
 			prop.uri_id = buf_.next_unum();
@@ -104,13 +98,11 @@ ndff::Op Container::Next(Property &prop, const Op last_op,
 			{
 				if (!GetString(prop.name_id, prop.name))
 					mtl_warn("Couldn't find name by id %d", prop.name_id);
-				mtl_printq2("Property value: ", prop.value);
+				//mtl_printq2("Property value: ", prop.value);
 				((*h)[prop.uri_id]).append(prop);
 			}
 			op = buf_.next_op();
 		}
-		
-		return op;
 	}
 	
 	return op;
@@ -206,44 +198,35 @@ bool Container::ReadNamespaces()
 	return true;
 }
 
-bool Container::ReadTopFiles(ci64 files_table_loc, QVector<FileEntryInfo*> &vec)
+bool Container::ReadFiles(ci64 files_loc, QVector<FileEntryInfo*> &result_vec)
 {
-	CHECK_TRUE(files_table_loc != -1);
-	if (files_table_loc < 0)
+	ci64 HintEndOfList = -1;
+	ci64 HintPlaceReserved = -2;
+	CHECK_TRUE(files_loc != HintEndOfList);
+	
+	if (files_loc < 0)
 	{ // a single file
-		cauto save_pos = buf_.at();
-		buf_.to(-files_table_loc);
-		auto *fei = ndff::FileEntryInfo::From(buf_);
-		buf_.to(save_pos);
+		ndff::FileEntryInfo *fei = ndff::FileEntryInfo::From(buf_, -files_loc);
 		CHECK_PTR(fei);
-		vec.append(fei);
-		if (fei->is_folder())
-		{
-			ReadTopFiles(fei->subfiles_loc(), fei->subfiles());
-		}
-		return true;
+		result_vec.append(fei);
+		return fei->is_folder() ? fei->ReadSubfiles(this) : true;
 	}
 	
-	buf_.to(files_table_loc);
-	// -2=place reserved, -1=end of list
+	buf_.to(files_loc);
 	while (true)
 	{
 		ci64 next_loc = buf_.next_i64();
-		if (next_loc == -2)
-			continue;
-		if (next_loc == -1)
+		if (next_loc == HintEndOfList)
 			break;
+		if (next_loc == HintPlaceReserved)
+			continue;
 		
-		cauto save_pos = buf_.at();
-		buf_.to(next_loc);
-		auto *fei = ndff::FileEntryInfo::From(buf_);
-		buf_.to(save_pos);
+		auto *fei = ndff::FileEntryInfo::From(buf_, next_loc);
 		CHECK_PTR(fei);
-		vec.append(fei);
+		result_vec.append(fei);
 		
-		if (fei->is_folder()) {
-			ReadTopFiles(fei->subfiles_loc(), fei->subfiles());
-		}
+		if (fei->is_folder())
+			CHECK_TRUE(fei->ReadSubfiles(this));
 	}
 	
 	return true;

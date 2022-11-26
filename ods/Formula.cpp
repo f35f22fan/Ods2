@@ -220,7 +220,7 @@ Formula::ParseNext(QStringView s, int &resume_at,
 		mtl_info("Brace (");
 #endif
 		if (InsideFunctionParams) {
-			it_happened();
+			mtl_it_happened();
 			return true;
 		} else {
 			vec.append(FormulaNode::Brace(Brace::Open));

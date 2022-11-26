@@ -6,9 +6,9 @@
 
 namespace ods {
 
-StringOrInst::StringOrInst(const QString &s)
+StringOrInst::StringOrInst(QStringView s)
 {
-	s_ = s;
+	s_ = s.toString();
 	is_string_ = true;
 }
 
@@ -66,10 +66,10 @@ void StringOrInst::SetInst(inst::Abstract *a, const TakeOwnership to)
 }
 
 void
-StringOrInst::SetString(const QString &s)
+StringOrInst::SetString(QStringView s)
 {
 	DeleteData();
-	s_ = s;
+	s_ = s.toString();
 	is_string_ = true;
 }
 

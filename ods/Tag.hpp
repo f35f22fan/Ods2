@@ -18,14 +18,9 @@ public:
 	Tag(Ns *ns, ods::Prefix *prefix, const QString &name);
 	virtual ~Tag();
 	
-	void
-	Append(const QString &s);
-	
-	void
-	Append(ods::Tag *tag);
-	
-	QVector<ods::Attr*>&
-	attrs() { return attrs_; }
+	void Append(const QString &s);
+	void Append(ods::Tag *tag);
+	QVector<ods::Attr*>& attrs() { return attrs_; }
 	
 	void Copy(ods::Prefix *prefix, QStringView name, ods::Bool &into);
 	void Copy(ods::Prefix *prefix, QStringView name, ods::Length **size);
@@ -33,8 +28,7 @@ public:
 	void Copy(ods::Prefix *prefix, QStringView name, i32 &into);
 	void Copy(ods::Prefix *prefix, QStringView name, i8 &into);
 	
-	static Tag*
-	From(QXmlStreamReader &xml, ods::Ns *ns);
+	static Tag* From(QXmlStreamReader &xml, ods::Ns *ns);
 	
 	QString FullName() const;
 	ods::Attr* GetAttr(ods::Prefix *prefix, QStringView name);
@@ -43,17 +37,10 @@ public:
 	bool Is(const ods::Prefix *prefix, const QString &name) const;
 	bool IsAnyCell() const;
 	bool IsTextP() const;
-	
 	const QString& name() const { return name_; }
-	
-	QVector<StringOrTag*>&
-	nodes() { return nodes_; }
-	
+	QVector<StringOrTag*>& nodes() { return nodes_; }
 	ods::Ns* ns() const { return ns_; }
-	
-	ods::Prefix*
-	prefix() { return prefix_; }
-	
+	ods::Prefix* prefix() { return prefix_; }
 	void SetAttributes(const QXmlStreamAttributes &attrs);
 	
 private:

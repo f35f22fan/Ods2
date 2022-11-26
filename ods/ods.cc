@@ -3,7 +3,6 @@
 #include "CellRef.hpp"
 #include "err.hpp"
 #include "ns.hxx"
-#include "str.hxx"
 
 #include "Book.hpp"
 #include "inst/OfficeSpreadsheet.hpp"
@@ -21,9 +20,9 @@ void ApplyBool(const QString &str, ods::Bool &b)
 		b = ods::Bool::None;
 	} else {
 		QString s = str.toLower();
-		if (s == ods::str::True) {
+		if (s == ns::True) {
 			b = ods::Bool::True;
-		} else if (s == ods::str::False) {
+		} else if (s == ns::False) {
 			b = ods::Bool::False;
 		} else {
 			b = ods::Bool::None;
@@ -302,7 +301,7 @@ TypeFromString(QStringView value_type)
 	if (value_type == ns::kBoolean)
 		return ods::ValueType::Bool;
 	
-	it_happened();
+	mtl_it_happened();
 	return ods::ValueType::None;
 }
 
@@ -319,7 +318,7 @@ TypeToString(const ods::ValueType value_type)
 	case ods::ValueType::DateTime: return ns::kDateTime;
 	case ods::ValueType::Time: return ns::kTime;
 	case ods::ValueType::Bool: return ns::kBoolean;
-	default: it_happened(); return QString();
+	default: mtl_it_happened(); return QString();
 	}
 }
 

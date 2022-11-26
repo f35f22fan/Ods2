@@ -63,7 +63,7 @@ void OfficeBody::Init(ndff::Container *cntr)
 			if (prop.is(ns_->office()))
 			{
 				if (prop.name == ns::kSpreadsheet)
-					Append(new inst::OfficeSpreadsheet(this, 0, cntr), TakeOwnership::Yes);
+					office_spreadsheet_ = new inst::OfficeSpreadsheet(this, 0, cntr);
 			}
 		} else if (ndff::is_text(op)) {
 			Append(cntr->NextString());

@@ -61,11 +61,11 @@
 #endif
 
 #ifdef _MSC_VER
-#define it_happened(fmt, ...) fprintf(stdout, \
+#define mtl_it_happened(fmt, ...) fprintf(stdout, \
 	"%sIT HAPPENED [%s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
 	__LINE__, __VA_ARGS__, MTL_COLOR_DEFAULT)
 #else
-#define it_happened(fmt, args...) fprintf(stdout, \
+#define mtl_it_happened(fmt, args...) fprintf(stdout, \
 	"%sIT HAPPENED [%s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
 	__LINE__, ##args, MTL_COLOR_DEFAULT)
 #endif

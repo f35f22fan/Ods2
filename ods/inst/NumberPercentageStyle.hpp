@@ -17,30 +17,19 @@ public:
 	Clone(Abstract *parent = nullptr) const override;
 	
 	//==> Style Interface
-	virtual QString*
-	style_name() override { return &style_name_; }
+	virtual QString* style_name() override { return &style_name_; }
 	//<== Style Interface
 	
-	inst::NumberNumber*
-	FetchNumberStyle();
-	
-	inst::NumberText*
-	FetchNumberText();
-	
-	inst::NumberNumber*
-	GetNumberStyle() const;
-	
-	inst::NumberText*
-	GetNumberText() const;
+	inst::NumberNumber* FetchNumberStyle();
+	inst::NumberText* FetchNumberText();
+	inst::NumberNumber* GetNumberStyle() const;
+	inst::NumberText* GetNumberText() const;
 
 	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	void ListUsedNamespaces(NsHash &list) override;
 	
-	inst::NumberNumber*
-	NewNumberStyle();
-	
-	NumberText*
-	NewNumberText();
+	inst::NumberNumber* NewNumberStyle();
+	NumberText* NewNumberText();
 	
 	void style_name(const QString &s) { style_name_ = s; }
 	

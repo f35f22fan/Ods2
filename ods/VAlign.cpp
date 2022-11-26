@@ -64,7 +64,7 @@ VAlign::ValueToString() const
 	if (value_ == VAlignSide::Top)
 		return ods::ns::kTop;
 	
-	it_happened();
+	mtl_it_happened();
 	return QLatin1String();
 }
 

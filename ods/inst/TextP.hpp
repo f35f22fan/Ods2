@@ -13,20 +13,15 @@ public:
 	TextP(const TextP &cloner);
 	virtual ~TextP();
 	
-	void
-	AppendString(const QString &s);
+	void AppendString(const QString &s);
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
 	const QString *GetFirstString() const;
 	
-	void ListChildren(QVector<StringOrInst *> &vec, const Recursively r) override {}
 	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	void ListUsedNamespaces(NsHash &list) override;
-	
-	// sets first string or appends
-	void SetFirstString(const QString &s);
 	
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba) override;

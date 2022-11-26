@@ -6,13 +6,18 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 #include "../VAlign.hpp"
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 
 namespace ods::inst {
 
-StyleTableCellProperties::StyleTableCellProperties(Abstract *parent, Tag *tag)
+StyleTableCellProperties::StyleTableCellProperties(Abstract *parent, Tag *tag,
+	ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleTableCellProperties)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -82,8 +87,7 @@ void StyleTableCellProperties::border_bottom(ods::attr::Border *border)
 		fo_border_bottom_ = border->Clone();
 }
 
-Abstract*
-StyleTableCellProperties::Clone(Abstract *parent) const
+Abstract* StyleTableCellProperties::Clone(Abstract *parent) const
 {
 	auto *p = new StyleTableCellProperties(*this);
 	
@@ -119,6 +123,49 @@ StyleTableCellProperties::Clone(Abstract *parent) const
 		p->style_vertical_align_ = style_vertical_align_->Clone();
 	
 	return p;
+}
+
+void StyleTableCellProperties::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	NdffAttrs attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	QString str;
+	CopyAttr(attrs, ns_->fo(), ns::kBackgroundColor, str);
+	
+	if (QColor::isValidColor(str))
+	{
+		delete fo_background_color_;
+		fo_background_color_ = new QColor(str);
+	}
+	
+	CopyAttr(attrs, ns_->style(), ns::kDiagonalBlTr, style_diagonal_bl_tr_);
+	CopyAttr(attrs, ns_->style(), ns::kDiagonalTlBr, style_diagonal_tl_br_);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kBorder, str);
+	fo_border_ = ods::attr::Border::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kBorderLeft, str);
+	fo_border_left_ = ods::attr::Border::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kBorderTop, str);
+	fo_border_top_ = ods::attr::Border::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kBorderRight, str);
+	fo_border_right_ = ods::attr::Border::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kBorderBottom, str);
+	fo_border_bottom_ = ods::attr::Border::FromString(str);
+	
+	CopyAttr(attrs, ns_->style(), ns::kBorderLineWidth, str);
+	style_border_line_width_ = ods::attr::StyleBorderLineWidth::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kWrapOption, fo_wrap_option_);
+	CopyAttr(attrs, ns_->style(), ns::kVerticalAlign, str);
+	style_vertical_align_ = VAlign::FromString(str);
+	
+	ReadStrings(cntr, op);
 }
 
 void StyleTableCellProperties::Init(ods::Tag *tag)

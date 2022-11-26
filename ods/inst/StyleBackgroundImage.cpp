@@ -2,9 +2,6 @@
 
 #include "../Ns.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
 StyleBackgroundImage::StyleBackgroundImage(Abstract *parent, Tag *tag, ndff::Container *cntr)

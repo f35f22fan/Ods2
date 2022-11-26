@@ -20,6 +20,10 @@
 #include <QHash>
 #include <QXmlStreamWriter>
 
+namespace ods {
+using NdffAttrs = QHash<UriId, QVector<ndff::Property>>;
+}
+
 namespace ods::inst {
 
 enum class IncludingText: i8 {
@@ -92,25 +96,16 @@ public:
 	virtual ~Abstract();
 	
 	//==> Style Interface
-		virtual QString*
-		data_style_name() { return nullptr; }
-		
-		Abstract*
-		GetStyleRecursive(const QString &name);
-		
-		bool
-		IsStyle() const { return bits_ & StyleBit; }
-		
-		virtual QString*
-		parent_style_name() { return nullptr; }
-		
-		virtual QString*
-		style_name() { return nullptr; }
+		virtual QString* data_style_name() { return nullptr; }
+		Abstract* GetStyleRecursive(const QString &name);
+		bool IsStyle() const { return bits_ & StyleBit; }
+		virtual QString* parent_style_name() { return nullptr; }
+		virtual QString* style_name() { return nullptr; }
 	//<== Style Interface
 	
-	bool AddText(ods::StringOrTag *tot);
+	bool AddText(ods::StringOrTag *sot);
 	void Append(Abstract *a, const TakeOwnership to);
-	void Append(const QString &s);
+	void Append(QStringView s);
 	
 	uint16_t& bits() { return bits_; }
 	ods::Book* book() const { return book_; }
@@ -123,8 +118,7 @@ public:
 	
 	bool CheckChanged(const Recursively r);
 	
-	virtual Abstract*
-	Clone(Abstract *parent = nullptr) const = 0;
+	virtual Abstract* Clone(Abstract *parent = nullptr) const = 0;
 	
 	void CopyAttr(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, QString &result);
 	void CopyAttrI8(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, i8 &result);
@@ -132,14 +126,11 @@ public:
 	
 	void DeleteNodes();
 	
-	virtual QString
-	FullName() const;
+	virtual QString FullName() const;
 	
-	id::func
-	func() const { return func_; }
+	id::func func() const { return func_; }
 	
-	void
-	func(const id::func f) { func_ = f; }
+	void func(const id::func f) { func_ = f; }
 	
 	Abstract*
 	Get(const Id id) const;
@@ -149,6 +140,8 @@ public:
 	
 	inst::Abstract*
 	GetAnyStyle(const QString &style_name) const;
+	
+	const QString* GetString() const;
 	
 	/* If you only need to know if it has children use this method
 	(because it's much faster) instead of calling ListChildren(..)
@@ -189,6 +182,8 @@ public:
 	void ReadStrings(ndff::Container *cntr);
 	void ReadStrings(ndff::Container *cntr, ndff::Op op);
 	void ReadStrings(Tag *tag);
+	
+	void SetString(QStringView s, const ClearTheRest ctr = ClearTheRest::Yes);
 	
 	const QString& tag_name() const { return tag_name_; }
 	void tag_name(const QString &n) { tag_name_ = n; }
@@ -253,7 +248,7 @@ protected:
 	inline void WriteContentFollows(ByteArray &ba) {
 		ba.add_u8(ndff::Op::TCF_CMS);
 	}
-	void WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba);
+	void WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba, const PrintText pt = PrintText::No);
 	inline void WriteSCT(ByteArray &ba) {
 		ba.add_u8(ndff::Op::SCT);
 	}
@@ -273,11 +268,12 @@ protected:
 		ba->add_u8(ndff::Op::N32_TE);
 	}
 	
-	inline void CloseWriteNodesAndClose(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
+	inline void CloseWriteNodesAndClose(NsHash &h, Keywords &kw, QFileDevice *file,
+		ByteArray *ba, const PrintText pt = PrintText::No)
 	{
 		CHECK_PTR_VOID(ba);
 		WriteContentFollows(*ba);
-		WriteNodes(h, kw, *ba);
+		WriteNodes(h, kw, *ba, pt);
 		WriteSCT(*ba);
 	}
 	

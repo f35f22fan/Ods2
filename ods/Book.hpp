@@ -121,7 +121,7 @@ private:
 		ci64 record_result_loc);
 	
 	void AddFolderFei(ByteArray &buffer, ndff::FileEntryInfo &fei,
-		QString filename, ci64 write_addr_location = -1);
+		QString filename, ci64 record_result_loc = -1);
 	// success if ret val is positive
 	i64 CreateFeiTable(ByteArray &buffer, cu32 reserve_count,
 		ci64 record_table_loc = -1);
@@ -152,7 +152,6 @@ private:
 	bool InitNDFF(QStringView full_path);
 	void Load(QStringView full_path, QString *err);
 	void LoadContentXml(ci32 file_index, QString *err);
-	void LoadContentNDFF();
 	void LoadManifestXml(ci32 file_index, QString *err);
 	void LoadMetaXml(ci32 file_index, QString *err);
 	void LoadStylesXml(ci32 file_index, QString *err);

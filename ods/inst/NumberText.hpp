@@ -16,11 +16,8 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	const QString *GetFirstString() const;
-	
 	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	void ListUsedNamespaces(NsHash &list) override;
-	void SetFirstString(const QString &s);
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:

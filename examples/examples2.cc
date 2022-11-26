@@ -6,8 +6,7 @@
 
 #include <QFile>
 
-void
-CreateCurrency()
+void CreateCurrency()
 {
 	auto *book = ods::Book::New();
 	ods::AutoDelete<ods::Book*> ad(book);
@@ -41,8 +40,7 @@ CreateCurrency()
 	util::Save(book);
 }
 
-void
-ReadCurrency()
+void ReadCurrency()
 {
 	auto full_path = util::FindFile("Currency.ods");
 	
@@ -131,8 +129,7 @@ ReadCurrency()
 	util::Save(book);
 }
 
-void
-CreateFormula()
+void CreateFormula()
 {
 	auto *book = ods::Book::New();
 	ods::AutoDelete<ods::Book*> ad(book);
@@ -256,8 +253,7 @@ CreateFormula()
 	util::Save(book);
 }
 
-void
-ReadFormula()
+void ReadFormula()
 {
 	auto full_path = util::FindFile("Formula.ods");
 	
@@ -333,8 +329,7 @@ ReadFormula()
 	util::Save(book);
 }
 
-void
-CreateFormulaFunctions()
+void CreateFormulaFunctions()
 {
 	auto *book = ods::Book::New();
 	ods::AutoDelete<ods::Book*> ad(book);
@@ -1149,8 +1144,7 @@ CreateFormulaFunctions()
 	util::Save(book);
 }
 
-void
-ReadCellRange()
+void ReadCellRange()
 {
 	QString full_path = "/home/fox/Documents/NamedRange.ods";
 	
@@ -1187,8 +1181,7 @@ ReadCellRange()
 	util::Save(book);
 }
 
-bool
-IsFunctionImplemented(QStringView s) {
+bool IsFunctionImplemented(QStringView s) {
 	const QVector<ods::FunctionMeta> &vec = ods::eval::GetSupportedFunctions();
 	
 	for (const auto &next: vec) {

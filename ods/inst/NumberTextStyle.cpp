@@ -48,7 +48,6 @@ void NumberTextStyle::Init(ndff::Container *cntr)
 	QHash<UriId, QVector<ndff::Property>> attrs;
 	Op op = cntr->Next(prop, Op::TS, &attrs);
 	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
-	
 	if (op == Op::N32_TE)
 		return;
 	

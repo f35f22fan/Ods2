@@ -86,7 +86,7 @@ void OfficeFontFaceDecls::Init(ndff::Container *cntr)
 				if (prop.name == ns::kFontFace) {
 					Append(new StyleFontFace(this, 0, cntr), TakeOwnership::Yes);
 				} else {
-					mtl_info("Unprocessed tag: %s", qPrintable(prop.name));
+					mtl_trace();
 				}
 			}
 		} else if (ndff::is_text(op)) {

@@ -1,7 +1,6 @@
 #include "StyleTextUnderlineColor.hpp"
 
-namespace ods { // ods::
-namespace attr { // ods::attr::
+namespace ods::attr {
 
 static const auto FontColorStr = QStringLiteral("font-color");
 
@@ -57,9 +56,8 @@ StyleTextUnderlineColor::toString()
 	if (is_color() && color_ != nullptr)
 		return color_->name();
 	
-	it_happened();
+	mtl_it_happened();
 	return QLatin1String();
 }
 
 } // ods::attr::
-} // ods::

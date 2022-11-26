@@ -9,22 +9,11 @@
 
 namespace util { // util::
 
-QString
-FindFile(const QString &file_name);
-
-void
-PrintBorder(ods::Cell *cell, const int row, const int col_index);
-
-void
-PrintPercentage(ods::Cell *cell);
-
-void
-PrintWidth(ods::inst::TableTableColumn *col);
-
-int
-ReadFile();
-
-void
-Save(ods::Book *book, const char *file_name = nullptr);
+QString FindFile(const QString &file_name);
+void PrintBorder(ods::Cell *cell, const int row, const int col_index);
+void PrintPercentage(ods::Cell *cell);
+void PrintWidth(ods::inst::TableTableColumn *col);
+int ReadFile();
+void Save(ods::Book *book, const char *file_name = nullptr);
 
 } // util::

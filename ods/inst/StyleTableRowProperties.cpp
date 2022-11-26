@@ -3,7 +3,6 @@
 #include "../Length.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
-#include "../str.hxx"
 #include "../Tag.hpp"
 
 namespace ods::inst {

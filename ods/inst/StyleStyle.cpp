@@ -262,7 +262,6 @@ void StyleStyle::Init(ndff::Container *cntr)
 				if (prop.name == ns::kTableColumnProperties) {
 					Append(new StyleTableColumnProperties(this, 0, cntr), TakeOwnership::Yes);
 				}
-				mtl_info("Tag start: %s", qPrintable(prop.name));
 				
 			}
 		} else if (ndff::is_text(op)) {
@@ -545,7 +544,7 @@ void StyleStyle::SetPercentage(const int min_integer_digits, const int decimal_p
 	// min_integer_digits=3 and decimal_places=4 makes 0.83 display as "083.0000%"
 	// Note: Calligra Sheets doesn't fully support percentage formatting
 	
-	percent_style->FetchNumberText()->SetFirstString(QLatin1String("%"));
+	percent_style->FetchNumberText()->SetString(QString("%"));
 }
 
 void StyleStyle::WriteData(QXmlStreamWriter &xml)

@@ -9,12 +9,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-StyleMasterPage::StyleMasterPage(Abstract *parent, Tag *tag)
+StyleMasterPage::StyleMasterPage(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleMasterPage)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -38,6 +43,48 @@ StyleMasterPage::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
+}
+
+void StyleMasterPage::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
+	CopyAttr(attrs, ns_->style(), ns::kPageLayoutName, style_page_layout_name_);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->style()))
+			{
+				if (prop.name == ns::kFooter)
+					Append(new StyleFooter(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kFooterLeft)
+					Append(new StyleFooterLeft(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kHeader)
+					Append(new StyleHeader(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kHeaderLeft)
+					Append(new StyleHeaderLeft(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
 }
 
 void StyleMasterPage::Init(Tag *tag)

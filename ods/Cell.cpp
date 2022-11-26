@@ -11,7 +11,6 @@
 #include "ods.hh"
 #include "Row.hpp"
 #include "Sheet.hpp"
-#include "str.hxx"
 #include "StringOrInst.hpp"
 #include "StringOrTag.hpp"
 #include "Tag.hpp"
@@ -75,7 +74,7 @@ Cell::AppendString(const QString &s)
 		textp->AppendString(s);
 	} else {
 		auto *textp = new inst::TextP(this);
-		textp->SetFirstString(s);
+		textp->SetString(s);
 		Append(textp, TakeOwnership::Yes);
 	}
 }
@@ -186,8 +185,9 @@ void Cell::Init(ndff::Container *cntr)
 {
 	using Op = ndff::Op;
 	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
+	NdffAttrs attrs;
 	Op op = cntr->Next(prop, Op::TS, &attrs);
+	ReadValue(0, &attrs);
 	CopyAttrI32(attrs, ns_->table(), ns::kNumberColumnsRepeated, ncr_);
 	CopyAttrI32(attrs, ns_->table(), ns::kNumberColumnsSpanned, ncs_);
 	CopyAttrI32(attrs, ns_->table(), ns::kNumberRowsSpanned, nrs_);
@@ -237,7 +237,7 @@ void Cell::Init(ndff::Container *cntr)
 
 void Cell::Init(ods::Tag *tag)
 {
-	ReadValue(tag);
+	ReadValue(tag, 0);
 	tag->Copy(ns_->table(), ns::kNumberColumnsRepeated, ncr_);
 	tag->Copy(ns_->table(), ns::kNumberColumnsSpanned, ncs_);
 	tag->Copy(ns_->table(), ns::kNumberRowsSpanned, nrs_);
@@ -282,6 +282,20 @@ void Cell::ListUsedNamespaces(inst::NsHash &list)
 	{
 		inst::Add(ns_->office(), list);
 	}
+}
+
+QString Cell::GetAttr(ods::Tag *tag, NdffAttrs *attrs, Prefix *prefix,
+	QStringView key)
+{
+	if (attrs)
+	{
+		QString ret_val;
+		CopyAttr(*attrs, prefix, key, ret_val);
+		return ret_val;
+	}
+
+	auto *v = tag->GetAttr(prefix, key);
+	return v ? v->value() : QString();
 }
 
 inst::DrawFrame*
@@ -348,8 +362,7 @@ Cell::NewStyle()
 	return style;
 }
 
-void
-Cell::number_columns_spanned(const int n)
+void Cell::number_columns_spanned(const int n)
 {
 	ncs_ = n;
 	
@@ -374,8 +387,7 @@ Cell::number_columns_spanned(const int n)
 	}
 }
 
-QString
-Cell::QueryAddress() const
+QString Cell::QueryAddress() const
 {
 	QString s = ods::ColumnNumberToLetters(QueryStart());
 	// row + 1 because .ods indexing starts at 1
@@ -384,8 +396,7 @@ Cell::QueryAddress() const
 	return s;
 }
 
-ods::Currency*
-Cell::QueryCurrencyObject()
+ods::Currency* Cell::QueryCurrencyObject()
 {
 	auto *style = GetStyle();
 	CHECK_PTR_NULL(style);
@@ -401,8 +412,7 @@ Cell::QueryCurrencyObject()
 	return c;
 }
 
-Length*
-Cell::QueryDesiredHeight() const
+Length* Cell::QueryDesiredHeight() const
 {
 	inst::StyleStyle *style = GetStyle();
 	
@@ -534,63 +544,60 @@ int Cell::QueryStart() const
 	return row_->QueryCellStart(this);
 }
 
-void Cell::ReadValue(ods::Tag *tag)
+void Cell::ReadValue(ods::Tag *tag, NdffAttrs *attrs)
 {
-	auto *ns = tag->ns();
-	auto *type_attr = tag->GetAttr(ns->office(), ns::kValueType);
-
-	if (type_attr == nullptr)
+	QString stype = GetAttr(tag, attrs, ns_->office(), ns::kValueType);
+	
+	if (stype.isEmpty())
 	{
 		ClearValue(true);
 		return;
 	}
 	
-	const QString stype = type_attr->value();
 	office_value_type_ = ods::TypeFromString(stype);
 	
 	if (is_double() || is_currency() || is_percentage())
 	{
-		auto *value_attr = tag->GetAttr(ns->office(), ns::kValue);
-		
-		if (value_attr != nullptr)
+		QString attr = GetAttr(tag, attrs, ns_->office(), ns::kValue);
+		if (!attr.isEmpty())
 		{
-			double num;
-			if (value_attr->ToDouble(num))
+			bool ok;
+			double num = attr.toDouble(&ok);
+			if (ok)
 			{
 				SetValue(new double(num), office_value_type_);
 			} else {
-				mtl_warn("ToDouble()");
+				mtl_warn("ToDouble() failed");
 			}
 		}
 	} else if (is_date()) {
 		// office:value-type="date" can be represented as
 		// a date or date-time, so check for ":" to guess which one.
 		
-		auto *custom_attr = tag->GetAttr(ns->office(), ns::kDateValue);
-		CHECK_PTR_VOID(custom_attr);
-		
-		const QString str = custom_attr->value();
-		if (str.indexOf(':') != -1) {
-			auto dt = QDateTime::fromString(str, Qt::ISODate);
+		QString date_value_str = GetAttr(tag, attrs, ns_->office(), ns::kDateValue);
+		mtl_printq2("||||||||||||||||||||||date_value_str: ", date_value_str);
+		if (date_value_str.indexOf(':') != -1) {
+			auto dt = QDateTime::fromString(date_value_str, Qt::ISODate);
 			SetDateTime(new QDateTime(dt));
 		} else {
-			auto dt = QDate::fromString(str, Qt::ISODate);
+			auto dt = QDate::fromString(date_value_str, Qt::ISODate);
 			SetDate(new QDate(dt));
 		}
 	} else if (is_time()) {
-		auto *custom_attr = tag->GetAttr(ns->office(), ns::kTimeValue);
-		CHECK_PTR_VOID(custom_attr);
+		QString attr = GetAttr(tag, attrs, ns_->office(), ns::kTimeValue);
 		auto *t = new ods::Time();
-		if (!t->Parse(custom_attr->value())) {
-			auto ba = custom_attr->value().toLocal8Bit();
+		if (!t->Parse(attr)) {
+			auto ba = attr.toLocal8Bit();
 			mtl_trace("Failed to parse: \"%s\"", ba.data());
+			delete t;
+		} else {
+			SetValue(t, office_value_type_);
 		}
-		SetValue(t, office_value_type_);
 	} else if (is_boolean()) {
-		auto *custom_attr = tag->GetAttr(ns->office(), ns::kBooleanValue);
+		QString attr = GetAttr(tag, attrs, ns_->office(), ns::kBooleanValue);
 		
-		if (custom_attr != nullptr)
-			SetBooleanFromString(custom_attr->value());
+		if (!attr.isEmpty())
+			SetBooleanFromString(attr);
 	} else if (is_string()) {
 		// do nothing
 	} else {
@@ -625,9 +632,12 @@ void Cell::SetBoolean(const bool flag)
 	office_value_type_ = ods::ValueType::Bool;
 }
 
-void Cell::SetBooleanFromString(const QString &s)
+void Cell::SetBooleanFromString(QStringView s)
 {
-	const bool flag = s.toLower() == QLatin1String("true");
+	if (s.isEmpty())
+		return;
+	
+	cbool flag = s == QLatin1String("true");
 	SetValue(new bool(flag), office_value_type_);
 }
 
@@ -674,10 +684,10 @@ void Cell::SetFirstString(const QString &s, bool change_value_type)
 	if (inst != nullptr)
 	{
 		auto *textp = (ods::inst::TextP*) inst;
-		textp->SetFirstString(s);
+		textp->SetString(s);
 	} else {
 		auto *textp = new inst::TextP(this);
-		textp->SetFirstString(s);
+		textp->SetString(s);
 		Append(textp, TakeOwnership::Yes);
 	}
 	
@@ -799,7 +809,7 @@ Cell::ValueToString() const
 		return (s == nullptr) ? empty : *s;
 	}
 	
-	it_happened();
+	mtl_it_happened();
 	return empty;
 }
 
@@ -940,7 +950,7 @@ void Cell::WriteValueNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file
 		QString dur_value = dd->toString();
 		WriteNdffProp(kw, *ba, ns_->office(), ns::kTimeValue, dur_value);
 	} else if (is_boolean()) {
-		QString str = *as_boolean() ? ods::str::True : ods::str::False;
+		QString str = *as_boolean() ? ns::True : ns::False;
 		WriteNdffProp(kw, *ba, ns_->office(), ns::kBooleanValue, str);
 	} else if (is_string()) {
 		// do nothing

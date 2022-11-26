@@ -30,18 +30,6 @@ NumberText::Clone(Abstract *parent) const
 	return p;
 }
 
-const QString*
-NumberText::GetFirstString() const
-{
-	for (StringOrInst *node: nodes_)
-	{
-		if (node->is_string())
-			return node->as_str_ptr(); //&node->as_string();
-	}
-	
-	return nullptr;
-}
-
 void NumberText::ListKeywords(Keywords &list, const LimitTo lt)
 {
 	AddKeywords({tag_name()}, list);
@@ -50,20 +38,6 @@ void NumberText::ListKeywords(Keywords &list, const LimitTo lt)
 void NumberText::ListUsedNamespaces(NsHash &list)
 {
 	Add(ns_->number(), list);
-}
-
-void NumberText::SetFirstString(const QString &s)
-{
-	for (StringOrInst *node: nodes_)
-	{
-		if (node->is_string())
-		{
-			node->SetString(s);
-			return;
-		}
-	}
-	
-	Append(s);
 }
 
 void NumberText::WriteData(QXmlStreamWriter &xml)

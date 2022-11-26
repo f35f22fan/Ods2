@@ -61,7 +61,7 @@ FormulaNode::AdoptDefaultValueFrom(const FormulaNode &rhs)
 		p->setTime(QTime(0, 0, 0));
 		SetDateTime(p);
 	} else {
-		it_happened();
+		mtl_it_happened();
 	}
 }
 
@@ -457,7 +457,7 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 			else if (op == Op::NotEquals)
 				flag = *lhs != *rhs;
 			else {
-				it_happened();
+				mtl_it_happened();
 				return false;
 			}
 			
@@ -488,7 +488,7 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 			else if (op == Op::NotEquals)
 				flag = *lhs != *rhs;
 			else {
-				it_happened();
+				mtl_it_happened();
 				return false;
 			}
 			
@@ -520,7 +520,7 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 			else if (op == Op::NotEquals)
 				flag = lhs != rhs;
 			else {
-				it_happened();
+				mtl_it_happened();
 				return false;
 			}
 			
@@ -551,7 +551,7 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 			else if (op == Op::NotEquals)
 				flag = lhs != rhs;
 			else {
-				it_happened();
+				mtl_it_happened();
 				return false;
 			}
 			
@@ -752,7 +752,7 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 	} else if (is_none())
 		return QString();
 	else {
-		it_happened();
+		mtl_it_happened();
 		return QString();
 	}
 }

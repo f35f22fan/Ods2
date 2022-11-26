@@ -30,8 +30,7 @@ public:
 	void ListUsedNamespaces(NsHash &list) override;
 	void SetSymbol(const ods::Currency &c);
 	
-	QString
-	GetSymbol();
+	QString GetSymbol();
 	
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;

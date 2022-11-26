@@ -187,7 +187,6 @@ OfficeSpreadsheet::NewSheet(const QString &name)
 	if (GetSheet(name) != nullptr)
 		return nullptr;
 	
-//	ods::Tag *tag = nullptr;
 	auto *sheet = new ods::Sheet(this);
 	sheet->name(name);
 	tables_.append(sheet);

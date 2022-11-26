@@ -26,7 +26,7 @@ public:
 	QString doc_type;
 	
 	Ns* CreateNs();
-	FileEntryInfo* GetTopFile(QString filepath) const;
+	FileEntryInfo* GetTopFile(QStringView filepath) const;
 	bool Init(Book *book, QStringView full_path);
 	ByteArray &buf() { return buf_; }
 	inst::NsHash& ns_hash() { return ns_hash_; }
@@ -45,7 +45,7 @@ private:
 	void PrintKeywords();
 	bool ReadDictionary();
 	bool ReadNamespaces();
-	bool ReadTopFiles(ci64 files_table_loc, QVector<FileEntryInfo *> &vec);
+	bool ReadFiles(ci64 files_loc, QVector<FileEntryInfo *> &vec);
 	
 	Book *book_ = nullptr;
 	Ns *ns_ = nullptr;
@@ -54,6 +54,8 @@ private:
 	inst::Keywords keywords_; // using Keywords = QHash<QString, IdAndCount>;
 	QHash<i32, QString> id_keyword_;
 	QVector<ndff::FileEntryInfo*> top_files_;
+	
+	friend class ods::ndff::FileEntryInfo;
 };
 
 }

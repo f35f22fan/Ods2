@@ -142,8 +142,11 @@ void Book::CreateNamespacesRegion(ByteArray &result, inst::NsHash &h)
 Book* Book::FromNDFF(QStringView full_path)
 {
 	auto *book = Book::New(DevMode::Yes);
-	CHECK_TRUE_NULL(book->InitNDFF(full_path));
-	
+	if (!book->InitNDFF(full_path))
+	{
+		delete book;
+		return 0;
+	}
 	
 	return book;
 }
@@ -180,7 +183,7 @@ Book::GenUniqueStyleName(const style::Family f, const id::func fu)
 		else if (fu == id::NumberBooleanStyle)
 			base = QLatin1String("bool");
 		else
-			it_happened();
+			mtl_it_happened();
 	}
 	
 	if (f != style::Family::None)
@@ -194,7 +197,7 @@ Book::GenUniqueStyleName(const style::Family f, const id::func fu)
 		else if (f == style::Family::Table)
 			base.append(QLatin1String("ta"));
 		else
-			it_happened();
+			mtl_it_happened();
 	}
 	
 	int i = 0;
@@ -328,7 +331,34 @@ void Book::InitTempDir()
 bool Book::InitNDFF(QStringView full_path)
 {
 	CHECK_TRUE(ndff_.Init(this, full_path));
-	LoadContentNDFF();
+	auto &ba = ndff_.buf();
+	{
+		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::ContentXml);
+		ba.to(fei->content_start());
+		document_content_ = new inst::OfficeDocumentContent(this, ndff_.ns(), 0, &ndff_);
+	}
+	{
+		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::StylesXml);
+		ba.to(fei->content_start());
+		document_styles_ = new inst::OfficeDocumentStyles(this, ndff_.ns(), 0, &ndff_);
+	}
+	{
+		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::MetaXml);
+		ba.to(fei->content_start());
+		document_meta_ = new inst::OfficeDocumentMeta(this, ndff_.ns(), 0, &ndff_);
+	}
+	{
+		auto *folder = ndff_.GetTopFile(filename::MetaInf);
+		CHECK_PTR(folder);
+		ndff::FileEntryInfo *fei = folder->GetFile(filename::ManifestXml);
+		if (!fei)
+		{
+			mtl_trace("No manifest fei");
+			return false;
+		}
+		ba.to(fei->content_start());
+		manifest_ = new inst::ManifestManifest(this, ndff_.ns(), 0, &ndff_);
+	}
 	return true;
 }
 
@@ -378,14 +408,6 @@ void Book::Load(QStringView full_path, QString *err)
 		CHECK_TRUE_VOID(file_index != -1);
 		LoadStylesXml(file_index, err);
 	}
-}
-
-void Book::LoadContentNDFF()
-{
-	ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::ContentXml);
-	auto &ba = ndff_.buf();
-	ba.to(fei->content_start());
-	document_content_ = new inst::OfficeDocumentContent(this, ndff_.ns(), 0, &ndff_);
 }
 
 void Book::LoadContentXml(ci32 file_index, QString *err)
@@ -552,7 +574,7 @@ Book::NewStyle(const Place place, const style::Family f)
 		return document_styles_->office_styles()->NewStyleStyle(f);
 	}
 	
-	it_happened();
+	mtl_it_happened();
 	return nullptr;
 }
 
@@ -720,14 +742,14 @@ bool WriteAll(QIODevice &file, const char *data, ci64 max, QString *err = 0)
 }
 
 void Book::AddFolderFei(ByteArray &buffer, ndff::FileEntryInfo &fei,
-	QString filename, ci64 write_addr_location)
+	QString filename, ci64 record_result_loc)
 {
 	fei.self_loc(buffer.at());
 	fei.SetFolder(filename);
 	fei.SetTimesToNow();
 	fei.WriteTo(buffer);
-	if (write_addr_location != -1)
-		buffer.set_i64(write_addr_location, fei.self_loc());
+	if (record_result_loc != -1)
+		buffer.set_i64(record_result_loc, fei.self_loc());
 }
 
 void Book::AddFei(inst::Abstract *top, QStringView fn,
@@ -814,12 +836,14 @@ bool Book::SaveFromScratch(QString *err)
 	main_buffer.add_u8(type_ods.size()); // must be u8 according to spec
 	main_buffer.add(type_ods.data(), type_ods.size(), ExactSize::Yes);
 	
-	/* The 5 files are:
-		1) META-INF (folder)
-		2) content.xml (file)
-		3) styles.xml (file)
-		4) mimetype (file)
-		5) meta.xml (file) */
+	/* The files are:
+		1) content.xml (file)
+		2) styles.xml (file)
+		3) mimetype (file)
+		4) meta.xml (file)
+		5) META-INF (folder)
+		6) manifest.xml (file)
+ */
 	ci64 fei_table_loc = CreateFeiTable(main_buffer, 5,
 		ndff::MainHeaderPlaces::top_files_loc);
 	CHECK_TRUE(fei_table_loc > 0);
@@ -842,16 +866,16 @@ bool Book::SaveFromScratch(QString *err)
 		main_buffer, next_fei_loc += 8);
 	
 	ndff::FileEntryInfo manifest_fei;
-	AddFei(document_meta_, filename::ManifestXml,
+	AddFei(manifest_, filename::ManifestXml,
 		ns_hash, keywords, manifest_fei,
 		main_buffer, -1);
 	
 	/// "META-INF" folder
-	ndff::FileEntryInfo meta_inf_fei;
+	ndff::FileEntryInfo folder_fei;
 	{
 		/// Tying "META-INFO/manifest.xml" to its parent folder
-		meta_inf_fei.subfiles_loc(-manifest_fei.self_loc());
-		AddFolderFei(main_buffer, meta_inf_fei, filename::MetaInf,
+		folder_fei.subfiles_loc(-manifest_fei.self_loc());
+		AddFolderFei(main_buffer, folder_fei, filename::MetaInf,
 			next_fei_loc += 8);
 	}
 	
@@ -869,7 +893,7 @@ bool Book::SaveFromScratch(QString *err)
 	styles_fei.WriteEfa(main_buffer);
 	contents_fei.WriteEfa(main_buffer);
 	manifest_fei.WriteEfa(main_buffer);
-	meta_inf_fei.WriteEfa(main_buffer);
+	folder_fei.WriteEfa(main_buffer);
 	
 	CHECK_TRUE(WriteAll(ndff_file, main_buffer.data(), main_buffer.size(), err));
 	

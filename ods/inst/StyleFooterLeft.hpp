@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API StyleFooterLeft : public Abstract
 {
 public:
-	StyleFooterLeft(Abstract *parent, Tag *tag = nullptr);
+	StyleFooterLeft(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	StyleFooterLeft(const StyleFooterLeft &cloner);
 	virtual ~StyleFooterLeft();
 	
@@ -22,7 +22,7 @@ public:
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 	
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	
 	QString style_display_;

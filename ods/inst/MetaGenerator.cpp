@@ -6,11 +6,13 @@
 
 namespace ods::inst {
 
-MetaGenerator::MetaGenerator(Abstract *parent, Tag *tag)
+MetaGenerator::MetaGenerator(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::MetaGenerator)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 MetaGenerator::MetaGenerator(const MetaGenerator &cloner)
@@ -28,11 +30,6 @@ MetaGenerator::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	return p;
-}
-
-void MetaGenerator::Init(Tag *tag)
-{
-	ReadStrings(tag);
 }
 
 void MetaGenerator::ListKeywords(Keywords &list, const LimitTo lt)

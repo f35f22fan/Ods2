@@ -2,6 +2,8 @@
 
 #include "../ByteArray.hpp"
 
+#include "Container.hpp"
+
 namespace ods::ndff {
 
 FileEntryInfo::FileEntryInfo() {
@@ -17,11 +19,27 @@ FileEntryInfo::~FileEntryInfo() {
 	}
 }
 
-FileEntryInfo* FileEntryInfo::From(ByteArray &buf)
-{
+FileEntryInfo* FileEntryInfo::From(ByteArray &buf, ci64 loc)
+{ // must keep location, Container::ReadFiles() depends on it.
 	FileEntryInfo *p = new FileEntryInfo();
+	cauto saved = buf.at();
+	buf.to(loc);
 	p->Read(buf);
+	buf.to(saved);
 	return p;
+}
+
+FileEntryInfo* FileEntryInfo::GetFile(QStringView name) const
+{
+	auto utf8_name = name.toUtf8();
+	
+	for (FileEntryInfo *next: subfiles_)
+	{
+		if (utf8_name == next->path_)
+			return next;
+	}
+	
+	return 0;
 }
 
 void FileEntryInfo::Read(ods::ByteArray &buf)
@@ -58,6 +76,11 @@ void FileEntryInfo::Read(ods::ByteArray &buf)
 	}
 }
 
+bool FileEntryInfo::ReadSubfiles(ndff::Container *cntr)
+{
+	return cntr->ReadFiles(subfiles_loc_, subfiles_);
+}
+
 i64 FileEntryInfo::size() const
 {
 	i64 n = 4 + path_.size();
@@ -92,38 +115,36 @@ void FileEntryInfo::AddFileData(ByteArray &main_buffer,
 	mtl_info("%s file_data size: %ld", str.data(), file_data.size());
 }
 
-void FileEntryInfo::WriteEfa(ByteArray &main_buffer)
+void FileEntryInfo::WriteEfa(ByteArray &buf)
 {
-	main_buffer.add_i64(efa_loc_);
+	buf.add_i64(efa_loc_);
 	if (efa_loc_ != -1)
-		main_buffer.add(efa_data_, efa_data_len_, ExactSize::Yes);
+		buf.add(efa_data_, efa_data_len_, ExactSize::Yes);
 }
 
-void FileEntryInfo::WriteTo(ByteArray &main_buffer)
+void FileEntryInfo::WriteTo(ByteArray &buf)
 {
-	main_buffer.add_u16(info_);
-	mtl_info("Writing file: \"%s\"", path_.data());
-	main_buffer.add_u16(path_.size());
-	main_buffer.add(path_.data(), path_.size(), ExactSize::Yes);
+	buf.add_u16(info_);
+	mtl_info("Writing file: %s\"%s\"%s", MTL_BOLD, path_.data(), MTL_BOLD_END);
+	buf.add_u16(path_.size());
+	buf.add(path_.data(), path_.size(), ExactSize::Yes);
 	
 	if (has(FeiBit::CRC_32b))
-		main_buffer.add_u32(0); // TBD
+		buf.add_u32(0); // TBD
 	
 	if (is_regular_file())
 	{
-		main_buffer.add_i64(content_start_);
-		main_buffer.add_i64(extra_region_);
+		buf.add_i64(content_start_);
+		buf.add_i64(extra_region_);
 	} else if (is_folder()) {
-		main_buffer.add_i64(subfiles_loc_);
+		buf.add_i64(subfiles_loc_);
 	} else if (is_symlink()) {
-		main_buffer.add_u16(link_target_.size());
-		main_buffer.add(link_target_.data(), link_target_.size(), ExactSize::Yes);
+		buf.add_u16(link_target_.size());
+		buf.add(link_target_.data(), link_target_.size(), ExactSize::Yes);
 	}
 	
 	if (has(FeiBit::EFA))
-	{
-		WriteEfa(main_buffer);
-	}
+		WriteEfa(buf);
 }
 
 }

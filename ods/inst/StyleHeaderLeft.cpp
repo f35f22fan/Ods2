@@ -4,12 +4,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-StyleHeaderLeft::StyleHeaderLeft(Abstract *parent, Tag *tag)
+StyleHeaderLeft::StyleHeaderLeft(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleHeaderLeft)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -32,6 +37,16 @@ StyleHeaderLeft::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
+}
+
+void StyleHeaderLeft::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	NdffAttrs attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kDisplay, style_display_);
+	ReadStrings(cntr, op);
 }
 
 void StyleHeaderLeft::Init(Tag *tag)

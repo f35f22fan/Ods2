@@ -64,7 +64,7 @@ HAlign::ValueToString() const
 	if (value_ == HAlignSide::Right)
 		return ods::ns::kEnd;
 	
-	it_happened();
+	mtl_it_happened();
 	return QLatin1String();
 }
 

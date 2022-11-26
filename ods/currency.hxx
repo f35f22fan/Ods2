@@ -5,7 +5,7 @@
 #include "global.hxx"
 #include "types.hxx"
 
-namespace ods { // ods::
+namespace ods {
 
 enum class CurrencyId : u16 {
 	None,
@@ -29,8 +29,8 @@ struct ODS_API Currency {
 };
 
 struct ODS_API CurrencyInfo {
-	const char * const str;
-	const char * const symbol;
+	QString str;
+	QString symbol;
 };
 
 }

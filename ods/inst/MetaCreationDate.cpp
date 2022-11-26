@@ -6,11 +6,13 @@
 
 namespace ods::inst {
 
-MetaCreationDate::MetaCreationDate(Abstract *parent, Tag *tag)
+MetaCreationDate::MetaCreationDate(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::MetaCreationDate)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 MetaCreationDate::MetaCreationDate(const MetaCreationDate &cloner)
@@ -28,11 +30,6 @@ MetaCreationDate::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	return p;
-}
-
-void MetaCreationDate::Init(Tag *tag)
-{
-	ReadStrings(tag);
 }
 
 void MetaCreationDate::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)

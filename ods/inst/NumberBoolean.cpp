@@ -28,8 +28,7 @@ Abstract*
 NumberBoolean::Clone(Abstract *parent) const
 {
 	auto *p = new NumberBoolean(*this);
-	
-	if (parent != nullptr)
+	if (parent)
 		p->parent(parent);
 	
 	return p;
@@ -46,8 +45,6 @@ void NumberBoolean::ListUsedNamespaces(NsHash &list)
 }
 
 void NumberBoolean::WriteData(QXmlStreamWriter &xml)
-{
-//	WriteNodes(xml); // cannot have any children
-}
+{}
 
 } // ods::inst::

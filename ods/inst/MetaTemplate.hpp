@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API MetaTemplate : public Abstract
 {
 public:
-	MetaTemplate(Abstract *parent, Tag  *Tag = nullptr);
+	MetaTemplate(Abstract *parent, Tag  *Tag = 0, ndff::Container *cntr = 0);
 	MetaTemplate(const MetaTemplate &cloner);
 	virtual ~MetaTemplate();
 	
@@ -21,7 +21,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	
 //<meta:template xlink:type="simple"

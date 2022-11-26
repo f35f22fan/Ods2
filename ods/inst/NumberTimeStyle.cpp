@@ -155,7 +155,7 @@ NumberText*
 NumberTimeStyle::NewText(const QString &s)
 {
 	auto *p = new NumberText(this);
-	p->SetFirstString(s);
+	p->SetString(s);
 	Append(p, TakeOwnership::Yes);
 	return p;
 }

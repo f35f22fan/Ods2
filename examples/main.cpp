@@ -41,8 +41,7 @@ main(int argc, char *argv[])
 //	CreateImage();
 //	ReadImage();
 	
-	CreateDate();
-	ReadNDFF(); /// Nevermind this function, it's purely for development purposes
+//	CreateDate();
 //	ReadDate();
 	
 //	CreateCurrency();
@@ -54,7 +53,8 @@ main(int argc, char *argv[])
 //	CreateBoolean();
 //	ReadBoolean();
 	
-//	CreateFormula();
+	CreateFormula();
+ReadWriteNDFF(); /// Nevermind this function, it's purely for development purposes
 //	ReadFormula();
 //	ReadFormulaCustom();
 	

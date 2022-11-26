@@ -5,8 +5,7 @@
 
 #include <QColor>
 
-namespace ods { // ods::
-namespace attr { // ods::attr::
+namespace ods::attr {
 
 enum class TextUnderlineColor : uint8_t
 {
@@ -56,4 +55,3 @@ private:
 };
 
 } // ods::attr::
-} // ods::

@@ -6,12 +6,18 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-StyleParagraphProperties::StyleParagraphProperties(Abstract *parent, ods::Tag *tag)
+StyleParagraphProperties::StyleParagraphProperties(Abstract *parent,
+	ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleParagraphProperties)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -44,6 +50,23 @@ StyleParagraphProperties::Clone(Abstract *parent) const
 	return p;
 }
 
+void StyleParagraphProperties::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	NdffAttrs attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kTabStopDistance, style_tab_stop_distance_);
+	
+	QString str;
+	CopyAttr(attrs, ns_->fo(), ns::kMarginLeft, str);
+	fo_margin_left_ = ods::Length::FromString(str);
+	
+	CopyAttr(attrs, ns_->fo(), ns::kTextAlign, str);
+	fo_text_align_ = HAlign::FromString(str);
+	
+	ReadStrings(cntr, op);
+}
 void StyleParagraphProperties::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ns::kTabStopDistance, style_tab_stop_distance_);
@@ -73,13 +96,7 @@ void StyleParagraphProperties::ListUsedNamespaces(NsHash &list)
 void StyleParagraphProperties::text_align(ods::HAlign *a)
 {
 	delete fo_text_align_;
-	
-	if (a == nullptr)
-	{
-		fo_text_align_ = nullptr;
-	} else {
-		fo_text_align_ = a->Clone();
-	}
+	fo_text_align_ = a ? a->Clone() : nullptr;
 }
 
 void StyleParagraphProperties::WriteData(QXmlStreamWriter &xml)

@@ -6,11 +6,13 @@
 
 namespace ods::inst {
 
-MetaEditingCycles::MetaEditingCycles(Abstract *parent, Tag *tag)
+MetaEditingCycles::MetaEditingCycles(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::MetaEditingCycles)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 MetaEditingCycles::MetaEditingCycles(const MetaEditingCycles &cloner)
@@ -28,11 +30,6 @@ MetaEditingCycles::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	return p;
-}
-
-void MetaEditingCycles::Init(Tag *tag)
-{
-	ReadStrings(tag);
 }
 
 void MetaEditingCycles::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)

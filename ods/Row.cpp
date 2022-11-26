@@ -450,8 +450,10 @@ QString Row::ToSchemaString() const
 void Row::WriteData(QXmlStreamWriter &xml)
 {
 	if (nrr_ != 1)
+	{
 		xml.writeAttribute(ns_->table()->With(ns::kNumberRowsRepeated),
 			QString::number(nrr_));
+	}
 	
 	if (!table_style_name_.isEmpty())
 		xml.writeAttribute(ns_->table()->With(ns::kStyleName),

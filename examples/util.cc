@@ -6,28 +6,26 @@
 #include <QFile>
 #include <QStandardPaths>
 
-namespace util { // util::
+namespace util {
 
-QString
-FindFile(const QString &file_name)
+QString FindFile(const QString &file_name)
 {
 	QString full_path = QString(ODS2_TEST_DIR)
 		+ QLatin1String("/examples/test_files/") + file_name;
 	
 	auto ba = full_path.toLocal8Bit();
 	
-	if (QFile(full_path).exists()) {
+	if (QFile(full_path).exists())
+	{
 		mtl_info("Using file: %s", ba.data());
 		return full_path;
 	}
-	
 	
 	mtl_warn("File not found: %s", ba.data());
 	return QString();
 }
 
-void
-PrintBorder(ods::Cell *cell, const int row, const int col_index)
+void PrintBorder(ods::Cell *cell, const int row, const int col_index)
 {
 	mtl_info("Cell at %d:%d...", row, col_index);
 	
@@ -105,8 +103,7 @@ PrintBorder(ods::Cell *cell, const int row, const int col_index)
 	}
 }
 
-void
-PrintPercentage(ods::Cell *cell)
+void PrintPercentage(ods::Cell *cell)
 {
 	mtl_info("Cell column index: %d", cell->QueryStart());
 	
@@ -148,8 +145,7 @@ PrintPercentage(ods::Cell *cell)
 	
 }
 
-void
-PrintWidth(ods::inst::TableTableColumn *col)
+void PrintWidth(ods::inst::TableTableColumn *col)
 {
 	if (col == nullptr)
 	{
@@ -207,8 +203,7 @@ PrintWidth(ods::inst::TableTableColumn *col)
 	mtl_info("Column width: %s", ba.data());
 }
 
-void
-Save(ods::Book *book, const char *file_name)
+void Save(ods::Book *book, const char *file_name)
 {
 	const char *fn = (file_name == nullptr) ? "out.ods" : file_name;
 	QFile file(QDir::home().filePath(fn));

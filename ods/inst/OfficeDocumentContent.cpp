@@ -82,11 +82,7 @@ Abstract*
 OfficeDocumentContent::GetAnyStyle(const QString &name)
 {
 	auto *a = office_automatic_styles_->GetStyleRecursive(name);
-	
-	if (a != nullptr)
-		return a;
-	
-	return office_font_face_decls_->GetStyleRecursive(name);
+	return a ? a : office_font_face_decls_->GetStyleRecursive(name);
 }
 
 void OfficeDocumentContent::Init(ods::Tag *tag)
@@ -100,9 +96,10 @@ void OfficeDocumentContent::Init(ndff::Container *cntr)
 	using Op = ndff::Op;
 	ndff::Property prop;
 	Op op = cntr->Next(prop, Op::None);
-	QHash<UriId, QVector<ndff::Property>> h;
-	op = cntr->Next(prop, op, &h);
-	
+	NdffAttrs attrs;
+	op = cntr->Next(prop, op, &attrs);
+	CopyAttr(attrs, ns_->office(), ns::kVersion, office_version_);
+	mtl_info("office_version_: %s", qPrintable(office_version_));
 	if (op == Op::N32_TE)
 		return;
 	

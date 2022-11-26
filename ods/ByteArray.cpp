@@ -21,6 +21,7 @@ ByteArray::~ByteArray()
 
 ByteArray& ByteArray::operator = (const ByteArray &rhs)
 {
+	Clear();
 	add(rhs.data(), rhs.size());
 	at_ = 0;
 	return *this;
@@ -34,7 +35,8 @@ bool ByteArray::operator == (const ByteArray &rhs)
 	return (memcmp(data_, rhs.data(), size_) == 0);
 }
 
-void ByteArray::Clear() {
+void ByteArray::Clear()
+{
 	delete[] data_;
 	data_ = nullptr;
 	size_ = heap_size_ = at_ = 0;

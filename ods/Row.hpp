@@ -117,7 +117,7 @@ private:
 	
 	QVector<ods::Cell*> cells_;
 	ods::Sheet *sheet_ = nullptr;
-	int nrr_ = 1;
+	i32 nrr_ = 1;
 	QString table_style_name_;
 	u8 bits_ = 0;
 	ods::DeleteRegion delete_region_ = {-1, -1, -1};

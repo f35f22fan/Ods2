@@ -10,7 +10,6 @@
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Prefix.hpp"
-#include "../str.hxx"
 #include "../Tag.hpp"
 
 namespace ods::inst {
@@ -48,25 +47,24 @@ Abstract::Abstract(const Abstract &cloner)
 
 Abstract::~Abstract()
 {
-	if (is_root())
-		delete ns_;
-	
 	for (auto *node: nodes_)
 		delete node;
 }
 
-bool Abstract::AddText(StringOrTag *tot)
+bool Abstract::AddText(StringOrTag *sot)
 {
-	if (tot->is_string())
+	if (sot->is_string())
 	{
-		Append(*tot->as_string());
+		QString s = *sot->as_string();
+		mtl_printq(s);
+		Append(s);
 		return true;
 	}
 	
 	return false;
 }
 
-void Abstract::Append(const QString &s)
+void Abstract::Append(QStringView s)
 {
 	if (!s.isEmpty())
 		nodes_.append(new StringOrInst(s));
@@ -166,7 +164,7 @@ void Abstract::CopyAttrI32(QHash<UriId, QVector<ndff::Property> > &attrs,
 	if (!s.isEmpty())
 	{
 		bool ok;
-		ci16 k = s.toInt(&ok);
+		ci32 k = s.toInt(&ok);
 		if (ok)
 			result = k;
 	}
@@ -230,6 +228,18 @@ Abstract::GetAnyStyle(const QString &style_name) const
 	
 	return aus->ByStyleName(style_name);
 }
+
+const QString* Abstract::GetString() const
+{
+	for (StringOrInst *node: nodes_)
+	{
+		if (node->is_string())
+			return node->as_str_ptr();
+	}
+	
+	return nullptr;
+}
+
 
 Abstract*
 Abstract::GetStyleRecursive(const QString &name)
@@ -318,6 +328,7 @@ void Abstract::ReadStrings(ndff::Container *cntr, ndff::Op op)
 	{
 		if (op == Op::TS)
 		{
+			mtl_trace();
 		} else if (ndff::is_text(op)) {
 			Append(cntr->NextString());
 		} else {
@@ -330,7 +341,6 @@ void Abstract::ReadStrings(ndff::Container *cntr, ndff::Op op)
 		mtl_trace("Unexpected op: %d", op);
 }
 
-
 void Abstract::ReadStrings(Tag *tag)
 {
 	for (StringOrTag *x: tag->nodes())
@@ -338,6 +348,25 @@ void Abstract::ReadStrings(Tag *tag)
 		if (x->is_string())
 			Append(*x->as_string());
 	}
+}
+
+void Abstract::SetString(QStringView s, const ClearTheRest ctr)
+{
+	for (StringOrInst *node: nodes_)
+	{
+		if (ctr == ClearTheRest::Yes)
+		{
+			delete node;
+		} else if (node->is_string()) {
+			node->SetString(s);
+			return;
+		}
+	}
+	
+	if (ctr == ClearTheRest::Yes)
+		nodes_.clear();
+	
+	Append(s);
 }
 
 void Abstract::Write(QXmlStreamWriter &xml)
@@ -374,7 +403,7 @@ void Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix, QStringView nam
 	const ods::Bool value)
 {
 	if (value != ods::Bool::None) {
-		QString s = (value == ods::Bool::True) ? ods::str::True : ods::str::False;
+		QString s = (value == Bool::True) ? ns::True : ns::False;
 		xml.writeAttribute(prefix->With(name), s);
 	}
 }
@@ -418,7 +447,7 @@ void Abstract::WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
 {
 	if (value != Bool::None)
 	{
-		QString s = (value == Bool::True) ? ods::str::True : ods::str::False;
+		QString s = (value == Bool::True) ? ns::True : ns::False;
 		WriteNdffProp(kw, ba, prefix, name, s);
 	}
 }
@@ -451,18 +480,28 @@ void Abstract::WriteNodes(QXmlStreamWriter &xml)
 	}
 }
 
-void Abstract::WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba)
+void Abstract::WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba, const PrintText pt)
 {
 	QVector<StringOrInst*> vec;
 	ListChildren(vec, Recursively::No);
-	for (StringOrInst *sis: vec)
+	bool found = false;
+	for (StringOrInst *soi: vec)
 	{
-		if (sis->is_inst()) {
-			sis->as_inst()->WriteNDFF(h, kw, nullptr, &ba);
+		if (soi->is_inst()) {
+			soi->as_inst()->WriteNDFF(h, kw, nullptr, &ba);
 		} else {
-			ba.add_string(sis->as_string(), Pack::NDFF);
+			found = true;
+			QString s = soi->as_string();
+			if (pt == PrintText::Yes) {
+				auto ba = s.toLocal8Bit();
+				mtl_info("=============\"%s\"", ba.data());
+			}
+			ba.add_string(s, Pack::NDFF);
 		}
 	}
+	
+	if (pt == PrintText::Yes && !found)
+		mtl_info("=============");
 }
 
 void Abstract::WriteTag(Keywords &kw, ByteArray &ba)

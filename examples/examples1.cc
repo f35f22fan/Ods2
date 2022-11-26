@@ -17,9 +17,12 @@
 
 #include <QSize>
 
-void ReadNDFF() {
+void ReadWriteNDFF()
+{
 	QString full_path = QDir::home().filePath("out.ndff");
 	ods::Book *book = ods::Book::FromNDFF(full_path);
+	ods::AutoDelete<ods::Book*> ad(book);
+	util::Save(book, "SavedFromNDFF.ods");
 }
 
 void TestBug()
@@ -1005,7 +1008,7 @@ void ReadDate()
 			printf("Seconds");
 		} else if (inst->Is(ods::Id::NumberText)) {
 			auto *t = (ods::inst::NumberText*) inst;
-			const QString *s = t->GetFirstString();
+			const QString *s = t->GetString();
 			
 			if (s == nullptr)
 			{
@@ -1143,7 +1146,7 @@ void ReadTime()
 			printf("Seconds");
 		} else if (inst->Is(ods::Id::NumberText)) {
 			auto *t = (ods::inst::NumberText*) inst;
-			const QString *s = t->GetFirstString();
+			const QString *s = t->GetString();
 			
 			if (s == nullptr)
 			{

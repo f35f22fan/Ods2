@@ -68,6 +68,7 @@ void StyleHeaderStyle::Init(ndff::Container *cntr)
 		} else {
 			break;
 		}
+		
 		op = cntr->Next(prop, op);
 	}
 	

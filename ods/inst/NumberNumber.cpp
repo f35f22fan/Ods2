@@ -2,7 +2,6 @@
 
 #include "../Ns.hpp"
 #include "../ns.hxx"
-#include "../str.hxx"
 #include "../Tag.hpp"
 
 #include "../ndff/Container.hpp"
@@ -56,7 +55,7 @@ void NumberNumber::Init(ndff::Container *cntr)
 	QString grouping;
 	CopyAttr(attrs, ns_->number(), ns::kGrouping, grouping);
 	if (!grouping.isEmpty())
-		number_grouping_ = (grouping == ods::str::True) ? 1 : 0;
+		number_grouping_ = (grouping == ns::True) ? 1 : 0;
 	
 	ReadStrings(cntr, op);
 }
@@ -70,7 +69,7 @@ void NumberNumber::Init(Tag *tag)
 	tag->Copy(ns_->number(), ns::kGrouping, str);
 	
 	if (!str.isEmpty())
-		number_grouping_ = (str == ods::str::True) ? 1 : 0;
+		number_grouping_ = (str == ns::True) ? 1 : 0;
 	
 	ReadStrings(tag);
 }
@@ -99,7 +98,7 @@ void NumberNumber::WriteData(QXmlStreamWriter &xml)
 	if (number_grouping_ != -1)
 	{
 		Write(xml, ns_->number(), ns::kGrouping,
-			(number_grouping_ == 1) ? ods::str::True : ods::str::False);
+			(number_grouping_ == 1) ? ns::True : ns::False);
 	}
 	
 	WriteNodes(xml);
@@ -121,7 +120,7 @@ void NumberNumber::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *f
 	if (number_grouping_ != -1)
 	{
 		WriteNdffProp(kw, *ba, ns_->number(), ns::kGrouping,
-			(number_grouping_ == 1) ? ods::str::True : ods::str::False);
+			(number_grouping_ == 1) ? ns::True : ns::False);
 	}
 	
 	CloseBasedOnChildren(h, kw, file, ba);

@@ -57,32 +57,7 @@ void DrawImage::Init(ndff::Container *cntr)
 	CopyAttr(attrs, ns_->xlink(), ns::kType, xlink_type_);
 	CopyAttr(attrs, ns_->xlink(), ns::kShow, xlink_show_);
 	CopyAttr(attrs, ns_->xlink(), ns::kActuate, xlink_actuate_);
-	
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-//			if (prop.is(ns_->table()))
-//			{
-//				if (prop.name == ns::kNamedRange)
-//					Append(new inst::TableNamedRange(this, 0, cntr), TakeOwnership::Yes);
-//			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
+	ReadStrings(cntr, op);
 }
 
 void DrawImage::Init(ods::Tag *tag)

@@ -54,7 +54,6 @@ set(lib_files
 	Reference.cpp Reference.hpp
 	Row.cpp Row.hpp
 	Sheet.cpp Sheet.hpp
-	str.hxx
 	StringOrInst.cpp StringOrInst.hpp
 	StringOrTag.cpp StringOrTag.hpp
 	style.cc style.hh style.hxx

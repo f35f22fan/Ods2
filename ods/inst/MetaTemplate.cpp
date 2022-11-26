@@ -4,12 +4,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-MetaTemplate::MetaTemplate(Abstract *parent, Tag *tag)
+MetaTemplate::MetaTemplate(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::MetaTemplate)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -35,6 +40,20 @@ MetaTemplate::Clone(Abstract *parent) const
 	p->meta_date_ = meta_date_;
 	
 	return p;
+}
+
+void MetaTemplate::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->xlink(), ns::kType, xlink_type_);
+	CopyAttr(attrs, ns_->xlink(), ns::kActuate, xlink_actuate_);
+	CopyAttr(attrs, ns_->xlink(), ns::kTitle, xlink_title_);
+	CopyAttr(attrs, ns_->xlink(), ns::kHref, xlink_href_);
+	CopyAttr(attrs, ns_->meta(), ns::kDate, meta_date_);
+	ReadStrings(cntr);
 }
 
 void MetaTemplate::Init(Tag *tag)

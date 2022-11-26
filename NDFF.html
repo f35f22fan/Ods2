@@ -1,0 +1,291 @@
+<!doctype html>
+<head>
+<title>&#x1F6C8; NDFF</title>
+<style>
+body {
+    font-size: 15px;
+    font-family: "Fira Code", Hack, "Liberation Mono", Monospace;
+    background-color: rgb(130, 130, 130);
+}
+
+hr {
+    height: 1px;
+    border: 0;
+    background-color: #555555;
+}
+
+.new_section {
+font-weight: bold;
+}
+.field {
+font-weight: bold;
+color: rgb(0,90,0);
+}
+.follows_new_section {
+ height: 30px;
+}
+table, th, td {
+border: 1px solid black;
+border-collapse: collapse;
+}
+</style>
+</head>
+<body>
+<div style="border: 5px solid rgb(100,100,255); padding: 5px">
+    <u>NOTE to anyone reading this</u>:
+    <br/>I'm working (out of curiosity) on a new binary format for XML-based documents. For now this is only for myself and serves as notes and documentation on NDFF, so you probably don't need to know any of this and you might want to leave.<p/>
+
+    Still here? Ok, so the goal is to make a <b>much faster/efficient</b> storage format to read, write and update XML-based documents, which inherently means storing XML in <i>binary</i> format.
+    <table>
+    <tr><th>What we have</th>
+    <th>What we need</th></tr>
+    <tr>
+    <td>XML text files and folders compressed into a .zip file with a special extension.
+    </td>
+    <td>Binary XML files and folders in an efficient updatable container. Which means it should default to non-compressed data while at the same time to be successful it MUST take about as much space as the current compressed text-based solutions.</td>
+    </tr>
+    </table>
+    <br/>
+    Currently this library (NDFF) can do full circle: it can convert an .ods to .ndff, then take the .ndff and store it as an .ods so that its contents are the same as the original .ods file. And the .ndff file is typically smaller than the .ods file despite not (even) being compressed.
+    <br/> There's still a lot of work TBD.
+</div>
+
+<p/>
+<div style="font-size: 20px; text-align:center">NDFF - New Document File Format</div>
+
+Notes:
+<ul>
+<li/>Unless otherwise specified, all strings in fields below are in UTF-8 without the terminating null character. String lengths are in bytes.
+<li/><b>EFA</b> = "extended file attributes"
+<li/><b>FEI</b> = "file entry info" - describes a file inside the container (but doesn't represent the contents of the file).
+<li/><b>Ignore-but-preserve</b> policy means that a feature can be ignored but should be preserved by systems not supporting a given feature, like the "executable bit" of a file on non-POSIX filesystems.
+
+<li/>LE = Little Endian, BE = Big Endian.<br/>
+
+The bits within each byte are always BE.<br/>
+The first bits of a byte are the ones at the lowest memory address.
+All the multi-byte numbers of the document can be either LE or BE as specified in the "info" field of the main header.
+
+<li/><b>NDFF container</b> and <b>NDFF file</b> might be used interchangeably, <b>item</b> and <b>element</b>, <b>pointer></b>
+and <b>location</b> might mean the same thing.
+</ul>
+
+<hr/>
+<div class="follows_new_section"></div>
+<span class="new_section">Main Header:</span>
+<p/>
+It's always at the start of the file, cannot be relocated elsewhere inside the .ndff file.
+<p/><ol>
+<li/> <span class=field>magic_num (u8[4])</span> (offset=0) -> the magic number as an array of unsigned bytes {0xEC, 0x30, 0xA4, 0x34} to mark that it's an NDFF document.
+<li/> <span class=field>info (u8)</span> (offset=4) -> Encodes document info in the first 4 bits:
+<ol>
+    <li/> This bit specifies the endianness of the whole document. If the bit is set then LE is used, otherwise BE.
+    <li/> The next 3 bits are reserved.
+    <li/>
+    <li/>
+</ol>
+<p/> The last 4 bits along with the 8 bits of the next field (maj_version) form an unsigned 12 bit number where these 4 bits are the most significant ones and the maj_version bits follow next as the least significant ones.
+<li/> <span class=field>maj_version (u8)</span> (offset=5) -> Smallest major NDFF version needed to properly parse this document after properly merging with the 4 bits of the "info" field, must be >= 0.
+<li/> <span class=field>min_version (i16)</span> (offset=6) ->
+From here onwards one uses the endianness specified in the "info" field above.
+"min_version" represents the smallest minor NDFF version needed to properly parse this document, or -1 if it doesn't matter.
+<li/> <span class=field>namespaces_loc (i64)</span> (offset=8) -> location of a memory/file region of all XML namespaces used in the document.<br/>
+This region starts with an i32 for the total region length (in bytes, including this i32) followed by a list of items each of which has 3 fields:
+<ul>
+<li/>A u16 ID (0 = reserved to mean "no namespace", valid range 1 - 4095)
+<li/>An I1-4 for the URI length
+<li/>The URI (string) itself
+</ul>
+As one can see namespaces are stored in a single memory block so to add/remove a new entry one creates a new
+namespaces block with proper contents, updates the "namespaces_loc" correspondingly and marks the old block as free space, or, if the new block is smaller or equal to the old one the old block gets rewritten and that's it. This is because namespaces are very few even per very large documents and new items are seldom added or removed.
+Any item inside this block can be preceded or followed by free space to allow implementations to avoid
+fragmentation.
+
+<li/> <span class=field>dictionary_loc (i64)</span> (offset=16) -> a value of -1 means no dictionary (for now I don't know if no dictionary can make any sense in any context, but it's an option), otherwise it's the location of the dictionary within the NDFF container.<p/>
+
+The dictionary is partitioned into <u>blocks</u> (containing the actual data) to achieve the best trade-off between read performance and flexibility (the ability to add/remove new entries to the dictionary).
+<p/>
+Each dictionary block starts with an u32 for metadata, called "info".
+<br/>
+The first 3 bits of "info" (in BE - the most significant ones, in LE - least significant ones) tell which if any compression algorithm was used:
+see the <a href="#compression">compression section</a>.
+<p/>
+Then follows an i64 as the location of the next
+block or -1 if the end of the dictionary was reached.<p/>
+
+<p/>
+The remaining 29 bits represent the size (in bytes) of the block, thus
+each block can be up to <nobr>[u32_max >> 3]</nobr> bytes in size.<p/>
+
+
+Each element in the block is comprised of 3 pieces:
+<ol>
+<li/>An U1-4 number for the ID of the string that is unique to the whole dictionary.
+<li/>An U1-4 number for the length of the string.
+<li/>The string itself.
+</ol>
+Any element inside this block can be preceded or followed by free space to allow implementations to avoid
+fragmentation, but free space can't appear inside an element's internal nodes, e.g. free space can't be assigned to a place between the length of the string of an element of a block and the string itself.
+<li/> <span class=field>top_files_loc (i64)</span> (offset=24) ->
+The list of the top files of this NDFF container. Each folder FEI has a separate table (list) of its own FEI entries. See <a href="#fei_table">FEI table</a>.
+<li/> <span class=field>doc_type_len (u8)</span> (offset=32) -> string length of doc_type.
+<li/> <span class=field>free_space_trailing (u8, default=0)</span> (offset=33) -> Free space at the end of the document to allow the growing of the @doc_type without having to recreate the document. For example if free_space_trailing=64 this allows changing @doc_type from say "ods" to "ODS_Version3" or "application/zip" instantly without recreating the document.
+<li/> <span class=field>doc_type (string)</span> (offset=34) -> document type, e.g. "ods", "odt", "xlsx", etc.
+<li/> <span class=field>free_space (void*) {Absent when free_space_trailing=0}</span> (offset=34 + doc_type_len)
+</ol>
+
+
+
+
+<hr/>
+<div class="follows_new_section"></div>
+<span class="new_section">FEI:</span>
+<p/>
+<ol>
+<li/> <span class=field>info (u16)</span> ->
+<ul>
+    <li/>Bits 0-2: A 3-bit unsigned number: 0 = regular file, 1 = folder, 2 = symbolic link, the remaining 4 values are reserved to possibly support more file types in the future.
+    <li/>Bit 3: <span class=field>Timestamp last_accessed</span> if set then last access time available in UTC
+    <li/>Bit 4: <span class=field>Timestamp last_modified</span> if set then last modified time available in UTC
+    <li/>Bit 5: <span class=field>Timestamp time_created</span> if set then creation time available in UTC
+    <li/>Bit 6: If set has exec bit set (as in POSIX), ignore-but-preserve policy.
+    <li/>Bit 7: If set has EFA (see <span class=field>efa_data_loc</span>), ignore-but-preserve policy.
+    <li/>Bits 8-10: see the <a href="#compression">compression section</a>.
+    <li/>Bit 11: File is encrypted with AES. If so, a compression bit <b>must</b> also be set, it is first compressed and then encrypted.
+    <li/>Bits 12-13: Some other encryption method is used - to be defined in a new version.
+    <li/>Bit 14: Set if CRC-32b is available
+    <li/> Bit 15 reserved.
+</ul>
+<li/> <span class=field>path_len (u16)</span> -> next string's size
+<li/> <span class=field>path (String)</span> -> file's relative path
+<li/> <span class=field>crc_32b (u32)</span> <b>(only if has_crc32b bit is set)</b>
+<li/> <span class=field>content_start (i64)</span> -> <b>(only for regular files)</b> The location within the NDFF container of the (compressed) file data.
+<br/>
+Points to a blob that starts with an i64 for the content size in bytes (or the compressed content size if compressed) followed immediately by the (compressed) data itself.
+<li/> <span class=field>extra_region (i64)</span> -> <b>(only for regular files)</b> The extra region allocated for the contents of this regular file for extended CRUD operations. The region itself starts with an i64 for its size followed immediately by the region contents. -1 means none is allocated.
+<li/> <span class=field>link_target_len (u16)</span> -> <b>(only for symlinks)</b> Next string's length
+<li/> <span class=field>link_target (String)</span> -> <b>(only for symlinks)</b> Symlink's target path
+<li/> <span class=field>subfiles_loc (i64)</span> -> <b>(only for folders)</b>
+The location of a FEI table representing the subfiles of this folder, this is how the tree of files is stored.
+See <a href="#fei_table">FEI table</a>.
+<li/> <span class=field>efa_data_loc (i64)</span> -> <b>(only if EFA bit is set)</b> The location of
+an EFA region that starts with an u32 for its size (in bytes) followed immediately by the data itself. The data is structured as a key-value array where the key is an <a href="#ndff_string">NDFF String</a>, followed by its value as a U1-4 number for the size of the value (in bytes) followed by the value itself (as a char*).<br/>
+The key/value pairs as string/char* data types are based on the Extended File Attributes standard supported by POSIX systems.
+
+</ol>
+Note: the "<span class=field>only for/if (...)</span>" fields don't exist if the FEI doesn't meet the inherent prerequisite, this only concerns the layout on disk, not how developers might represent it in source code. For example if the EFA bit is not set then the (on disk) data has no memory/space allocated for the "efa_data_loc" field nor should anyone try to read it, which is why FEIs may vary in size.
+
+<hr/>
+Time format inspired from POSIX struct statx_timestamp:
+<code><pre>
+struct <span class=field>Timestamp</span> {
+    i64 seconds = 0;    // Seconds since the Epoch (UNIX time)
+    i32 nano_sec = -1;  // Nanoseconds since @seconds, signed number,
+                        // if negative then the struct has not been assigned any time value.
+    i32 reserved = -1;
+};</pre>
+
+<hr/>
+<div id="compression">
+<b>Compression</b>
+<p/>A 3 bit number whose value represents the compression algorithm used:
+    <ol start="0">
+    <li/> No compression was used.
+    <li/> ZSTD was used.
+    <li/> Other compression algorithms, to be defined in a later version as needed.
+    <li/><li/><li/><li/>
+    </ol>
+</div>
+<hr/>
+<div id="fei_table">
+<b>FEI Table</b>
+<ul>
+<li/> 0 (zero) - 0 entries.
+<li/> Negative - the opposite of this value is the location within the NDFF container of the first and only FEI that is an entry (file) of the current folder FEI or of the NDFF container.
+<li/> Positive - points to the location of a table within the NDFF container where the items are i64 locations to FEIs that logically are inside the current folder.<br/>
+The separate table mechanism (as opposed to embedding these values into the parent FEI itself) exists so that the current folder FEI doesn't have to be translocated if the addition of a new entry makes it larger than the space it currently occupies.<p/>
+About the table structure:<br/>
+FEI location values equal to -2 within this table are considered reserved location space inside the table to eventually avoid the translocation of the table if new items (FEI locations) are added and the updated table version doesn't fit into the current space occupied by it.<br/>
+A value of -1 means the end of the table.
+</ul>
+</div>
+<hr/>
+
+<div id="ndff_string">
+<b>NDFF String</b><p/>
+NDFF strings are encoded in UTF-8 and they're not zero terminated. Instead, they start with an S1-8 number for the size of the string in bytes followed immediately by the string itself.
+
+</div>
+<hr/>
+<div class="follows_new_section"></div>
+<span class="new_section">Control bits, the first 4 bits of a byte, 16 values in total (0-15) which tell what follows:</span>
+<ol start="0">
+<li/>S8 -> (inline) String size 1 byte (0 – 15)
+<li/>S16 -> (inline) String size 2 bytes (0 – 4095)
+<li/>S32_PS -> (inline) String size 4 bytes (0 – 268435455) OR PS=PropertyStart
+<li/>S64 -> (inline) String size 8 bytes (inline – 60 bits for size, because I’ll never reach this limit)
+<li/>F64 -> (separate) Float size 8 bytes (separately, because it’s a number value up to 64 bits!)
+<li/>N8 -> (inline) Integer size 1 byte (0 – 15)
+<li/>N16 -> (inline) Integer size 2 bytes (0 – 4095)
+<li/>N32_TE -> (inline) Integer size 4 bytes (0 – 268435455) OR TE=TagEnd “/>”
+<li/>N64 -> (separate) Integer size 8 bytes (separately, because it’s a number value up to 64 bits!)
+<li/>TS -> (separate) TagStart “<”
+<li/>TCF_CMS -> (separate) TagContentsFollow“>” OR CD=Compressed (compressing a tag makes sense only if the file itself is not compressed)
+<li/>SCT -> (separate) SeparateClosingTag “&lt;/tag name>”
+<li/>FS8 -> (inline) FreeSpace1 (1 – 15 bytes of free space)
+<li/>FS64 -> (inline) FreeSpace8 (encoded into free space)
+<li/>JB64 -> (inline) JumpBy8 (unsigned number is encoded inline)
+<li/>None ->
+</ol>
+
+Example:<p/>
+&lt;table:table-cell table:number-rows-spanned="1" table:number-columns-spanned="3" office:value-type="string">hello&lt;/table:table-cell>
+<br/>
+Total=132 bytes
+
+<table border=1>
+<tr><th></th><th></th><th>Num bytes</th></tr>
+<tr>
+<td><b>&lt;table:table-cell</b></td>
+<td>1(TagStart) + 1(ns=namespace) + 2(U2)</td>
+<td>4</td>
+</tr><tr>
+<td><b>table:number-rows-spanned="1"</b></td>
+<td>1(PS) + 1(ns) + 2(U2) + (U1)1</td>
+<td>5</td>
+</tr><tr>
+<td><b>table:number-columns-spanned="3"</b></td>
+<td>1(PS) + 1(ns) + 2(U2) + (U1)1</td>
+<td>5</td>
+</tr><tr>
+<td><b>office:value-type="string"</b></td>
+<td>1(PS) + 1(ns) + 2(U2) + (S1=6)1 + 6 (string)</td>
+<td>11</td>
+</tr><tr>
+<td><b>&gt;</b></td>
+<td>1(TCF)</td>
+<td>1</td>
+</tr><tr>
+<td><b>hello</b></td>
+<td>1 (S1) + 5 ("hello")</td>
+<td>6</td>
+</tr><tr>
+<td><b>&lt;/table:table-cell&gt;</b></td>
+<td>1 (SCT)</td>
+<td>1</td>
+</tr>
+</table>
+Total=33 bytes
+
+<p/>
+Question: How do you insert an 8 byte jump address if the translocated tag is less than 8 bytes?<br/>
+Answer: If a tag can grow and its size is less than 8 bytes then insert FreeSpace1 after it to occupy at least 8 bytes in total to be able to add a JumpByX in case it grows and needs relocation.
+
+<p/>
+<hr/>
+TODO:
+<ul>
+<li/>Currently only works with LE, add support for a BE document as well.
+</ul>
+</body>
+</html>

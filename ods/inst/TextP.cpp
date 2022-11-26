@@ -72,8 +72,7 @@ void TextP::Init(ndff::Container *cntr)
 {
 	using Op = ndff::Op;
 	ndff::Property prop;
-	//QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, 0);
+	Op op = cntr->Next(prop, Op::TS);
 
 	if (op == Op::N32_TE)
 		return;
@@ -101,7 +100,9 @@ void TextP::Init(ndff::Container *cntr)
 					Append(new inst::TextDate(this, 0, cntr), TakeOwnership::Yes);
 			}
 		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
+			QString s = cntr->NextString();
+			mtl_printq(s);
+			Append(s);
 		} else {
 			break;
 		}
@@ -152,20 +153,6 @@ void TextP::Scan(ods::Tag *tag)
 			Scan(next);
 		}
 	}
-}
-
-void TextP::SetFirstString(const QString &s)
-{
-	for (StringOrInst *node: nodes_)
-	{
-		if (node->is_string())
-		{
-			node->SetString(s);
-			return;
-		}
-	}
-	
-	Append(s);
 }
 
 void TextP::WriteData(QXmlStreamWriter &xml)

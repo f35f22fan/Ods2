@@ -94,6 +94,11 @@ const double kPointsInACm = 28.3464567;
 const double kInchesInACm = 0.393701;
 const double kCmInAnInch = 2.54;
 
+enum class ODS_API PrintText: i8 {
+	Yes,
+	No
+};
+
 enum class ODS_API UseNDFF: i8 {
 	Yes,
 	No

@@ -1,7 +1,7 @@
 #pragma once
 
 //==> Please ignore this
-void ReadNDFF();
+void ReadWriteNDFF();
 void TestBug();
 //<== Please ignore this
 

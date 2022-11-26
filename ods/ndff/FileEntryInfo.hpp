@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../ByteArray.hpp"
+#include "decl.hxx"
 #include "../decl.hxx"
 #include "../err.hpp"
 #include "../types.hxx"
@@ -54,7 +55,7 @@ public:
 	FileEntryInfo();
 	virtual ~FileEntryInfo();
 	
-	static FileEntryInfo* From(ByteArray &ba);
+	static FileEntryInfo* From(ByteArray &ba, ci64 loc);
 	
 	bool has(const FeiBit bit) const { return info_ & (InfoType)bit; }
 	void has(const FeiBit bit, cbool flag, const ClearTheRest clear =
@@ -102,6 +103,8 @@ public:
 	
 	ByteArray& file_data() { return file_data_; }
 	
+	FileEntryInfo* GetFile(QStringView name) const;
+	bool ReadSubfiles(ndff::Container *cntr);
 	QVector<FileEntryInfo*>& subfiles() { return subfiles_; }
 	i64 subfiles_loc() const { return subfiles_loc_; }
 	void subfiles_loc(ci64 n) { subfiles_loc_= n; }
@@ -165,8 +168,8 @@ public:
 	/* @size() Computes how much memory to allocate for this FEI inside
 	the container */
 	i64 size() const;
-	void WriteEfa(ByteArray &main_buffer);
-	void WriteTo(ByteArray &main_buffer);
+	void WriteEfa(ByteArray &buf);
+	void WriteTo(ByteArray &buf);
 	
 private:
 	

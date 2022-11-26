@@ -11,8 +11,10 @@
 
 namespace ods::ns {
 
+static const auto False = QStringLiteral("false");
+static const auto True = QStringLiteral("true");
+
 static const QString kActuate = QStringLiteral("actuate");
-//static const auto kActuate = "actuate");
 static const auto kApplyStyleName = QStringLiteral("apply-style-name");
 static const auto kAuto			 = QStringLiteral("auto");
 static const auto kAutomaticFindLabels = QStringLiteral("automatic-find-labels");

@@ -6,11 +6,13 @@
 
 namespace ods::inst {
 
-MetaEditingDuration::MetaEditingDuration(Abstract *parent, Tag *tag)
+MetaEditingDuration::MetaEditingDuration(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::MetaEditingDuration)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 MetaEditingDuration::MetaEditingDuration(const MetaEditingDuration &cloner)
@@ -28,11 +30,6 @@ MetaEditingDuration::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	return p;
-}
-
-void MetaEditingDuration::Init(Tag *tag)
-{
-	ReadStrings(tag);
 }
 
 void MetaEditingDuration::ListKeywords(Keywords &list, const LimitTo lt)

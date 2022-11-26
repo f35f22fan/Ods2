@@ -88,14 +88,14 @@ public:
 	i32 file_index() const { return file_index_; }
 	ods::Prefix* GetPrefix(QStringView s);
 	const QVector<Prefix*>& prefixes() const { return prefixes_; }
-	void Read(QXmlStreamReader &xml, ci32 file_index);
-	void Read(ndff::Container *ptr);
+	void SyncWith(QXmlStreamReader &xml, ci32 file_index);
+	void SyncWith(ndff::Container *ptr);
 	void WriteNamespaces(QXmlStreamWriter &xml, inst::Abstract *top);
 
 private:
-	Ns();
 	NO_ASSIGN_COPY_MOVE(Ns);
-	
+	Ns();
+	void DeleteData();
 	void InitDefault(const WillInitFromData atr);
 	
 	Prefix *anim_ = nullptr;
