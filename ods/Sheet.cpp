@@ -14,12 +14,18 @@
 #include "inst/TableTableColumn.hpp"
 #include "inst/TableNamedExpressions.hpp"
 
-namespace ods { // ods::
+#include "ndff/Container.hpp"
+#include "ndff/Property.hpp"
 
-Sheet::Sheet(ods::inst::Abstract *parent, Tag *tag) :
+namespace ods {
+
+Sheet::Sheet(ods::inst::Abstract *parent, Tag *tag, ndff::Container *cntr) :
 	Abstract(parent, parent->ns(), id::TableTable)
 {
-	Init(tag);
+	if (cntr)
+		Init(cntr);
+	else if (tag)
+		Init(tag);
 	CountColumns();
 }
 
@@ -43,10 +49,10 @@ Sheet::~Sheet()
 }
 
 Row*
-Sheet::RowAt(const int place, int &vec_index)
+Sheet::RowAt(cint place, int &vec_index)
 {
 	int so_far = 0;
-	const int count = rows_.size();
+	cint count = rows_.size();
 	
 	for (int i = 0; i < count; i++) {
 		ods::Row *row = rows_[i];
@@ -89,10 +95,10 @@ Sheet::Clone(inst::Abstract *parent) const
 }
 
 inst::TableTableColumn*
-Sheet::ColumnAt(const int place, int &vec_index)
+Sheet::ColumnAt(cint place, int &vec_index)
 {
 	int so_far = 0;
-	const int count = columns_.size();
+	cint count = columns_.size();
 	
 	for (int i = 0; i < count; i++) {
 		inst::TableTableColumn *col = columns_[i];
@@ -107,8 +113,7 @@ Sheet::ColumnAt(const int place, int &vec_index)
 	return nullptr;
 }
 
-int
-Sheet::CountColumns()
+int Sheet::CountColumns()
 {
 	num_cols_ = 0;
 	
@@ -118,8 +123,7 @@ Sheet::CountColumns()
 	return num_cols_;
 }
 
-int
-Sheet::CountRows() const
+int Sheet::CountRows() const
 {
 	int n = 0;
 	
@@ -129,8 +133,7 @@ Sheet::CountRows() const
 	return n;
 }
 
-void
-Sheet::DeleteColumnRegion(inst::TableTableColumn *col, const int vec_index)
+void Sheet::DeleteColumnRegion(inst::TableTableColumn *col, cint vec_index)
 {
 	const ods::DeleteRegion &dr = col->delete_region();
 	
@@ -140,8 +143,8 @@ Sheet::DeleteColumnRegion(inst::TableTableColumn *col, const int vec_index)
 		return;
 	}
 	
-	const int num = col->num();
-	const int region_len = dr.start + dr.count;
+	cint num = col->num();
+	cint region_len = dr.start + dr.count;
 	
 	if (dr.start > 0 && region_len < num) {
 		auto *col2 = static_cast<inst::TableTableColumn*>(col->Clone());
@@ -155,8 +158,7 @@ Sheet::DeleteColumnRegion(inst::TableTableColumn *col, const int vec_index)
 	col->delete_region({-1, -1, -1});
 }
 
-void
-Sheet::DeleteRowRegion(ods::Row *row, const int vec_index)
+void Sheet::DeleteRowRegion(ods::Row *row, cint vec_index)
 {
 	const ods::DeleteRegion &dr = row->delete_region();
 	
@@ -166,8 +168,8 @@ Sheet::DeleteRowRegion(ods::Row *row, const int vec_index)
 		return;
 	}
 	
-	const int num = row->num();
-	const int region_len = dr.start + dr.count;
+	cint num = row->num();
+	cint region_len = dr.start + dr.count;
 	
 	if (dr.start > 0 && region_len < num) {
 		Row *row2 = static_cast<Row*>(row->Clone());
@@ -182,7 +184,7 @@ Sheet::DeleteRowRegion(ods::Row *row, const int vec_index)
 }
 
 inst::TableTableColumn*
-Sheet::GetColumn(const int place) const
+Sheet::GetColumn(cint place) const
 {
 	int next_col = 0;
 	
@@ -212,7 +214,7 @@ Sheet::GetDefaultCellStyle(const ods::Cell *cell) const
 }
 
 ods::Row*
-Sheet::GetRow(const int place)
+Sheet::GetRow(cint place)
 {
 	CHECK_TRUE_NULL((place >= 0));
 	int at = -1;
@@ -228,39 +230,114 @@ Sheet::GetRow(const int place)
 	return nullptr;
 }
 
-void
-Sheet::Init(ods::Tag *tag)
+void Sheet::Init(ndff::Container *cntr)
 {
-	tag->Copy(ns_->table(), ods::ns::kName, table_name_);
-	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->table(), ns::kName, table_name_);
+	CopyAttr(attrs, ns_->table(), ns::kStyleName, table_style_name_);
+
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->table()))
+			{
+				if (prop.name == ns::kTableRow)
+					rows_.append(new ods::Row(this, 0, cntr));
+				else if (prop.name == ns::kTableColumn)
+					columns_.append(new inst::TableTableColumn(this, 0, cntr));
+				else if (prop.name == ns::kNamedExpressions)
+					named_expressions_ = new inst::TableNamedExpressions(this, 0, cntr);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+void Sheet::Init(ods::Tag *tag)
+{
+	tag->Copy(ns_->table(), ns::kName, table_name_);
+	tag->Copy(ns_->table(), ns::kStyleName, table_style_name_);
 	Scan(tag);
 }
 
-void
-Sheet::InitDefault()
+void Sheet::InitDefault()
 {
 	auto *column = new inst::TableTableColumn(this);
 	num_cols_ = DefaultColumnCountPerSheet;
 	column->number_columns_repeated(num_cols_);
 	columns_.append(column);
 	
-	auto *row = new ods::Row(this);
+	ods::Tag *tag = nullptr;
+	auto *row = new ods::Row(this, tag, 0);
 	row->num(DefaultRowCountPerSheet);
 	rows_.append(row);
 }
 
-void
-Sheet::MarkColumnDeleteRegion(int from, int remaining)
+void Sheet::ListChildren(QVector<StringOrInst*> &vec,
+	const Recursively r)
 {
-	const int col_count = columns_.size();
+	for (auto *next: columns_)
+	{
+		vec.append(new StringOrInst(next, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			next->ListChildren(vec, r);
+	}
+	
+	for (auto *next: rows_)
+	{
+		vec.append(new StringOrInst(next, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			next->ListChildren(vec, r);
+	}
+	
+	if (named_expressions_)
+	{
+		vec.append(new StringOrInst(named_expressions_, TakeOwnership::No));
+		
+		if (r == Recursively::Yes)
+			named_expressions_->ListChildren(vec, r);
+	}
+}
+
+void Sheet::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(),
+		ns::kName, ns::kStyleName}, list);
+}
+
+void Sheet::ListUsedNamespaces(inst::NsHash &list)
+{
+	inst::Add(ns_->table(), list);
+}
+
+void Sheet::MarkColumnDeleteRegion(int from, int remaining)
+{
+	cint col_count = columns_.size();
 	int so_far = 0;
-	const int till = from + remaining;
+	cint till = from + remaining;
 	
 	for (int i = 0; i < col_count; i++) {
 		inst::TableTableColumn *col = columns_[i];
-		const int col_start = so_far;
+		cint col_start = so_far;
 		so_far += col->num();
-		const int col_end = so_far;
+		cint col_end = so_far;
 		
 		if (till < col_start || from > col_end)
 			continue;
@@ -279,18 +356,17 @@ Sheet::MarkColumnDeleteRegion(int from, int remaining)
 	}
 }
 
-void
-Sheet::MarkRowDeleteRegion(int from, int remaining)
+void Sheet::MarkRowDeleteRegion(int from, int remaining)
 {
-	const int row_count = rows_.size();
+	cint row_count = rows_.size();
 	int so_far = 0;
-	const int till = from + remaining;
+	cint till = from + remaining;
 	
 	for (int i = 0; i < row_count; i++) {
 		ods::Row *row = rows_[i];
-		const int row_start = so_far;
+		cint row_start = so_far;
 		so_far += row->num();
-		const int row_end = so_far;
+		cint row_end = so_far;
 		
 		if (till < row_start || from > row_end)
 			continue;
@@ -310,7 +386,7 @@ Sheet::MarkRowDeleteRegion(int from, int remaining)
 }
 
 inst::TableTableColumn*
-Sheet::NewColumnAt(const int place, const int ncr)
+Sheet::NewColumnAt(cint place, cint ncr)
 {
 	MarkColumnDeleteRegion(place, ncr);
 	int total = 0;
@@ -350,7 +426,7 @@ Sheet::NewReference(ods::Cell *cell, ods::Cell *end_cell)
 }
 
 ods::Row*
-Sheet::NewRowAt(const int place, const int nrr)
+Sheet::NewRowAt(cint place, cint nrr)
 {
 	MarkRowDeleteRegion(place, nrr);
 	int total = 0;
@@ -380,8 +456,7 @@ Sheet::NewRowAt(const int place, const int nrr)
 	return row;
 }
 
-int
-Sheet::QueryRowStart(const Row *row) const
+int Sheet::QueryRowStart(const Row *row) const
 {
 	int index = 0;
 	
@@ -396,8 +471,7 @@ Sheet::QueryRowStart(const Row *row) const
 	return -1;
 }
 
-void
-Sheet::Scan(ods::Tag *tag)
+void Sheet::Scan(ods::Tag *tag)
 {
 	foreach (auto *x, tag->nodes())
 	{
@@ -406,12 +480,12 @@ Sheet::Scan(ods::Tag *tag)
 		
 		auto *next = x->as_tag();
 		if (next->Has(ns_->table())) {
-			if (next->Has(ods::ns::kTableRow))
+			if (next->Has(ns::kTableRow))
 			{
 				rows_.append(new ods::Row(this, next));
-			} else if (next->Has(ods::ns::kTableColumn)) {
+			} else if (next->Has(ns::kTableColumn)) {
 				columns_.append(new ods::inst::TableTableColumn(this, next));
-			} else if (next->Has(ods::ns::kNamedExpressions)) {
+			} else if (next->Has(ns::kNamedExpressions)) {
 				named_expressions_ = new inst::TableNamedExpressions(this, next);
 			} else {
 				Scan(next);
@@ -422,8 +496,7 @@ Sheet::Scan(ods::Tag *tag)
 	}
 }
 
-bool // returns true if successfull
-Sheet::SetName(const QString &name)
+bool Sheet::SetName(const QString &name)
 {
 	if (name.contains('\'') || name.contains('\"'))
 	{
@@ -440,11 +513,10 @@ Sheet::SetName(const QString &name)
 	return true;
 }
 
-void
-Sheet::WriteData(QXmlStreamWriter &xml)
+void Sheet::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->table(), ods::ns::kName, table_name_);
-	Write(xml, ns_->table(), ods::ns::kStyleName, table_style_name_);
+	Write(xml, ns_->table(), ns::kName, table_name_);
+	Write(xml, ns_->table(), ns::kStyleName, table_style_name_);
 	
 	for (auto *next: columns_)
 		next->Write(xml);
@@ -452,7 +524,17 @@ Sheet::WriteData(QXmlStreamWriter &xml)
 	for (auto *next: rows_)
 		next->Write(xml);
 	
-	Write(xml, named_expressions_);
+	if (named_expressions_)
+		named_expressions_->Write(xml);
+}
+
+void Sheet::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kName, table_name_);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::

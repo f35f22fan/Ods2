@@ -6,38 +6,22 @@
 
 #include <QXmlStreamWriter>
 
-namespace ods { // ods::
+namespace ods {
 
 class ODS_API Attr
 {
 public:
-	Attr(ods::Prefix *prefix, const QString &name,
-		const QString &value);
+	Attr(ods::Prefix *prefix, const QString &name, const QString &value);
 	virtual ~Attr();
 	
-	QString
-	FullName() const;
-	
-	bool
-	Is(ods::Prefix *prefix, const char *name) const;
-	
-	const QString&
-	name() const { return name_; }
-	
-	ods::Prefix*
-	prefix() const { return prefix_; }
-	
-	bool
-	ToDouble(double &n);
-	
-	bool
-	ToInt32(int32_t &n);
-	
-	const QString&
-	value() const { return value_; }
-	
-	void
-	Write(QXmlStreamWriter &xml);
+	QString FullName() const;
+	bool Is(ods::Prefix *prefix, QStringView name) const;
+	const QString& name() const { return name_; }
+	ods::Prefix* prefix() const { return prefix_; }
+	bool ToDouble(double &n);
+	bool ToInt32(int32_t &n);
+	const QString& value() const { return value_; }
+	void Write(QXmlStreamWriter &xml);
 
 private:
 	NO_ASSIGN_COPY_MOVE(Attr);

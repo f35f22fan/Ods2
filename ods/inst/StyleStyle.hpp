@@ -12,13 +12,12 @@
 #include "../style.hh"
 #include "../VAlign.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleStyle : public Abstract
 {
 public:
-	StyleStyle(Abstract *parent, ods::Tag *tag = nullptr);
+	StyleStyle(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	StyleStyle(const StyleStyle &cloner);
 	virtual ~StyleStyle();
 	
@@ -73,6 +72,9 @@ public:
 	NumberTimeStyle*
 	GetTimeStyle() const;
 	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	
 	const QString&
 	master_page_name() const { return style_master_page_name_; }
 	
@@ -106,60 +108,37 @@ public:
 	StyleFontFace*
 	QueryFontFace() const;
 	
-	void
-	SetBackgroundColor(const QColor &color);
+	void SetBackgroundColor(const QColor &color);
+	void SetBoldText(const bool bold);
 	
-	void
-	SetBoldText(const bool bold);
-	
-	void // "u8 sides" defined in attr/Border.hpp
-	SetBorder(const ods::Length &width, const QColor &color,
+	// "u8 sides" defined in attr/Border.hpp
+	void SetBorder(const ods::Length &width, const QColor &color,
 		const ods::line::Style &line_style, const u8 sides = ods::BorderAll);
 	
-	void
-	SetFamily(const style::Family f);
-	
-	void
-	SetHAlignment(const ods::HAlignSide place);
-	
-	void
-	SetMasterPageName(const QString &s);
-	
-	void
-	SetName(const QString &s);
-	
-	void
-	SetParentStyle(StyleStyle *s);
-	
-	void
-	SetParentStyleName(const QString &s);
-	
-	void
-	SetPercentage(const int min_integer_digits, const int decimal_places);
+	void SetFamily(const style::Family f);
+	void SetHAlignment(const ods::HAlignSide place);
+	void SetMasterPageName(const QString &s);
+	void SetName(const QString &s);
+	void SetParentStyle(StyleStyle *s);
+	void SetParentStyleName(const QString &s);
+	void SetPercentage(const int min_integer_digits, const int decimal_places);
 	
 	virtual QString*
 	style_name() override { return &style_name_; }
 	
-	void
-	style_name(const QString &s) { style_name_ = s; }
+	void style_name(const QString &s) { style_name_ = s; }
 	
 	virtual QString*
 	parent_style_name() override { return &style_parent_style_name_; }
 	
-	void
-	SetDataStyle(NumberCurrencyStyle *p);
-	
-	void
-	SetFontStyle(const ods::attr::FontStyle font_style);
-	
-	void
-	SetVAlignment(const VAlignSide place);
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void SetDataStyle(NumberCurrencyStyle *p);
+	void SetFontStyle(const ods::attr::FontStyle font_style);
+	void SetVAlignment(const VAlignSide place);
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag*);
 	void Scan(ods::Tag*);
 
@@ -172,4 +151,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

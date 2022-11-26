@@ -1,13 +1,14 @@
 #include "NumberText.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
-NumberText::NumberText(ods::inst::Abstract *parent, Tag *tag)
+NumberText::NumberText(ods::inst::Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::NumberText)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 NumberText::NumberText(const NumberText &cloner)
@@ -24,47 +25,24 @@ NumberText::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-QString*
-NumberText::GetFirstString() const
+void NumberText::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	for (StringOrInst *x: nodes_)
-	{
-		if (x->is_string())
-			return x->as_string();
-	}
-	
-	return nullptr;
+	AddKeywords({tag_name()}, list);
 }
 
-void
-NumberText::Init(ods::Tag *tag)
+void NumberText::ListUsedNamespaces(NsHash &list)
 {
-	ScanString(tag);
+	Add(ns_->number(), list);
 }
 
-void
-NumberText::SetFirstString(const QString &s)
-{
-	for (auto *next : nodes_)
-	{
-		if (next->is_string())
-		{
-			next->SetString(s);
-			return;
-		}
-	}
-	
-	Append(s);
-}
-
-void
-NumberText::WriteData(QXmlStreamWriter &xml)
+void NumberText::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

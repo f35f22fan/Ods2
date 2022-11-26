@@ -4,14 +4,18 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 
-SvgTitle::SvgTitle(Abstract *parent, Tag *tag)
+namespace ods::inst {
+
+SvgTitle::SvgTitle(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract (parent, parent->ns(), id::SvgTitle)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 SvgTitle::SvgTitle(const SvgTitle &cloner)
@@ -31,32 +35,35 @@ SvgTitle::Clone(Abstract *parent) const
 	return p;
 }
 
-QString*
+const QString*
 SvgTitle::GetFirstString() const
 {
-	for (StringOrInst *x: nodes_)
+	for (StringOrInst *node: nodes_)
 	{
-		if (x->is_string())
-			return x->as_string();
+		if (node->is_string())
+			return node->as_str_ptr();
 	}
 	
 	return nullptr;
 }
 
-void
-SvgTitle::Init(ods::Tag *tag)
+void SvgTitle::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
 {
-	ScanString(tag);
+	inst::AddKeywords({tag_name()}, list);
 }
 
-void
-SvgTitle::SetFirstString(const QString &s)
+void SvgTitle::ListUsedNamespaces(NsHash &list)
 {
-	for (auto *next : nodes_)
+	Add(ns_->svg(), list);
+}
+
+void SvgTitle::SetFirstString(const QString &s)
+{
+	for (StringOrInst *node: nodes_)
 	{
-		if (next->is_string())
+		if (node->is_string())
 		{
-			next->SetString(s);
+			node->SetString(s);
 			return;
 		}
 	}
@@ -64,11 +71,9 @@ SvgTitle::SetFirstString(const QString &s)
 	Append(s);
 }
 
-void
-SvgTitle::WriteData(QXmlStreamWriter &xml)
+void SvgTitle::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

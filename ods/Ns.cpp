@@ -4,6 +4,7 @@
 #include "Prefix.hpp"
 
 #include "inst/Abstract.hpp"
+#include "ndff/Container.hpp"
 
 #include <algorithm>
 
@@ -18,20 +19,81 @@ bool SortPrefixes(Prefix *a, Prefix *b)
 }
 
 Ns::Ns() {}
-Ns::~Ns() {}
+Ns::~Ns() {
+	DeleteData();
+}
 
 Ns* Ns::Default()
 {
 	Ns *ns = new Ns();
-	ns->InitDefault(WillInitFromXml::No);
+	ns->InitDefault(WillInitFromData::No);
 	return ns;
+}
+
+void Ns::DeleteData()
+{
+	delete anim_;
+	anim_ = 0;
+	delete calcext_;
+	calcext_ = 0;
+	delete chart_;
+	chart_ = 0;
+	delete config_;
+	config_ = 0;
+	delete db_;
+	db_ = 0;
+	delete dc_;
+	dc_ = 0;
+	delete draw_;
+	draw_ = 0;
+	delete fo_;
+	fo_ = 0;
+	delete loext_;
+	loext_ = 0;
+	delete manifest_;
+	manifest_ = 0;
+	delete math_;
+	math_ = 0;
+	delete meta_;
+	meta_ = 0;
+	delete number_;
+	number_ = 0;
+	delete of_;
+	of_ = 0;
+	delete office_;
+	office_ = 0;
+	delete presentation_;
+	presentation_ = 0;
+	delete script_;
+	script_ = 0;
+	delete smil_;
+	smil_ = 0;
+	delete style_;
+	style_ = 0;
+	delete svg_;
+	svg_ = 0;
+	delete table_;
+	table_ = 0;
+	delete text_;
+	text_ = 0;
+	delete xlink_;
+	xlink_ = 0;
 }
 
 Ns* Ns::FromXml(QXmlStreamReader &xml, ci32 file_index)
 {
 	Ns *ns = new Ns();
-	ns->InitDefault(WillInitFromXml::Yes);
-	ns->Read(xml, file_index);
+	ns->InitDefault(WillInitFromData::Yes);
+	ns->SyncWith(xml, file_index);
+	return ns;
+}
+
+Ns* Ns::FromNDFF(ndff::Container *ndff)
+{
+	Ns *ns = new Ns();
+	ns->InitDefault(WillInitFromData::Yes);
+	ns->SyncWith(ndff);
+	
 	return ns;
 }
 
@@ -47,19 +109,8 @@ Ns::GetPrefix(QStringView s)
 	return nullptr;
 }
 
-void
-Ns::InitDefault(const WillInitFromXml atr)
+void Ns::InitDefault(const WillInitFromData atr)
 {
-//	QMap<int, QString> m = {{3, "Ace"}, {1, "bush"}, {4, "Jordan"},
-//		{0, "Monika"}};
-//	QMap<int, QString>::const_iterator i = m.constBegin();
-//	while (i != m.constEnd())
-//	{
-//		mtl_info("%d: %s", i.key(), qPrintable(i.value()));
-//		++i;
-//	}
-	
-	
 	anim_ = Prefix::Create(uri_ids_.Animation, QLatin1String("anim"),
 		QLatin1String("urn:oasis:names:tc:opendocument:xmlns:animation:1.0"));
 	chart_ = Prefix::Create(uri_ids_.Chart, QLatin1String("chart"),
@@ -135,7 +186,7 @@ Ns::InitDefault(const WillInitFromXml atr)
 	prefixes_.append(svg_);
 	prefixes_.append(xlink_);
 	
-	if (atr == WillInitFromXml::Yes)
+	if (atr == WillInitFromData::Yes)
 	{
 		for (Prefix *prefix: prefixes_)
 		{
@@ -144,7 +195,35 @@ Ns::InitDefault(const WillInitFromXml atr)
 	}
 }
 
-void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
+void Ns::SyncWith(ndff::Container *ptr)
+{
+	ndff_ = ptr;
+	UriId largest = 0;
+	auto &ns_hash = ndff_->ns_hash();
+	QString base_name = QLatin1String("ns");
+	for (auto it = ns_hash.constBegin(); it != ns_hash.constEnd(); it++)
+	{
+		cauto decl_uri = it.value();
+		for (Prefix *prefix: prefixes_)
+		{
+	// Almost all URIs start with the same chars and only differ at
+	// the end - thus an optimization is to compare them from the end:
+			if (prefix->uri().endsWith(decl_uri))
+			{
+				cauto uri_id = it.key();
+				prefix->set_name(base_name + QString::number(uri_id));
+				prefix->set_id(uri_id);
+				
+				if (largest < uri_id)
+					largest = uri_id;
+				
+				break;
+			}
+		}
+	}
+}
+
+void Ns::SyncWith(QXmlStreamReader &xml, ci32 file_index)
 {
 	file_index_ = file_index;
 	const auto decls = xml.namespaceDeclarations();
@@ -153,16 +232,14 @@ void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
 	for (int i = 0; i < count; i++)
 	{
 		const auto &decl = decls[i];
-		cauto uri = decl.namespaceUri();
+		cauto decl_uri = decl.namespaceUri();
 		for (Prefix *prefix: prefixes_)
 		{
 // Almost all URIs start with the same chars and only differ at
 // the end - thus an optimization is to compare them from the end:
-			if (prefix->uri().endsWith(uri))
+			if (prefix->uri().endsWith(decl_uri))
 			{
-				cauto name = decl.prefix().toString();
-				prefix->set_name(name);
-				//mtl_info("Setting %s %d to %d", qPrintable(name), prefix->id(), i);
+				prefix->set_name(decl.prefix().toString());
 				prefix->set_id(i);
 				largest = i;
 				break;
@@ -181,13 +258,13 @@ void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
 		{
 			prefix->set_id(largest + next);
 			next++;
-			mtl_info("(NEW)%d: %s, largest: %d",
-				prefix->id(), qPrintable(prefix->name()), largest);
+//			mtl_info("(NEW)%d: %s, largest: %d",
+//				prefix->id(), qPrintable(prefix->name()), largest);
 		}
 	}
 	
 	auto attrs = xml.attributes();
-	auto ref = attrs.value(office()->With(ods::ns::kVersion));
+	auto ref = attrs.value(office()->With(ns::kVersion));
 	
 	if (ref.isEmpty())
 	{
@@ -202,8 +279,7 @@ void Ns::Read(QXmlStreamReader &xml, ci32 file_index)
 	}
 }
 
-void
-Ns::WriteNamespaces(QXmlStreamWriter &xml, inst::Abstract *top)
+void Ns::WriteNamespaces(QXmlStreamWriter &xml, inst::Abstract *top)
 {
 	std::sort(prefixes_.begin(), prefixes_.end(), SortPrefixes);
 	for (auto *prefix: prefixes_)

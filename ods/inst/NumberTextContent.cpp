@@ -1,13 +1,15 @@
 #include "NumberTextContent.hpp"
+#include "../Ns.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
-NumberTextContent::NumberTextContent(Abstract *parent, Tag *tag)
+NumberTextContent::NumberTextContent(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::NumberTextContent)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 NumberTextContent::NumberTextContent(const NumberTextContent &cloner)
@@ -24,20 +26,24 @@ NumberTextContent::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-NumberTextContent::Init(ods::Tag *tag)
+void NumberTextContent::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
 {
-	ScanString(tag);
+	inst::AddKeywords({tag_name()}, list);
 }
 
-void
-NumberTextContent::WriteData(QXmlStreamWriter &xml)
+void NumberTextContent::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+}
+
+void NumberTextContent::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

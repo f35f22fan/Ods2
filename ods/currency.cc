@@ -4,6 +4,16 @@
 
 namespace ods {
 
+const QString StrEUR = QStringLiteral("EUR");
+const QString StrUSD = QStringLiteral("USD");
+const QString StrGBP = QStringLiteral("GBP");
+const QString StrCNY = QStringLiteral("CNY");
+const QString StrRUB = QStringLiteral("RUB");
+const QString StrJPY = QStringLiteral("JPY");
+const QString StrXBT = QStringLiteral("XBT");
+const QString StrETH = QStringLiteral("ETH");
+const QString StrSEK = QStringLiteral("SEK"); // Swedish krona
+
 Currency*
 Currency::Clone() {
 	auto *p = new Currency();
@@ -14,31 +24,31 @@ Currency::Clone() {
 
 namespace currency {
 
-static const char * SYMBOL_EUR = "€";
-static const char * SYMBOL_USD = "$";
-static const char * SYMBOL_GBP = "₤";
-static const char * SYMBOL_CNY = "¥";
-static const char * SYMBOL_RUB = "₽";
-static const char * SYMBOL_JPY = "¥";
-static const char * SYMBOL_XBT = "₿";
-static const char * SYMBOL_ETH = "Ξ";
-static const char * SYMBOL_SEK = "kr";
+static const QString SYMBOL_EUR = QStringLiteral("€");
+static const QString SYMBOL_USD = QStringLiteral("$");
+static const QString SYMBOL_GBP = QStringLiteral("₤");
+static const QString SYMBOL_CNY = QStringLiteral("¥");
+static const QString SYMBOL_RUB = QStringLiteral("₽");
+static const QString SYMBOL_JPY = QStringLiteral("¥");
+static const QString SYMBOL_XBT = QStringLiteral("₿");
+static const QString SYMBOL_ETH = QStringLiteral("Ξ");
+static const QString SYMBOL_SEK = QStringLiteral("kr"); // Swedish krona
 
 CurrencyInfo info(const CurrencyId &id)
 {
 	switch (id) {
-	case CurrencyId::EUR: return CurrencyInfo{"EUR", SYMBOL_EUR};
-	case CurrencyId::USD: return CurrencyInfo{"USD", SYMBOL_USD};
-	case CurrencyId::GBP: return CurrencyInfo{"GBP", SYMBOL_GBP};
-	case CurrencyId::CNY: return CurrencyInfo{"CNY", SYMBOL_CNY};
-	case CurrencyId::RUB: return CurrencyInfo{"RUB", SYMBOL_RUB};
-	case CurrencyId::JPY: return CurrencyInfo{"JPY", SYMBOL_JPY};
-	case CurrencyId::XBT: return CurrencyInfo{"XBT", SYMBOL_XBT};
-	case CurrencyId::ETH: return CurrencyInfo{"ETH", SYMBOL_ETH};
-	case CurrencyId::SEK: return CurrencyInfo{"SEK", SYMBOL_SEK};
+	case CurrencyId::EUR: return CurrencyInfo{StrEUR, SYMBOL_EUR};
+	case CurrencyId::USD: return CurrencyInfo{StrUSD, SYMBOL_USD};
+	case CurrencyId::GBP: return CurrencyInfo{StrGBP, SYMBOL_GBP};
+	case CurrencyId::CNY: return CurrencyInfo{StrCNY, SYMBOL_CNY};
+	case CurrencyId::RUB: return CurrencyInfo{StrRUB, SYMBOL_RUB};
+	case CurrencyId::JPY: return CurrencyInfo{StrJPY, SYMBOL_JPY};
+	case CurrencyId::XBT: return CurrencyInfo{StrXBT, SYMBOL_XBT};
+	case CurrencyId::ETH: return CurrencyInfo{StrETH, SYMBOL_ETH};
+	case CurrencyId::SEK: return CurrencyInfo{StrSEK, SYMBOL_SEK};
 	default: {
 		mtl_trace();
-		return {"", ""};
+		return {QString(), QString()};
 	}
 	}
 }
@@ -56,9 +66,9 @@ Currency SEK(double d) { return Currency { CurrencyId::SEK, d }; }
 ods::Currency*
 Query(const QString &country, const QString &symbol)
 {
-	auto cba = country.toLocal8Bit();
-	auto sba = symbol.toLocal8Bit();
-	mtl_info("Country: \"%s\", symbol: \"%s\"", cba.data(), sba.data());
+//	auto cba = country.toLocal8Bit();
+//	auto sba = symbol.toLocal8Bit();
+//	mtl_info("Country: \"%s\", symbol: \"%s\"", cba.data(), sba.data());
 
 	if (symbol == SYMBOL_EUR)
 		return new Currency(EUR(0));
@@ -79,7 +89,7 @@ Query(const QString &country, const QString &symbol)
 	if (symbol == SYMBOL_SEK)
 		return new Currency(SEK(0));
 
-	it_happened();
+	mtl_it_happened();
 	return nullptr;
 }
 

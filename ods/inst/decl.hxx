@@ -1,6 +1,9 @@
 #pragma once
 
+#include "../types.hxx"
+
 namespace ods { // ods::
+using UriId = u16;
 namespace inst { // ods::inst::
 
 class Abstract;

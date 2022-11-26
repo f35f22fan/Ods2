@@ -4,13 +4,12 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API ManifestFileEntry : public Abstract
 {
 public:
-	ManifestFileEntry(Abstract *parent, Tag *tag = nullptr);
+	ManifestFileEntry(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	ManifestFileEntry(const ManifestFileEntry &cloner);
 	virtual ~ManifestFileEntry();
 
@@ -23,23 +22,24 @@ public:
 	void
 	full_path(const QString &s) { manifest_full_path_ = s; }
 	
-	const QString&
-	media_type() const { return manifest_media_type_; }
+	void ListChildren(QVector<StringOrInst*> &vec,
+		const Recursively r = Recursively::No) override {}
 	
-	void
-	media_type(const QString &s) { manifest_media_type_ = s; }
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	
-	const QString&
-	version() const { return manifest_version_; }
+	void ListUsedNamespaces(NsHash &list) override;
 	
-	void
-	version(const QString &s) { manifest_version_ = s; }
+	const QString& media_type() const { return manifest_media_type_; }
+	void media_type(const QString &s) { manifest_media_type_ = s; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	const QString& version() const { return manifest_version_; }
+	void version(const QString &s) { manifest_version_ = s; }
+	
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 	
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	
 // <manifest:file-entry manifest:full-path="content.xml"
@@ -52,4 +52,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

@@ -25,6 +25,7 @@ StringOrTag::DeleteData()
 		delete as_string();
 	else
 		delete as_tag();
+	data_ = nullptr;
 }
 
 } // ods::

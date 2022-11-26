@@ -5,21 +5,23 @@
 
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API SvgTitle : public Abstract
 {
 public:
-	SvgTitle(Abstract *parent, ods::Tag *tag = nullptr);
+	SvgTitle(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	SvgTitle(const SvgTitle &cloner);
 	virtual ~SvgTitle();
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	QString* GetFirstString() const;
-	QString* GetString() const { return GetFirstString(); }
+	const QString *GetFirstString() const;
+	const QString* GetString() const { return GetFirstString(); }
+	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
 	void SetFirstString(const QString &s);
 	void SetString(const QString &s) { SetFirstString(s); }
@@ -27,8 +29,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 
 private:
-	void Init(ods::Tag*);
 };
 
 } // ods::inst::
-} // ods::

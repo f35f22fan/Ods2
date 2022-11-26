@@ -4,24 +4,24 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API TextDate : public Abstract
 {
 public:
-	TextDate(Abstract *parent, Tag *tag = nullptr);
+	TextDate(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	TextDate(const TextDate &cloner);
 	virtual ~TextDate();
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	
 	QString style_data_style_name_;
@@ -32,4 +32,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

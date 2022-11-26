@@ -6,13 +6,18 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 
-StyleParagraphProperties::StyleParagraphProperties(Abstract *parent, ods::Tag *tag)
+namespace ods::inst {
+
+StyleParagraphProperties::StyleParagraphProperties(Abstract *parent,
+	ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleParagraphProperties)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -45,43 +50,78 @@ StyleParagraphProperties::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-StyleParagraphProperties::Init(ods::Tag *tag)
+void StyleParagraphProperties::Init(ndff::Container *cntr)
 {
-	tag->Copy(ns_->style(), ods::ns::kTabStopDistance, style_tab_stop_distance_);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	NdffAttrs attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kTabStopDistance, style_tab_stop_distance_);
 	
 	QString str;
-	tag->Copy(ns_->fo(), ods::ns::kMarginLeft, str);
+	CopyAttr(attrs, ns_->fo(), ns::kMarginLeft, str);
 	fo_margin_left_ = ods::Length::FromString(str);
 	
-	tag->Copy(ns_->fo(), ods::ns::kTextAlign, str);
+	CopyAttr(attrs, ns_->fo(), ns::kTextAlign, str);
+	fo_text_align_ = HAlign::FromString(str);
+	
+	ReadStrings(cntr, op);
+}
+void StyleParagraphProperties::Init(ods::Tag *tag)
+{
+	tag->Copy(ns_->style(), ns::kTabStopDistance, style_tab_stop_distance_);
+	
+	QString str;
+	tag->Copy(ns_->fo(), ns::kMarginLeft, str);
+	fo_margin_left_ = ods::Length::FromString(str);
+	
+	tag->Copy(ns_->fo(), ns::kTextAlign, str);
 	fo_text_align_ = HAlign::FromString(str);
 }
 
-void
-StyleParagraphProperties::text_align(ods::HAlign *a)
+void StyleParagraphProperties::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	delete fo_text_align_;
-	
-	if (a == nullptr)
-	{
-		fo_text_align_ = nullptr;
-	} else {
-		fo_text_align_ = a->Clone();
-	}
+	inst::AddKeywords({tag_name(), ns::kTabStopDistance, ns::kMarginLeft,
+		ns::kTextAlign}, list);
 }
 
-void
-StyleParagraphProperties::WriteData(QXmlStreamWriter &xml)
+void StyleParagraphProperties::ListUsedNamespaces(NsHash &list)
 {
-	Write(xml, ns_->style(), ods::ns::kTabStopDistance, style_tab_stop_distance_);
+	Add(ns_->style(), list);
+	
+	if (fo_margin_left_ || fo_text_align_)
+		Add(ns_->fo(), list);
+}
+
+void StyleParagraphProperties::text_align(ods::HAlign *a)
+{
+	delete fo_text_align_;
+	fo_text_align_ = a ? a->Clone() : nullptr;
+}
+
+void StyleParagraphProperties::WriteData(QXmlStreamWriter &xml)
+{
+	Write(xml, ns_->style(), ns::kTabStopDistance, style_tab_stop_distance_);
 	
 	if (fo_margin_left_ != nullptr)
-		Write(xml, ns_->fo(), ods::ns::kMarginLeft, fo_margin_left_->toString());
+		Write(xml, ns_->fo(), ns::kMarginLeft, fo_margin_left_->toString());
 	
 	if (fo_text_align_ != nullptr)
-		Write(xml, ns_->fo(), ods::ns::kTextAlign, fo_text_align_->toString());
+		Write(xml, ns_->fo(), ns::kTextAlign, fo_text_align_->toString());
+}
+
+void StyleParagraphProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kTabStopDistance, style_tab_stop_distance_);
+	if (fo_margin_left_ != nullptr)
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kMarginLeft, fo_margin_left_->toString());
+	
+	if (fo_text_align_ != nullptr)
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kTextAlign, fo_text_align_->toString());
+	
+	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::
-} // ods::

@@ -4,27 +4,26 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleHeader : public Abstract
 {
 public:
-	StyleHeader(Abstract *parent, Tag *tag = nullptr);
+	StyleHeader(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	StyleHeader(const StyleHeader &cloner);
 	virtual ~StyleHeader();
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
 };
 
 } // ods::inst::
-} // ods::

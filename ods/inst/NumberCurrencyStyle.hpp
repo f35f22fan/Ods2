@@ -5,13 +5,12 @@
 
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API NumberCurrencyStyle : public Abstract
 {
 public:
-	NumberCurrencyStyle(Abstract *parent, Tag *tag = nullptr);
+	NumberCurrencyStyle(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberCurrencyStyle(const NumberCurrencyStyle &cloner);
 	virtual ~NumberCurrencyStyle();
 	
@@ -27,6 +26,9 @@ public:
 	NumberNumber*
 	FetchNumber();
 	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	
 	inst::NumberCurrencySymbol*
 	NewCurrencySymbol();
 	
@@ -39,19 +41,18 @@ public:
 	virtual QString*
 	style_name() override { return &style_name_; }
 	
-	void
-	style_name(const QString &s) { style_name_ = s; }
+	void style_name(const QString &s) { style_name_ = s; }
 	
 	QString*
 	parent_style_name() override { return nullptr; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
-	void Init(ods::Tag *tag);
-	void Scan(ods::Tag *tag);
+	void Init(ndff::Container *cntr);
+	void Init(Tag *tag);
+	void Scan(Tag *tag);
 	
 /*
 <number:currency-symbol number:language="en" number:country="US">$</number:currency-symbol>
@@ -65,4 +66,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

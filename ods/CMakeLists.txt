@@ -20,6 +20,7 @@ set(lib_files
 	Attr.cpp Attr.hpp
 	AutoDelete.hh
 	Book.cpp Book.hpp
+	ByteArray.cpp ByteArray.hpp
 	Cell.cpp Cell.hpp cell.hxx
 	CellRef.cpp CellRef.hpp
 	cmp_num.hh
@@ -38,18 +39,21 @@ set(lib_files
 	global.hxx
 	HAlign.cpp HAlign.hpp
 	id.cc id.hh
+	io.cc io.hh
 	lang.hxx
 	Length.cpp Length.hpp
 	LineStyle.cpp LineStyle.hpp line.hxx
+	ndff/Container.cpp ndff/Container.hpp
+	ndff/FileEntryInfo.cpp ndff/FileEntryInfo.hpp
+	ndff/ndff.cc ndff/ndff.hh
+	ndff/Property.cpp ndff/Property.hpp
 	Ns.cpp Ns.hpp ns.hxx
 	ods ods.cc ods.hh ods.hxx
 	op.cc op.hh
 	Prefix.cpp Prefix.hpp
-	record.cc record.hh
 	Reference.cpp Reference.hpp
 	Row.cpp Row.hpp
 	Sheet.cpp Sheet.hpp
-	str.hxx
 	StringOrInst.cpp StringOrInst.hpp
 	StringOrTag.cpp StringOrTag.hpp
 	style.cc style.hh style.hxx

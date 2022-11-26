@@ -4,24 +4,24 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleHeaderFooterProperties : public Abstract
 {
 public:
-	StyleHeaderFooterProperties(Abstract *parent, ods::Tag *tag = nullptr);
+	StyleHeaderFooterProperties(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	StyleHeaderFooterProperties(const StyleHeaderFooterProperties &cloner);
 	virtual ~StyleHeaderFooterProperties();
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	void Scan(Tag *tag);
 	
@@ -36,5 +36,4 @@ private:
 };
 
 } // ods::inst::
-} // ods::
 

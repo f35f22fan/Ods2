@@ -4,14 +4,15 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
-MetaEditingDuration::MetaEditingDuration(Abstract *parent, Tag *tag)
+MetaEditingDuration::MetaEditingDuration(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::MetaEditingDuration)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 MetaEditingDuration::MetaEditingDuration(const MetaEditingDuration &cloner)
@@ -31,17 +32,19 @@ MetaEditingDuration::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-MetaEditingDuration::Init(Tag *tag)
+void MetaEditingDuration::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	ScanString(tag);
+	inst::AddKeywords({tag_name()}, list);
 }
 
-void
-MetaEditingDuration::WriteData(QXmlStreamWriter &xml)
+void MetaEditingDuration::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->meta(), list);
+}
+
+void MetaEditingDuration::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

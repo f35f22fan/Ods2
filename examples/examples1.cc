@@ -17,6 +17,14 @@
 
 #include <QSize>
 
+void ReadWriteNDFF()
+{
+	QString full_path = QDir::home().filePath("out.ndff");
+	ods::Book *book = ods::Book::FromNDFF(full_path);
+	ods::AutoDelete<ods::Book*> ad(book);
+	util::Save(book, "SavedFromNDFF.ods");
+}
+
 void TestBug()
 {
 	auto *book = ods::Book::New();
@@ -876,7 +884,7 @@ void ReadImage()
 
 void CreateDate()
 {
-	auto *book = ods::Book::New();
+	ods::Book *book = ods::Book::New(ods::DevMode::Yes);
 	ods::AutoDelete<ods::Book*> ad(book);
 	
 	auto *spr = book->spreadsheet();
@@ -977,14 +985,12 @@ void ReadDate()
 		return;
 	}
 	
-	const QVector<ods::StringOrInst*> &nodes = date_style->nodes();
-	
-	for (ods::StringOrInst *x: nodes)
+	for (ods::StringOrInst *node: *date_style->nodes())
 	{
-		if (!x->is_inst())
+		if (!node->is_inst())
 			continue; // a string, not a class, skip.
 		
-		auto *inst = x->as_inst(); // pointer to the base class ods::inst::Abstract
+		auto *inst = node->as_inst(); // pointer to the base class ods::inst::Abstract
 		
 		// Find out what class it is:
 		if (inst->Is(ods::Id::NumberYear))
@@ -1002,7 +1008,7 @@ void ReadDate()
 			printf("Seconds");
 		} else if (inst->Is(ods::Id::NumberText)) {
 			auto *t = (ods::inst::NumberText*) inst;
-			QString *s = t->GetFirstString();
+			const QString *s = t->GetString();
 			
 			if (s == nullptr)
 			{
@@ -1117,14 +1123,12 @@ void ReadTime()
 		return;
 	}
 	
-	const QVector<ods::StringOrInst*> &nodes = time_style->nodes();
-	
-	for (ods::StringOrInst *x: nodes)
+	for (ods::StringOrInst *node: *time_style->nodes())
 	{
-		if (!x->is_inst())
+		if (!node->is_inst())
 			continue; // a string, not a class, skip.
 		
-		auto *inst = x->as_inst(); // pointer to the abstract class ods::inst::Abstract
+		auto *inst = node->as_inst(); // pointer to the abstract class ods::inst::Abstract
 		
 		// Find out what class it is:
 		if (inst->Is(ods::Id::NumberYear))
@@ -1142,7 +1146,7 @@ void ReadTime()
 			printf("Seconds");
 		} else if (inst->Is(ods::Id::NumberText)) {
 			auto *t = (ods::inst::NumberText*) inst;
-			QString *s = t->GetFirstString();
+			const QString *s = t->GetString();
 			
 			if (s == nullptr)
 			{

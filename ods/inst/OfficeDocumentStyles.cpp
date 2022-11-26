@@ -15,16 +15,17 @@
 #include <QFile>
 #include <QXmlStreamReader>
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
-OfficeDocumentStyles::OfficeDocumentStyles(ods::Book *book, ods::Ns *ns, Tag *tag) :
+OfficeDocumentStyles::OfficeDocumentStyles(ods::Book *book, ods::Ns *ns, Tag *tag, ndff::Container *cntr) :
 Abstract(nullptr, ns, id::OfficeDocumentStyles)
 {
 	book_ = book;
 	book_->document_styles_ = this;
 	
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -99,15 +100,57 @@ OfficeDocumentStyles::GetAnyStyle(const QString &name)
 	return office_font_face_decls_->GetStyleRecursive(name);
 }
 
-void
-OfficeDocumentStyles::Init(ods::Tag *tag)
+void OfficeDocumentStyles::Init(ndff::Container *cntr)
 {
-	tag->Copy(ns_->office(), ods::ns::kVersion, office_version_);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	NdffAttrs attrs;
+	Op op = cntr->Next(prop, Op::None);
+	op = cntr->Next(prop, op, &attrs);
+	CopyAttr(attrs, ns_->office(), ns::kVersion, office_version_);
+//	mtl_info("office_version_: %s", qPrintable(office_version_));
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->office()))
+			{
+				if (prop.name == ns::kFontFaceDecls) {
+					office_font_face_decls_ = new OfficeFontFaceDecls(this, 0, cntr);
+				} else if (prop.name == ns::kStyles) {
+					office_styles_ = new OfficeStyles(this, 0, cntr);
+				} else if (prop.name == ns::kAutomaticStyles) {
+					office_automatic_styles_ = new OfficeAutomaticStyles(this, 0, cntr);
+				} else if (prop.name == ns::kMasterStyles) {
+					office_master_styles_ = new OfficeMasterStyles(this, 0, cntr);
+				}
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+void OfficeDocumentStyles::Init(ods::Tag *tag)
+{
+	tag->Copy(ns_->office(), ns::kVersion, office_version_);
 	Scan(tag);
 }
 
-void
-OfficeDocumentStyles::InitDefault()
+void OfficeDocumentStyles::InitDefault()
 {
 	office_version_ = QLatin1String("1.2");
 	
@@ -117,8 +160,49 @@ OfficeDocumentStyles::InitDefault()
 	office_master_styles_ = new OfficeMasterStyles(this);
 }
 
-void
-OfficeDocumentStyles::Scan(ods::Tag *tag)
+void OfficeDocumentStyles::ListChildren(QVector<StringOrInst*> &vec,
+	const Recursively r)
+{
+	if (office_font_face_decls_)
+	{
+		vec.append(new StringOrInst(office_font_face_decls_, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			office_font_face_decls_->ListChildren(vec, r);
+	}
+	
+	if (office_styles_)
+	{
+		vec.append(new StringOrInst(office_styles_, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			office_styles_->ListChildren(vec, r);
+	}
+	
+	if (office_automatic_styles_)
+	{
+		vec.append(new StringOrInst(office_automatic_styles_, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			office_automatic_styles_->ListChildren(vec, r);
+	}
+	
+	if (office_master_styles_)
+	{
+		vec.append(new StringOrInst(office_master_styles_, TakeOwnership::No));
+		if (r == Recursively::Yes)
+			office_master_styles_->ListChildren(vec, r);
+	}
+}
+
+void OfficeDocumentStyles::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	AddKeywords({tag_name(), ns::kVersion}, list);
+}
+
+void OfficeDocumentStyles::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
+}
+
+void OfficeDocumentStyles::Scan(ods::Tag *tag)
 {
 	foreach (auto *x, tag->nodes())
 	{
@@ -127,14 +211,14 @@ OfficeDocumentStyles::Scan(ods::Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->office(), ods::ns::kFontFaceDecls))
+		if (next->Is(ns_->office(), ns::kFontFaceDecls))
 		{
 			office_font_face_decls_ = new OfficeFontFaceDecls(this, next);
-		} else if (next->Is(ns_->office(), ods::ns::kStyles)) {
+		} else if (next->Is(ns_->office(), ns::kStyles)) {
 			office_styles_ = new OfficeStyles(this, next);
-		} else if (next->Is(ns_->office(), ods::ns::kAutomaticStyles)) {
+		} else if (next->Is(ns_->office(), ns::kAutomaticStyles)) {
 			office_automatic_styles_ = new OfficeAutomaticStyles(this, next);
-		} else if (next->Is(ns_->office(), ods::ns::kMasterStyles)) {
+		} else if (next->Is(ns_->office(), ns::kMasterStyles)) {
 			office_master_styles_ = new OfficeMasterStyles(this, next);
 		} else {
 			Scan(next);
@@ -142,10 +226,9 @@ OfficeDocumentStyles::Scan(ods::Tag *tag)
 	}
 }
 
-void
-OfficeDocumentStyles::WriteData(QXmlStreamWriter &xml)
+void OfficeDocumentStyles::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->office(), ods::ns::kVersion, office_version_);
+	Write(xml, ns_->office(), ns::kVersion, office_version_);
 	
 	office_font_face_decls_->Write(xml);
 	office_styles_->Write(xml);
@@ -153,5 +236,12 @@ OfficeDocumentStyles::WriteData(QXmlStreamWriter &xml)
 	office_master_styles_->Write(xml);
 }
 
+void OfficeDocumentStyles::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->office(), ns::kVersion, office_version_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

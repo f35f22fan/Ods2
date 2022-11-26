@@ -1,7 +1,6 @@
 #include "StyleTextUnderlineWidth.hpp"
 
-namespace ods { // ods::
-namespace attr { // ods::attr::
+namespace ods::attr {
 
 static const auto AutoStr = QStringLiteral("auto");
 static const auto BoldStr = QStringLiteral("bold");
@@ -35,7 +34,7 @@ StyleTextUnderlineWidth::FromString(const QString &s)
 		p->SetBold();
 		return p;
 	} else {
-		it_happened();
+		mtl_it_happened();
 	}
 	
 	return nullptr;
@@ -48,9 +47,8 @@ StyleTextUnderlineWidth::toString()
 	{
 	case TextUnderlineWidth::Auto: return AutoStr;
 	case TextUnderlineWidth::Bold: return BoldStr;
-	default: it_happened(); return QLatin1String();
+	default: mtl_it_happened(); return QLatin1String();
 	}
 }
 
 } // ods::attr::
-} // ods::

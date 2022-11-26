@@ -3,14 +3,19 @@
 #include "../Ns.hpp"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../ndff/Property.hpp"
+#include "../ndff/Container.hpp"
 
-NumberBoolean::NumberBoolean(Abstract *parent, ods::Tag *tag) :
+namespace ods::inst {
+
+NumberBoolean::NumberBoolean(Abstract *parent, ods::Tag *tag,
+	ndff::Container *cntr) :
 Abstract(parent, parent->ns(), id::NumberBoolean)
 {
-//	if (tag != nullptr)
-//		Init(tag); // cannot have any params
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 NumberBoolean::NumberBoolean(const NumberBoolean &cloner)
@@ -23,18 +28,23 @@ Abstract*
 NumberBoolean::Clone(Abstract *parent) const
 {
 	auto *p = new NumberBoolean(*this);
-	
-	if (parent != nullptr)
+	if (parent)
 		p->parent(parent);
 	
 	return p;
 }
 
-void
-NumberBoolean::WriteData(QXmlStreamWriter &xml)
+void NumberBoolean::ListKeywords(Keywords &list, const LimitTo lt)
 {
-//	WriteNodes(xml); // cannot have any children
+	inst::AddKeywords({tag_name()}, list);
 }
 
+void NumberBoolean::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+}
+
+void NumberBoolean::WriteData(QXmlStreamWriter &xml)
+{}
+
 } // ods::inst::
-} // ods::

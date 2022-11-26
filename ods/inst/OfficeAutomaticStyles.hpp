@@ -4,13 +4,13 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API OfficeAutomaticStyles : public Abstract
 {
 public:
-	OfficeAutomaticStyles(Abstract *parent, ods::Tag *tag = nullptr);
+	OfficeAutomaticStyles(Abstract *parent, ods::Tag *tag = 0,
+		ndff::Container *cntr = 0);
 	OfficeAutomaticStyles(const OfficeAutomaticStyles &cloner);
 	virtual ~OfficeAutomaticStyles();
 	
@@ -19,6 +19,9 @@ public:
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
+	
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
 	NumberBooleanStyle*
 	NewNumberBooleanStyle();
@@ -38,14 +41,13 @@ public:
 	StyleStyle*
 	NewStyleStyle(const style::Family f);
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
 };
 
 } // ods::inst::
-} // ods::

@@ -8,13 +8,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 
-TableTableColumn::TableTableColumn(Abstract *parent, Tag *tag)
+namespace ods::inst {
+
+TableTableColumn::TableTableColumn(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::TableTableColumn)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -68,13 +72,60 @@ TableTableColumn::GetStyle() const
 	return Get(table_style_name_);
 }
 
-void
-TableTableColumn::Init(Tag *tag)
+void TableTableColumn::Init(ndff::Container *cntr)
 {
-	tag->Copy(ns_->table(), ods::ns::kStyleName, table_style_name_);
-	tag->Copy(ns_->table(), ods::ns::kNumberColumnsRepeated, ncr_);
-	tag->Copy(ns_->table(), ods::ns::kDefaultCellStyleName,
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->draw(), ns::kStyleName, table_style_name_);
+	CopyAttrI32(attrs, ns_->draw(), ns::kNumberColumnsRepeated, ncr_);
+	CopyAttr(attrs, ns_->style(), ns::kDefaultCellStyleName, table_default_cell_style_name_);
+
+	if (op == Op::N32_TE)
+		return;
+
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+//			if (prop.is(ns_->draw()))
+//			{
+//				if (prop.name == ns::kImage)
+//					Append(new inst::DrawImage(this, 0, cntr), TakeOwnership::Yes);
+//			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		op = cntr->Next(prop, op);
+	}
+
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+void TableTableColumn::Init(Tag *tag)
+{
+	tag->Copy(ns_->table(), ns::kStyleName, table_style_name_);
+	tag->Copy(ns_->table(), ns::kNumberColumnsRepeated, ncr_);
+	tag->Copy(ns_->table(), ns::kDefaultCellStyleName,
 		table_default_cell_style_name_);
+}
+
+void TableTableColumn::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+{
+	inst::AddKeywords({tag_name(),ns::kStyleName,
+		ns::kNumberColumnsRepeated, ns::kDefaultCellStyleName}, list);
+}
+
+void TableTableColumn::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->table(), list);
 }
 
 Length*
@@ -91,17 +142,20 @@ TableTableColumn::QueryColumnWidth() const
 	return (tcp == nullptr) ? nullptr : tcp->column_width();
 }
 
-void
-TableTableColumn::SetStyle(inst::StyleStyle *p)
+void TableTableColumn::SetStyle(inst::StyleStyle *p)
 {
 	if (p != nullptr)
-		table_style_name_ = *p->style_name();
-	else
+	{
+		if (p->style_name())
+			table_style_name_ = *p->style_name();
+		else
+			mtl_trace();
+	} else {
 		table_style_name_.clear();
+	}
 }
 
-void
-TableTableColumn::SetWidth(Length *length)
+void TableTableColumn::SetWidth(Length *length)
 {
 	auto *tcp = FetchTableColumnProperties();
 	tcp->SetColumnWidth(length);
@@ -120,17 +174,23 @@ TableTableColumn::ToSchemaString() const
 	return s;
 }
 
-void
-TableTableColumn::WriteData(QXmlStreamWriter &xml)
+void TableTableColumn::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->table(), ods::ns::kStyleName, table_style_name_);
-	
-	Write(xml, ns_->table(), ods::ns::kNumberColumnsRepeated,
-		ncr_, 1);
-	
-	Write(xml, ns_->table(), ods::ns::kDefaultCellStyleName,
+	Write(xml, ns_->table(), ns::kStyleName, table_style_name_);
+	Write(xml, ns_->table(), ns::kNumberColumnsRepeated, ncr_, 1);
+	Write(xml, ns_->table(), ns::kDefaultCellStyleName,
 		table_default_cell_style_name_);
 }
 
+void TableTableColumn::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberColumnsRepeated, ncr_, 1);
+	WriteNdffProp(kw, *ba, ns_->table(), ns::kDefaultCellStyleName,
+		table_default_cell_style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

@@ -662,7 +662,7 @@ FormulaNode* Text(const QVector<FormulaNode *> &values)
 			QTime time_arg(t->hours(), t->minutes(), t->seconds(), t->ms());
 			CHECK_TRUE_NULL(eval::FormatAsDateTime(format_str, nullptr, &time_arg, result));
 		} else {
-			it_happened();
+			mtl_it_happened();
 			return nullptr;
 		}
 	}

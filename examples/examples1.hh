@@ -1,6 +1,9 @@
 #pragma once
 
+//==> Please ignore this
+void ReadWriteNDFF();
 void TestBug();
+//<== Please ignore this
 
 void SetColumnWidths();
 void ReadColumnWidths();

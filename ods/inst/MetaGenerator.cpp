@@ -4,14 +4,15 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
-MetaGenerator::MetaGenerator(Abstract *parent, Tag *tag)
+MetaGenerator::MetaGenerator(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::MetaGenerator)
 {
-	if (tag != nullptr)
-		Init(tag);
+	if (cntr)
+		ReadStrings(cntr);
+	else if (tag)
+		ReadStrings(tag);
 }
 
 MetaGenerator::MetaGenerator(const MetaGenerator &cloner)
@@ -31,17 +32,19 @@ MetaGenerator::Clone(Abstract *parent) const
 	return p;
 }
 
-void
-MetaGenerator::Init(Tag *tag)
+void MetaGenerator::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	ScanString(tag);
+	inst::AddKeywords({tag_name()}, list);
 }
 
-void
-MetaGenerator::WriteData(QXmlStreamWriter &xml)
+void MetaGenerator::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->meta(), list);
+}
+
+void MetaGenerator::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

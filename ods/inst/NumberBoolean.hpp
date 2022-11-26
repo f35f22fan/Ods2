@@ -4,24 +4,23 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API NumberBoolean : public Abstract
 {
 public:
-	NumberBoolean(Abstract *parent, Tag *tag = nullptr);
+	NumberBoolean(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	NumberBoolean(const NumberBoolean &cloner);
 	virtual ~NumberBoolean();
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
 };
 
 } // ods::inst::
-} // ods::

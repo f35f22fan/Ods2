@@ -3,14 +3,12 @@
 #include "err.hpp"
 #include "style.hxx"
 
-namespace ods { // ods::
-namespace style { // ods::style::
+namespace ods::style {
 
 style::Family
-FamilyFromString(const QString &s);
+FamilyFromString(QStringView s);
 
-const char*
+QStringView
 FamilyToString(const style::Family f);
 
 } // ods::style::
-} // ods::

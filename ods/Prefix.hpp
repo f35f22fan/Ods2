@@ -6,7 +6,7 @@
 
 #include <QXmlStreamWriter>
 
-namespace ods { // ods::
+namespace ods {
 
 class ODS_API Prefix {
 public:
@@ -16,23 +16,12 @@ public:
 	static Prefix*
 	Create(UriId &id, const QString &s, const QString &uri);
 	
-	UriId
-	id() const { return id_; }
-	
-	bool
-	Is(QStringView s) const;
-	
-	bool
-	Is(const Prefix *prefix) const;
-	
-	void
-	set_id(const UriId id) { id_ = id; }
-	
-	void
-	set_name(const QString &str) { name_ = str; }
-	
-	void
-	set_uri(const QString &uri) { uri_ = uri; }
+	UriId id() const { return id_; }
+	bool Is(QStringView s) const;
+	bool Is(const Prefix *prefix) const;
+	void set_id(const UriId id) { id_ = id; }
+	void set_name(const QString &str) { name_ = str; }
+	void set_uri(const QString &uri) { uri_ = uri; }
 	
 	const QString&
 	name() const { return name_; }
@@ -40,14 +29,8 @@ public:
 	const QString&
 	uri() const { return uri_; }
 	
-	QString
-	With(const char *name) const;
-	
-	QString
-	With(const QString &name) const;
-	
-	void
-	Write(QXmlStreamWriter &xml) const;
+	QString With(QStringView name) const;
+	void Write(QXmlStreamWriter &xml) const;
 	
 private:
 	NO_ASSIGN_COPY_MOVE(Prefix);

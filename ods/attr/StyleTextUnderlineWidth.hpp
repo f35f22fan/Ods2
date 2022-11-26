@@ -3,8 +3,7 @@
 #include "../err.hpp"
 #include "../global.hxx"
 
-namespace ods { // ods::
-namespace attr { // ods::attr::
+namespace ods::attr {
 
 enum class TextUnderlineWidth : uint8_t
 {
@@ -91,4 +90,3 @@ private:
 };
 
 } // ods::attr::
-} // ods::

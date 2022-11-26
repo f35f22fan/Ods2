@@ -8,13 +8,13 @@
 
 #include <QColor>
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleTableCellProperties : public Abstract
 {
 public:
-	StyleTableCellProperties(Abstract *parent, ods::Tag *tag = nullptr);
+	StyleTableCellProperties(Abstract *parent, ods::Tag *tag = 0,
+		ndff::Container *cntr = 0);
 	StyleTableCellProperties(const StyleTableCellProperties &cloner);
 	virtual ~StyleTableCellProperties();
 	
@@ -27,59 +27,42 @@ public:
 	ods::attr::Border*
 	border() const { return fo_border_; }
 	
-	void
-	border(ods::attr::Border *border);
+	void border(ods::attr::Border *border);
 	
 	ods::attr::Border*
 	border_left() const { return fo_border_left_; }
-	
-	void
-	border_left(ods::attr::Border *border);
+	void border_left(ods::attr::Border *border);
 	
 	ods::attr::Border*
 	border_top() const { return fo_border_top_; }
-	
-	void
-	border_top(ods::attr::Border *border);
+	void border_top(ods::attr::Border *border);
 	
 	ods::attr::Border*
 	border_right() const { return fo_border_right_; }
-	
-	void
-	border_right(ods::attr::Border *border);
+	void border_right(ods::attr::Border *border);
 	
 	ods::attr::Border*
 	border_bottom() const { return fo_border_bottom_; }
 	
-	void
-	border_bottom(ods::attr::Border *border);
-	
-	void
-	SetBackgroundColor(const QColor &c);
-	
-	void
-	SetWrapOption(const bool flag);
+	void border_bottom(ods::attr::Border *border);
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void SetBackgroundColor(const QColor &c);
+	void SetWrapOption(const bool flag);
 	
 	ods::attr::StyleBorderLineWidth*
 	style_border_line_width() const { return style_border_line_width_; }
+	void style_border_line_width(const ods::attr::StyleBorderLineWidth *p);
 	
-	void
-	style_border_line_width(const ods::attr::StyleBorderLineWidth *p);
+	VAlign* vertical_align() const { return style_vertical_align_; }
+	void vertical_align(VAlign *p);
 	
-	VAlign*
-	vertical_align() const { return style_vertical_align_; }
-	
-	void
-	vertical_align(VAlign *p);
-	
-	bool
-	wrap_option() const { return fo_wrap_option_ == QLatin1String("wrap"); }
-	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-	
+	bool wrap_option() const { return fo_wrap_option_ == QLatin1String("wrap"); }
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	QColor *fo_background_color_ = nullptr;
@@ -98,4 +81,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

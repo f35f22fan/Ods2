@@ -13,13 +13,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 
-OfficeMeta::OfficeMeta(Abstract *parent, Tag *tag)
+namespace ods::inst {
+
+OfficeMeta::OfficeMeta(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::OfficeMeta)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -39,17 +43,65 @@ OfficeMeta::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-OfficeMeta::Init(Tag *tag)
+void OfficeMeta::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	Op op = cntr->Next(prop, Op::TS);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->meta()))
+			{
+				if (prop.name == ns::kCreationDate)
+					Append(new MetaCreationDate(this, 0, cntr), TakeOwnership::Yes);
+				if (prop.name == ns::kEditingDuration)
+					Append(new MetaEditingDuration(this, 0, cntr), TakeOwnership::Yes);
+				if (prop.name == ns::kEditingCycles)
+					Append(new MetaEditingCycles(this, 0, cntr), TakeOwnership::Yes);
+				if (prop.name == ns::kGenerator)
+					Append(new MetaGenerator(this, 0, cntr), TakeOwnership::Yes);
+				if (prop.name == ns::kDocumentStatistic)
+					Append(new MetaDocumentStatistic(this, 0, cntr), TakeOwnership::Yes);
+				if (prop.name == ns::kTemplate)
+					Append(new MetaTemplate(this, 0, cntr), TakeOwnership::Yes);
+			} else if (prop.is(ns_->dc())) {
+					if (prop.name == ns::kTitle)
+						Append(new DcTitle(this, 0, cntr), TakeOwnership::Yes);
+					else if (prop.name == ns::kDate)
+						Append(new DcDate(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+void OfficeMeta::Init(Tag *tag)
 {
 	Scan(tag);
 }
 
-void
-OfficeMeta::InitDefault()
+void OfficeMeta::InitDefault()
 {
 /*
 	<office:meta>
@@ -68,8 +120,17 @@ OfficeMeta::InitDefault()
 */
 }
 
-void
-OfficeMeta::Scan(Tag *tag)
+void OfficeMeta::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name()}, list);
+}
+
+void OfficeMeta::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->office(), list);
+}
+
+void OfficeMeta::Scan(Tag *tag)
 {
 	for (auto *x: tag->nodes())
 	{
@@ -78,34 +139,32 @@ OfficeMeta::Scan(Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->meta(), ods::ns::kCreationDate))
+		if (next->Is(ns_->meta(), ns::kCreationDate))
 		{
-			Append(new MetaCreationDate(this, next));
-		} else if (next->Is(ns_->dc(), ods::ns::kTitle)) {
-			Append(new DcTitle(this, next));
-		} else if (next->Is(ns_->meta(), ods::ns::kEditingDuration)) {
-			Append(new MetaEditingDuration(this, next));
-		} else if (next->Is(ns_->meta(), ods::ns::kEditingCycles)) {
-			Append(new MetaEditingCycles(this, next));
-		} else if (next->Is(ns_->meta(), ods::ns::kGenerator)) {
-			Append(new MetaGenerator(this, next));
-		} else if (next->Is(ns_->dc(), ods::ns::kDate)) {
-			Append(new DcDate(this, next));
-		} else if (next->Is(ns_->meta(), ods::ns::kDocumentStatistic)) {
-			Append(new MetaDocumentStatistic(this, next));
-		} else if (next->Is(ns_->meta(), ods::ns::kTemplate)) {
-			Append(new MetaTemplate(this, next));
+			Append(new MetaCreationDate(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->dc(), ns::kTitle)) {
+			Append(new DcTitle(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->meta(), ns::kEditingDuration)) {
+			Append(new MetaEditingDuration(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->meta(), ns::kEditingCycles)) {
+			Append(new MetaEditingCycles(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->meta(), ns::kGenerator)) {
+			Append(new MetaGenerator(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->dc(), ns::kDate)) {
+			Append(new DcDate(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->meta(), ns::kDocumentStatistic)) {
+			Append(new MetaDocumentStatistic(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->meta(), ns::kTemplate)) {
+			Append(new MetaTemplate(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}
 	}
 }
 
-void
-OfficeMeta::WriteData(QXmlStreamWriter &xml)
+void OfficeMeta::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
 }
 
 } // ods::inst::
-} // ods::

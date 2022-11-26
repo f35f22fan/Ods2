@@ -8,17 +8,14 @@
 
 #include <QString>
 
-namespace ods		{ // ods::
-namespace filename	{ // ods::filename::
-
-const char * const ContentXml	= "content.xml";
-const char * const MediaDirName	= "media";
-const char * const ManifestXml	= "manifest.xml";
-const char * const MetaXml		= "meta.xml";
-const char * const MimeType		= "mimetype";
-const char * const SettingsXml	= "settings.xml";
-const char * const StylesXml	= "styles.xml";
+namespace ods::filename {
+static const QString ContentXml = QStringLiteral("content.xml");
+static const QString MediaDirName = QStringLiteral("media");
+static const QString ManifestXml = QStringLiteral("manifest.xml");
+static const QString MetaXml = QStringLiteral("meta.xml");
+static const QString MimeType = QStringLiteral("mimetype");
+static const QString SettingsXml = QStringLiteral("settings.xml");
+static const QString StylesXml = QStringLiteral("styles.xml");
+static const QString MetaInf = QStringLiteral("META-INF");
 
 } // ods::filename::
-} // ods::
-

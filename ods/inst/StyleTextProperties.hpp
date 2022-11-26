@@ -8,13 +8,13 @@
 
 #include <QColor>
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleTextProperties : public ods::inst::Abstract
 {
 public:
-	StyleTextProperties(Abstract *parent, ods::Tag *tag = nullptr);
+	StyleTextProperties(Abstract *parent, ods::Tag *tag = 0,
+		ndff::Container *cntr = 0);
 	StyleTextProperties(const StyleTextProperties &cloner);
 	virtual ~StyleTextProperties();
 	
@@ -45,38 +45,20 @@ public:
 	attr::FoFontWeight*
 	font_weight() const { return fo_font_weight_; }
 	
-	void
-	SetBackgroundColor(QColor *c);
-
-	void
-	SetColor(QColor *c);
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
 	
-	void
-	SetFontFace(StyleFontFace *sff);
-	
-	void
-	SetFontSize(Length *fs);
-	
-	void
-	SetFontSizeAsian(Length *fs);
-	
-	void
-	SetFontSizeComplex(Length *fs);
-	
-	void
-	SetFontStyle(attr::FoFontStyle *fs);
-	
-	void
-	SetFontWeight(attr::FoFontWeight *fw);
-	
-	void
-	SetTextUnderlineColor(attr::StyleTextUnderlineColor *stuc);
-	
-	void
-	SetTextUnderlineStyle(LineStyle *stus);
-	
-	void
-	SetTextUnderlineWidth(attr::StyleTextUnderlineWidth *stuw);
+	void SetBackgroundColor(QColor *c);
+	void SetColor(QColor *c);
+	void SetFontFace(StyleFontFace *sff);
+	void SetFontSize(Length *fs);
+	void SetFontSizeAsian(Length *fs);
+	void SetFontSizeComplex(Length *fs);
+	void SetFontStyle(attr::FoFontStyle *fs);
+	void SetFontWeight(attr::FoFontWeight *fw);
+	void SetTextUnderlineColor(attr::StyleTextUnderlineColor *stuc);
+	void SetTextUnderlineStyle(LineStyle *stus);
+	void SetTextUnderlineWidth(attr::StyleTextUnderlineWidth *stuw);
 	
 	attr::StyleTextUnderlineColor*
 	text_underline_color() const { return style_text_underline_color_; }
@@ -87,11 +69,11 @@ public:
 	attr::StyleTextUnderlineWidth*
 	text_underline_width() const { return style_text_underline_width_; }
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	QColor *fo_background_color_ = nullptr;
@@ -137,4 +119,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::

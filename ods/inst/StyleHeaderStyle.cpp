@@ -6,13 +6,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
 
-StyleHeaderStyle::StyleHeaderStyle(Abstract *parent, ods::Tag *tag)
+namespace ods::inst {
+
+StyleHeaderStyle::StyleHeaderStyle(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleHeaderStyle)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -32,19 +36,63 @@ StyleHeaderStyle::Clone(Abstract *parent) const
 		p->parent(parent);
 	
 	p->style_name_ = style_name_;
-
+	p->CloneChildrenOf(this);
+	
 	return p;
 }
 
-void
-StyleHeaderStyle::Init(ods::Tag *tag)
+void StyleHeaderStyle::Init(ndff::Container *cntr)
 {
-	tag->Copy(ns_->style(), ods::ns::kName, style_name_);
+	using Op = ndff::Op;
+	ndff::Property prop;
+	QHash<UriId, QVector<ndff::Property>> attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
+	if (op == Op::N32_TE)
+		return;
+	
+	if (op == Op::TCF_CMS)
+		op = cntr->Next(prop, op);
+	
+	while (true)
+	{
+		if (op == Op::TS)
+		{
+			if (prop.is(ns_->style()))
+			{
+				if (prop.name == ns::kHeaderFooterProperties)
+					Append(new StyleHeaderFooterProperties(this, 0, cntr), TakeOwnership::Yes);
+			}
+		} else if (ndff::is_text(op)) {
+			Append(cntr->NextString());
+		} else {
+			break;
+		}
+		
+		op = cntr->Next(prop, op);
+	}
+	
+	if (op != Op::SCT)
+		mtl_trace("Unexpected op: %d", op);
+}
+
+void StyleHeaderStyle::Init(ods::Tag *tag)
+{
+	tag->Copy(ns_->style(), ns::kName, style_name_);
 	Scan(tag);
 }
 
-void
-StyleHeaderStyle::Scan(ods::Tag *tag)
+void StyleHeaderStyle::ListKeywords(Keywords &list, const LimitTo lt)
+{
+	inst::AddKeywords({tag_name(), ns::kName}, list);
+}
+
+void StyleHeaderStyle::ListUsedNamespaces(NsHash &list)
+{
+	Add(ns_->number(), list);
+}
+
+void StyleHeaderStyle::Scan(ods::Tag *tag)
 {
 	foreach (auto *x, tag->nodes())
 	{
@@ -53,21 +101,27 @@ StyleHeaderStyle::Scan(ods::Tag *tag)
 		
 		auto *next = x->as_tag();
 		
-		if (next->Is(ns_->style(), ods::ns::kHeaderFooterProperties))
+		if (next->Is(ns_->style(), ns::kHeaderFooterProperties))
 		{
-			Append(new StyleHeaderFooterProperties(this, next));
+			Append(new StyleHeaderFooterProperties(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}
 	}
 }
 
-void
-StyleHeaderStyle::WriteData(QXmlStreamWriter &xml)
+void StyleHeaderStyle::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->style(), ods::ns::kName, style_name_);
+	Write(xml, ns_->style(), ns::kName, style_name_);
 	WriteNodes(xml);
 }
 
+void StyleHeaderStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
+{
+	CHECK_TRUE_VOID(ba != nullptr);
+	WriteTag(kw, *ba);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
+	CloseBasedOnChildren(h, kw, file, ba);
+}
+
 } // ods::inst::
-} // ods::

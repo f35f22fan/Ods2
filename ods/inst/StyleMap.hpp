@@ -4,24 +4,25 @@
 #include "decl.hxx"
 #include "../err.hpp"
 
-namespace ods { // ods::
-namespace inst { // ods::inst::
+namespace ods::inst {
 
 class ODS_API StyleMap : public Abstract
 {
 public:
-	StyleMap(Abstract *parent, ods::Tag *tag = nullptr);
+	StyleMap(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
 	StyleMap(const StyleMap &cloner);
 	virtual ~StyleMap();
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	void
-	WriteData(QXmlStreamWriter &xml) override;
-
+	void ListKeywords(Keywords &list, const LimitTo lt) override;
+	void ListUsedNamespaces(NsHash &list) override;
+	void WriteData(QXmlStreamWriter &xml) override;
+	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
+	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	// <style:map style:condition="value()&gt;=0"
@@ -32,4 +33,3 @@ private:
 };
 
 } // ods::inst::
-} // ods::
