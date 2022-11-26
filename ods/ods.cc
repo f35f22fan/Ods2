@@ -310,18 +310,6 @@ TypeToString(const ods::ValueType value_type)
 {
 	switch (value_type)
 	{
-<<<<<<< HEAD
-	case ods::ValueType::Double: return ods::ns::kDouble;
-	case ods::ValueType::String: return ods::ns::kString;
-	case ods::ValueType::Currency: return ods::ns::kCurrency;
-	case ods::ValueType::Percentage: return ods::ns::kPercentage;
-	case ods::ValueType::Date: return ods::ns::kDate;
-	case ods::ValueType::DateTime: return ns::kDate; //ods::ns::kDateTime;
-	case ods::ValueType::Time: return ods::ns::kTime;
-	case ods::ValueType::Bool: return ods::ns::kBoolean;
-	case ods::ValueType::None: return "[not set]";
-	default: it_happened(); return "";
-=======
 	case ods::ValueType::Double: return ns::kDouble;
 	case ods::ValueType::String: return ns::kString;
 	case ods::ValueType::Currency: return ns::kCurrency;
@@ -331,7 +319,6 @@ TypeToString(const ods::ValueType value_type)
 	case ods::ValueType::Time: return ns::kTime;
 	case ods::ValueType::Bool: return ns::kBoolean;
 	default: mtl_it_happened(); return QString();
->>>>>>> ndff
 	}
 }
 

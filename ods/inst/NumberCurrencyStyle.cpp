@@ -155,7 +155,7 @@ inst::NumberText*
 NumberCurrencyStyle::NewText()
 {
 	auto *p = new NumberText(this);
-	Append(p);
+	Append(p, TakeOwnership::Yes);
 	return p;
 }
 
