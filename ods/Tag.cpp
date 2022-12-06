@@ -47,8 +47,7 @@ void Tag::Copy(ods::Prefix *prefix, QStringView name, ods::Length **size)
 	QString value;
 	Copy(prefix, name, value);
 	ods::Length *l = ods::Length::FromString(value);
-	
-	if (l != nullptr)
+	if (l)
 		*size = l;
 }
 

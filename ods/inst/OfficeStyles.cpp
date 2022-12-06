@@ -69,6 +69,8 @@ void OfficeStyles::Init(ndff::Container *cntr)
 			} else if (prop.is(ns_->number())) {
 				if (prop.name == ns::kNumberStyle)
 					Append(new NumberNumberStyle(this, 0, cntr), TakeOwnership::Yes);
+				else if (prop.name == ns::kCurrencyStyle)
+					Append(new NumberCurrencyStyle(this, 0, cntr), TakeOwnership::Yes);
 			}
 		} else if (ndff::is_text(op)) {
 			Append(cntr->NextString());
@@ -135,10 +137,12 @@ OfficeStyles::Scan(ods::Tag *tag)
 		if (next->Is(ns_->style(), ns::kDefaultStyle))
 		{
 			Append(new StyleDefaultStyle(this, next), TakeOwnership::Yes);
-		} else if (next->Is(ns_->number(), ns::kNumberStyle)) {
-			Append(new NumberNumberStyle(this, next), TakeOwnership::Yes);
 		} else if (next->Is(ns_->style(), ns::kStyle)) {
 			Append(new StyleStyle(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->number(), ns::kNumberStyle)) {
+			Append(new NumberNumberStyle(this, next), TakeOwnership::Yes);
+		} else if (next->Is(ns_->number(), ns::kCurrencyStyle)) {
+			Append(new NumberCurrencyStyle(this, next), TakeOwnership::Yes);
 		} else {
 			Scan(next);
 		}

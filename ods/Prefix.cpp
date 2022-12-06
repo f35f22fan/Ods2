@@ -15,9 +15,9 @@ bool Prefix::Is(const Prefix *prefix) const
 	return id_ == prefix->id();
 }
 
-bool Prefix::Is(QStringView s) const
+bool Prefix::Is(QStringView name) const
 {
-	return name_ == s;
+	return name_ == name;
 }
 
 QString Prefix::With(QStringView name) const
@@ -31,9 +31,9 @@ void Prefix::Write(QXmlStreamWriter &xml) const
 		xml.writeNamespace(uri_, name_);
 }
 
-Prefix* Prefix::Create(UriId &id, const QString &s, const QString &uri)
+Prefix* Prefix::Create(UriId &id, const QString &name, const QString &uri)
 {
-	return new Prefix(id, s, uri);
+	return new Prefix(id, name, uri);
 }
 
 } // ods::

@@ -110,7 +110,6 @@ void OfficeDocumentMeta::Scan(Tag *tag)
 			continue;
 		
 		auto *next = x->as_tag();
-		
 		if (next->Is(ns_->office(), ns::kMeta))
 		{
 			Append(new OfficeMeta(this, next), TakeOwnership::Yes);

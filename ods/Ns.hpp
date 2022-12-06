@@ -86,7 +86,7 @@ public:
 	const UriIds& ids() const { return uri_ids_; }
 	
 	i32 file_index() const { return file_index_; }
-	ods::Prefix* GetPrefix(QStringView s);
+	ods::Prefix* GetPrefix(QStringView prefix_name);
 	const QVector<Prefix*>& prefixes() const { return prefixes_; }
 	void SyncWith(QXmlStreamReader &xml, ci32 file_index);
 	void SyncWith(ndff::Container *ptr);

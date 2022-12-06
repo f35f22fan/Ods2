@@ -120,9 +120,11 @@ public:
 	
 	virtual Abstract* Clone(Abstract *parent = nullptr) const = 0;
 	
-	void CopyAttr(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, QString &result);
-	void CopyAttrI8(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, i8 &result);
-	void CopyAttrI32(QHash<UriId, QVector<ndff::Property> > &attrs, Prefix *prefix, QStringView attr_name, i32 &result);
+	void CopyAttr(NdffAttrs &attrs, Prefix *prefix, QStringView attr_name, QString &result);
+	void CopyAttr(NdffAttrs &attrs, ods::Prefix *prefix, QStringView attr_name, ods::Bool &result);
+	void CopyAttr(NdffAttrs &attrs, ods::Prefix *prefix, QStringView attr_name, ods::Length **result);
+	void CopyAttrI8(NdffAttrs &attrs, Prefix *prefix, QStringView attr_name, i8 &result);
+	void CopyAttrI32(NdffAttrs &attrs, Prefix *prefix, QStringView attr_name, i32 &result);
 	
 	void DeleteNodes();
 	

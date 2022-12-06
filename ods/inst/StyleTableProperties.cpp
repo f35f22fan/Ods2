@@ -4,12 +4,17 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-StyleTableProperties::StyleTableProperties(Abstract *parent, Tag *tag)
+StyleTableProperties::StyleTableProperties(Abstract *parent, Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleTableProperties)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -31,6 +36,17 @@ StyleTableProperties::Clone(Abstract *parent) const
 	p->style_writing_mode_ = style_writing_mode_;
 	
 	return p;
+}
+
+void StyleTableProperties::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	NdffAttrs attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->table(), ns::kDisplay, table_display_);
+	CopyAttr(attrs, ns_->style(), ns::kWritingMode, style_writing_mode_);
+	ReadStrings(cntr, op);
 }
 
 void StyleTableProperties::Init(Tag *tag)

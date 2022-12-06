@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API StyleTableProperties : public Abstract
 {
 public:
-	StyleTableProperties(Abstract *parent, Tag *tag = nullptr);
+	StyleTableProperties(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
 	StyleTableProperties(const StyleTableProperties &cloner);
 	virtual ~StyleTableProperties();
 	
@@ -21,7 +21,7 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
+	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	
 	QString table_display_;

@@ -221,10 +221,18 @@ void OfficeDocumentContent::Scan(ods::Tag *tag)
 void OfficeDocumentContent::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->office(), ods::ns::kVersion, office_version_);
-	office_scripts_->Write(xml);
-	office_font_face_decls_->Write(xml);
-	office_automatic_styles_->Write(xml);
-	office_body_->Write(xml);
+	
+	if (office_scripts_)
+		office_scripts_->Write(xml);
+	
+	if (office_font_face_decls_)
+		office_font_face_decls_->Write(xml);
+	
+	if (office_automatic_styles_)
+		office_automatic_styles_->Write(xml);
+	
+	if (office_body_)
+		office_body_->Write(xml);
 }
 
 void OfficeDocumentContent::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)

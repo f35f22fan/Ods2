@@ -14,10 +14,10 @@ public:
 	virtual ~Prefix();
 	
 	static Prefix*
-	Create(UriId &id, const QString &s, const QString &uri);
+	Create(UriId &id, const QString &name, const QString &uri);
 	
 	UriId id() const { return id_; }
-	bool Is(QStringView s) const;
+	bool Is(QStringView name) const;
 	bool Is(const Prefix *prefix) const;
 	void set_id(const UriId id) { id_ = id; }
 	void set_name(const QString &str) { name_ = str; }

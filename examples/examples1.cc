@@ -17,12 +17,13 @@
 
 #include <QSize>
 
-void ReadWriteNDFF()
+void ReadWriteNDFF(QStringView full_path)
 {
-	QString full_path = QDir::home().filePath("out.ndff");
 	ods::Book *book = ods::Book::FromNDFF(full_path);
+	if (!book)
+		mtl_info("BOOK IS ZERO");
 	ods::AutoDelete<ods::Book*> ad(book);
-	util::Save(book, "SavedFromNDFF.ods");
+	util::Save(book, "Saved from .ndff.ods");
 }
 
 void TestBug()

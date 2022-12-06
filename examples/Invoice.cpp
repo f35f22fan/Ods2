@@ -375,7 +375,7 @@ Invoice::Init()
 		return;
 	}
 	
-	auto path = QDir(QDir::homePath()).filePath("Invoice.ods");
+	auto path = QDir::home().filePath("Invoice.ods");
 	QFile target(path);
 	QString err;
 	

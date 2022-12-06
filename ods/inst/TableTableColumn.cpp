@@ -78,9 +78,9 @@ void TableTableColumn::Init(ndff::Container *cntr)
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
 	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->draw(), ns::kStyleName, table_style_name_);
-	CopyAttrI32(attrs, ns_->draw(), ns::kNumberColumnsRepeated, ncr_);
-	CopyAttr(attrs, ns_->style(), ns::kDefaultCellStyleName, table_default_cell_style_name_);
+	CopyAttr(attrs, ns_->table(), ns::kStyleName, table_style_name_);
+	CopyAttrI32(attrs, ns_->table(), ns::kNumberColumnsRepeated, ncr_);
+	CopyAttr(attrs, ns_->table(), ns::kDefaultCellStyleName, table_default_cell_style_name_);
 
 	if (op == Op::N32_TE)
 		return;

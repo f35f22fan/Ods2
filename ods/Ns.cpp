@@ -98,11 +98,11 @@ Ns* Ns::FromNDFF(ndff::Container *ndff)
 }
 
 ods::Prefix*
-Ns::GetPrefix(QStringView s)
+Ns::GetPrefix(QStringView prefix_name)
 {
 	for (Prefix *x: prefixes_)
 	{
-		if (x->Is(s))
+		if (x->Is(prefix_name))
 			return x;
 	}
 	
@@ -201,18 +201,19 @@ void Ns::SyncWith(ndff::Container *ptr)
 	UriId largest = 0;
 	auto &ns_hash = ndff_->ns_hash();
 	QString base_name = QLatin1String("ns");
-	for (auto it = ns_hash.constBegin(); it != ns_hash.constEnd(); it++)
+	for (auto next = ns_hash.constBegin(); next != ns_hash.constEnd(); next++)
 	{
-		cauto decl_uri = it.value();
-		for (Prefix *prefix: prefixes_)
+		cauto decl_uri = next.value();
+		for (Prefix *existing_prefix: prefixes_)
 		{
 	// Almost all URIs start with the same chars and only differ at
 	// the end - thus an optimization is to compare them from the end:
-			if (prefix->uri().endsWith(decl_uri))
+			if (existing_prefix->uri().endsWith(decl_uri))
 			{
-				cauto uri_id = it.key();
-				prefix->set_name(base_name + QString::number(uri_id));
-				prefix->set_id(uri_id);
+				cauto uri_id = next.key();
+				if (existing_prefix->name().isEmpty())
+					existing_prefix->set_name(base_name + QString::number(uri_id));
+				existing_prefix->set_id(uri_id);
 				
 				if (largest < uri_id)
 					largest = uri_id;

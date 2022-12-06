@@ -37,7 +37,7 @@ FileEntryInfo* Container::GetTopFile(QStringView filepath) const
 bool Container::Init(Book *p, QStringView full_path)
 {
 	book_ = p;
-	book_->ndff(true);
+	mtl_info("===OPENING FILE %s", qPrintable(full_path.toString()));
 	io::ReadParams params = {};
 	params.can_rely = io::CanRelyOnStatxSize::Yes;
 	params.print_errors = io::PrintErrors::Yes;
@@ -72,6 +72,8 @@ bool Container::Init(Book *p, QStringView full_path)
 	ns_ = Ns::FromNDFF(this);
 	PrepareForParsing();
 	//PrintKeywords();
+	
+	book_->ndff(true);
 	
 	return true;
 }

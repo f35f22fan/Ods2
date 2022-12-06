@@ -707,12 +707,13 @@ bool Book::Save(const QFile &target, QString *err)
 		return false;
 	}
 	
-	auto ms = timer.elapsed();
-	mtl_info("Save() took %lld ms", ms);
-	
-	timer.restart();
-	SaveNDFF(err);
-	mtl_info("SaveNDFF() took %lld ms", timer.elapsed());
+	if (ndff()) {
+		auto ms = timer.elapsed();
+		mtl_info("Save() took %lld ms", ms);
+		timer.restart();
+		SaveNDFF(err);
+		mtl_info("SaveNDFF() took %lld ms", timer.elapsed());
+	}
 	
 	return true;
 }

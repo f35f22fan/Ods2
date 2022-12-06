@@ -1,7 +1,9 @@
 #pragma once
 
+#include <QString>
+
 //==> Please ignore this
-void ReadWriteNDFF();
+void ReadWriteNDFF(QStringView full_path);
 void TestBug();
 //<== Please ignore this
 

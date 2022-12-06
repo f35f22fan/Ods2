@@ -38,9 +38,16 @@ OfficeDocumentStyles::OfficeDocumentStyles(const OfficeDocumentStyles &cloner)
 OfficeDocumentStyles::~OfficeDocumentStyles()
 {
 	delete office_font_face_decls_;
+	office_font_face_decls_ = nullptr;
+	
 	delete office_styles_;
+	office_styles_ = nullptr;
+	
 	delete office_automatic_styles_;
+	office_automatic_styles_ = nullptr;
+	
 	delete office_master_styles_;
+	office_master_styles_ = nullptr;
 }
 
 Abstract*
@@ -108,7 +115,6 @@ void OfficeDocumentStyles::Init(ndff::Container *cntr)
 	Op op = cntr->Next(prop, Op::None);
 	op = cntr->Next(prop, op, &attrs);
 	CopyAttr(attrs, ns_->office(), ns::kVersion, office_version_);
-//	mtl_info("office_version_: %s", qPrintable(office_version_));
 	if (op == Op::N32_TE)
 		return;
 	
@@ -229,11 +235,17 @@ void OfficeDocumentStyles::Scan(ods::Tag *tag)
 void OfficeDocumentStyles::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->office(), ns::kVersion, office_version_);
+	if (office_font_face_decls_)
+		office_font_face_decls_->Write(xml);
 	
-	office_font_face_decls_->Write(xml);
-	office_styles_->Write(xml);
-	office_automatic_styles_->Write(xml);
-	office_master_styles_->Write(xml);
+	if (office_styles_)
+		office_styles_->Write(xml);
+	
+	if (office_automatic_styles_)
+		office_automatic_styles_->Write(xml);
+	
+	if (office_master_styles_)
+		office_master_styles_->Write(xml);
 }
 
 void OfficeDocumentStyles::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)

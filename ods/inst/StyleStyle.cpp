@@ -261,8 +261,21 @@ void StyleStyle::Init(ndff::Container *cntr)
 			{
 				if (prop.name == ns::kTableColumnProperties) {
 					Append(new StyleTableColumnProperties(this, 0, cntr), TakeOwnership::Yes);
+				} else if (prop.name == ns::kTextProperties) {
+					Append(new StyleTextProperties(this, 0, cntr), TakeOwnership::Yes);
+				} else if (prop.name == ns::kTableCellProperties) {
+					Append(new StyleTableCellProperties(this, 0, cntr), TakeOwnership::Yes);
+				} else if (prop.name == ns::kTableProperties) {
+					Append(new StyleTableProperties(this, 0, cntr), TakeOwnership::Yes);
+				} else if (prop.name == ns::kTableRowProperties) {
+					Append(new StyleTableRowProperties(this, 0, cntr), TakeOwnership::Yes);
+				} else if (prop.name == ns::kParagraphProperties) {
+					Append(new StyleParagraphProperties(this, 0, cntr), TakeOwnership::Yes);
+				} else {
+					mtl_trace();
 				}
-				
+			} else {
+				mtl_trace();
 			}
 		} else if (ndff::is_text(op)) {
 			Append(cntr->NextString());

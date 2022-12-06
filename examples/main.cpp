@@ -53,16 +53,20 @@ main(int argc, char *argv[])
 //	CreateBoolean();
 //	ReadBoolean();
 	
-	CreateFormula();
-ReadWriteNDFF(); /// Nevermind this function, it's purely for development purposes
+//	CreateFormula();
 //	ReadFormula();
-//	ReadFormulaCustom();
 	
-// CreateFormulaFunctions();
-	new sample::Invoice();
-	
+ //CreateFormulaFunctions();
+new sample::Invoice();
+
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
+	
+	if (false)
+	{ // Nevermind this block, it's purely for development purposes
+		auto path = QDir::home().filePath("out.ndff");
+		ReadWriteNDFF(path);
+	}
 	
 	return 0;
 }

@@ -1126,7 +1126,8 @@ void CreateFormulaFunctions()
 		auto *fcell = row->NewCellAt(col++);
 		auto *f = fcell->NewFormula();
 		auto *fn = f->Add(ods::FunctionId::Match);
-		fn->AddArg(double(7));
+		const double num = 7.0;
+		fn->AddArg(num);
 		ods::Reference *range = sheet->NewReference(
 			row->GetCell(first_cell), row->GetCell(last_cell));
 		fn->AddArg(range);
@@ -1138,7 +1139,7 @@ void CreateFormulaFunctions()
 		} else if (node->is_error()) {
 			mtl_print_error(node);
 		} else {
-			mtl_printq2("MATCH(): ", node->toString());
+			mtl_info("MATCH(%.1f) at %s", num, qPrintable(node->toString()));
 		}
 	}
 	util::Save(book);

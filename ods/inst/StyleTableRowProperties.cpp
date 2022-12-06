@@ -5,12 +5,18 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
+#include "../ndff/Container.hpp"
+#include "../ndff/Property.hpp"
+
 namespace ods::inst {
 
-StyleTableRowProperties::StyleTableRowProperties(Abstract *parent, ods::Tag *tag)
+StyleTableRowProperties::StyleTableRowProperties(Abstract *parent,
+	ods::Tag *tag, ndff::Container *cntr)
 : Abstract(parent, parent->ns(), id::StyleTableRowProperties)
 {
-	if (tag != nullptr)
+	if (cntr)
+		Init(cntr);
+	else if (tag)
 		Init(tag);
 }
 
@@ -38,6 +44,18 @@ StyleTableRowProperties::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 
 	return p;
+}
+
+void StyleTableRowProperties::Init(ndff::Container *cntr)
+{
+	using Op = ndff::Op;
+	ndff::Property prop;
+	NdffAttrs attrs;
+	Op op = cntr->Next(prop, Op::TS, &attrs);
+	CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	CopyAttr(attrs, ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
+	CopyAttr(attrs, ns_->style(), ns::kRowHeight, &style_row_height_);
+	ReadStrings(cntr, op);
 }
 
 void StyleTableRowProperties::Init(ods::Tag *tag)

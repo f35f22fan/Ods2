@@ -9,6 +9,7 @@
 #include "../Length.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
+#include "../ods.hh"
 #include "../Prefix.hpp"
 #include "../Tag.hpp"
 
@@ -122,9 +123,12 @@ void Abstract::CloneChildrenOf(const Abstract *rhs, const ClonePart co)
 	}
 }
 
-void Abstract::CopyAttr(QHash<UriId, QVector<ndff::Property>> &attrs,
+void Abstract::CopyAttr(NdffAttrs &attrs,
 	ods::Prefix *prefix, QStringView attr_name, QString &result)
 {
+	result.clear(); // must clear first, so that on multiple reuse of the
+	// save variable one can see if nothing was found.
+	
 	if (!attrs.contains(prefix->id()))
 		return;
 	
@@ -138,6 +142,24 @@ void Abstract::CopyAttr(QHash<UriId, QVector<ndff::Property>> &attrs,
 			break;
 		}
 	}
+}
+
+void Abstract::CopyAttr(NdffAttrs &attrs,
+	ods::Prefix *prefix, QStringView attr_name, ods::Bool &result)
+{
+	QString s;
+	CopyAttr(attrs, prefix, attr_name, s);
+	ods::ApplyBool(s, result);
+}
+
+void Abstract::CopyAttr(NdffAttrs &attrs,
+	ods::Prefix *prefix, QStringView attr_name, ods::Length **size)
+{
+	QString s;
+	CopyAttr(attrs, prefix, attr_name, s);
+	ods::Length *l = ods::Length::FromString(s);
+	if (l)
+		*size = l;
 }
 
 void Abstract::CopyAttrI8(QHash<UriId, QVector<ndff::Property> > &attrs,

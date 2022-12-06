@@ -205,6 +205,9 @@ void PrintWidth(ods::inst::TableTableColumn *col)
 
 void Save(ods::Book *book, const char *file_name)
 {
+	if (!book)
+		return;
+	
 	const char *fn = (file_name == nullptr) ? "out.ods" : file_name;
 	QFile file(QDir::home().filePath(fn));
 	QString err;
