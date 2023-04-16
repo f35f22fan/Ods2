@@ -1,7 +1,10 @@
 #pragma once
 
 #include <stdlib.h>
+
+#ifdef __unix__
 #include <unistd.h>
+#endif
 
 #include "err.hpp"
 #include "global.hxx"

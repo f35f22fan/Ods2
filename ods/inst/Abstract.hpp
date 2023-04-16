@@ -117,7 +117,6 @@ public:
 	}
 	
 	bool CheckChanged(const Recursively r);
-	
 	virtual Abstract* Clone(Abstract *parent = nullptr) const = 0;
 	
 	void CopyAttr(NdffAttrs &attrs, Prefix *prefix, QStringView attr_name, QString &result);
@@ -127,22 +126,12 @@ public:
 	void CopyAttrI32(NdffAttrs &attrs, Prefix *prefix, QStringView attr_name, i32 &result);
 	
 	void DeleteNodes();
-	
 	virtual QString FullName() const;
-	
 	id::func func() const { return func_; }
-	
 	void func(const id::func f) { func_ = f; }
-	
-	Abstract*
-	Get(const Id id) const;
-	
-	inst::StyleStyle*
-	Get(const QString &style_name) const;
-	
-	inst::Abstract*
-	GetAnyStyle(const QString &style_name) const;
-	
+	Abstract* Get(const Id id) const;
+	inst::StyleStyle* Get(const QString &style_name) const;
+	inst::Abstract* GetAnyStyle(const QString &style_name) const;
 	const QString* GetString() const;
 	
 	/* If you only need to know if it has children use this method
@@ -191,12 +180,8 @@ public:
 	void tag_name(const QString &n) { tag_name_ = n; }
 	
 	void Write(QXmlStreamWriter &xml);
-	
-	virtual void
-	WriteData(QXmlStreamWriter &xml) = 0;
-	
-	virtual void
-	WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba);
+	virtual void WriteData(QXmlStreamWriter &xml) = 0;
+	virtual void WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba);
 	
 	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
 		Prefix *prefix, QString key, QStringView value);
@@ -263,7 +248,6 @@ protected:
 		else
 			CloseTag(file, ba);
 	}
-	
 	
 	inline void CloseTag(QFileDevice *file, ByteArray *ba)
 	{

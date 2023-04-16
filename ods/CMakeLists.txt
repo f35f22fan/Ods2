@@ -3,6 +3,13 @@
 # .cpp, hpp => classes
 # .hxx => (const) declarations
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	message(STATUS "ADDED -funsigned-char Option!")
+	add_definitions(-funsigned-char)
+endif()
+
+#message(STATUS "C++ Compiler: " ${CMAKE_CXX_COMPILER})
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
@@ -154,8 +161,12 @@ set(lib_files
 
 foreach(f IN LISTS lib_files)
 	get_filename_component(b ${f} NAME)
-	set_source_files_properties(${f} PROPERTIES
-		COMPILE_DEFINITIONS "SRC_FILE_NAME=\"${b}\"")
+	set_source_files_properties(${f} PROPERTIES COMPILE_DEFINITIONS "SRC_FILE_NAME=\"${b}\"")
+
+	#if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	#	set_source_files_properties(${f} PROPERTIES COMPILE_OPTIONS "-funsigned-char")
+	#endif()
+
 endforeach()
 
 if (DEFINED ODS_STATIC)

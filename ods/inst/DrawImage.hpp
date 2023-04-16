@@ -16,15 +16,13 @@ public:
 	DrawImage(const DrawImage &cloner);
 	virtual ~DrawImage();
 	
-	virtual Abstract*
-	Clone(Abstract *parent = nullptr) const override;
-	
-	const QString&
-	href() const { return xlink_href_; }
+	virtual Abstract* Clone(Abstract *parent = nullptr) const override;
+	inst::DrawFrame *frame() { return (inst::DrawFrame*)parent_; }
+	const QString& href() const { return xlink_href_; }
 	
 	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	void ListUsedNamespaces(NsHash &list) override;
-	void LoadImage(const QString &full_path, QSize &sz);
+	bool LoadImage(const QString &full_path, QSize &sz);
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 	

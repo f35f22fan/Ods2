@@ -153,6 +153,7 @@ static const auto kMasterPageName	 = QStringLiteral("master-page-name");
 static const auto kMasterStyles	 = QStringLiteral("master-styles");
 static const auto kMediaType		 = QStringLiteral("media-type");
 static const auto kMeta			 = QStringLiteral("meta");
+static const auto kMimeType		= QStringLiteral("application/vnd.oasis.opendocument.spreadsheet");
 static const auto kMiddle			 = QStringLiteral("middle");
 static const auto kMinDecimalPlaces = QStringLiteral("min-decimal-places");
 static const auto kMinHeight		 = QStringLiteral("min-height");

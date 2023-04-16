@@ -410,7 +410,7 @@ ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 		double d = *cell->as_double();
 		result.SetDouble(d);
 	} else if (cell->is_string()) {
-		result.SetString(new QString(*cell->GetFirstString()));
+		result.SetString(new QString(*cell->GetCellString()));
 	} else if (cell->is_date()) {
 		result.SetDate(new QDate(*cell->as_date()));
 	} else if (cell->is_date_time()) {

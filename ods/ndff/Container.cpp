@@ -37,11 +37,12 @@ FileEntryInfo* Container::GetTopFile(QStringView filepath) const
 bool Container::Init(Book *p, QStringView full_path)
 {
 	book_ = p;
-	mtl_info("===OPENING FILE %s", qPrintable(full_path.toString()));
+	full_path_ = full_path.toString();
+	mtl_info("OPENING NDFF: %s", qPrintable(full_path_));
 	io::ReadParams params = {};
 	params.can_rely = io::CanRelyOnStatxSize::Yes;
 	params.print_errors = io::PrintErrors::Yes;
-	CHECK_TRUE(io::ReadFile(full_path, buf_, params));
+	CHECK_TRUE(io::ReadFile(full_path_, buf_, params));
 	CHECK_TRUE(buf_.size() > ndff::MainHeaderPlaces::MinSize);
 	CHECK_TRUE(ndff::CheckMagicNumber(buf_.data()));
 	buf_.skip_read(4);

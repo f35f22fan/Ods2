@@ -29,7 +29,7 @@
 #include <QXmlStreamWriter>
 #include <quazip/JlCompress.h>
 
-namespace ods { // ods::
+namespace ods {
 
 class StringCount {
 public:
@@ -129,14 +129,14 @@ void Book::CreateNamespacesRegion(ByteArray &result, inst::NsHash &h)
 		const QString uri = it.value();
 		it++;
 		result.add_unum(uri_id);
-		mtl_info("URI ID: %d, path \"%s\"", uri_id, qPrintable(uri));
+//		mtl_info("URI ID: %d, path \"%s\"", uri_id, qPrintable(uri));
 		result.add_string(uri, Pack::NDFF);
 	}
 	
 	ci32 total_size = result.size() - was_at;
 	result.set_i32(was_at, total_size);
-	mtl_info("%sNamespaces occupy %d bytes, start_at: %ld%s", MTL_BOLD,
-		total_size, was_at, MTL_BOLD_END);
+//	mtl_info("%sNamespaces occupy %d bytes, start_at: %ld%s", MTL_BOLD,
+//		total_size, was_at, MTL_BOLD_END);
 }
 
 Book* Book::FromNDFF(QStringView full_path)
@@ -647,42 +647,49 @@ void Book::QueryUsedNamespaces(inst::NsHash &list, const CreateIfNeeded create_d
 	}
 }
 
+int CallMe()
+{
+	int ret = 0;
+	FILE * f = fopen ("/dev/null", "rb"); // supposed to have 0 bytes
+	for (;;) {
+		char c = fgetc (f); // truncate 'int' to char
+		if (c == EOF) break;
+		++ret;
+	}
+	return ret;
+}
+
 bool Book::Save(const QFile &target, QString *err)
 {
-	if (document_content_ == nullptr || document_styles_ == nullptr)
-	{
-		mtl_warn();
-		return false;
-	}
-	
+	CHECK_TRUE(document_content_ && document_styles_);
 	QElapsedTimer timer;
 	timer.start();
-	QDir temp_dir(temp_dir_path_);
 	
+	QDir temp_dir(temp_dir_path_);
 	QString full_path;
 	
 	full_path = temp_dir.filePath(filename::ContentXml);
-	SaveXmlFile(document_content_, full_path, err);
+	CHECK_TRUE(SaveXmlFile(document_content_, full_path, err));
 	
 	full_path = temp_dir.filePath(filename::StylesXml);
-	SaveXmlFile(document_styles_, full_path, err);
+	CHECK_TRUE(SaveXmlFile(document_styles_, full_path, err));
 	
 	QDir meta_dir(temp_dir.filePath(filename::MetaInf));
 	
 	if (!meta_dir.exists())
 	{
 		if (!temp_dir.mkdir(filename::MetaInf)) {
-			if (err != nullptr)
+			if (err)
 				*err = QString("Failed to create meta-inf dir");
 			return false;
 		}
 	}
 	
 	full_path = meta_dir.filePath(filename::ManifestXml);
-	SaveXmlFile(manifest_, full_path, err);
+	CHECK_TRUE(SaveXmlFile(manifest_, full_path, err));
 	
 	full_path = temp_dir.filePath(filename::MetaXml);
-	SaveXmlFile(document_meta_, full_path, err);
+	CHECK_TRUE(SaveXmlFile(document_meta_, full_path, err));
 	
 	{ // mimetype
 		full_path = temp_dir.filePath(ods::filename::MimeType);
@@ -691,7 +698,7 @@ bool Book::Save(const QFile &target, QString *err)
 		if (file.open(QIODevice::WriteOnly))
 		{
 			QTextStream stream(&file);
-			stream << "application/vnd.oasis.opendocument.spreadsheet";
+			stream << ns::kMimeType;
 		} else {
 			if (err != nullptr)
 				*err = QLatin1String("Failed to save ") + full_path;
@@ -707,7 +714,8 @@ bool Book::Save(const QFile &target, QString *err)
 		return false;
 	}
 	
-	if (ndff()) {
+	if (false)
+	{
 		auto ms = timer.elapsed();
 		mtl_info("Save() took %lld ms", ms);
 		timer.restart();

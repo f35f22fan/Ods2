@@ -49,6 +49,7 @@ private:
 	
 	Book *book_ = nullptr;
 	Ns *ns_ = nullptr;
+	QString full_path_;
 	ByteArray buf_;
 	inst::NsHash ns_hash_; // using NsHash = QHash<UriId, QString>;
 	inst::Keywords keywords_; // using Keywords = QHash<QString, IdAndCount>;

@@ -17,6 +17,40 @@
 
 #include <QSize>
 
+void CopyAnOdsFile()
+{
+	// Task: copy a file from example.ods to MyPath.ods and change
+	// the latter's first cell value to "ABC".
+	
+	QString src_path = QDir::home().filePath("example.ods");
+	QString err;
+	ods::Book *src_book = ods::Book::FromFile(src_path, &err);
+	
+	if (!err.isEmpty())
+	{
+		mtl_info("Error: %s", qPrintable(err));
+		return;
+	}
+	
+	const char *file_name = "MyCopy.ods";
+	auto *spreadsheet = src_book->spreadsheet();
+	auto *sheet = spreadsheet->GetSheet(0);
+	auto *row = sheet->GetRow(0);
+	auto *cell = row->GetCell(0);
+	if (cell)
+	{
+		cell->SetValue("ABC");
+	}
+	
+	QString out_path = QDir::home().filePath(file_name);
+	src_book->Save(out_path, &err);
+	if (!err.isEmpty())
+	{
+		mtl_info("Error: %s", qPrintable(err));
+		return;
+	}
+}
+
 void ReadWriteNDFF(QStringView full_path)
 {
 	ods::Book *book = ods::Book::FromNDFF(full_path);

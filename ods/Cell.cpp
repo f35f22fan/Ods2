@@ -163,7 +163,7 @@ Cell::FullName() const
 }
 
 const QString*
-Cell::GetFirstString() const
+Cell::GetCellString() const
 {
 	auto *inst = Get(Id::TextP);
 	
@@ -171,7 +171,7 @@ Cell::GetFirstString() const
 		return nullptr;
 	
 	auto *tp = (inst::TextP*)inst;
-	return tp->GetFirstString();
+	return tp->GetString();
 }
 
 inst::StyleStyle*
@@ -308,23 +308,28 @@ Cell::NewDrawFrame()
 	return p;
 }
 
-std::tuple<inst::DrawFrame*, inst::DrawImage*, QSize>
-Cell::NewDrawFrame(const QString &full_path)
+inst::DrawImage*
+Cell::NewDrawFrame(const QString &full_path, QSize *real_size)
 {
-	auto *draw_frame = (ods::inst::DrawFrame*) Get(ods::Id::DrawFrame);
-	
-	if (draw_frame == nullptr)
+	auto *draw_frame = (inst::DrawFrame*) Get(ods::Id::DrawFrame);
+	if (!draw_frame)
 		draw_frame = NewDrawFrame();
 	
-	auto *draw_image = (ods::inst::DrawImage*) draw_frame->Get(ods::Id::DrawImage);
-	
-	if (draw_image == nullptr)
+	auto *draw_image = (inst::DrawImage*) draw_frame->Get(ods::Id::DrawImage);
+	if (!draw_image)
 		draw_image = draw_frame->NewDrawImage();
 	
 	QSize sz;
-	draw_image->LoadImage(full_path, sz);
+	if (draw_image->LoadImage(full_path, sz))
+	{
+		if (real_size)
+			*real_size = sz;
+		return draw_image;
+	}
 	
-	return std::make_tuple(draw_frame, draw_image, sz);
+	delete draw_image;
+	
+	return 0;
 }
 
 ods::Formula*
@@ -466,7 +471,7 @@ Length* Cell::QueryDesiredHeight() const
 	
 	if (is_string())
 	{
-		auto *s = GetFirstString();
+		auto *s = GetCellString();
 		
 		if (s == nullptr)
 		{
@@ -773,7 +778,7 @@ Cell::TypeAndValueString() const
 {
 	if (is_string())
 	{
-		const QString *s = GetFirstString();
+		const QString *s = GetCellString();
 		QString ret("[String] ");
 		
 		if (s != nullptr)
@@ -807,7 +812,7 @@ Cell::ValueToString() const
 	if (is_boolean())
 		return *as_boolean() ? QLatin1String("true") : QLatin1String("false");
 	if (is_string()) {
-		const QString *s = GetFirstString();
+		const QString *s = GetCellString();
 		return (s == nullptr) ? empty : *s;
 	}
 	

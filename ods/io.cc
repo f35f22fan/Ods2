@@ -23,9 +23,9 @@ bool ReadFile(QStringView full_path, ByteArray &buffer,
 	const ReadParams &params)
 {
 	struct statx stx;
-	auto path = full_path.toLocal8Bit();
-	const auto flags = 0;// this function must follow symlinks
-	const auto fields = STATX_MODE | STATX_SIZE;
+	cauto path = full_path.toLocal8Bit();
+	cauto flags = 0;// this function must follow symlinks
+	cauto fields = STATX_MODE | STATX_SIZE;
 	bool statx_ok;
 	if (statx(0, path.data(), flags, fields, &stx) != 0)
 	{

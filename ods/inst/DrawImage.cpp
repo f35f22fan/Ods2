@@ -80,54 +80,42 @@ void DrawImage::ListUsedNamespaces(NsHash &list)
 	Add(ns_->xlink(), list);
 }
 
-void DrawImage::LoadImage(const QString &full_path, QSize &sz)
+bool DrawImage::LoadImage(const QString &src_img_path, QSize &sz)
 {
-	QImageReader reader(full_path);
+	QImageReader reader(src_img_path);
 	sz = reader.size();
 	
 	QString *media_dir_path = book_->GetMediaDirPath();
+	CHECK_PTR(media_dir_path);
 	
-	if (media_dir_path == nullptr)
-	{
-		mtl_warn("media_dir_path == nullptr");
-		return;
-	}
+	auto file_info = QFileInfo(src_img_path);
+	ci64 max_img_len = 1024 * 1024 * 256; // 256MB
+	CHECK_TRUE(file_info.size() <= max_img_len);
 	
-	auto info = QFileInfo(full_path);
-	const int64_t max_size = 1024 * 1024 * 100; // 100MB
-	
-	if (info.size() > max_size)
-	{
-		mtl_warn("Too large");
-		return;
-	}
-	
-	const QString extension = QLatin1String(".") + info.suffix();
+	const QString ext = QLatin1String(".") + file_info.suffix();
 	const QString base_name = QLatin1String("image");
 	QDir dir(*media_dir_path);
 	int i = 0;
-	QFile file;
+	QFile dest_file;
 	QString chosen_file_name;
 	
 	while (true)
 	{
-		QString file_name = base_name + QString::number(i++) + extension;
-		
-		file.setFileName(dir.filePath(file_name));
-		
-		if (!file.exists())
+		QString file_name = base_name + QString::number(i++) + ext;
+		dest_file.setFileName(dir.filePath(file_name));
+		if (!dest_file.exists())
 		{
 			chosen_file_name = file_name;
 			break;
 		}
 	}
 	
-	if (!QFile::copy(full_path, file.fileName()))
+	if (!QFile::copy(src_img_path, dest_file.fileName()))
 	{
-		auto from = full_path.toLocal8Bit();
-		auto to = file.fileName().toLocal8Bit();
+		auto from = src_img_path.toLocal8Bit();
+		auto to = dest_file.fileName().toLocal8Bit();
 		mtl_warn("Failed to copy from:\n%s\nTo:\n%s", from.data(), to.data());
-		return;
+		return false;
 	}
 	
 	auto *manifest = book_->manifest();
@@ -139,6 +127,8 @@ void DrawImage::LoadImage(const QString &full_path, QSize &sz)
 	xlink_type_ = QLatin1String("simple");
 	xlink_show_ = QLatin1String("embed");
 	xlink_actuate_ = QLatin1String("onLoad");
+	
+	return true;
 }
 
 void DrawImage::WriteData(QXmlStreamWriter &xml)

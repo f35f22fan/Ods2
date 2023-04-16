@@ -15,8 +15,7 @@ Invoice::~Invoice() {
 	delete book_;
 }
 
-int
-Invoice::CreateBillToHeader(const int kLastRow)
+int Invoice::CreateBillToHeader(const int kLastRow)
 {
 	int last_row_index = kLastRow + 1;
 	auto *row = sheet_->NewRowAt(last_row_index);
@@ -57,23 +56,24 @@ Invoice::CreateBillToHeader(const int kLastRow)
 	return last_row_index;
 }
 
-int
-Invoice::CreateSellerHeader()
+int Invoice::CreateSellerHeader()
 {
 	auto *row1 = sheet_->NewRowAt(1);
-	auto *cell = row1->NewCellAt(0);
-	const QString kName = "company-logo.png";
-	auto path = QDir(QDir::homePath()).filePath(kName); 
-	QFile file(path);
+	ods::Cell *cell = row1->NewCellAt(0);
+	const QString filename = "company-logo.png";
+	auto full_img_path = QDir::home().filePath(filename); 
+	QFile file(full_img_path);
 	
 	if (!file.exists()) {
-		auto ba = kName.toLocal8Bit();
+		auto ba = filename.toLocal8Bit();
 		mtl_info("If there was %s "
 			"in your home dir, I'd use it as the \"company logo\" "
 			"in the invoice.", ba.data());
 	} else {
-		auto [draw_frame, draw_image, sz] = cell->NewDrawFrame(path);
-		draw_frame->SetSize(60, 60, ods::Unit::Px);
+		QSize real_size;
+		ods::inst::DrawImage *img = cell->NewDrawFrame(full_img_path, &real_size);
+		mtl_info("Image size: %dx%d px", real_size.width(), real_size.height());
+		img->frame()->SetSize(60, 60, ods::Unit::Px);
 		
 	}
 	

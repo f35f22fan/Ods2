@@ -50,6 +50,7 @@ Abstract::~Abstract()
 {
 	for (auto *node: nodes_)
 		delete node;
+	nodes_.clear();
 }
 
 bool Abstract::AddText(StringOrTag *sot)
@@ -57,7 +58,7 @@ bool Abstract::AddText(StringOrTag *sot)
 	if (sot->is_string())
 	{
 		QString s = *sot->as_string();
-		mtl_printq(s);
+		//mtl_printq(s);
 		Append(s);
 		return true;
 	}

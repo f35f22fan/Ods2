@@ -2,6 +2,8 @@
 
 #include <QString>
 
+void CopyAnOdsFile();
+
 //==> Please ignore this
 void ReadWriteNDFF(QStringView full_path);
 void TestBug();
