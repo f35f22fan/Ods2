@@ -1,14 +1,12 @@
 #include "FileEntryInfo.hpp"
 
+#include "../Book.hpp"
 #include "../ByteArray.hpp"
-
 #include "Container.hpp"
 
 namespace ods::ndff {
 
-FileEntryInfo::FileEntryInfo() {
-	
-}
+FileEntryInfo::FileEntryInfo(Book *p) : book_(p) {}
 
 FileEntryInfo::~FileEntryInfo() {
 	if (efa_data_ && owns_efa_)
@@ -19,35 +17,91 @@ FileEntryInfo::~FileEntryInfo() {
 	}
 }
 
-FileEntryInfo* FileEntryInfo::From(ByteArray &buf, ci64 loc)
+FileEntryInfo* FileEntryInfo::From(ByteArray &buf, ci64 loc,
+	ods::Book *book)
 { // must keep location, Container::ReadFiles() depends on it.
-	FileEntryInfo *p = new FileEntryInfo();
-	cauto saved = buf.at();
+	FileEntryInfo *fei = new FileEntryInfo(book);
+	cauto saved_loc = buf.at();
 	buf.to(loc);
-	p->Read(buf);
-	buf.to(saved);
-	return p;
+	fei->Read(buf);
+	buf.to(saved_loc);
+	return fei;
+}
+
+void FileEntryInfo::AddFileData(ByteArray &output, QStringView file_path)
+{
+	content_start_ = output.at();
+	output.set_i64(self_loc() + content_start_offset(), content_start_);
+	ci64 uncompressed_size = file_data_.size();
+	
+	switch (book_->WhatCompressionShouldBeUsed(file_path, uncompressed_size)) {
+	case Compression::None: {
+		output.add_i64(uncompressed_size);
+		output.add(&file_data_, From::Start);
+		auto str = file_path.toLocal8Bit();
+		mtl_info("%s file_data size: %ld", str.data(), uncompressed_size);
+		break;
+	};
+	case Compression::ZSTD: {
+		ByteArray compressed_buf(file_data_);
+		compressed_buf.Compress(Compression::ZSTD);
+		cauto compressed_size = compressed_buf.size();
+		output.add_i64(compressed_size);
+		output.add(&compressed_buf, From::Start);
+		UpdateCompressionTo(output, Compression::ZSTD);
+		auto str = file_path.toLocal8Bit();
+		mtl_info("%s file_data size: %ld (compressed: %ld)",
+			str.data(), uncompressed_size, compressed_size);
+		break;
+	};
+	default: {
+		mtl_tbd();
+	}
+	}
 }
 
 FileEntryInfo* FileEntryInfo::GetFile(QStringView name) const
 {
-	auto utf8_name = name.toUtf8();
+	ByteArray ba(name);
 	
 	for (FileEntryInfo *next: subfiles_)
 	{
-		if (utf8_name == next->path_)
+		if (ba == next->path_)
 			return next;
 	}
 	
 	return 0;
 }
 
+void FileEntryInfo::PrintFileName(ByteArray &source)
+{
+	ci64 saved = source.at();
+	source.to(self_loc_);
+	source.next_u32(); // info
+	ci32 str_len = source.next_u16();
+	mtl_info("Len: %d, name:", str_len);
+	ByteArray name;
+	source.next_ba(name, str_len);
+	name.to(0);
+	for (int i = 0; i < str_len; i++)
+	{
+		printf("%0X ", *(name.data() + i));
+	}
+	
+	auto s = QString::fromUtf8(name.data(), str_len);
+	mtl_info("\nDone: \"%s\"\n", qPrintable(s));
+	
+	source.to(saved);
+}
+
 void FileEntryInfo::Read(ods::ByteArray &buf)
 {
-	info_ = buf.next_u16();
-	cu16 len = buf.next_u16();
-	path_ = buf.next_string_utf8(len);
-	//mtl_info("Reading file: \"%s\"", path_.data());
+	info_ = buf.next_u32();
+	//compression_ = ../
+	ci32 str_len = buf.next_u16();
+	buf.next_ba(path_, str_len);
+	QString p = path_.toUtf8String();
+	mtl_info("Reading FEI: \"%s\", size: %d", qPrintable(p), str_len);
 	
 	if (has(FeiBit::CRC_32b))
 		crc_32b_ = buf.next_u32();
@@ -60,7 +114,7 @@ void FileEntryInfo::Read(ods::ByteArray &buf)
 		subfiles_loc_ = buf.next_i64();
 	} else if (is_symlink()) {
 		cu16 len = buf.next_u16();
-		link_target_ = buf.next_string_utf8(len);
+		buf.next_ba(link_target_, len);
 	}
 	
 	if (has(FeiBit::EFA))
@@ -83,7 +137,7 @@ bool FileEntryInfo::ReadSubfiles(ndff::Container *cntr)
 
 i64 FileEntryInfo::size() const
 {
-	i64 n = 4 + path_.size();
+	i64 n = (sizeof info_) + 2 + path_.size();
 	
 	if (has(FeiBit::CRC_32b))
 		n += 4;
@@ -105,14 +159,12 @@ i64 FileEntryInfo::size() const
 	return n;
 }
 
-void FileEntryInfo::AddFileData(ByteArray &main_buffer,
-	const ByteArray &file_data, QStringView filename)
+void FileEntryInfo::UpdateCompressionTo(ByteArray &parent, const Compression c)
 {
-	content_start_ = main_buffer.at();
-	main_buffer.add(&file_data, From::Start);
-	main_buffer.set_i64(self_loc() + content_start_offset(), content_start_);
-	auto str = filename.toLocal8Bit();
-	mtl_info("%s file_data size: %ld", str.data(), file_data.size());
+	compression(c);
+	cauto saved_loc = parent.at();
+	parent.set_u32(self_loc_, info_);
+	parent.to(saved_loc);
 }
 
 void FileEntryInfo::WriteEfa(ByteArray &buf)
@@ -124,11 +176,12 @@ void FileEntryInfo::WriteEfa(ByteArray &buf)
 
 void FileEntryInfo::WriteTo(ByteArray &buf)
 {
-	buf.add_u16(info_);
-	mtl_info("Writing file: %s\"%s\"%s", MTL_BOLD, path_.data(), MTL_BOLD_END);
-	buf.add_u16(path_.size());
+	buf.add_u32(info_);
+	mtl_info("Writing FEI: %s, size: %d", path_.data(), path_.size());
+	ci32 path_len = path_.size();
+	buf.add_u16(path_len);
 	buf.add(path_.data(), path_.size(), ExactSize::Yes);
-	
+	ci64 off = buf.at() - path_.size();
 	if (has(FeiBit::CRC_32b))
 		buf.add_u32(0); // TBD
 	

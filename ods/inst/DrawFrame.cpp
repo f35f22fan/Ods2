@@ -293,7 +293,7 @@ DrawFrame::WriteData(QXmlStreamWriter &xml)
 
 void DrawFrame::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	if (svg_x_)
 		WriteNdffProp(kw, *ba, ns_->svg(), ns::kX, svg_x_->toString());

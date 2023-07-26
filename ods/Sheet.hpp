@@ -23,8 +23,8 @@ public:
 	virtual inst::Abstract*
 	Clone(inst::Abstract *parent = nullptr) const override;
 	
-	int CountColumns();
-	int CountRows() const;
+	i32 CountColumns();
+	i32 CountRows() const;
 	
 	inst::TableTableColumn*
 	GetColumn(const int place) const;
@@ -75,7 +75,7 @@ private:
 	void InitDefault();
 	void MarkColumnDeleteRegion(int from, int remaining);
 	void MarkRowDeleteRegion(int from, int remaining);
-	void name(const QString &name) { table_name_ = name; }
+	void name(QString name) { table_name_ = name; }
 	
 	void Scan(ods::Tag *tag);
 	
@@ -84,7 +84,7 @@ private:
 	QVector<ods::Row*> rows_;
 	QVector<inst::TableTableColumn*> columns_;
 	inst::TableNamedExpressions *named_expressions_ = nullptr;
-	int num_cols_ = 0;
+	i32 num_cols_ = 0;
 	
 	cint DefaultColumnCountPerSheet = 1024;
 	cint DefaultRowCountPerSheet = 0x0FFFFF; // 1048575

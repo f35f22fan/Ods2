@@ -14,7 +14,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <sys/sysmacros.h>
-#include <zstd.h>
 
 #include <QHash>
 #include <QMetaType> /// Q_DECLARE_METATYPE()
@@ -80,6 +79,8 @@ enum class PostWrite: i8 {
 const auto ExecBits = S_IXUSR | S_IXGRP | S_IXOTH;
 const mode_t DirPermissions = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
 const mode_t FilePermissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+
+QStringRef GetParentDirPath(const QString &full_path);
 
 bool ReadFile(QStringView full_path, ByteArray &buffer,
 	const ReadParams &params);

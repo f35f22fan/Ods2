@@ -17,6 +17,46 @@
 
 #include <QSize>
 
+void TestBugJuly2023()
+{
+	QString read_from_path = QDir::home().filePath("Downloads/slaves.ods");
+	QString save_to_path = QDir::home().filePath("SavedTo.ods");
+	QString err;
+	ods::Book *src_book = ods::Book::FromFile(read_from_path, &err);
+	if (!err.isEmpty())
+	{
+		mtl_info("Error: %s", qPrintable(err));
+		return;
+	}
+	auto *spreadsheet = src_book->spreadsheet();
+	auto *sheet = spreadsheet->GetSheet(1);
+	const int row_index = 2;
+	const int col_index = 12;
+	auto *row = sheet->GetRow(row_index);
+	auto *cell = row->GetCell(col_index);
+	if (cell)
+	{
+		if (cell->ncr() > 1) {
+			mtl_info("Split the cell");
+			cell = row->SplitOneCellAt(cell, col_index);
+		} else {
+			mtl_info("Didn't split the cell");
+		}
+		cell->SetDouble(213);
+	} else {
+		mtl_warn("No cell at row %d, col %d", row_index, col_index);
+	}
+	
+	src_book->Save(save_to_path, &err);
+	if (!err.isEmpty())
+	{
+		mtl_warn("Error: %s", qPrintable(err));
+		return;
+	} else {
+		mtl_info("Saved to: %s", qPrintable(save_to_path));
+	}
+}
+
 void CopyAnOdsFile()
 {
 	// Task: copy a file from example.ods to MyPath.ods and change
@@ -28,20 +68,18 @@ void CopyAnOdsFile()
 	
 	if (!err.isEmpty())
 	{
-		mtl_info("Error: %s", qPrintable(err));
+		mtl_info("Error at file %s: %s", qPrintable(src_path), qPrintable(err));
 		return;
 	}
 	
-	const char *file_name = "MyCopy.ods";
-	auto *spreadsheet = src_book->spreadsheet();
-	auto *sheet = spreadsheet->GetSheet(0);
+	auto *sheet = src_book->GetSheet(0);
 	auto *row = sheet->GetRow(0);
 	auto *cell = row->GetCell(0);
 	if (cell)
 	{
 		cell->SetValue("ABC");
 	}
-	
+	const char *file_name = "MyCopy.ods";
 	QString out_path = QDir::home().filePath(file_name);
 	src_book->Save(out_path, &err);
 	if (!err.isEmpty())
@@ -55,9 +93,15 @@ void ReadWriteNDFF(QStringView full_path)
 {
 	ods::Book *book = ods::Book::FromNDFF(full_path);
 	if (!book)
-		mtl_info("BOOK IS ZERO");
+	{
+		mtl_warn("ods::Book == NULL");
+		return;
+	}
+	
+	book->dev_mode(true);
+	//book->compression(true);
 	ods::AutoDelete<ods::Book*> ad(book);
-	util::Save(book, "Saved from .ndff.ods");
+	util::Save(book);
 }
 
 void TestBug()

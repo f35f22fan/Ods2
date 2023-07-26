@@ -48,7 +48,7 @@ Reference::cell()
 		return end_cell_ref_;
 	
 	if (relative()) {
-		CHECK_PTR_NULL(cell_ref_);
+		MTL_CHECK_NULL(cell_ref_);
 		end_cell_ref_ = cell_ref_->NewRelativeTo(r_, c_);
 	} else {
 		end_cell_ref_ = CellRef::New(default_sheet_, r_, c_);
@@ -99,12 +99,12 @@ Reference::CellRange(Sheet *default_sheet, QStringView start, QStringView end)
 QString
 Reference::CellToString(const ods::CellRef *cell_ref) const
 {
-	CHECK_TRUE_QSTR((cell_ref != nullptr));
+	MTL_CHECK_ARG(cell_ref != nullptr, QString());
 	ods::Cell *cell = cell_ref->GetCell();
 	
-	CHECK_TRUE_QSTR((cell != nullptr));
+	MTL_CHECK_ARG(cell != nullptr, QString());
 	ods::Sheet *sheet = cell_ref->sheet();
-	CHECK_TRUE_QSTR((sheet != nullptr));
+	MTL_CHECK_ARG(sheet != nullptr, QString());
 	QString s = QLatin1String(".") + cell->QueryAddress();
 	
 	if (sheet != default_sheet_) {
@@ -135,10 +135,9 @@ Reference::From(QStringView str, Sheet *default_sheet)
 	return Reference::CellRange(default_sheet, start, end);
 }
 
-bool
-Reference::GenCells(QVector<ods::Cell*> &cells)
+bool Reference::GenCells(QVector<ods::Cell*> &cells)
 {
-	CHECK_PTR(end_cell_ref_);
+	MTL_CHECK(end_cell_ref_);
 	ods::Sheet *sheet = cell_ref_->sheet();
 	
 	const int col_start = std::min(cell_ref_->col(), end_cell_ref_->col());
@@ -150,7 +149,7 @@ Reference::GenCells(QVector<ods::Cell*> &cells)
 	for (int r = row_start; r <= row_end; r++) {
 		for (int c = col_start; c <= col_end; c++) {
 			ods::Cell *p = CellRef::FetchCell(sheet, r, c);
-			CHECK_PTR(p);
+			MTL_CHECK(p);
 			cells.append(p);
 		}
 	}
@@ -235,10 +234,10 @@ Reference::R1C1From(QStringView str, ods::Formula *formula)
 		reference_sheet = formula->default_sheet();
 	
 	int R = str.indexOf('R');
-	CHECK_TRUE_NULL((R != -1));
+	MTL_CHECK_NULL(R != -1);
 
 	int C = str.indexOf('C', R + 1);
-	CHECK_TRUE_NULL((C != -1));
+	MTL_CHECK_NULL(C != -1);
 	
 	auto row_ref = str.mid(0, C);
 	auto col_ref = str.mid(C);
@@ -253,7 +252,7 @@ Reference::R1C1From(QStringView str, ods::Formula *formula)
 	
 	bool ok = true;
 	int row_num = num_ref.isEmpty() ? 0 : num_ref.toInt(&ok);
-	CHECK_TRUE_NULL(ok);
+	MTL_CHECK_NULL(ok);
 	
 	if (col_ref.endsWith(']')) {
 		is_relative = true;
@@ -263,7 +262,7 @@ Reference::R1C1From(QStringView str, ods::Formula *formula)
 	}
 	
 	int col_num = num_ref.isEmpty() ? 0 : num_ref.toInt(&ok);
-	CHECK_TRUE_NULL(ok);
+	MTL_CHECK_NULL(ok);
 	
 	auto *a = new Reference();
 	a->default_sheet_ = reference_sheet;

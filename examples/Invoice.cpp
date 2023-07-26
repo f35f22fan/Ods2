@@ -132,8 +132,7 @@ int Invoice::CreateSellerHeader()
 	return last_col;
 }
 
-int
-Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
+int Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 {
 	int last_row_index = kLastRow + 1;
 	auto *ds = book_->document_styles();
@@ -280,8 +279,7 @@ Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 	return last_row_index;
 }
 
-int
-Invoice::CreateTableHeader(const int kLastRow)
+int Invoice::CreateTableHeader(const int kLastRow)
 {
 	int last_row_index = kLastRow + 2;
 	auto *row = sheet_->NewRowAt(last_row_index);
@@ -339,13 +337,12 @@ Invoice::GenItems()
 	return vec;
 }
 
-void
-Invoice::Init()
+void Invoice::Init()
 {
+	save_path_ = QDir::home().filePath("Invoice.ods");
 	book_ = ods::Book::New();
 	auto *spr = book_->spreadsheet();
 	sheet_ = spr->NewSheet("Invoice");
-	
 	int last_index = CreateSellerHeader();
 	
 	if (last_index == -1) {
@@ -375,15 +372,13 @@ Invoice::Init()
 		return;
 	}
 	
-	auto path = QDir::home().filePath("Invoice.ods");
-	QFile target(path);
+	QFile target(save_path_);
 	QString err;
 	
 	if (book_->Save(target, &err))
-		qDebug() << "Saved to:" << target.fileName();
+		mtl_info("Saved to: %s", qPrintable(target.fileName()));
 	else
-		qDebug() << "Error saving ods file:" << err;
+		mtl_warn("Error saving ods file: %s", qPrintable(err));
 }
-
 
 }

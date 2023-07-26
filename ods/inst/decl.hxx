@@ -86,5 +86,4 @@ class TextSheetName;
 class TextTime;
 class TextTitle;
 
-} // ods::inst::
-} // ods::
+}} // ods::

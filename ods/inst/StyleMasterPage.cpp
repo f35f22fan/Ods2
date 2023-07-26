@@ -136,7 +136,7 @@ void StyleMasterPage::WriteData(QXmlStreamWriter &xml)
 
 void StyleMasterPage::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kPageLayoutName, style_page_layout_name_);

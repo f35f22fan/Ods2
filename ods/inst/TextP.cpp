@@ -101,7 +101,7 @@ void TextP::Init(ndff::Container *cntr)
 			}
 		} else if (ndff::is_text(op)) {
 			QString s = cntr->NextString();
-			mtl_printq(s);
+			//mtl_printq(s);
 			Append(s);
 		} else {
 			break;
@@ -162,7 +162,7 @@ void TextP::WriteData(QXmlStreamWriter &xml)
 
 void TextP::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	CloseWriteNodesAndClose(h, kw, file, ba);
 }

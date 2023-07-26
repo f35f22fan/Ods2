@@ -7,7 +7,6 @@
 #include "../err.hpp"
 #include "../id.hh"
 #include "../ndff/decl.hxx"
-#include "../ndff/ndff.hh"
 #include "../ods.hxx"
 #include "../Prefix.hpp"
 #include "../style.hxx"
@@ -107,7 +106,7 @@ public:
 	void Append(Abstract *a, const TakeOwnership to);
 	void Append(QStringView s);
 	
-	uint16_t& bits() { return bits_; }
+	Bits& bits() { return bits_; }
 	ods::Book* book() const { return book_; }
 	bool changed() const;
 	bool changed_properties() const {
@@ -181,7 +180,7 @@ public:
 	
 	void Write(QXmlStreamWriter &xml);
 	virtual void WriteData(QXmlStreamWriter &xml) = 0;
-	virtual void WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba);
+	virtual void WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *output);
 	
 	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
 		Prefix *prefix, QString key, QStringView value);
@@ -257,7 +256,7 @@ protected:
 	inline void CloseWriteNodesAndClose(NsHash &h, Keywords &kw, QFileDevice *file,
 		ByteArray *ba, const PrintText pt = PrintText::No)
 	{
-		CHECK_PTR_VOID(ba);
+		MTL_CHECK_VOID(ba != nullptr);
 		WriteContentFollows(*ba);
 		WriteNodes(h, kw, *ba, pt);
 		WriteSCT(*ba);

@@ -19,6 +19,31 @@
 
 namespace ods::io {
 
+QStringRef
+GetParentDirPath(const QString &full_path)
+{
+	int at = full_path.size() - 1;
+	
+	while ((at > 0) && (full_path.at(at) == '/')) {
+		at--;
+	}
+	
+	at--;
+	
+	while ((at >= 0) && (full_path.at(at) != '/')) {
+		at--;
+	}
+	
+	if (at < 0) {
+		return QStringRef();
+	}
+	
+	if (at == 0)
+		at = 1;
+	
+	return full_path.midRef(0, at);
+}
+
 bool ReadFile(QStringView full_path, ByteArray &buffer,
 	const ReadParams &params)
 {
@@ -250,6 +275,6 @@ bool WriteToFile(const QString &full_path, const char *data, ci64 size,
 	return true;
 }
 
-} // cornus::io::
+} // ods::io::
 
 

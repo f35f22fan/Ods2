@@ -133,7 +133,7 @@ FormulaNode* CountIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *defau
 	QVector<FormulaNode*> cond_nodes;
 	ods::AutoDeleteVec cond_nodes_adv(cond_nodes);
 	
-	CHECK_TRUE_NULL(eval::CommonForSumIfLikeFunctions_BuildUp(values, default_sheet,
+	MTL_CHECK_NULL(eval::CommonForSumIfLikeFunctions_BuildUp(values, default_sheet,
 		test_range_vec, cond_nodes, nullptr));
 	
 	eval::PrintNodes(cond_nodes, "CountIf() Before for loop");
@@ -150,7 +150,7 @@ FormulaNode* CountIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *defau
 		
 		FormulaNode *result = eval::CommonForSumIfLikeFunctions_Eval(*test_node, cond_nodes);
 		ods::AutoDelete result_ad(result);
-		CHECK_TRUE_NULL((result != nullptr && result->is_bool()));
+		MTL_CHECK_NULL((result != nullptr && result->is_bool()));
 		const bool ok = result->as_bool();
 		
 		if (ok) {
@@ -163,13 +163,13 @@ FormulaNode* CountIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *defau
 
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values)
 {
-	CHECK_TRUE_NULL((values.size() == 3));
+	MTL_CHECK_NULL((values.size() == 3));
 	
 	int arr[3] = {};
 	
 	for (int i = 0; i < 3; i++) {
 		FormulaNode *node = values[i];
-		CHECK_TRUE_NULL((node->is_double()));
+		MTL_CHECK_NULL((node->is_double()));
 		arr[i] = node->as_double();
 	}
 	
@@ -179,7 +179,7 @@ FormulaNode* Date(const QVector<ods::FormulaNode*> &values)
 
 FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dmy)
 {
-	CHECK_TRUE_NULL((values.size() == 1));
+	MTL_CHECK_NULL((values.size() == 1));
 	
 	FormulaNode *node = values[0];
 	int ret_val = -1;
@@ -225,7 +225,7 @@ FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dm
 			sep = QChar('/');
 		
 		auto list = QStringView(*date_str).split(sep);
-		CHECK_TRUE_NULL((list.size() == 3));
+		MTL_CHECK_NULL((list.size() == 3));
 		const bool year_first = (list[0].size() > 2);
 		int index = -1;
 		
@@ -251,13 +251,13 @@ FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dm
 		}
 	}
 	
-	RET_IF_EQUAL_NULL(ret_val, -1);
+	MTL_CHECK_NULL(ret_val != -1);
 	return FormulaNode::Double(ret_val);	
 }
 
 FormulaNode* If(const QVector<FormulaNode*> &values)
 {
-	CHECK_EQUAL_NULL(values.size(), 3);
+	MTL_CHECK_NULL(values.size() == 3);
 	FormulaNode *condition = values[0];
 	FormulaNode *true_node = values[1];
 	FormulaNode *false_node = values[2];
@@ -282,7 +282,7 @@ FormulaNode* If(const QVector<FormulaNode*> &values)
 
 FormulaNode* Indirect(const QVector<FormulaNode*> &values, ods::Formula *formula)
 {
-	CHECK_TRUE_NULL(!values.isEmpty());
+	MTL_CHECK_NULL(!values.isEmpty());
 	//eval::PrintNodes(values, "function.cc::Indirect()");
 	bool is_r1c1 = false;
 	
@@ -305,13 +305,13 @@ FormulaNode* Indirect(const QVector<FormulaNode*> &values, ods::Formula *formula
 		a = ods::Reference::From(addr_str, formula->default_sheet());
 	}
 	
-	CHECK_PTR_NULL(a);
+	MTL_CHECK_NULL(a);
 	return FormulaNode::Reference(a);
 }
 
 FormulaNode* Match(const QVector<ods::FormulaNode*> &values)
 {
-	CHECK_TRUE_NULL((values.size() == 3));
+	MTL_CHECK_NULL((values.size() == 3));
 //	eval::PrintNodes(values);
 	
 	FormulaNode *search_item = values[0];
@@ -323,8 +323,8 @@ FormulaNode* Match(const QVector<ods::FormulaNode*> &values)
 		return nullptr;
 	}
 	
-	CHECK_TRUE_NULL(search_range->is_reference());
-	CHECK_TRUE_NULL(param_node->is_any_double());
+	MTL_CHECK_NULL(search_range->is_reference());
+	MTL_CHECK_NULL(param_node->is_any_double());
 	
 	int param = param_node->as_any_double();
 	
@@ -336,7 +336,7 @@ FormulaNode* Match(const QVector<ods::FormulaNode*> &values)
 	double search_for = search_item->as_any_double();
 	Reference *reference = search_range->as_reference();
 	QVector<ods::Cell*> cells;
-	CHECK_TRUE_NULL(reference->GenCells(cells));
+	MTL_CHECK_NULL(reference->GenCells(cells));
 	
 	for (ods::Cell *cell: cells) {
 		if (!cell->is_any_double())
@@ -360,7 +360,7 @@ FormulaNode* Max(const QVector<ods::FormulaNode*> &values)
 	bool initialize = true;
 	
 	for (ods::FormulaNode *value: values) {
-		CHECK_TRUE_NULL(value->is_double());
+		MTL_CHECK_NULL(value->is_double());
 		if (initialize) {
 			initialize = false;
 			max = value->as_double();
@@ -380,7 +380,7 @@ FormulaNode* Min(const QVector<FormulaNode *> &values)
 	bool initialized = false;
 	
 	for (ods::FormulaNode *value: values) {
-		CHECK_TRUE_NULL(value->is_any_double());
+		MTL_CHECK_NULL(value->is_any_double());
 		if (!initialized) {
 			initialized = true;
 			min = value->as_any_double();
@@ -398,7 +398,7 @@ FormulaNode* Min(const QVector<FormulaNode *> &values)
 
 FormulaNode* Mod(const QVector<FormulaNode*> &values)
 {
-	CHECK_EQUAL_NULL(values.size(), 2);
+	MTL_CHECK_NULL(values.size() == 2);
 	auto *lhs_node = values[0];
 	auto *rhs_node = values[1];
 	if (!lhs_node->is_any_double() || !rhs_node->is_any_double()) {
@@ -406,7 +406,7 @@ FormulaNode* Mod(const QVector<FormulaNode*> &values)
 		return nullptr;
 	}
 	double rhs = rhs_node->as_any_double();
-	RET_IF_EQUAL_NULL(rhs, 0);
+	MTL_CHECK_NULL(rhs != 0);
 	double lhs = lhs_node->as_any_double();
 	double n = std::remainder(lhs, rhs); // ret type can be a float point value
 	return FormulaNode::Double(double(n));
@@ -414,7 +414,7 @@ FormulaNode* Mod(const QVector<FormulaNode*> &values)
 
 FormulaNode* Not(const QVector<ods::FormulaNode*> &values)
 {
-	CHECK_TRUE_NULL((values.size() == 1));
+	MTL_CHECK_NULL(values.size() == 1);
 	FormulaNode *node = values[0];
 	bool flag = !node->InterpretAsBoolean();
 	
@@ -430,13 +430,13 @@ FormulaNode* Now()
 FormulaNode* Offset(const QVector<ods::FormulaNode*> &values)
 {
 //	eval::PrintNodes(values);
-	CHECK_TRUE_NULL((values.size() >= 3));
+	MTL_CHECK_NULL(values.size() >= 3);
 	FormulaNode *refr_node = values[0];
-	CHECK_TRUE_NULL(refr_node->is_reference());
+	MTL_CHECK_NULL(refr_node->is_reference());
 	FormulaNode *row_offset = values[1];
-	CHECK_TRUE_NULL(row_offset->is_any_double());
+	MTL_CHECK_NULL(row_offset->is_any_double());
 	FormulaNode *col_offset = values[2];
-	CHECK_TRUE_NULL(col_offset->is_any_double());
+	MTL_CHECK_NULL(col_offset->is_any_double());
 	
 	const int row_off = row_offset->as_any_double();
 	const int col_off = col_offset->as_any_double();
@@ -444,19 +444,19 @@ FormulaNode* Offset(const QVector<ods::FormulaNode*> &values)
 	int new_h = -1, new_w = -1;
 	if (values.size() >= 4) {
 		FormulaNode *node = values[3];
-		CHECK_TRUE_NULL(node->is_any_double());
+		MTL_CHECK_NULL(node->is_any_double());
 		new_h = node->as_any_double();
 	}
 	
 	if (values.size() >= 5) {
 		FormulaNode *node = values[4];
-		CHECK_TRUE_NULL(node->is_any_double());
+		MTL_CHECK_NULL(node->is_any_double());
 		new_w = node->as_any_double();
 	}
 	
 	ods::Reference *refr = refr_node->as_reference();
 	ods::Reference *new_refr = refr->Offset(row_off, col_off, new_h, new_w);
-	CHECK_PTR_NULL(new_refr);
+	MTL_CHECK_NULL(new_refr);
 	
 	return FormulaNode::Reference(new_refr);
 }
@@ -477,7 +477,7 @@ FormulaNode* Or(const QVector<ods::FormulaNode*> &values)
 
 FormulaNode* Power(const QVector<FormulaNode*> &values)
 {
-	CHECK_EQUAL_NULL(values.size(), 2);
+	MTL_CHECK_NULL(values.size() == 2);
 	auto *lhs_node = values[0];
 	auto *rhs_node = values[1];
 	if (!lhs_node->is_any_double() || !rhs_node->is_any_double()) {
@@ -485,7 +485,7 @@ FormulaNode* Power(const QVector<FormulaNode*> &values)
 		return nullptr;
 	}
 	double rhs = rhs_node->as_any_double();
-	RET_IF_EQUAL_NULL(rhs, 0);
+	MTL_CHECK_NULL(rhs != 0);
 	double lhs = lhs_node->as_any_double();
 	double n = std::pow(lhs, rhs); // ret type can be a float point value
 	return FormulaNode::Double(double(n));
@@ -514,7 +514,7 @@ FormulaNode* Product(const QVector<ods::FormulaNode*> &values)
 
 FormulaNode* Quotient(const QVector<FormulaNode*> &values)
 {
-	CHECK_EQUAL_NULL(values.size(), 2);
+	MTL_CHECK_NULL(values.size() == 2);
 	auto *lhs_node = values[0];
 	auto *rhs_node = values[1];
 	if (!lhs_node->is_any_double() || !rhs_node->is_any_double()) {
@@ -522,7 +522,7 @@ FormulaNode* Quotient(const QVector<FormulaNode*> &values)
 		return nullptr;
 	}
 	double rhs = rhs_node->as_any_double();
-	RET_IF_EQUAL_NULL(rhs, 0);
+	MTL_CHECK_NULL(rhs != 0);
 	double lhs = lhs_node->as_any_double();
 	i64 n = lhs / rhs;
 	return FormulaNode::Double(double(n));
@@ -530,13 +530,13 @@ FormulaNode* Quotient(const QVector<FormulaNode*> &values)
 
 FormulaNode* RoundAnyWay(const QVector<FormulaNode*> &values, const RoundType round_type)
 { // table:formula="of:=ROUND([.F35]*[.F36];2)"
-	RET_IF_EQUAL_NULL(values.size(), 0);
+	MTL_CHECK_NULL(values.size() != 0);
 	double number = values[0]->as_any_double();
 	int places = 0;
 	
 	if (values.size() == 2) {
 		FormulaNode *node = values[1];
-		CHECK_TRUE_NULL(node->ConvertFunctionOrAddressToValue());
+		MTL_CHECK_NULL(node->ConvertFunctionOrAddressToValue());
 		if (node->is_any_double())
 			places = node->as_double();
 	}
@@ -599,7 +599,7 @@ FormulaNode* SumIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *default
 	QVector<FormulaNode*> sum_range_vec;
 	ods::AutoDeleteVec sum_range_vec_adv(sum_range_vec);
 	
-	CHECK_TRUE_NULL(eval::CommonForSumIfLikeFunctions_BuildUp(values, default_sheet,
+	MTL_CHECK_NULL(eval::CommonForSumIfLikeFunctions_BuildUp(values, default_sheet,
 		test_range_vec, cond_nodes, &sum_range_vec));
 	
 	ods::FormulaNode sumup;
@@ -614,7 +614,7 @@ FormulaNode* SumIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *default
 		}
 		FormulaNode *result = eval::CommonForSumIfLikeFunctions_Eval(*test_node, cond_nodes);
 		ods::AutoDelete result_ad(result);
-		CHECK_TRUE_NULL((result != nullptr && result->is_bool()));
+		MTL_CHECK_NULL((result != nullptr && result->is_bool()));
 		const bool do_sumup = result->as_bool();
 		
 		if (do_sumup) {
@@ -635,12 +635,12 @@ FormulaNode* Text(const QVector<FormulaNode *> &values)
 { //TEXT([.B7];"mm/dd/yyyy")
 //	eval::PrintNodes(values, "from function::Text()");
 	
-	CHECK_TRUE_NULL((values.size() == 2));
+	MTL_CHECK_NULL((values.size() == 2));
 	
 	FormulaNode *num_node = values[0];
-	CHECK_TRUE_NULL(num_node->HasNumberTrait());
+	MTL_CHECK_NULL(num_node->HasNumberTrait());
 	FormulaNode *format_node = values[1];
-	CHECK_TRUE_NULL(format_node->is_string());
+	MTL_CHECK_NULL(format_node->is_string());
 	
 	QString format_str = *format_node->as_string();
 	QString result;
@@ -653,14 +653,14 @@ FormulaNode* Text(const QVector<FormulaNode *> &values)
 			QDateTime *dt = num_node->as_date_time();
 			QDate date = dt->date();
 			QTime time = dt->time();
-			CHECK_TRUE_NULL(eval::FormatAsDateTime(format_str, &date, &time, result));
+			MTL_CHECK_NULL(eval::FormatAsDateTime(format_str, &date, &time, result));
 		} else if (num_node->is_date()) {
 			QDate *date = num_node->as_date();
-			CHECK_TRUE_NULL(eval::FormatAsDateTime(format_str, date, nullptr, result));
+			MTL_CHECK_NULL(eval::FormatAsDateTime(format_str, date, nullptr, result));
 		} else if (num_node->is_time()) {
 			ods::Time *t = num_node->as_time();
 			QTime time_arg(t->hours(), t->minutes(), t->seconds(), t->ms());
-			CHECK_TRUE_NULL(eval::FormatAsDateTime(format_str, nullptr, &time_arg, result));
+			MTL_CHECK_NULL(eval::FormatAsDateTime(format_str, nullptr, &time_arg, result));
 		} else {
 			mtl_it_happened();
 			return nullptr;

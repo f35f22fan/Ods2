@@ -2,9 +2,11 @@
 
 #include "err.hpp"
 
-#include <string.h>
 #include <QtEndian>
 #include <QSysInfo>
+
+#include <string.h>
+#include <zstd.h>
 
 namespace ods {
 
@@ -13,6 +15,10 @@ ByteArray::ByteArray(const ByteArray &rhs)
 {
 	add(rhs.data(), rhs.size());
 	at_ = 0;
+}
+ByteArray::ByteArray(QStringView name)
+{
+	SetUtf8(name, ods::Clear::No);
 }
 ByteArray::~ByteArray()
 {
@@ -44,7 +50,7 @@ void ByteArray::Clear()
 
 ByteArray* ByteArray::CloneFromHere()
 {
-	const i8 left = size_ - at_;
+	ci64 left = size_ - at_;
 	if (left <= 0)
 		return nullptr;
 	
@@ -52,6 +58,14 @@ ByteArray* ByteArray::CloneFromHere()
 	ret->add(this, From::CurrentPosition);
 	
 	return ret;
+}
+
+ByteArray* ByteArray::CloneRegion(ci64 offset, ci64 len)
+{
+	ByteArray *p = new ByteArray();
+	p->add(data_ + offset, len, ExactSize::Yes);
+	p->to(0);
+	return p;
 }
 
 void ByteArray::add(const ByteArray *rhs, const From from)
@@ -142,11 +156,13 @@ void ByteArray::add_string(QStringView s, const Pack p)
 		ci32 size = ba.size();
 		add(reinterpret_cast<const char*>(&size), sizeof size);
 		add(ba.data(), size);
-	} else {
+	} else if (p == Pack::NDFF) {
 		auto str_ba = s.toUtf8();
 		ci64 size = str_ba.size();
 		add_str_size(size);
 		add(str_ba.data(), size, ExactSize::Yes);
+	} else {
+		mtl_trace();
 	}
 }
 
@@ -191,6 +207,66 @@ void ByteArray::add_unum(cu64 n)
 		add_u8(ndff::Op::N64);
 		add_u64(n);
 	}
+}
+
+bool ByteArray::Compress(const Compression compr)
+{
+	MTL_CHECK(compr == Compression::ZSTD);
+	
+	/// Compresses the whole buffer
+	auto *zstd_cctx = ZSTD_createCCtx();
+	const char *src_buf = (const char*)data();
+	ci64 src_size = size();
+	ci64 dst_size = ZSTD_compressBound(src_size);
+	char *dst_buf = new char[dst_size];
+	ci64 compressed_size = ZSTD_compressCCtx(zstd_cctx,
+		 dst_buf, dst_size, src_buf, src_size, 1);
+	TakeOver(dst_buf, dst_size, compressed_size);
+	
+	return true;
+}
+
+bool ByteArray::Decompress(const Compression compr)
+{
+	MTL_CHECK(compr == Compression::ZSTD);
+	
+	ZSTD_DCtx *zstd_dctx = ZSTD_createDCtx();
+	char *src_buf = data_;
+	ci64 src_size = size_;
+	cu64 dst_size = ZSTD_getFrameContentSize(src_buf, src_size);
+	if (dst_size == ZSTD_CONTENTSIZE_UNKNOWN)
+		mtl_warn("Unknown zstd error");
+	else if (dst_size == ZSTD_CONTENTSIZE_ERROR) {
+		mtl_warn("ZSTD content error");
+		DumpToTerminal();
+	}
+	mtl_info("src_size: %lu, dst_size: %lu", src_size, dst_size);
+	uchar *dst_buf = new uchar[dst_size];
+	ci64 decompressed_size = ZSTD_decompressDCtx(zstd_dctx,
+	 dst_buf, dst_size, src_buf, src_size);
+	TakeOver((char*)dst_buf, dst_size, decompressed_size);
+	
+	return true;
+}
+
+void ByteArray::DumpToTerminal()
+{
+	ci64 max = (size_ > 255) ? 255 : size_;
+	mtl_info("Dumping %ld bytes:", max);
+	for (i64 i = 0; i < max; i++)
+	{
+		printf("%0X ", data_[i]);
+	}
+	
+	printf("\n");
+}
+
+void ByteArray::TakeOver(char *buf, ci64 heap_size, ci64 size)
+{
+	Clear();
+	data_ = buf;
+	heap_size_ = heap_size;
+	size_ = size;
 }
 
 i64 ByteArray::next_inum()
@@ -259,7 +335,7 @@ void ByteArray::alloc(const isize n)
 	size_ = n;
 }
 
-void ByteArray::MakeSure(isize more, const ExactSize es)
+void ByteArray::MakeSure(cisize more, const ExactSize es)
 {
 	if (heap_size_ >= at_ + more)
 		return;
@@ -281,6 +357,24 @@ void ByteArray::MakeSure(isize more, const ExactSize es)
 void ByteArray::next(char *p, const isize sz) {
 	memcpy(p, data_ + at_, sz);
 	at_ += sz;
+}
+
+bool ByteArray::next_ba(ByteArray &output, ci64 len)
+{
+	output.add(data_ + at_, len);
+	at_ += len;
+	
+	return (at_ <= size_);
+}
+
+QString ByteArray::NextStringUtf8(ci64 len)
+{
+	auto s = QString::fromUtf8(data_ + at_, len);
+	at_ += len;
+	if (at_ > size_)
+		mtl_trace();
+	
+	return s;
 }
 
 i8 ByteArray::next_i8() {
@@ -362,11 +456,12 @@ QString ByteArray::next_string(const Pack p)
 	return s;
 }
 
-QByteArray ByteArray::next_string_utf8(ci64 len)
+void ByteArray::SetUtf8(QStringView s, const ods::Clear c)
 {
-	auto s = QByteArray::fromRawData(data_ + at_, len);
-	at_ += len;
-	return s;
+	if (c == ods::Clear::Yes)
+		Clear();
+	auto ba = s.toUtf8();
+	add(&ba);
+	to(0);
 }
-
 }

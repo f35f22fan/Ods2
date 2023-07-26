@@ -95,7 +95,7 @@
 	__LINE__, strerror(status), MTL_COLOR_DEFAULT)
 
 #define mtl_tbd() {\
-	mtl_trace("TBD");\
+	mtl_trace("====================TBD");\
 }
 
 #define mtl_printq(s) {\
@@ -123,93 +123,32 @@
 #define NO_MOVE(TypeName)	\
 	TypeName(TypeName&&) = delete;
 
-#define RET_IF_EQUAL(x, y) {\
-	if (x == y) {\
+#define MTL_CHECK(flag) {\
+	if (!(flag)) {\
 		mtl_trace();\
 		return false;\
 	}\
 }
 
-#define RET_IF_EQUAL_VOID(x, y) {\
-	if (x == y) {\
+#define MTL_CHECK_VOID(flag) {\
+	if (!(flag)) {\
 		mtl_trace();\
 		return;\
 	}\
 }
 
-#define RET_IF_EQUAL_NULL(x, y) {\
-	if (x == y) {\
+#define MTL_CHECK_NULL(flag) {\
+	if (!(flag)) {\
 		mtl_trace();\
 		return nullptr;\
 	}\
 }
 
-#define CHECK_EQUAL(x, y) {\
-	if (x != y) {\
+#define MTL_CHECK_ARG(flag, ret) {\
+	if (!(flag)) {\
 		mtl_trace();\
-		return false;\
+		return ret;\
 	}\
 }
 
-#define CHECK_EQUAL_VOID(x, y) {\
-	if (x != y) {\
-		mtl_trace();\
-		return;\
-	}\
-}
 
-#define CHECK_EQUAL_NULL(x, y) {\
-	if (x != y) {\
-		mtl_trace();\
-		return nullptr;\
-	}\
-}
-
-#define CHECK_TRUE(x) {\
-	if (!(x)) {\
-		mtl_trace();\
-		return false;\
-	}\
-}
-
-#define CHECK_TRUE_NULL(x) {\
-	if (!(x)) {\
-		mtl_trace();\
-		return nullptr;\
-	}\
-}
-
-#define CHECK_TRUE_VOID(x) {\
-	if (!(x)) {\
-		mtl_trace();\
-		return;\
-	}\
-}
-
-#define CHECK_TRUE_QSTR(x) {\
-	if (!(x)) {\
-		mtl_trace();\
-		return QString();\
-	}\
-}
-
-#define CHECK_PTR(x) {\
-	if (x == nullptr) {\
-		mtl_trace();\
-		return false;\
-	}\
-}
-
-#define CHECK_PTR_VOID(x) {\
-	if (x == nullptr) {\
-		mtl_trace();\
-		return;\
-	}\
-}
-
-#define CHECK_PTR_NULL(x) {\
-	if (x == nullptr) {\
-		mtl_trace();\
-		return nullptr;\
-	}\
-}

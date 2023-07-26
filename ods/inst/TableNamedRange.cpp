@@ -56,7 +56,7 @@ TableNamedRange::GetReference()
 	bits_ |= TriedLoadingAddressBit;
 	
 	ods::Sheet *default_sheet = GetSheet();
-	CHECK_PTR_NULL(default_sheet);
+	MTL_CHECK_NULL(default_sheet);
 	
 	reference_ = Reference::From(table_cell_range_address_, default_sheet);
 	return reference_;
@@ -69,13 +69,13 @@ TableNamedRange::GetSheet()
 		return sheet_;
 	
 	OfficeSpreadsheet *spreadsheet = book_->spreadsheet();
-	CHECK_PTR_NULL(spreadsheet);
+	MTL_CHECK_NULL(spreadsheet);
 	
 	QStringView table_name;
 	QStringView address = table_base_cell_address_;
-	CHECK_TRUE_NULL(ods::ParseTableName(address, table_name));
+	MTL_CHECK_NULL(ods::ParseTableName(address, table_name));
 	sheet_ = spreadsheet->GetSheet(table_name);
-	CHECK_PTR_NULL(sheet_); // to warn if sheet not found
+	MTL_CHECK_NULL(sheet_); // to warn if sheet not found
 	return sheet_;
 }
 
@@ -121,7 +121,7 @@ void TableNamedRange::WriteData(QXmlStreamWriter &xml)
 
 void TableNamedRange::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->table(), ns::kName, name_);
 	WriteNdffProp(kw, *ba, ns_->table(), ns::kBaseCellAddress, table_base_cell_address_);

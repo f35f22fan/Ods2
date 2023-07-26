@@ -98,7 +98,7 @@ void StyleTableRowProperties::WriteData(QXmlStreamWriter &xml)
 
 void StyleTableRowProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->fo(), ns::kBreakBefore, fo_break_before_);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);

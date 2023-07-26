@@ -82,7 +82,7 @@ void NumberSeconds::WriteData(QXmlStreamWriter &xml)
 
 void NumberSeconds::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	if (number_decimal_places_ != -1)
 	{

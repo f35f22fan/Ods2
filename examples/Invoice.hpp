@@ -11,6 +11,8 @@ public:
 	Invoice();
 	virtual ~Invoice();
 	
+	ods::Book* book() const { return book_; }
+	
 private:
 	
 	int CreateBillToHeader(const int kLastRow);
@@ -20,9 +22,11 @@ private:
 	
 	QVector<InvoiceItem*>* GenItems();
 	void Init();
+	QString save_path() const { return save_path_; }
 	
 	ods::Book *book_ = nullptr;
 	ods::Sheet *sheet_ = nullptr;
+	QString save_path_;
 };
 
 }

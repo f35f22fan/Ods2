@@ -207,7 +207,7 @@ void NumberTimeStyle::WriteData(QXmlStreamWriter &xml)
 
 void NumberTimeStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->style(), ods::ns::kName, style_name_);
 	CloseBasedOnChildren(h, kw, file, ba);

@@ -5,9 +5,9 @@
 #include "../decl.hxx"
 #include "../err.hpp"
 #include "../global.hxx"
+#include "../ods.hxx"
 #include "../inst/Abstract.hpp"
 #include "Property.hpp"
-#include "../types.hxx"
 
 namespace ods::ndff {
 
@@ -36,26 +36,30 @@ public:
 	ndff::Op Next(Property &prop, const Op last_op = Op::None,
 		QHash<UriId, QVector<Property> > *h = 0);
 	QString NextString();
+	void PrepareFor(FileEntryInfo *fei);
 	void PrepareForParsing();
 	
 	Book* book() const { return book_; }
 	Ns* ns() const { return ns_; }
+	Compression WhatCompressionShouldBeUsed(QStringView file_path, ci64 uncompressed_size) const;
 	
 private:
 	void PrintKeywords();
-	bool ReadDictionary();
-	bool ReadNamespaces();
+	void ReadDictionary(ByteArray &buf, ci64 how_much);
+	bool ReadDictionaryRegion();
+	void ReadNamespaces(ByteArray &buf, ci64 how_much);
+	bool ReadNamespacesRegion();
 	bool ReadFiles(ci64 files_loc, QVector<FileEntryInfo *> &vec);
 	
 	Book *book_ = nullptr;
 	Ns *ns_ = nullptr;
 	QString full_path_;
 	ByteArray buf_;
+	ByteArray *helper_buf_ = 0;
 	inst::NsHash ns_hash_; // using NsHash = QHash<UriId, QString>;
 	inst::Keywords keywords_; // using Keywords = QHash<QString, IdAndCount>;
 	QHash<i32, QString> id_keyword_;
 	QVector<ndff::FileEntryInfo*> top_files_;
-	
 	friend class ods::ndff::FileEntryInfo;
 };
 

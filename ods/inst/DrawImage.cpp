@@ -86,11 +86,11 @@ bool DrawImage::LoadImage(const QString &src_img_path, QSize &sz)
 	sz = reader.size();
 	
 	QString *media_dir_path = book_->GetMediaDirPath();
-	CHECK_PTR(media_dir_path);
+	MTL_CHECK(media_dir_path);
 	
 	auto file_info = QFileInfo(src_img_path);
 	ci64 max_img_len = 1024 * 1024 * 256; // 256MB
-	CHECK_TRUE(file_info.size() <= max_img_len);
+	MTL_CHECK(file_info.size() <= max_img_len);
 	
 	const QString ext = QLatin1String(".") + file_info.suffix();
 	const QString base_name = QLatin1String("image");
@@ -143,7 +143,7 @@ void DrawImage::WriteData(QXmlStreamWriter &xml)
 
 void DrawImage::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kHref, xlink_href_);
 	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kType, xlink_type_);

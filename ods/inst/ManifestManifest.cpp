@@ -179,7 +179,7 @@ void ManifestManifest::WriteData(QXmlStreamWriter &xml)
 
 void ManifestManifest::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	//mtl_info("manifest_version_: %s", qPrintable(manifest_version_));
 	WriteNdffProp(kw, *ba, ns_->manifest(), ods::ns::kVersion, manifest_version_);

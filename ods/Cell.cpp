@@ -353,7 +353,7 @@ ods::CellRef*
 Cell::NewRef(const i32 r, const i32 c)
 {
 	ods::Sheet *sheet = row_->sheet();
-	CHECK_PTR_NULL(sheet);
+	MTL_CHECK_ARG(sheet, nullptr);
 	int row_index = sheet->QueryRowStart(row_);
 	int col_index = row_->QueryCellStart(this);
 	int row = row_index + r;
@@ -406,15 +406,15 @@ QString Cell::QueryAddress() const
 ods::Currency* Cell::QueryCurrencyObject()
 {
 	auto *style = GetStyle();
-	CHECK_PTR_NULL(style);
+	MTL_CHECK_ARG(style, nullptr);
 	auto ncs = style->GetCurrencyStyle();
-	CHECK_PTR_NULL(ncs);
+	MTL_CHECK_ARG(ncs, nullptr);
 	auto *cs = (ods::inst::NumberCurrencySymbol*)
 		ncs->Get(ods::Id::NumberCurrencySymbol);
 	const QString country = cs->country();
 	const QString symbol = cs->GetSymbol();
 	ods::Currency *c = ods::currency::Query(country, symbol);
-	CHECK_PTR_NULL(c);
+	MTL_CHECK_ARG(c, nullptr);
 	c->qtty = *as_currency();
 	return c;
 }
@@ -852,7 +852,7 @@ void Cell::WriteData(QXmlStreamWriter &xml)
 
 void Cell::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba);
 	WriteTag(kw, *ba);
 	
 	WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberColumnsRepeated, ncr_, 1);
@@ -908,7 +908,7 @@ void Cell::WriteValue(QXmlStreamWriter &xml)
 		Write(xml, ns_->office(), ns::kDateValue, date_value);
 	} else if (is_time()) {
 		auto *dd = as_time();
-		CHECK_PTR_VOID(dd);
+		MTL_CHECK_VOID(dd);
 		QString dur_value = dd->toString();
 		Write(xml, ns_->office(), ns::kTimeValue, dur_value);
 	} else if (is_boolean()) {
@@ -953,7 +953,7 @@ void Cell::WriteValueNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file
 		WriteNdffProp(kw, *ba, ns_->office(), ns::kDateValue, date_value);
 	} else if (is_time()) {
 		auto *dd = as_time();
-		CHECK_PTR_VOID(dd);
+		MTL_CHECK_VOID(dd);
 		QString dur_value = dd->toString();
 		WriteNdffProp(kw, *ba, ns_->office(), ns::kTimeValue, dur_value);
 	} else if (is_boolean()) {

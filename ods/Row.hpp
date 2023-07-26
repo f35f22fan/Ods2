@@ -84,6 +84,8 @@ public:
 	ods::Sheet*
 	sheet() const { return sheet_; }
 	
+	ods::Cell* SplitOneCellAt(ods::Cell *multiple_cells, cint split_at);
+	
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:

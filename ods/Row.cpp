@@ -112,7 +112,7 @@ void Row::DeleteCellRegion(ods::Cell *cell, cint vec_index)
 ods::Cell*
 Row::GetCell(cint place)
 {
-	CHECK_TRUE_NULL((place >= 0));
+	MTL_CHECK_NULL(place >= 0);
 	int at = -1;
 	
 	for (ods::Cell *cell: cells_)
@@ -429,6 +429,48 @@ void Row::SetStyle(inst::StyleStyle *p)
 		
 }
 
+ods::Cell* Row::SplitOneCellAt(ods::Cell *multiple_cells, cint split_at)
+{
+	if (multiple_cells->ncr() == 1)
+	{
+		mtl_warn("Can't split cell with NCR=1");
+		return multiple_cells;
+	}
+	
+	ods::Cell *cloned_cell = (ods::Cell*) multiple_cells->Clone();
+	cloned_cell->ncr(1);
+	cint max = cells_.size();
+	int so_far_cols = 0;
+	for (int cell_index = 0; cell_index < max; cell_index++)
+	{
+		ods::Cell *next = cells_[cell_index];
+		if (next == multiple_cells)
+		{
+			cint spans_till = so_far_cols + multiple_cells->ncr();
+			cint left_cols = split_at - so_far_cols;
+			if (left_cols > 0)
+			{
+				auto *cloned = (ods::Cell*) multiple_cells->Clone();
+				cloned->ncr(left_cols);
+				so_far_cols += left_cols;
+				cells_.insert(cell_index, cloned);
+				cell_index++;
+			}
+			cells_.insert(cell_index, cloned_cell);
+			so_far_cols++;
+			if (so_far_cols < spans_till) {
+				multiple_cells->ncr(spans_till - so_far_cols);
+			} else {
+				cells_.removeAll(multiple_cells);
+			}
+			break;
+		}
+		so_far_cols += next->ncr();
+	}
+	
+	return cloned_cell;
+}
+
 QString Row::ToSchemaString() const
 {
 	QString s;
@@ -465,7 +507,7 @@ void Row::WriteData(QXmlStreamWriter &xml)
 
 void Row::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	if (nrr_ != 1)
 	{

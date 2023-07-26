@@ -3,6 +3,7 @@
 #include "decl.hxx"
 #include "err.hpp"
 #include "global.hxx"
+#include "ods.hxx"
 
 #include "inst/Abstract.hpp"
 #include "inst/decl.hxx"
@@ -37,6 +38,12 @@ public:
 	virtual ~Book();
 	
 	bool dev_mode() const { return bits_ & DevModeBit; }
+	void dev_mode(cbool b) {
+		if (b)
+			bits_ |= DevModeBit;
+		else
+			bits_ &= ~DevModeBit;
+	}
 	
 	inst::OfficeDocumentContent*
 	document_content() const { return document_content_; }
@@ -87,13 +94,15 @@ public:
 			bits_ &= ~LoadingBit;
 	}
 	
-	bool ndff() const { return bits_ & NdffBit; }
-	void ndff(const bool b) {
+	bool ndff_enabled() const { return bits_ & NdffBit; }
+	void ndff_enabled(cbool b) {
 		if (b)
 			bits_ |= NdffBit;
 		else
 			bits_ &= ~NdffBit;
 	}
+	
+	QString ndff_path() const { return ndff_path_; }
 	
 	ndff::Container& ndff_container() { return ndff_; }
 	
@@ -103,12 +112,21 @@ public:
 	bool Save(const QFile &target, QString *err);
 	bool SaveNDFF(QString *err);
 	
+	//==> quick getters for convenience
+	i32 sheet_count() const;
+	ods::Sheet* GetSheet(ci32 at);
+	//<== quick getters for convenience
+	
 	inst::OfficeSpreadsheet*
 	spreadsheet() const;
 	
 	const QString&
 	temp_dir_path() const { return temp_dir_path_; }
-	
+	Compression WhatCompressionShouldBeUsed(QStringView file_path,
+		ci64 uncompressed_size) const
+	{
+		return ndff_.WhatCompressionShouldBeUsed(file_path, uncompressed_size);
+	}
 	void WriteStartDocument(QXmlStreamWriter &xml);
 	
 private:
@@ -117,13 +135,13 @@ private:
 	void AddFei(inst::Abstract *top, QStringView fn, inst::NsHash &ns_hash,
 		inst::Keywords &keywords,
 		ndff::FileEntryInfo &fei,
-		ByteArray &main_buffer,
+		ByteArray &output_buffer,
 		ci64 record_result_loc);
 	
 	void AddFolderFei(ByteArray &buffer, ndff::FileEntryInfo &fei,
 		QString filename, ci64 record_result_loc = -1);
 	// success if ret val is positive
-	i64 CreateFeiTable(ByteArray &buffer, cu32 reserve_count,
+	i64 CreateFeiTable(ByteArray &buffer, cu32 reserved,
 		ci64 record_table_loc = -1);
 	bool CreateMimetypeFei(ByteArray &buffer, ndff::FileEntryInfo &fei, ci64 record_fei_loc);
 	
@@ -138,13 +156,6 @@ private:
 	void CreateDictionaryRegion(ByteArray &buffer, inst::Keywords &list);
 	void CreateMainHeader(ByteArray &ba);
 	void CreateNamespacesRegion(ByteArray &result, inst::NsHash &h);
-	
-	void dev_mode(const bool b) {
-		if (b)
-			bits_ |= DevModeBit;
-		else
-			bits_ &= ~DevModeBit;
-	}
 	
 	QVector<inst::Abstract*> GetNamespaceClasses();
 	void InitDefault();
@@ -162,7 +173,7 @@ private:
 	QMimeDatabase db_;
 	QStringList extracted_file_paths_;
 	QString media_dir_path_;
-	
+	QString ndff_path_;
 	QTemporaryDir temp_dir_;
 	QString temp_dir_path_;
 	inst::OfficeDocumentContent *document_content_ = nullptr;

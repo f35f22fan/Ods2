@@ -184,7 +184,7 @@ void TableTableColumn::WriteData(QXmlStreamWriter &xml)
 
 void TableTableColumn::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);
 	WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberColumnsRepeated, ncr_, 1);

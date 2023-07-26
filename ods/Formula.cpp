@@ -152,7 +152,7 @@ FormulaNode*
 Formula::Eval()
 {
 	if (nodes_.isEmpty()) {
-		CHECK_TRUE_NULL(ProcessFormulaString(str_to_evaluate_, nodes_));
+		MTL_CHECK_NULL(ProcessFormulaString(str_to_evaluate_, nodes_));
 	}
 	
 	QVector<FormulaNode*> *cloned_vec = eval::CloneVec(nodes_);
@@ -172,13 +172,13 @@ Formula::EvaluateNodes(QVector<FormulaNode *> &nodes)
 #endif
 	
 	if (nodes.size() == 1) {
-		CHECK_TRUE_NULL(eval::EvalDeepestGroup(nodes));
+		MTL_CHECK_NULL(eval::EvalDeepestGroup(nodes));
 	} else {
 		while (nodes.size() > 1) {
-			CHECK_TRUE_NULL(eval::EvalDeepestGroup(nodes));
+			MTL_CHECK_NULL(eval::EvalDeepestGroup(nodes));
 		}
 	}
-	CHECK_TRUE_NULL((nodes.size() == 1));
+	MTL_CHECK_NULL((nodes.size() == 1));
 	FormulaNode *result = nodes[0];
 #ifdef DEBUG_FORMULA_EVAL
 	auto ba = result->toString().toLocal8Bit();
@@ -271,7 +271,7 @@ mtl_info("Param separator ;");
 	
 	if (s.startsWith(u"\"")) {
 		int end = s.indexOf(u"\"", 1);
-		CHECK_TRUE((end != -1));
+		MTL_CHECK(end != -1);
 		QStringView str_arg = s.mid(1, end - 1);
 		auto ba = str_arg.toLocal8Bit();
 		mtl_info("String: \"%s\"", ba.data());
@@ -316,7 +316,7 @@ mtl_info("Param separator ;");
 		mtl_info("op \"%s\"", ba.data());
 #endif
 		Op op = ods::op::From(captured_op_str);
-		CHECK_TRUE((op != Op::None));
+		MTL_CHECK((op != Op::None));
 		vec.append(FormulaNode::Op(op));
 		resume_at += captured_op_str.size();
 		return true;
@@ -354,7 +354,7 @@ Formula::ProcessFormulaString(QString s, QVector<FormulaNode*> &nodes)
 	if (s.startsWith(prefix))
 		s = s.mid(prefix.size());
 	
-	CHECK_TRUE((!s.isEmpty()));
+	MTL_CHECK((!s.isEmpty()));
 	int resume_at = 0;
 	int chunk = 0;
 	u8 settings = 0;

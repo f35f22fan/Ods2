@@ -36,11 +36,10 @@ public:
 	TableNamedExpressions*
 	named_expressions() const { return named_expressions_; }
 	
-	ods::Sheet*
-	NewSheet(const QString &name);
+	ods::Sheet* NewSheet(QString name);
 	
-	int sheet_count() const { return tables_.size(); }
-	QVector<ods::Sheet*>& tables() { return tables_; }
+	i32 sheet_count() const { return tables_.size(); }
+	QVector<ods::Sheet*>& sheets() { return tables_; }
 	
 	void WriteData(QXmlStreamWriter &xml) override;
 	

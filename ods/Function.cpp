@@ -142,22 +142,22 @@ Function::Eval()
 	
 	for (int i = 0; i < args_->size(); i++) {
 		QVector<FormulaNode*> *subvec = (*args_)[i];
-		CHECK_TRUE_NULL(eval::ReplaceNamedRanges(*subvec));
+		MTL_CHECK_NULL(eval::ReplaceNamedRanges(*subvec));
 		while (subvec->size() > 1) {
-			CHECK_TRUE_NULL(eval::EvalDeepestGroup(*subvec));
+			MTL_CHECK_NULL(eval::EvalDeepestGroup(*subvec));
 		}
 		
-		CHECK_TRUE_NULL((subvec->size() == 1));
+		MTL_CHECK_NULL((subvec->size() == 1));
 		FormulaNode *node = (*subvec)[0];
 		fn_args.append(node);
 		subvec->clear();
 	}
 
 	if (meta_->settings & ods::FlattenOutParamsBit) {
-		CHECK_TRUE_NULL(eval::FlattenOutArgs(fn_args));
+		MTL_CHECK_NULL(eval::FlattenOutArgs(fn_args));
 	}
 	
-	CHECK_PTR_NULL(meta_);
+	MTL_CHECK_NULL(meta_);
 	
 #ifdef DEBUG_FORMULA_EVAL
 	mtl_info("%sSending %s() to execution%s", MTL_COLOR_YELLOW, meta_->name, MTL_COLOR_DEFAULT);
@@ -214,7 +214,7 @@ Function*
 Function::New(const FunctionId id)
 {
 	const FunctionMeta *func_meta = eval::FindFunctionMeta(id);
-	CHECK_PTR_NULL(func_meta);
+	MTL_CHECK_NULL(func_meta);
 	Function *f = new Function();
 	f->meta_ = func_meta;
 	return f;
@@ -229,7 +229,7 @@ Function::PrintArgs(const QString &msg) const
 	} else {
 		mtl_info("%s() Args:", meta_->name);
 	}
-	CHECK_PTR_VOID(args_);
+	MTL_CHECK_VOID(args_);
 	QString separator = QString(MTL_COLOR_GREEN) + "|" + MTL_COLOR_DEFAULT;
 	
 	for (int i = 0; i < args_->size(); i++) {

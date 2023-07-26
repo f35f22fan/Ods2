@@ -237,7 +237,7 @@ void OfficeDocumentContent::WriteData(QXmlStreamWriter &xml)
 
 void OfficeDocumentContent::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->office(), ns::kVersion, office_version_);
 	CloseBasedOnChildren(h, kw, file, ba);

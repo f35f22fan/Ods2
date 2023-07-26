@@ -203,13 +203,13 @@ void PrintWidth(ods::inst::TableTableColumn *col)
 	mtl_info("Column width: %s", ba.data());
 }
 
-void Save(ods::Book *book, const char *file_name)
+void Save(ods::Book *book)//, const char *file_name)
 {
 	if (!book)
 		return;
 	
-	const char *fn = (file_name == nullptr) ? "out.ods" : file_name;
-	QFile file(QDir::home().filePath(fn));
+	//QString path = file_name ? file_name : "out.ods";
+	QFile file(QDir::home().filePath("out.ods"));
 	QString err;
 	if (book->Save(file, &err))
 	{

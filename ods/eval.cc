@@ -36,27 +36,27 @@ CommonForSumIfLikeFunctions_BuildUp(const QVector<ods::FormulaNode*> &values,
 	QVector<FormulaNode*> &cond_nodes,
 	QVector<FormulaNode*> *sum_range_vec)
 {
-	CHECK_TRUE(values.size() == 3);
+	MTL_CHECK(values.size() == 3);
 	
 	if (sum_range_vec != nullptr)
 	{
 		FormulaNode *sum_range = values[2];
 		sum_range_vec->append(sum_range->Clone());
-		CHECK_TRUE(FlattenOutArgs(*sum_range_vec));
+		MTL_CHECK(FlattenOutArgs(*sum_range_vec));
 	}
 	
 	{
 		FormulaNode *test_range = values[0];
 		test_range_vec.append(test_range->Clone());
 		// Now convert reference ranges to arrays of values
-		CHECK_TRUE(FlattenOutArgs(test_range_vec));
+		MTL_CHECK(FlattenOutArgs(test_range_vec));
 	}
 	
 	{
 		FormulaNode *condition = values[1];
 		if (condition->is_string()) {
 			QString cond_str = *condition->as_string();
-			CHECK_TRUE(Formula::ParseString(cond_str, cond_nodes,
+			MTL_CHECK(Formula::ParseString(cond_str, cond_nodes,
 				default_sheet, ods::TreatRemainderAsString));
 #ifdef DEBUG_SUMIF_LIKE_FUNCTIONS
 			PrintNodes(cond_nodes, "Before adding anything:");
@@ -303,7 +303,7 @@ bool
 EvalDeepestGroup(QVector<FormulaNode*> &input)
 {
 	// first replace named ranges (if any) with regular nodes
-	CHECK_TRUE(ReplaceNamedRanges(input));
+	MTL_CHECK(ReplaceNamedRanges(input));
 	
 	int start = -1, count = -1;
 	bool remove_braces = false;
@@ -341,7 +341,7 @@ EvalDeepestGroup(QVector<FormulaNode*> &input)
 		if (node->is_function()) {
 			Function *f = node->as_function();
 			ods::FormulaNode *value = f->Eval();
-			CHECK_PTR(value);
+			MTL_CHECK(value);
 			ret.append(value);
 			delete node;
 		} else {
@@ -350,8 +350,8 @@ EvalDeepestGroup(QVector<FormulaNode*> &input)
 	}
 	
 	input.erase(input.begin() + start, input.begin() + start + count);
-	CHECK_TRUE(EvalNodesByOpPrecedence(ret));
-	CHECK_TRUE((ret.size() == 1));
+	MTL_CHECK(EvalNodesByOpPrecedence(ret));
+	MTL_CHECK((ret.size() == 1));
 	input.insert(input.begin() + start, ret[0]);
 	return true;
 }
@@ -371,8 +371,8 @@ EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes)
 		PrintNodesInOneLine(nodes, "EvalNodesByOpPrecedence() while() start");
 #endif
 		const int op_index = FindHighestPriorityOp(nodes);
-		RET_IF_EQUAL(op_index, -1);
-		RET_IF_EQUAL(op_index, nodes.size() - 1);
+		MTL_CHECK(op_index != -1);
+		MTL_CHECK(op_index != (nodes.size() - 1));
 #ifdef DEBUG_FORMULA_EVAL
 		mtl_info("op_index: %d", op_index);
 #endif
@@ -383,7 +383,7 @@ EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes)
 		ods::Op op = op_node->as_op();
 		FormulaNode *prev_node = nodes[op_index - 1];
 		FormulaNode *next_node = nodes[op_index + 1];
-		CHECK_TRUE(prev_node->Operation(op, next_node));
+		MTL_CHECK(prev_node->Operation(op, next_node));
 		delete next_node;
 		delete op_node;
 		// + 2 instead of + 1 because the last element is not included
@@ -395,7 +395,7 @@ EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes)
 bool
 ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 {
-	CHECK_PTR(cell);
+	MTL_CHECK(cell);
 	
 	if (cell->has_formula()) {
 		ods::Formula *f = cell->formula();
@@ -404,7 +404,7 @@ ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 			return false;
 		}
 		ods::FormulaNode *value = f->Eval();
-		CHECK_PTR(value);
+		MTL_CHECK(value);
 		result = *value;
 	} else if (cell->is_any_double()) {
 		double d = *cell->as_double();
@@ -438,7 +438,7 @@ ExtractAddressValues(ods::FormulaNode *node, QVector<ods::FormulaNode*> &result)
 		mtl_info("Cell Reference Range: %s", ba.data());
 #endif
 		QVector<ods::Cell*> cells;
-		CHECK_TRUE(reference->GenCells(cells));
+		MTL_CHECK(reference->GenCells(cells));
 		
 		for (auto *cell : cells) {
 			auto *val = new ods::FormulaNode();
@@ -519,17 +519,17 @@ FlattenOutArgs(QVector<ods::FormulaNode*> &vec)
 {
 	for (int i = 0; i < vec.size(); i++) {
 		ods::FormulaNode *node = vec[i];
-		CHECK_PTR(node);
+		MTL_CHECK(node);
 		
 		if (node->is_function()) {
 			Function *f = node->as_function();
 			ods::FormulaNode *value = f->Eval();
-			CHECK_PTR(value);
+			MTL_CHECK(value);
 			delete node;
 			vec[i] = value;
 		} else if (node->is_reference()) {
 			QVector<FormulaNode*> ext;
-			CHECK_TRUE(ExtractAddressValues(node, ext));
+			MTL_CHECK(ExtractAddressValues(node, ext));
 			
 			for (int k = 0; k < ext.size(); k++) {
 				vec.insert(i + k, ext[k]);
@@ -694,13 +694,13 @@ bool ProcessIfInfixPlusOrMinus(QVector<FormulaNode*> &nodes, const int op_index)
 	}
 	
 	const int adj_node_index = op_index + 1;
-	CHECK_TRUE((adj_node_index < nodes.size()));
+	MTL_CHECK((adj_node_index < nodes.size()));
 	FormulaNode *node = nodes[adj_node_index];
 	nodes.erase(nodes.begin() + op_index);
 	delete op_node;
 	
 	if (op == Op::Minus) {
-		CHECK_TRUE(node->ApplyMinus());
+		MTL_CHECK(node->ApplyMinus());
 	} else if (op == Op::Plus) {
 		// just ignore
 	}
@@ -716,8 +716,8 @@ bool ReplaceNamedRanges(QVector<FormulaNode*> &input)
 			inst::TableNamedRange *nr = node->as_named_range();
 			QVector<FormulaNode*> vec;
 			const QString s = QChar('[') + nr->cell_range_address() + QChar(']');
-			CHECK_TRUE(Formula::ParseString(s, vec, nr->GetSheet()));
-			CHECK_TRUE((!vec.isEmpty()));
+			MTL_CHECK(Formula::ParseString(s, vec, nr->GetSheet()));
+			MTL_CHECK((!vec.isEmpty()));
 			for (int j = 0; j < vec.size(); j++) {
 				input.insert(i + j, vec[j]);
 			}

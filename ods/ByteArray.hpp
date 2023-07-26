@@ -18,9 +18,11 @@ class ODS_API ByteArray {
 public:
 	ByteArray();
 	ByteArray(const ByteArray &rhs);
+	ByteArray(QStringView name);
 	ByteArray& operator = (const ByteArray &rhs);
 	bool operator == (const ByteArray &rhs);
 	ByteArray* CloneFromHere();
+	ByteArray* CloneRegion(ci64 offset, ci64 len);
 	virtual ~ByteArray();
 	
 	void alloc(const isize n);
@@ -28,6 +30,9 @@ public:
 	void add_zeroes(cisize byte_count);
 	void add(const ByteArray *rhs, const From from);
 	void add(const char *p, cisize size, const ExactSize es = ExactSize::No);
+	void add(const QByteArray *rhs) {
+		add(rhs->data(), rhs->size(), ExactSize::Yes);
+	}
 	void add_i8(const i8 n);
 	void add_u8(const u8 n);
 	void add_i16(const i16 n);
@@ -40,7 +45,11 @@ public:
 	void add_f64(const f64 n);
 	void add_string(QStringView s, const Pack p = Pack::Standard);
 	isize at() const { return at_; }
+	bool at_end() const { return at_ >= size_; }
 	void Clear();
+	bool Compress(const Compression);
+	bool Decompress(const Compression);
+	void DumpToTerminal();
 	char *data() const { return data_; }
 	const char *constData() const { return data_; }
 	
@@ -48,12 +57,14 @@ public:
 	bool has_more() const { return at_ < size_; }
 	bool is_empty() const { return size_ == 0; }
 	void next(char *p, const isize sz);
-	
+	bool next_ba(ByteArray &output, ci64 len);
+	QString NextStringUtf8(ci64 len);
 	void join_i(const ndff::Op op, ci64 n);
 	void join_u(const ndff::Op op, cu64 n);
 	void add_str_size(cu64 n);
 	void add_unum(cu64 n);
 	void add_inum(ci64 n);
+	
 	ndff::Op next_op() { 
 		return (ndff::Op) (next_u8() & 0xFu);
 	}
@@ -70,7 +81,6 @@ public:
 	f64 next_f64();
 	
 	QString next_string(const Pack p = Pack::Standard);
-	QByteArray next_string_utf8(ci64 len);
 	u64 next_str_size();
 	i64 next_inum();
 	u64 next_unum();
@@ -95,12 +105,15 @@ public:
 	void size(cisize n) { size_ = n; }
 	void skip_read(cisize n) { at_ += n; }
 	isize heap_size() const { return heap_size_; }
-	void MakeSure(isize more_bytes, const ExactSize es = ExactSize::No);
-	inline void to(isize n) { at_ = n; }
+	void MakeSure(cisize more_bytes, const ExactSize es = ExactSize::No);
+	inline void to(cisize n) { at_ = n; }
 	QString toString() const { return QString::fromLocal8Bit(data_, size_); }
+	QString toUtf8String() const { return QString::fromUtf8(data_, size_); }
+	void SetUtf8(QStringView s, const ods::Clear c = ods::Clear::Yes);
 
 private:
 ///	NO_ASSIGN_COPY_MOVE(ByteArray);
+	void TakeOver(char *buf, ci64 heap_size, ci64 size);
 	
 	isize size_ = 0;
 	isize heap_size_ = 0;

@@ -223,7 +223,7 @@ void CreateFormula()
 		auto *cell_range = sheet->NewReference(start_cell, end_cell);
 		function->AddArg(cell_range);
 		auto *node = formula->Eval();
-		CHECK_PTR_VOID(node);
+		MTL_CHECK_VOID(node);
 		auto ba = node->toString().toLocal8Bit();
 		mtl_info("PRODUCT() formula value: %s", ba.data());
 	}
@@ -243,7 +243,7 @@ void CreateFormula()
 		formula->Add(new QString("!!"));
 		
 		auto *result = formula->Eval();
-		CHECK_PTR_VOID(result);
+		MTL_CHECK_VOID(result);
 		
 		auto ba = result->toString().toLocal8Bit();
 		mtl_info("Formula with strings: \"%s\"", ba.data());
@@ -319,7 +319,7 @@ void ReadFormula()
 	{
 		auto *row = sheet->GetRow(++row_index);
 		auto *cell = row->GetCell(0);
-		CHECK_TRUE_VOID((cell->has_formula()));
+		MTL_CHECK_VOID((cell->has_formula()));
 		ods::Formula *f = cell->formula();
 		auto *node = f->Eval();
 		auto ba = node->toString().toLocal8Bit();
@@ -358,7 +358,7 @@ void CreateFormulaFunctions()
 		concatenate->AddArg(new QString("!"));
 		
 		ods::FormulaNode *result = formula->Eval();
-		CHECK_PTR_VOID(result);
+		MTL_CHECK_VOID(result);
 		auto ba = result->toString().toLocal8Bit();
 		mtl_info("CONCATENATE(): \"%s\"", ba.data());
 	}
@@ -406,7 +406,7 @@ void CreateFormulaFunctions()
 			fn->AddArg(double(5));
 			fn->AddArg(double(30));
 			auto *node = formula->Eval();
-			CHECK_PTR_VOID(node);
+			MTL_CHECK_VOID(node);
 			
 			if (node->is_date()) {
 				QDate *date = node->as_date();
@@ -555,11 +555,11 @@ void CreateFormulaFunctions()
 	
 	if (false) { // IF()
 		auto *row = sheet->NewRowAt(last_row++);
-		CHECK_PTR_VOID(row);
+		MTL_CHECK_VOID(row);
 		
 		{ // use IF() with numbers:
 			auto *f_cell = row->NewCellAt(3);
-			CHECK_PTR_VOID(f_cell);
+			MTL_CHECK_VOID(f_cell);
 			auto *f = f_cell->NewFormula();
 			auto *fn_if = f->Add(ods::FunctionId::If);
 			
@@ -597,7 +597,7 @@ void CreateFormulaFunctions()
 			cell2->SetDate(new QDate(1980, 1, 2));
 			
 			auto *f_cell = row->NewCellAt(next_cell++);
-			CHECK_PTR_VOID(f_cell);
+			MTL_CHECK_VOID(f_cell);
 			auto *f = f_cell->NewFormula();
 			auto *fn_if = f->Add(ods::FunctionId::If);
 			
@@ -627,7 +627,7 @@ void CreateFormulaFunctions()
 	
 	if (false) { // COUNT(), COUNTA()
 		auto *row = sheet->NewRowAt(last_row++);
-		CHECK_PTR_VOID(row);
+		MTL_CHECK_VOID(row);
 		int next_col = 0;
 		auto *num_cell = row->NewCellAt(next_col++);
 		num_cell->SetDouble(14);
@@ -1023,9 +1023,9 @@ void CreateFormulaFunctions()
 				ods::Reference *r = node->as_reference();
 				mtl_printq2("OFFSET(): ", r->toString());
 				auto *refcell = r->cell();
-				CHECK_PTR_VOID(refcell);
+				MTL_CHECK_VOID(refcell);
 				auto *cell = refcell->GetCell();
-				CHECK_PTR_VOID(cell);
+				MTL_CHECK_VOID(cell);
 				auto ba = cell->ValueToString().toLocal8Bit();
 				mtl_info("cell value: %s", ba.data());
 			}
@@ -1166,11 +1166,11 @@ void ReadCellRange()
 	auto *sheet = spreadsheet->GetSheet(1);
 	
 	auto *row = sheet->GetRow(3);
-	CHECK_PTR_VOID(row);
+	MTL_CHECK_VOID(row);
 	auto *fcell = row->GetCell(0);
-	CHECK_PTR_VOID(fcell);
+	MTL_CHECK_VOID(fcell);
 	auto *f = fcell->formula();
-	CHECK_PTR_VOID(f);
+	MTL_CHECK_VOID(f);
 	auto *node = f->Eval();
 	
 	if (node == nullptr) {
@@ -1202,7 +1202,7 @@ void GenerateFunctionsListForGitHub()
 {
 	QFile file("/media/data/Documents/ListOfAllFormulaFunctions.txt");
 	
-	CHECK_TRUE_VOID(file.open(QIODevice::ReadOnly | QIODevice::Text));
+	MTL_CHECK_VOID(file.open(QIODevice::ReadOnly | QIODevice::Text));
 	QTextStream in(&file);
 	QString all = in.readAll();
 	auto list1 = QStringView(all).split(',');

@@ -200,7 +200,7 @@ NumberPercentageStyle*
 StyleStyle::GetPercentageStyle() const
 {
 	auto *ds = GetDataStyle();
-	CHECK_PTR_NULL(ds);
+	MTL_CHECK_NULL(ds);
 
 	if (ds->Is(Id::NumberPercentageStyle))
 		return (inst::NumberPercentageStyle*) ds;
@@ -580,7 +580,7 @@ void StyleStyle::WriteData(QXmlStreamWriter &xml)
 
 void StyleStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kDataStyleName, style_data_style_name_);

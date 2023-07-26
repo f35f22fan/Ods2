@@ -149,13 +149,13 @@ FormulaNode::ConvertFunctionOrAddressToValue()
 		}
 		
 		ods::Cell *cell = reference->cell()->GetCell();
-		CHECK_PTR(cell);
-		CHECK_TRUE(eval::ExtractCellValue(cell, *this));
+		MTL_CHECK(cell);
+		MTL_CHECK(eval::ExtractCellValue(cell, *this));
 	} else if (is_function()) {
 		auto *f = as_function();
 		const ods::FormulaNode *val = f->Eval();
 		ods::AutoDelete ad(val);
-		CHECK_TRUE((val != nullptr));
+		MTL_CHECK((val != nullptr));
 		DeepCopy(*this, *val);
 	}
 	
@@ -377,8 +377,8 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 		}
 	
 		ods::Cell *cell = reference->cell()->GetCell();
-		CHECK_PTR(cell);
-		CHECK_TRUE(eval::ExtractCellValue(cell, *this));
+		MTL_CHECK(cell);
+		MTL_CHECK(eval::ExtractCellValue(cell, *this));
 		return OperationEquality(op, rhs_node);
 	}
 	
@@ -390,14 +390,14 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 		}
 	
 		ods::Cell *cell = reference->cell()->GetCell();
-		CHECK_PTR(cell);
-		CHECK_TRUE(eval::ExtractCellValue(cell, *rhs_node));
+		MTL_CHECK(cell);
+		MTL_CHECK(eval::ExtractCellValue(cell, *rhs_node));
 		return OperationEquality(op, rhs_node);
 	}
 	
 	if (is_function()) {
 		auto *node = as_function()->Eval();
-		CHECK_PTR(node);
+		MTL_CHECK(node);
 		bool flag = node->OperationEquality(op, rhs_node);
 		delete node;
 		return flag;
@@ -405,7 +405,7 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 	
 	if (rhs_node->is_function()) {
 		auto *node = rhs_node->as_function()->Eval();
-		CHECK_PTR(node);
+		MTL_CHECK(node);
 		bool flag = OperationEquality(op, node);
 		delete node;
 		return flag;
@@ -500,11 +500,12 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 		}
 	}
 	
-	if (is_string()) {
-		if (rhs_node->is_string()) {
+	if (is_string())
+	{
+		if (rhs_node->is_string())
+		{
 			QString lhs = *as_string();
 			QString rhs = rhs_node->toString();
-			
 			bool flag;
 			
 			if (op == Op::Equals)
@@ -589,8 +590,8 @@ FormulaNode::OperationEquality(const ods::Op op, FormulaNode *rhs_node)
 bool
 FormulaNode::OperationMultDivide(const ods::Op op, FormulaNode *rhs)
 {
-	CHECK_TRUE(ConvertFunctionOrAddressToValue());
-	CHECK_TRUE(rhs->ConvertFunctionOrAddressToValue());
+	MTL_CHECK(ConvertFunctionOrAddressToValue());
+	MTL_CHECK(rhs->ConvertFunctionOrAddressToValue());
 	
 	const bool is_rhs_any_double = rhs->is_any_double();
 	double rhs_double = is_rhs_any_double ? rhs->as_any_double() : 0;
@@ -637,8 +638,8 @@ FormulaNode::OperationMultDivide(const ods::Op op, FormulaNode *rhs)
 bool
 FormulaNode::OperationPlusMinus(const ods::Op op, FormulaNode *rhs)
 {
-	CHECK_TRUE(ConvertFunctionOrAddressToValue());
-	CHECK_TRUE(rhs->ConvertFunctionOrAddressToValue());
+	MTL_CHECK(ConvertFunctionOrAddressToValue());
+	MTL_CHECK(rhs->ConvertFunctionOrAddressToValue());
 	const bool plus = (op == ods::Op::Plus);
 	
 	if (is_double()) {

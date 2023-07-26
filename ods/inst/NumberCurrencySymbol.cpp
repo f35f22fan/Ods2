@@ -116,7 +116,7 @@ void NumberCurrencySymbol::WriteData(QXmlStreamWriter &xml)
 
 void NumberCurrencySymbol::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->number(), ns::kLanguage, number_language_);
 	WriteNdffProp(kw, *ba, ns_->number(), ns::kCountry, number_country_);

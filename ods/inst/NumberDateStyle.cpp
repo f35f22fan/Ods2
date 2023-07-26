@@ -224,7 +224,7 @@ void NumberDateStyle::WriteData(QXmlStreamWriter &xml)
 
 void NumberDateStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->number(), ns::kAutomaticOrder, number_automatic_order_);
 	WriteNdffProp(kw, *ba, ns_->number(), ns::kCountry, number_country_);

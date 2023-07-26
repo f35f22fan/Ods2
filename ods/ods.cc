@@ -104,7 +104,7 @@ CreateCellRef(ods::Sheet *default_sheet, QStringView address, ods::CellRef *firs
 {
 	QStringView sheet_name;
 	int dot = -1;
-	CHECK_TRUE_NULL(ParseTableName(address, sheet_name, &dot));
+	MTL_CHECK_NULL(ParseTableName(address, sheet_name, &dot));
 	auto *book = default_sheet->book();
 	auto *sp = book->spreadsheet();
 	auto *sheet = sp->GetSheet(sheet_name);
@@ -136,7 +136,7 @@ CreateCellRef(ods::Sheet *default_sheet, QStringView address, ods::CellRef *firs
 		}
 	}
 
-	RET_IF_EQUAL_NULL(digit_index, -1);
+	MTL_CHECK_NULL(digit_index != -1);
 
 	QStringView letters = cell_name.left(digit_index);
 	if (letters.startsWith('$'))
@@ -250,7 +250,7 @@ bool IsAnyCell(QStringView s)
 
 bool ParseTableName(QStringView address, QStringView &name, int *ret_dot)
 {
-	CHECK_TRUE((!address.isEmpty()));
+	MTL_CHECK(!address.isEmpty());
 	int dot = address.lastIndexOf('.');
 	
 	if (dot == -1) {

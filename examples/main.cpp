@@ -13,7 +13,9 @@ main(int argc, char *argv[])
 {
 	QGuiApplication qapp(argc, argv);
 	
-	CopyAnOdsFile();
+	TestBugJuly2023();
+	
+//	CopyAnOdsFile();
 //	TestBug();
 	
 //	SetColumnWidths();
@@ -59,15 +61,16 @@ main(int argc, char *argv[])
 //	ReadFormula();
 	
  //CreateFormulaFunctions();
-// new sample::Invoice();
-
+	
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
 	
+//	auto *p = new sample::Invoice();
+//	ods::AutoDelete ad_p(p);
+	
 	if (false)
 	{ // Nevermind this block, it's purely for development purposes
-		auto path = QDir::home().filePath("out.ndff");
-		ReadWriteNDFF(path);
+		//ReadWriteNDFF(p->book()->ndff_path());
 	}
 	
 	return 0;

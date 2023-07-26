@@ -1,5 +1,6 @@
 #pragma once
 
+#include "decl.hxx"
 #include "../global.hxx"
 #include "../types.hxx"
 
@@ -32,7 +33,7 @@ enum Op: u8 { // Only up to 4 bits can be used!
 	FS8 = 12, // FreeSpace
 	FS64 = 13,
 	JB64 = 14, // JumpBy8 is unsigned
-    None = 15,
+	None = 15,
 };
 
 inline bool is_text(const Op op) { return op >= Op::S8 && op <= Op::S64; }

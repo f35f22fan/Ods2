@@ -177,7 +177,7 @@ void OfficeSpreadsheet::ListUsedNamespaces(NsHash &list)
 }
 
 ods::Sheet*
-OfficeSpreadsheet::NewSheet(const QString &name)
+OfficeSpreadsheet::NewSheet(QString name)
 {
 	if (name.contains('\'')) {
 		mtl_warn("Sheet names can't contain \'");

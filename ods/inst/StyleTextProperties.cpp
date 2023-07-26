@@ -440,7 +440,7 @@ void StyleTextProperties::WriteData(QXmlStreamWriter &xml)
 
 void StyleTextProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba);
 	WriteTag(kw, *ba);
 	if (fo_color_ != nullptr)
 		WriteNdffProp(kw, *ba, ns_->fo(), ns::kColor, fo_color_->name());

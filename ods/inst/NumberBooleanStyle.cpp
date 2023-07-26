@@ -214,7 +214,7 @@ void NumberBooleanStyle::WriteData(QXmlStreamWriter &xml)
 
 void NumberBooleanStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->style(), ods::ns::kName, style_name_);
 	WriteNdffProp(kw, *ba, ns_->style(), ods::ns::kVolatile, style_volatile_);

@@ -24,7 +24,7 @@ Time::Time(const i32 h, const i32 m, const i32 s, const int msec)
 	hours(h);
 	minutes(m);
 	seconds(s);
-    ms(msec);
+	ms(msec);
 }
 
 Time::~Time()
@@ -78,8 +78,7 @@ Time::operator-=(const ods::Time &rhs)
 	ms_ -= rhs.ms_;
 }
 
-bool
-Time::Parse(const QString &orig_str)
+bool Time::Parse(const QString &orig_str)
 {
 	i32 hrs = 0;
 	i32 min = 0;
@@ -101,41 +100,41 @@ Time::Parse(const QString &orig_str)
 	bool ok;
 	
 	int h_index = str_ref.indexOf('H');
-	RET_IF_EQUAL(h_index, -1);
+	MTL_CHECK(h_index != -1);
 	QStringView hours = str_ref.mid(0, h_index);
 	i32 n = hours.toInt(&ok);
-	CHECK_TRUE(ok);
+	MTL_CHECK(ok);
 	hrs = n;
 	
 	str_ref = str_ref.mid(h_index + 1);
 	int m_index = str_ref.indexOf('M');
-	RET_IF_EQUAL(m_index, -1);
+	MTL_CHECK(m_index != -1);
 	auto min_ref = str_ref.mid(0, m_index);
 	QStringView minutes = min_ref.mid(0, 2);
 	n = minutes.toInt(&ok);
-	CHECK_TRUE(ok);
+	MTL_CHECK(ok);
 	min = n;
 	
 	
 	str_ref = str_ref.mid(m_index + 1);
-	CHECK_TRUE((str_ref.endsWith('S')));
+	MTL_CHECK(str_ref.endsWith('S'));
 	str_ref = str_ref.left(str_ref.size() - 1);
 	
 	int index = str_ref.indexOf('.');
 	
 	if (index == -1) {
 		n = str_ref.toInt(&ok);
-		CHECK_TRUE(ok);
+		MTL_CHECK(ok);
 		sec = n;
 	} else {
 		QStringView seconds = str_ref.mid(0, index);
 		n = seconds.toInt(&ok);
-		CHECK_TRUE(ok);
+		MTL_CHECK(ok);
 		sec = n;
 		
 		str_ref = str_ref.mid(index + 1);
 		n = str_ref.toInt(&ok);
-		CHECK_TRUE(ok);
+		MTL_CHECK(ok);
 		ms = n;
 	}
 	

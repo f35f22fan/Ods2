@@ -2,6 +2,7 @@
 
 #include <QString>
 
+void TestBugJuly2023();
 void CopyAnOdsFile();
 
 //==> Please ignore this

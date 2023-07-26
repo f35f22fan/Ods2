@@ -5,7 +5,7 @@
 body {
     font-size: 15px;
     font-family: "Fira Code", Hack, "Liberation Mono", Monospace;
-    background-color: rgb(130, 130, 130);
+    background-color: rgb(120, 120, 120);
 }
 
 hr {
@@ -66,8 +66,7 @@ The bits within each byte are always BE.<br/>
 The first bits of a byte are the ones at the lowest memory address.
 All the multi-byte numbers of the document can be either LE or BE as specified in the "info" field of the main header.
 
-<li/><b>NDFF container</b> and <b>NDFF file</b> might be used interchangeably, <b>item</b> and <b>element</b>, <b>pointer></b>
-and <b>location</b> might mean the same thing.
+<li/> The whole structure is inside a (NDFF) container, which on disk is a file and in memory is a memory area.
 </ul>
 
 <hr/>
@@ -77,61 +76,66 @@ and <b>location</b> might mean the same thing.
 It's always at the start of the file, cannot be relocated elsewhere inside the .ndff file.
 <p/><ol>
 <li/> <span class=field>magic_num (u8[4])</span> (offset=0) -> the magic number as an array of unsigned bytes {0xEC, 0x30, 0xA4, 0x34} to mark that it's an NDFF document.
-<li/> <span class=field>info (u8)</span> (offset=4) -> Encodes document info in the first 4 bits:
-<ol>
-    <li/> This bit specifies the endianness of the whole document. If the bit is set then LE is used, otherwise BE.
-    <li/> The next 3 bits are reserved.
-    <li/>
-    <li/>
-</ol>
-<p/> The last 4 bits along with the 8 bits of the next field (maj_version) form an unsigned 12 bit number where these 4 bits are the most significant ones and the maj_version bits follow next as the least significant ones.
+<li/> <span class=field>info (u8)</span> (offset=4) ->
+	The first and last bit specify the endianness of the whole document. Both bits must have the same value.
+	If the bits are set then LE is used, otherwise BE. <br/>
+	The meaning of the 6 bits in between is unspecified.<br/>
+	From here onwards the document uses this endianness, including for the 6 bits mentioned here.
 <li/> <span class=field>maj_version (u8)</span> (offset=5) -> Smallest major NDFF version needed to properly parse this document after properly merging with the 4 bits of the "info" field, must be >= 0.
 <li/> <span class=field>min_version (i16)</span> (offset=6) ->
-From here onwards one uses the endianness specified in the "info" field above.
-"min_version" represents the smallest minor NDFF version needed to properly parse this document, or -1 if it doesn't matter.
-<li/> <span class=field>namespaces_loc (i64)</span> (offset=8) -> location of a memory/file region of all XML namespaces used in the document.<br/>
-This region starts with an i32 for the total region length (in bytes, including this i32) followed by a list of items each of which has 3 fields:
-<ul>
+Smallest minor NDFF version needed to properly parse this document, or -1 if it doesn't matter.
+<li/> <span class=field>namespaces_loc (i64)</span> (offset=8) -> location of the document region with all XML namespaces used in the document.<br/>
+This region starts with an i32 for the total region length (in bytes, excluding this i32)
+followed by a list of items (no free space between them) each of which has these fields:
+<ol>
 <li/>A u16 ID (0 = reserved to mean "no namespace", valid range 1 - 4095)
-<li/>An I1-4 for the URI length
-<li/>The URI (string) itself
-</ul>
-As one can see namespaces are stored in a single memory block so to add/remove a new entry one creates a new
-namespaces block with proper contents, updates the "namespaces_loc" correspondingly and marks the old block as free space, or, if the new block is smaller or equal to the old one the old block gets rewritten and that's it. This is because namespaces are very few even per very large documents and new items are seldom added or removed.
-Any item inside this block can be preceded or followed by free space to allow implementations to avoid
-fragmentation.
+<li/>A <a href="#ndff_string">NDFF String</a> representing the URI
+</ol>
+As one can see namespaces are stored in a single file region, so to update it one
+creates a new namespaces region with proper contents, updates
+the "namespaces_loc" correspondingly and marks the old region
+as free space, or, if the new region is smaller or equal to the old one the old
+region can get rewritten and that's it.<br/>
+The "batch update" is used because namespaces are very few even per very large
+documents and new items are seldom added or removed.
 
 <li/> <span class=field>dictionary_loc (i64)</span> (offset=16) -> a value of -1 means no dictionary (for now I don't know if no dictionary can make any sense in any context, but it's an option), otherwise it's the location of the dictionary within the NDFF container.<p/>
 
-The dictionary is partitioned into <u>blocks</u> (containing the actual data) to achieve the best trade-off between read performance and flexibility (the ability to add/remove new entries to the dictionary).
+The dictionary is partitioned into <u>blocks</u> (containing the actual data)
+to achieve the best trade-off between read performance and flexibility (the ability
+to add/remove new entries to the dictionary).
 <p/>
-Each dictionary block starts with an u32 for metadata, called "info".
-<br/>
-The first 3 bits of "info" (in BE - the most significant ones, in LE - least significant ones) tell which if any compression algorithm was used:
-see the <a href="#compression">compression section</a>.
-<p/>
-Then follows an i64 as the location of the next
-block or -1 if the end of the dictionary was reached.<p/>
+Each dictionary block starts with an i64 as the location of the next
+block or -1 if the end of the dictionary was reached.
 
 <p/>
+Then follows an u32 for the block metadata, called "info".
+<br/>
+The 3 least significant bits of "info" tell which if any compression
+algorithm was used: see the <a href="#compression">compression section</a>.
+<br/>
 The remaining 29 bits represent the size (in bytes) of the block, thus
 each block can be up to <nobr>[u32_max >> 3]</nobr> bytes in size.<p/>
 
-
-Each element in the block is comprised of 3 pieces:
+<p/>
+Each element in the block is comprised of:
 <ol>
-<li/>An U1-4 number for the ID of the string that is unique to the whole dictionary.
-<li/>An U1-4 number for the length of the string.
-<li/>The string itself.
+<li/>An ID (inum) of the string that is unique to the whole dictionary.
+<li/>The string itself which is a <a href="#ndff_string">NDFF String</a>.
 </ol>
-Any element inside this block can be preceded or followed by free space to allow implementations to avoid
-fragmentation, but free space can't appear inside an element's internal nodes, e.g. free space can't be assigned to a place between the length of the string of an element of a block and the string itself.
+<p/>
+Any element inside this block can be preceded or followed by free space to
+allow implementations to avoid
+fragmentation, but free space can't appear inside an element's internal nodes.
 <li/> <span class=field>top_files_loc (i64)</span> (offset=24) ->
 The list of the top files of this NDFF container. Each folder FEI has a separate table (list) of its own FEI entries. See <a href="#fei_table">FEI table</a>.
-<li/> <span class=field>doc_type_len (u8)</span> (offset=32) -> string length of doc_type.
-<li/> <span class=field>free_space_trailing (u8, default=0)</span> (offset=33) -> Free space at the end of the document to allow the growing of the @doc_type without having to recreate the document. For example if free_space_trailing=64 this allows changing @doc_type from say "ods" to "ODS_Version3" or "application/zip" instantly without recreating the document.
-<li/> <span class=field>doc_type (string)</span> (offset=34) -> document type, e.g. "ods", "odt", "xlsx", etc.
-<li/> <span class=field>free_space (void*) {Absent when free_space_trailing=0}</span> (offset=34 + doc_type_len)
+<li/> <span class=field>doc_type_len (u8)</span> (offset=32) -> string length of the @doc_type string.
+<li/> <span class=field>doc_type (string)</span> (offset=33) -> document type, e.g. "ods", "odt", "xlsx", etc.
+<li/> <span class=field>free_space (u8, default=0)</span> (offset=?) -&gt;
+Free space at the end of the document to allow the growing of the @doc_type
+without having to recreate the document. For example if
+@free_space=32 this allows changing @doc_type from say "ods" to say
+"application/zip" instantly without recreating the document.
 </ol>
 
 
@@ -142,19 +146,22 @@ The list of the top files of this NDFF container. Each folder FEI has a separate
 <span class="new_section">FEI:</span>
 <p/>
 <ol>
-<li/> <span class=field>info (u16)</span> ->
+<li/> <span class=field>info (u32)</span> ->
 <ul>
-    <li/>Bits 0-2: A 3-bit unsigned number: 0 = regular file, 1 = folder, 2 = symbolic link, the remaining 4 values are reserved to possibly support more file types in the future.
-    <li/>Bit 3: <span class=field>Timestamp last_accessed</span> if set then last access time available in UTC
-    <li/>Bit 4: <span class=field>Timestamp last_modified</span> if set then last modified time available in UTC
-    <li/>Bit 5: <span class=field>Timestamp time_created</span> if set then creation time available in UTC
-    <li/>Bit 6: If set has exec bit set (as in POSIX), ignore-but-preserve policy.
-    <li/>Bit 7: If set has EFA (see <span class=field>efa_data_loc</span>), ignore-but-preserve policy.
-    <li/>Bits 8-10: see the <a href="#compression">compression section</a>.
-    <li/>Bit 11: File is encrypted with AES. If so, a compression bit <b>must</b> also be set, it is first compressed and then encrypted.
-    <li/>Bits 12-13: Some other encryption method is used - to be defined in a new version.
-    <li/>Bit 14: Set if CRC-32b is available
-    <li/> Bit 15 reserved.
+    <li/>Bits 1-4: An unsigned 4-bit number: 0 = regular file, 1 = folder, 2 = symbolic link, the remaining values are reserved to possibly support more file types in the future.
+    <li/>Bit 5: <span class=field>Timestamp last_accessed</span> (like POSIX struct statx->stx_atime) if set then last file access is available. All file timestamps are in UTC.
+    <li/>Bit 6: <span class=field>Timestamp time_created</span> (statx->stx_btime) file creation time.
+    <li/>Bit 7: <span class=field>Timestamp last_status_change </span> (statx->stx_ctime) file metadata modification time.
+    <li/>Bit 8: <span class=field>Timestamp last_modified</span> (statx->stx_mtime) last file modification.
+    <li/>Bit 9: If set has file's exec bit set (as in POSIX), ignore-but-preserve policy.
+    <li/>Bit 10: File's hidden bit (a.k.a. Win32 hidden files), ignore-but-preserve policy.
+    <li/>Bit 11: The file must be made hidden after extraction from this container in a OS-specific way. On a Windows OS this would mean setting the file's hidden property, on Unix systems - prepending its name with a dot (which means its name will differ from the file name inside the container). Not sure if this functionality will ever be needed.
+    <li/>Bit 12: If set the file has EFA (see <span class=field>efa_data_loc</span>), ignore-but-preserve policy.
+    <li/>Bits 13-15: see the <a href="#compression">compression section</a>.
+    <li/>Bits 16-19: Encryption method. 0=No encryption, 1=AES, 2...15 = some other encryption. If any encryption is used then a compression method must also be specified (data is first compressed, then encrypted).
+
+    <li/>Bit 20: Set if CRC-32b is available
+    <li/>Remaining 11 bits reserved, to be defined when needed, not set by default.
 </ul>
 <li/> <span class=field>path_len (u16)</span> -> next string's size
 <li/> <span class=field>path (String)</span> -> file's relative path
@@ -193,7 +200,7 @@ struct <span class=field>Timestamp</span> {
     <li/> No compression was used.
     <li/> ZSTD was used.
     <li/> Other compression algorithms, to be defined in a later version as needed.
-    <li/><li/><li/><li/>
+    <li/><li/><li/><li/><li/>
     </ol>
 </div>
 <hr/>

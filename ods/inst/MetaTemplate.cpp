@@ -89,7 +89,7 @@ void MetaTemplate::WriteData(QXmlStreamWriter &xml)
 
 void MetaTemplate::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kType, xlink_type_);
 	WriteNdffProp(kw, *ba, ns_->xlink(), ns::kActuate, xlink_actuate_);

@@ -72,7 +72,7 @@ void StylePageLayoutProperties::WriteData(QXmlStreamWriter &xml)
 
 void StylePageLayoutProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kWritingMode, style_writing_mode_);
 	CloseBasedOnChildren(h, kw, file, ba);

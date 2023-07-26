@@ -7,9 +7,38 @@
 
 namespace ods {
 
+
+enum class Compression: u8 {
+	None = 0,
+	ZSTD = 1,
+};
+
+//using CCompression = const Compression;
+
+inline u64 operator | (cu64 n, const Compression c) {
+	return u64(c) | n;
+}
+
+inline i64 operator | (ci64 n, const Compression c) {
+	return i64(c) | n;
+}
+
+inline u32 operator | (cu32 n, const Compression c) {
+	return u32(c) | n;
+}
+
+inline i32 operator | (ci32 n, const Compression c) {
+	return i32(c) | n;
+}
+
 enum class ODS_API DocumentFormat: i8 {
 	Text,
 	Binary
+};
+
+enum class ODS_API Clear: i8 {
+	Yes,
+	No
 };
 
 enum class ODS_API ClearTheRest: i8 {

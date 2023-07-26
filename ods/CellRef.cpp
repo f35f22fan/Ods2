@@ -24,9 +24,9 @@ CellRef::Clone() const
 ods::Cell*
 CellRef::FetchCell(ods::Sheet *sheet, const int row_index, const int col)
 {
-	CHECK_PTR_NULL(sheet);
+	MTL_CHECK_ARG(sheet, nullptr);
 	ods::Row *row = sheet->GetRow(row_index);
-	CHECK_PTR_NULL(row);
+	MTL_CHECK_ARG(row, nullptr);
 	auto *c = row->GetCell(col);
 	return c;
 }

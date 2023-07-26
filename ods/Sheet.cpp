@@ -113,7 +113,7 @@ Sheet::ColumnAt(cint place, int &vec_index)
 	return nullptr;
 }
 
-int Sheet::CountColumns()
+i32 Sheet::CountColumns()
 {
 	num_cols_ = 0;
 	
@@ -123,7 +123,7 @@ int Sheet::CountColumns()
 	return num_cols_;
 }
 
-int Sheet::CountRows() const
+i32 Sheet::CountRows() const
 {
 	int n = 0;
 	
@@ -216,7 +216,7 @@ Sheet::GetDefaultCellStyle(const ods::Cell *cell) const
 ods::Row*
 Sheet::GetRow(cint place)
 {
-	CHECK_TRUE_NULL((place >= 0));
+	MTL_CHECK_NULL((place >= 0));
 	int at = -1;
 	
 	for (ods::Row *r: rows_)
@@ -530,7 +530,7 @@ void Sheet::WriteData(QXmlStreamWriter &xml)
 
 void Sheet::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->table(), ns::kName, table_name_);
 	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);

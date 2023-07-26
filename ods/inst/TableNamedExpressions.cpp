@@ -41,7 +41,7 @@ TableNamedExpressions::Clone(Abstract *parent) const
 
 void TableNamedExpressions::CopyNamedRangesTo(QVector<TableNamedRange*> *v)
 {
-	CHECK_PTR_VOID(v);
+	MTL_CHECK_VOID(v);
 	for (auto *item : named_ranges_)
 		v->append(item);
 }

@@ -112,7 +112,7 @@ void StyleParagraphProperties::WriteData(QXmlStreamWriter &xml)
 
 void StyleParagraphProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kTabStopDistance, style_tab_stop_distance_);
 	if (fo_margin_left_ != nullptr)

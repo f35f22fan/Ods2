@@ -111,7 +111,7 @@ void StyleFontFace::WriteData(QXmlStreamWriter &xml)
 
 void StyleFontFace::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
 	WriteNdffProp(kw, *ba, ns_->svg(), ns::kFontFamily, svg_font_family_);

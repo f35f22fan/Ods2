@@ -79,7 +79,7 @@ void TextTime::WriteData(QXmlStreamWriter &xml)
 
 void TextTime::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
+	MTL_CHECK_VOID(ba);
 	WriteTag(kw, *ba);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kDataStyleName, style_data_style_name_);
 	WriteNdffProp(kw, *ba, ns_->text(), ns::kTimeValue, text_time_value_);

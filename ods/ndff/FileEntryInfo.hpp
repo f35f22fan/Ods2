@@ -11,29 +11,34 @@
 
 namespace ods::ndff {
 
-// Note: using 3 bits, not 2 in case in the future
-// might need to store other file types:
-cu16 FileTypeSymlink = 1;
-cu16 FileTypeFolder = 2;
-cu16 FileTypeRegular = 3;
-cu16 AllFileTypes = 7;
+using InfoType = u32;
 
-using InfoType = u16;
 enum class ODS_API FeiBit: InfoType {
-	LastAccessed      = 1 << 3,
-	LastModified      = 1 << 4,
-	TimeCreated       = 1 << 5,
-	ExecBit           = 1 << 6,
-	EFA               = 1 << 7,
-	ZSTD              = 1 << 8,
-	Compression2      = 1 << 9,
-	Compression3      = 1 << 10,
-	Encryption_AES    = 1 << 11,
-	Encryption_2      = 1 << 12,
-	Encryption_3      = 1 << 13,
-	CRC_32b           = 1 << 14,
-	Reserved_1        = 1 << 15
+	FileTypes         = 0xFu << 0, // 4 bits
+	
+	LastAccessed      = 1u << 4,
+	TimeCreated       = 1u << 5,
+	LastStatusChange  = 1u << 6,
+	LastModified      = 1u << 7,
+	
+	Exec              = 1u << 8,
+	Hidden            = 1u << 9,
+	HiddenCrossPlatform= 1u << 10, // questionable feature
+	EFA               = 1u << 11,
+	
+	Compressions      = 7u << 12,
+	Encryptions       = 0xFu << 13, // 0=None, 1=AES, 2-15.. to be defined
+	
+	CRC_32b           = 1u << 19,
+	
+	Reserved          = 0xFFFu << 20 // the remaining 11 bits
 };
+
+const InfoType FileTypeRegular = 0;
+const InfoType FileTypeFolder = 1;
+const InfoType FileTypeSymlink = 2;
+
+const InfoType AllFileTypes = static_cast<InfoType>(FeiBit::FileTypes); // all 4 bits
 
 struct ODS_API Timestamp {
 	i64 seconds = -1; // Seconds since the Epoch (UNIX time)
@@ -52,10 +57,19 @@ struct ODS_API Timestamp {
 
 class ODS_API FileEntryInfo {
 public:
-	FileEntryInfo();
+	FileEntryInfo(ods::Book *p);
 	virtual ~FileEntryInfo();
 	
-	static FileEntryInfo* From(ByteArray &ba, ci64 loc);
+	static FileEntryInfo* From(ByteArray &ba, ci64 loc, Book *b);
+	
+	Compression compression() const {
+		return Compression((info_ >> 12) & 7);
+	}
+	
+	void compression(const Compression c) {
+		info_ &= ~0x7000; // clears bits 12, 13, 14
+		info_ |= InfoType(c) << 12;;
+	}
 	
 	bool has(const FeiBit bit) const { return info_ & (InfoType)bit; }
 	void has(const FeiBit bit, cbool flag, const ClearTheRest clear =
@@ -84,8 +98,9 @@ public:
 	
 	i64 content_start() const { return content_start_; }
 	void content_start(ci64 n) { content_start_ = n; }
-	i64 content_start_offset() const {
-		i64 n = 4 + path_.size();
+	i64 content_start_offset() const
+	{
+		i64 n = ((sizeof info_) + 2) + path_.size();
 		if (has(FeiBit::CRC_32b))
 			n += 4;
 		
@@ -108,8 +123,8 @@ public:
 	QVector<FileEntryInfo*>& subfiles() { return subfiles_; }
 	i64 subfiles_loc() const { return subfiles_loc_; }
 	void subfiles_loc(ci64 n) { subfiles_loc_= n; }
-	u16 info() const { return info_; }
-	
+	InfoType info() const { return info_; }
+	void PrintFileName(ByteArray &source);
 	i64 self_loc() const { return self_loc_; }
 	void self_loc(ci64 n) { self_loc_ = n; }
 	
@@ -139,20 +154,20 @@ public:
 	}
 	
 	void SetRegularFile(QStringView path) {
-		path_ = path.toUtf8();
+		path_.SetUtf8(path);
 		clear_file_type();
 		info_ |= FileTypeRegular;
 	}
 	
 	void SetFolder(QStringView path) {
-		path_ = path.toUtf8();
+		path_.SetUtf8(path);
 		clear_file_type();
 		info_ |= FileTypeFolder;
 	}
 	
 	void SetSymlink(QStringView path, QStringView target) {
-		path_ = path.toUtf8();
-		link_target_ = target.toUtf8();
+		path_.SetUtf8(path);
+		link_target_.SetUtf8(target);
 		clear_file_type();
 		info_ |= FileTypeSymlink;
 	}
@@ -161,10 +176,10 @@ public:
 		return content_start_offset() + 8;
 	}
 	
-	void AddFileData(ByteArray &main_buffer, const ByteArray &file_data, QStringView filename);
+	void AddFileData(ByteArray &output, QStringView file_path);
 	
-	const QByteArray& path() const { return path_; }
-	
+	const ByteArray& path() const { return path_; }
+	void UpdateCompressionTo(ByteArray &parent, const Compression c);
 	/* @size() Computes how much memory to allocate for this FEI inside
 	the container */
 	i64 size() const;
@@ -179,7 +194,8 @@ private:
 	
 	void Read(ods::ByteArray &buf);
 	
-	QByteArray path_; // string in UTF-8
+	ods::Book *book_ = 0;
+	ByteArray path_; // string in UTF-8
 	i64 self_loc_ = -1;
 	
 	// for regular files:
@@ -187,7 +203,7 @@ private:
 	i64 extra_region_ = -1;
 	
 //==> for symlinks
-	QByteArray link_target_; // string in UTF-8
+	ByteArray link_target_; // string in UTF-8
 //<== for symlinks
 	
 //==> for folders

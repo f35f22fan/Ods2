@@ -271,7 +271,7 @@ Abstract::GetStyleRecursive(const QString &name)
 	{
 		auto *sn = style_name();
 		
-		if ((sn != nullptr) && (*sn == name))
+		if (sn && (*sn == name))
 			return this;
 	}
 	
@@ -445,11 +445,11 @@ void Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix,
 		xml.writeAttribute(prefix->With(name), QString::number(num));
 }
 
-void Abstract::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
+void Abstract::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *output)
 {
-	CHECK_TRUE_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	CloseBasedOnChildren(h, kw, file, ba);
+	MTL_CHECK_VOID(output != nullptr);
+	WriteTag(kw, *output);
+	CloseBasedOnChildren(h, kw, file, output);
 }
 
 void Abstract::WriteNdffProp(inst::Keywords &kw,
