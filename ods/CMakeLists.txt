@@ -177,4 +177,4 @@ else (DEFINED ODS_STATIC)
 endif (DEFINED ODS_STATIC)
 
 add_library(ods ${lib_type} ${lib_files})
-target_link_libraries(ods quazip Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui)
+target_link_libraries(ods quazip Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui zstd)
