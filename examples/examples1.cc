@@ -19,7 +19,7 @@
 
 void TestBugJuly2023()
 {
-	QString read_from_path = QDir::home().filePath("Downloads/slaves.ods");
+	QString read_from_path = QDir::home().filePath("Downloads/slaves-original.ods");
 	QString save_to_path = QDir::home().filePath("SavedTo.ods");
 	QString err;
 	ods::Book *src_book = ods::Book::FromFile(read_from_path, &err);
@@ -354,11 +354,11 @@ void CreateColorsAndUnderline()
 	
 	// set text color:
 	auto *tp = style->FetchStyleTextProperties();
-	tp->SetColor(new QColor(0, 0, 255));
+	tp->SetColor(ods::Color(QColor(0, 0, 255)));
 	
 	// set text underline color:
 	auto *tuc = new ods::attr::StyleTextUnderlineColor();
-	tuc->SetColor(new QColor(0, 255, 0));
+	tuc->SetColor(ods::Color(QColor(0, 255, 0)));
 	tp->SetTextUnderlineColor(tuc);
 	
 	// set text underline style:
@@ -418,13 +418,12 @@ void ReadColorsAndUnderline()
 		return;
 	}
 	
-	auto *color = tp->color();
-	if (color == nullptr)
+	const ods::Color& color = tp->color();
+	if (color.any())
 	{
-		mtl_info("No text color");
+		mtl_info("Text color: %s", qPrintable(color.toString()));
 	} else {
-		auto ba = color->name().toLocal8Bit();
-		mtl_info("Text color: %s", ba.data());
+		mtl_info("No text color");
 	}
 	
 	ods::attr::StyleTextUnderlineColor *tuc = tp->text_underline_color();
@@ -432,14 +431,12 @@ void ReadColorsAndUnderline()
 	{
 		mtl_info("No text underline color attribute");
 	} else {
-		QColor *c = tuc->color();
-		
-		if (c == nullptr)
+		const ods::Color &color = tuc->color();
+		if (color.any())
 		{
-			mtl_info("No text underline color attribute");
+			mtl_info("Text underline color: %s", qPrintable(color.toString()));
 		} else {
-			auto ba = c->name().toLocal8Bit();
-			mtl_info("Text underline color: %s", ba.data());
+			mtl_info("No text underline color attribute");
 		}
 	}
 	
@@ -478,14 +475,13 @@ void ReadColorsAndUnderline()
 	{
 		mtl_info("No table cell properties");
 	} else {
-		QColor *bg = tcp->background_color();
+		ods::Color bg = tcp->background_color();
 		
-		if (bg == nullptr)
+		if (bg.any())
 		{
-			mtl_info("No background color");
+			mtl_info("Background color: %s", qPrintable(bg.toString()));
 		} else {
-			auto ba = bg->name().toLocal8Bit();
-			mtl_info("Background color: %s", ba.data());
+			mtl_info("No background color");
 		}
 	}
 }

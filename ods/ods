@@ -7,6 +7,7 @@
 #include <ods/Book.hpp>
 #include <ods/Cell.hpp>
 #include <ods/CellRef.hpp>
+#include <ods/Color.hpp>
 #include <ods/country.hxx>
 #include <ods/currency.hh>
 #include <ods/err.hpp>

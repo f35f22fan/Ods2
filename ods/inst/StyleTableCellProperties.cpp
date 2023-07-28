@@ -32,7 +32,6 @@ StyleTableCellProperties::~StyleTableCellProperties()
 	delete fo_border_top_;
 	delete fo_border_right_;
 	delete fo_border_bottom_;
-	delete fo_background_color_;
 	delete style_vertical_align_;
 	delete style_border_line_width_;
 }
@@ -94,8 +93,7 @@ Abstract* StyleTableCellProperties::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
-	if (fo_background_color_ != nullptr)
-		p->fo_background_color_ = new QColor(*fo_background_color_);
+	p->fo_background_color_ = fo_background_color_;
 	
 	if (fo_border_ != nullptr)
 		p->fo_border_ = fo_border_->Clone();
@@ -133,12 +131,7 @@ void StyleTableCellProperties::Init(ndff::Container *cntr)
 	Op op = cntr->Next(prop, Op::TS, &attrs);
 	QString str;
 	CopyAttr(attrs, ns_->fo(), ns::kBackgroundColor, str);
-	
-	if (QColor::isValidColor(str))
-	{
-		delete fo_background_color_;
-		fo_background_color_ = new QColor(str);
-	}
+	fo_background_color_ = Color::FromString(str);
 	
 	CopyAttr(attrs, ns_->style(), ns::kDiagonalBlTr, style_diagonal_bl_tr_);
 	CopyAttr(attrs, ns_->style(), ns::kDiagonalTlBr, style_diagonal_tl_br_);
@@ -172,12 +165,7 @@ void StyleTableCellProperties::Init(ods::Tag *tag)
 {
 	QString str;
 	tag->Copy(ns_->fo(), ns::kBackgroundColor, str);
-	
-	if (QColor::isValidColor(str))
-	{
-		delete fo_background_color_;
-		fo_background_color_ = new QColor(str);
-	}
+	fo_background_color_ = Color::FromString(str);
 	
 	tag->Copy(ns_->style(), ns::kDiagonalBlTr, style_diagonal_bl_tr_);
 	tag->Copy(ns_->style(), ns::kDiagonalTlBr, style_diagonal_tl_br_);
@@ -221,7 +209,7 @@ void StyleTableCellProperties::ListUsedNamespaces(NsHash &list)
 {
 	Add(ns_->style(), list);
 	
-	if (fo_background_color_ || fo_border_ || fo_border_left_ ||
+	if (fo_background_color_.any() || fo_border_ || fo_border_left_ ||
 		fo_border_right_ || fo_border_bottom_ || fo_border_top_ ||
 		!fo_wrap_option_.isEmpty())
 	{
@@ -231,8 +219,7 @@ void StyleTableCellProperties::ListUsedNamespaces(NsHash &list)
 
 void StyleTableCellProperties::SetBackgroundColor(const QColor &c)
 {
-	delete fo_background_color_;
-	fo_background_color_ = new QColor(c);
+	fo_background_color_ = ods::Color(c);
 }
 
 void StyleTableCellProperties::SetWrapOption(const bool flag)
@@ -268,10 +255,9 @@ void StyleTableCellProperties::vertical_align(VAlign *p)
 
 void StyleTableCellProperties::WriteData(QXmlStreamWriter &xml)
 {
-	if (fo_background_color_ != nullptr)
+	if (fo_background_color_.any())
 	{
-		Write(xml, ns_->fo(), ns::kBackgroundColor,
-			fo_background_color_->name());
+		Write(xml, ns_->fo(), ns::kBackgroundColor, fo_background_color_.toString());
 	}
 	
 	if (style_vertical_align_ != nullptr)
@@ -313,10 +299,10 @@ void StyleTableCellProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QF
 {
 	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
-	if (fo_background_color_ != nullptr)
+	if (fo_background_color_.any())
 	{
 		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBackgroundColor,
-			fo_background_color_->name());
+			fo_background_color_.toString());
 	}
 	
 	if (style_vertical_align_ != nullptr)

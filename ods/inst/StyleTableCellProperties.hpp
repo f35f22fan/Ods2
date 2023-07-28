@@ -2,11 +2,10 @@
 
 #include "Abstract.hpp"
 #include "../attr/decl.hxx"
+#include "../Color.hpp"
 #include "decl.hxx"
 #include "../decl.hxx"
 #include "../err.hpp"
-
-#include <QColor>
 
 namespace ods::inst {
 
@@ -21,7 +20,7 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	QColor*
+	const Color&
 	background_color() const { return fo_background_color_; }
 	
 	ods::attr::Border*
@@ -65,7 +64,7 @@ private:
 	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
-	QColor *fo_background_color_ = nullptr;
+	ods::Color fo_background_color_ = {};
 	ods::attr::Border *fo_border_ = nullptr;
 	ods::attr::Border *fo_border_left_ = nullptr;
 	ods::attr::Border *fo_border_top_ = nullptr;

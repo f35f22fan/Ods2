@@ -2,8 +2,7 @@
 
 #include "../err.hpp"
 #include "../global.hxx"
-
-#include <QColor>
+#include "../Color.hpp"
 
 namespace ods::attr {
 
@@ -19,39 +18,24 @@ class ODS_API StyleTextUnderlineColor
 public:
 	StyleTextUnderlineColor();
 	virtual ~StyleTextUnderlineColor();
+	StyleTextUnderlineColor* Clone() const;
 	
-	StyleTextUnderlineColor*
-	Clone() const;
+	static StyleTextUnderlineColor* FromString(const QString &s);
 	
-	static StyleTextUnderlineColor*
-	FromString(const QString &s);
+	const ods::Color& color() const { return color_; }
+	bool is_color() const { return tuc_ == TextUnderlineColor::Color; }
+	bool is_font_color() const { return tuc_ == TextUnderlineColor::FontColor; }
+	bool is_valid() const { return tuc_ != TextUnderlineColor::Invalid; }
+	void SetColor(const ods::Color &c) { tuc_ = TextUnderlineColor::Color; color_ = c; }
+	void SetFontColor() { tuc_ = TextUnderlineColor::FontColor; }
 	
-	QColor*
-	color() const { return color_; }
-	
-	bool
-	is_color() const { return tuc_ == TextUnderlineColor::Color; }
-	
-	bool
-	is_font_color() const { return tuc_ == TextUnderlineColor::FontColor; }
-	
-	bool
-	is_valid() const { return tuc_ != TextUnderlineColor::Invalid; }
-	
-	void
-	SetColor(QColor *c) { tuc_ = TextUnderlineColor::Color; color_ = c; }
-	
-	void
-	SetFontColor() { tuc_ = TextUnderlineColor::FontColor; }
-	
-	QString
-	toString();
+	QString toString();
 
 private:
 	NO_ASSIGN_COPY_MOVE(StyleTextUnderlineColor);
 	
 	TextUnderlineColor tuc_ = TextUnderlineColor::Invalid;
-	QColor *color_ = nullptr;
+	ods::Color color_ = {};
 };
 
 } // ods::attr::

@@ -5,8 +5,7 @@
 #include "../decl.hxx"
 #include "../err.hpp"
 #include "../attr/decl.hxx"
-
-#include <QColor>
+#include "../Color.hpp"
 
 namespace ods::inst {
 
@@ -18,13 +17,13 @@ public:
 	StyleTextProperties(const StyleTextProperties &cloner);
 	virtual ~StyleTextProperties();
 	
-	QColor*
+	const Color&
 	background_color() const { return fo_background_color_; }
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	QColor*
+	const Color&
 	color() const { return fo_color_; }
 	
 	StyleFontFace*
@@ -48,8 +47,8 @@ public:
 	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	void ListUsedNamespaces(NsHash &list) override;
 	
-	void SetBackgroundColor(QColor *c);
-	void SetColor(QColor *c);
+	void SetBackgroundColor(const Color &c);
+	void SetColor(const Color &c);
 	void SetFontFace(StyleFontFace *sff);
 	void SetFontSize(Length *fs);
 	void SetFontSizeAsian(Length *fs);
@@ -76,8 +75,8 @@ private:
 	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
-	QColor *fo_background_color_ = nullptr;
-	QColor *fo_color_ = nullptr;
+	Color fo_background_color_ = {};
+	Color fo_color_ = {};
 	
 	QString fo_country_;
 	

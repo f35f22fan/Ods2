@@ -253,6 +253,7 @@ static const auto kTransliterationCountry = QStringLiteral("transliteration-coun
 static const auto kTransliterationFormat = QStringLiteral("transliteration-format");
 static const auto kTransliterationLanguage = QStringLiteral("transliteration-language");
 static const auto kTransliterationStyle = QStringLiteral("transliteration-style");
+static const auto kTransparent		 = QStringLiteral("transparent");
 static const auto kTrue			 = QStringLiteral("true");
 static const auto kTruncateOnOverflow = QStringLiteral("truncate-on-overflow");
 static const auto kType			 = QStringLiteral("type");

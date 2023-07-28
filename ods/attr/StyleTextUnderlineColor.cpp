@@ -6,40 +6,35 @@ static const auto FontColorStr = QStringLiteral("font-color");
 
 StyleTextUnderlineColor::StyleTextUnderlineColor() {}
 
-StyleTextUnderlineColor::~StyleTextUnderlineColor()
-{
-	delete color_;
-}
+StyleTextUnderlineColor::~StyleTextUnderlineColor() {}
 
 StyleTextUnderlineColor*
 StyleTextUnderlineColor::Clone() const
 {
 	auto *p = new StyleTextUnderlineColor();
 	p->tuc_ = tuc_;
-	
-	if (color_ != nullptr)
-		p->color_ = new QColor(*color_);
+	p->color_ = color_;
 	
 	return p;
 }
 
 StyleTextUnderlineColor*
-StyleTextUnderlineColor::FromString(const QString &s)
+StyleTextUnderlineColor::FromString(const QString &str)
 {
-	if (s.isEmpty())
+	if (str.isEmpty())
 		return nullptr;
 	
-	if (s == FontColorStr)
+	if (str == FontColorStr)
 	{
 		auto *p = new StyleTextUnderlineColor();
 		p->SetFontColor();
 		return p;
 	} else {
-		if (QColor::isValidColor(s))
+		ods::Color c = ods::Color::FromString(str);
+		if (c.any())
 		{
-			auto *color = new QColor(s);
 			auto *p = new StyleTextUnderlineColor();
-			p->SetColor(color);
+			p->SetColor(c);
 			return p;
 		}
 	}
@@ -53,8 +48,8 @@ StyleTextUnderlineColor::toString()
 	if (is_font_color())
 		return FontColorStr;
 	
-	if (is_color() && color_ != nullptr)
-		return color_->name();
+	if (is_color() && color_.any())
+		return color_.toString();
 	
 	mtl_it_happened();
 	return QLatin1String();

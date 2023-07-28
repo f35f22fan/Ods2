@@ -35,8 +35,6 @@ StyleTextProperties::StyleTextProperties(const StyleTextProperties &cloner)
 
 StyleTextProperties::~StyleTextProperties()
 {
-	delete fo_background_color_;
-	delete fo_color_;
 	delete fo_font_size_;
 	delete fo_font_style_;
 	delete fo_font_weight_;
@@ -55,12 +53,8 @@ StyleTextProperties::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
-	if (fo_background_color_ != nullptr)
-		p->fo_background_color_ = new QColor(*fo_background_color_);
-	
-	if (fo_color_ != nullptr)
-		p->fo_color_ = new QColor(*fo_color_);
-	
+	p->fo_background_color_ = fo_background_color_;
+	p->fo_color_ = fo_color_;
 	p->fo_country_ = fo_country_;
 	
 	if (fo_font_size_ != nullptr)
@@ -139,14 +133,10 @@ void StyleTextProperties::Init(ndff::Container *cntr)
 	
 	QString str;
 	CopyAttr(attrs, ns_->fo(), ns::kColor, str);
-	
-	if (QColor::isValidColor(str))
-		fo_color_ = new QColor(str);
+	fo_color_ = Color::FromString(str);
 	
 	CopyAttr(attrs, ns_->fo(), ns::kBackgroundColor, str);
-	
-	if (QColor::isValidColor(str))
-		fo_background_color_ = new QColor(str);
+	fo_background_color_ = Color::FromString(str);
 	
 	CopyAttr(attrs, ns_->fo(), ns::kCountry, fo_country_);
 	
@@ -208,14 +198,10 @@ void StyleTextProperties::Init(ods::Tag *tag)
 {
 	QString str;
 	tag->Copy(ns_->fo(), ns::kColor, str);
-	
-	if (QColor::isValidColor(str))
-		fo_color_ = new QColor(str);
+	fo_color_ = Color::FromString(str);
 	
 	tag->Copy(ns_->fo(), ns::kBackgroundColor, str);
-	
-	if (QColor::isValidColor(str))
-		fo_background_color_ = new QColor(str);
+	fo_background_color_ = Color::FromString(str);
 	
 	tag->Copy(ns_->fo(), ns::kCountry, fo_country_);
 	
@@ -310,16 +296,14 @@ void StyleTextProperties::ListUsedNamespaces(NsHash &list)
 	Add(ns_->style(), list);
 }
 
-void StyleTextProperties::SetBackgroundColor(QColor *p)
+void StyleTextProperties::SetBackgroundColor(const Color &c)
 {
-	delete fo_background_color_;
-	fo_background_color_ = p;
+	fo_background_color_ = c;
 }
 
-void StyleTextProperties::SetColor(QColor *p)
+void StyleTextProperties::SetColor(const Color &c)
 {
-	delete fo_color_;
-	fo_color_ = p;
+	fo_color_ = c;
 }
 
 void StyleTextProperties::SetFontFace(StyleFontFace *p)
@@ -378,11 +362,11 @@ void StyleTextProperties::SetTextUnderlineWidth(attr::StyleTextUnderlineWidth *p
 
 void StyleTextProperties::WriteData(QXmlStreamWriter &xml)
 {
-	if (fo_color_ != nullptr)
-		Write(xml, ns_->fo(), ns::kColor, fo_color_->name());
+	if (fo_color_.any())
+		Write(xml, ns_->fo(), ns::kColor, fo_color_.toString());
 	
-	if (fo_background_color_ != nullptr)
-		Write(xml, ns_->fo(), ns::kBackgroundColor, fo_background_color_->name());
+	if (fo_background_color_.any())
+		Write(xml, ns_->fo(), ns::kBackgroundColor, fo_background_color_.toString());
 	
 	Write(xml, ns_->fo(), ns::kCountry, fo_country_);
 	
@@ -442,11 +426,11 @@ void StyleTextProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDe
 {
 	MTL_CHECK_VOID(ba);
 	WriteTag(kw, *ba);
-	if (fo_color_ != nullptr)
-		WriteNdffProp(kw, *ba, ns_->fo(), ns::kColor, fo_color_->name());
+	if (fo_color_.any())
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kColor, fo_color_.toString());
 	
-	if (fo_background_color_ != nullptr)
-		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBackgroundColor, fo_background_color_->name());
+	if (fo_background_color_.any())
+		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBackgroundColor, fo_background_color_.toString());
 	
 	WriteNdffProp(kw, *ba, ns_->fo(), ns::kCountry, fo_country_);
 	

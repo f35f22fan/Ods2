@@ -31,6 +31,7 @@ set(lib_files
 	Cell.cpp Cell.hpp cell.hxx
 	CellRef.cpp CellRef.hpp
 	cmp_num.hh
+	Color.cpp Color.hpp
 	country.hxx
 	currency.cc currency.hh currency.hxx
 	decl.hxx

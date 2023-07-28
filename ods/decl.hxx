@@ -7,6 +7,7 @@ class Book;
 class ByteArray;
 class Cell;
 class CellRef;
+class Color;
 class DurationInfo;
 class Formula;
 class FormulaError;
