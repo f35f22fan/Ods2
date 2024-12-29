@@ -28,7 +28,7 @@
   (zlib format), rfc1951 (deflate format) and rfc1952 (gzip format).
 */
 
-#ifndef ZLIB_H
+#if !defined ZLIB_H && !defined ZLIB_H_
 #define ZLIB_H
 
 #include "zconf.h"
