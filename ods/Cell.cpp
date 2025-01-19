@@ -260,7 +260,7 @@ void Cell::Init(ods::Tag *tag)
 	Scan(tag);
 }
 
-void Cell::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
+void Cell::ListKeywords(inst::Keywords &words_hash, const inst::LimitTo lt)
 {
 	inst::AddKeywords({tag_name(),
 		ns::kNumberColumnsRepeated,
@@ -273,7 +273,7 @@ void Cell::ListKeywords(inst::Keywords &list, const inst::LimitTo lt)
 		ns::kValue,
 		ns::kDateValue,
 		ns::kTimeValue,
-		ns::kBooleanValue}, list);
+		ns::kBooleanValue}, words_hash);
 }
 
 void Cell::ListUsedNamespaces(inst::NsHash &list)

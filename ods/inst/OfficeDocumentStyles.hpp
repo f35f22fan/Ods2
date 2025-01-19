@@ -2,7 +2,6 @@
 
 #include "Abstract.hpp"
 #include "decl.hxx"
-
 #include "../decl.hxx"
 #include "../err.hpp"
 

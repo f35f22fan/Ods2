@@ -1,6 +1,6 @@
 #include "Prefix.hpp"
 
-namespace ods { // ods::
+namespace ods {
 
 Prefix::Prefix(UriId &id, const QString &prefix, const QString &uri) :
 	id_(id),

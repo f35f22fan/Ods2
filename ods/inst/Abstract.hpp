@@ -30,30 +30,6 @@ enum class IncludingText: i8 {
 	No
 };
 
-using NsHash = QHash<UriId, QString>;
-
-class IdAndCount {
-public:
-	i32 count = 0;
-	i32 id = 0;
-	
-	static IdAndCount FromId(ci32 id) {
-		return IdAndCount {.count = 1, .id = id};
-	}
-	
-	inline bool operator < (const IdAndCount &e1) const
-	{
-		return count < e1.count;
-	}
-	
-	bool operator==(const IdAndCount &rhs) const noexcept
-	{
-		return id == rhs.id && count == rhs.count;
-	}
-};
-
-using Keywords = QHash<QString, IdAndCount>;
-
 enum class LimitTo: i8 {
 	Used,
 	All
@@ -79,7 +55,7 @@ inline void Add(const Prefix *prefix, NsHash &list)
 		list.insert(prefix->id(), prefix->uri());
 }
 
-void AddKeywords(const QVector<QString> &words, Keywords &list);
+void AddKeywords(const QVector<QString> &words, Keywords &words_hash);
 
 class ODS_API Abstract {
 public:
@@ -145,7 +121,7 @@ public:
 	bool is_root() const { return parent_ == nullptr; }
 	bool IsTextP() const { return id_ == Id::TextP; }
 	
-	virtual void ListChildren(QVector<StringOrInst*> &vec,
+	virtual void ListChildren(QVector<StringOrInst*> &output,
 		const Recursively r = Recursively::No);
 	
 /** Lists the XML namespaces it currently uses but not
@@ -182,7 +158,7 @@ public:
 	virtual void WriteData(QXmlStreamWriter &xml) = 0;
 	virtual void WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *output);
 	
-	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
+	void WriteNdffProp(inst::Keywords &kw, ByteArray &output,
 		Prefix *prefix, QString key, QStringView value);
 	
 	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,

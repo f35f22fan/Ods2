@@ -461,13 +461,13 @@ void StyleStyle::SetBoldText(const bool bold)
 	tp->SetFontWeight(font_weight);
 }
 
-void StyleStyle::SetBorder(const ods::Length &width, const QColor &color,
+void StyleStyle::SetBorder(const ods::Length &width, const ods::Color &color,
 	const ods::line::Style &line_style, const u8 sides)
 {
 	auto *tcp = FetchTableCellProperties();
 	ods::attr::Border border;
 	border.width(&width);
-	border.color(&color);
+	border.color(color);
 	ods::LineStyle line_style_class;
 	line_style_class.Set(line_style);
 	border.line_style(&line_style_class);

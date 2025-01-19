@@ -8,7 +8,7 @@ class InvoiceItem;
 
 class Invoice {
 public:
-	Invoice();
+	Invoice(const ods::EnableNdff en = ods::EnableNdff::No);
 	virtual ~Invoice();
 	
 	ods::Book* book() const { return book_; }
@@ -21,7 +21,7 @@ private:
 	int CreateTableHeader(const int kLastRow);
 	
 	QVector<InvoiceItem*>* GenItems();
-	void Init();
+	void Init(const ods::EnableNdff en);
 	QString save_path() const { return save_path_; }
 	
 	ods::Book *book_ = nullptr;

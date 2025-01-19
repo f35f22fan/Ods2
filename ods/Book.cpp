@@ -26,7 +26,9 @@
 #include <QSaveFile>
 #include <QScreen>
 #include <QXmlStreamWriter>
-#include <quazip/JlCompress.h>
+//#include <quazip/JlCompress.h>
+#include <QtCore/private/qzipwriter_p.h>
+#include <QtCore/private/qzipreader_p.h>
 
 namespace ods {
 
@@ -44,7 +46,6 @@ bool SortDictionaryEntries(const StringCount &lhs, const StringCount &rhs)
 
 Book::Book(const DevMode dm)
 {
-	ndff_enabled(false);
 	dev_mode(dm == DevMode::Yes);
 	cf64 dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
 	ods::DPI(dpi);
@@ -60,41 +61,6 @@ Book::~Book()
 	
 	delete named_ranges_; // its items don't belong to it.
 	named_ranges_ = nullptr;
-}
-
-void Book::AddFolderFei(ByteArray &buffer, ndff::FileEntryInfo &fei,
-	QString filename, ci64 record_result_loc)
-{
-	fei.self_loc(buffer.at());
-	fei.SetFolder(filename);
-	fei.SetTimesToNow();
-	fei.WriteTo(buffer);
-	if (record_result_loc != -1)
-		buffer.set_i64(record_result_loc, fei.self_loc());
-}
-
-void Book::AddFei(inst::Abstract *top, QStringView fn,
-	inst::NsHash &ns_hash,
-	inst::Keywords &keywords,
-	ndff::FileEntryInfo &fei,
-	ByteArray &output_buffer,
-	ci64 record_result_loc)
-{
-	top->WriteNDFF(ns_hash, keywords, nullptr, &fei.file_data());
-	
-	fei.self_loc(output_buffer.at());
-	fei.SetRegularFile(fn);
-	fei.SetTimesToNow();
-	fei.WriteTo(output_buffer);
-	
-	if (record_result_loc != -1) {
-		output_buffer.set_i64(record_result_loc, fei.self_loc());
-	} else {
-		/* if -1 then this FEI will be an entry in a folder FEI
-		which will be done separately by the method caller. */
-		auto ba = fn.toLocal8Bit();
-		mtl_info("Not automatically recording address of %s", ba.data());
-	}
 }
 
 bool Book::CreateMimetypeFei(ByteArray &buffer, ndff::FileEntryInfo &fei,
@@ -114,19 +80,18 @@ bool Book::CreateMimetypeFei(ByteArray &buffer, ndff::FileEntryInfo &fei,
 	return true;
 }
 
-i64 Book::CreateFeiTable(ByteArray &buffer, cu32 reserved,
-	ci64 record_table_loc)
+i64 Book::CreateFeiTable(ByteArray &output, cu32 how_many,
+	ci64 record_result_loc)
 {
-	ci64 table_addr = buffer.at();
-	for (u32 i = 0; i < reserved; i++)
+	ci64 table_addr = output.at();
+	for (u32 i = 0; i < how_many; i++)
 	{
-		buffer.add_i64(ndff::ReservedFeiTableValue);
+		output.add_i64(ndff::ReservedFeiTableValue);
 	}
 	
-	buffer.add_i64(ndff::EndOfFeiTable);
-	if (record_table_loc != -1) {
-		buffer.set_i64(record_table_loc, table_addr);
-	}
+	output.add_i64(ndff::EndOfFeiTable);
+	if (record_result_loc != -1)
+		output.set_i64(record_result_loc, table_addr);
 	
 	return table_addr;
 }
@@ -135,6 +100,12 @@ i32 Book::sheet_count() const
 {
 	auto *sp = spreadsheet();
 	return sp ? sp->sheet_count() : -1;
+}
+
+QString Book::GetMimeTypeForFile(QString full_path) const
+{
+	QMimeType mime = db_.mimeTypeForFile(full_path);
+	return mime.name();
 }
 
 ods::Sheet* Book::GetSheet(ci32 at)
@@ -184,10 +155,10 @@ void Book::CreateDictionaryRegion(ByteArray &buffer, inst::Keywords &list)
 	};
 	}
 	
-	cu32 block_info = (buf.size() << 3) | compression;
+	cu32 block_info = (u32(buf.size()) << 3) | compression;
 	buffer.add_i64(-1); // next block
 	buffer.add_u32(block_info);
-	buffer.add(&buf, From::Start);
+	buffer.add(buf);
 }
 
 void Book::CreateMainHeader(ByteArray &ba)
@@ -249,9 +220,9 @@ void Book::CreateNamespacesRegion(ByteArray &result, inst::NsHash &h)
 	};
 	}
 	
-	cu32 info = (buf.size() << 3) | compression;
+	cu32 info = (u32(buf.size()) << 3) | compression;
 	result.add_u32(info);
-	result.add(&buf, From::Start);
+	result.add(buf);
 }
 
 Book* Book::FromNDFF(QStringView full_path)
@@ -449,36 +420,32 @@ bool Book::InitNDFF(QStringView full_path)
 	auto &ndff_buf = ndff_.buf();
 	{
 		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::ContentXml);
-		MTL_CHECK(fei);
-		ndff_.PrepareFor(fei);
+		MTL_CHECK(ndff_.PrepareFor(fei));
 		document_content_ = new inst::OfficeDocumentContent(this, ndff_.ns(), 0, &ndff_);
 	}
 	{
 		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::StylesXml);
-		ndff_buf.to(fei->content_start());
+		MTL_CHECK(ndff_.PrepareFor(fei));
 		document_styles_ = new inst::OfficeDocumentStyles(this, ndff_.ns(), 0, &ndff_);
 	}
 	{
 		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::MetaXml);
-		ndff_buf.to(fei->content_start());
+		MTL_CHECK(ndff_.PrepareFor(fei));
 		document_meta_ = new inst::OfficeDocumentMeta(this, ndff_.ns(), 0, &ndff_);
 	}
 	{
 		auto *folder = ndff_.GetTopFile(filename::MetaInf);
-		MTL_CHECK(folder != nullptr);
+		MTL_CHECK(folder);
 		ndff::FileEntryInfo *fei = folder->GetFile(filename::ManifestXml);
-		if (!fei)
-		{
-			mtl_trace("No manifest fei");
-			return false;
-		}
-		ndff_buf.to(fei->content_start());
+		MTL_CHECK(ndff_.PrepareFor(fei));
 		manifest_ = new inst::ManifestManifest(this, ndff_.ns(), 0, &ndff_);
 	}
+	ndff_.SwitchToMainBuf();
+	
 	return true;
 }
 
-void Book::Load(QStringView full_path, QString *err)
+void Book::Load(QString full_path, QString *err)
 {
 	InitTempDir();
 	
@@ -488,8 +455,16 @@ void Book::Load(QStringView full_path, QString *err)
 		return;
 	}
 	
-	extracted_file_paths_ = JlCompress::extractDir(full_path.toString(),
-		temp_dir_path_);
+	QZipReader zr(full_path);
+	auto load_ba = full_path.toLocal8Bit();
+	mtl_info("======================load from %s", load_ba.data());
+	MTL_CHECK_VOID(zr.extractAll(temp_dir_path_));
+	for (auto next: zr.fileInfoList()) {
+		auto ba = next.filePath.toLocal8Bit();
+		mtl_info("===FILE: %s", ba.data());
+		extracted_file_paths_.append(next.filePath);
+	}
+	//extracted_file_paths_ = JlCompress::extractDir(full_path.toString(), temp_dir_path_);
 	
 	if (extracted_file_paths_.isEmpty()) {
 		if (err != nullptr)
@@ -570,7 +545,7 @@ void Book::LoadManifestXml(ci32 file_index, QString *err)
 	
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 	{
-		if (err != nullptr)
+		if (err)
 			*err = file.errorString();
 		return;
 	}
@@ -581,8 +556,6 @@ void Book::LoadManifestXml(ci32 file_index, QString *err)
 	while(!xml.atEnd() && !xml.hasError())
 	{
 		token = xml.readNext();
-		//if (token == QXmlStreamReader::StartDocument)
-		
 		if (token != QXmlStreamReader::StartElement)
 			continue;
 		
@@ -712,13 +685,13 @@ Book::NewRowStyle(const Place place)
 	return NewStyle(place, style::Family::Row);
 }
 
-void Book::QueryKeywords(inst::Keywords &list)
+void Book::QueryKeywords(inst::Keywords &words_hash)
 {
 	QVector<inst::Abstract*> tops = GetNamespaceClasses();
 	
 	for (inst::Abstract *top: tops)
 	{
-		top->ListKeywords(list, inst::LimitTo::All);
+		top->ListKeywords(words_hash, inst::LimitTo::All);
 		
 		QVector<StringOrInst*> children;
 		top->ListChildren(children, Recursively::Yes);
@@ -726,23 +699,33 @@ void Book::QueryKeywords(inst::Keywords &list)
 		for (StringOrInst *next: children)
 		{
 			if (next->is_inst())
-				next->as_inst()->ListKeywords(list, inst::LimitTo::All);
+				next->as_inst()->ListKeywords(words_hash, inst::LimitTo::All);
+		}
+	}
+	
+	if (false)
+	{
+		for (auto it = words_hash.constBegin(); it != words_hash.constEnd(); it++)
+		{
+			const QString &name = it.key();
+			const inst::IdAndCount &ic = it.value();
+			mtl_info("%s: %d", qPrintable(name), ic.count);
 		}
 	}
 }
 
-void Book::QueryUsedNamespaces(inst::NsHash &list, const CreateIfNeeded create_default)
+void Book::QueryUsedNamespaces(inst::NsHash &ns_hash, const CreateIfNeeded cr)
 {
 	QVector<inst::Abstract*> tops = GetNamespaceClasses();
 	
-	if (create_default == CreateIfNeeded::Yes && tops.isEmpty())
+	if (cr == CreateIfNeeded::Yes && tops.isEmpty())
 	{
 		Ns *ns = Ns::Default();
 		auto prefixes = ns->prefixes();
 		
 		for (Prefix *pref: prefixes)
 		{
-			list[pref->id()] = pref->uri();
+			ns_hash[pref->id()] = pref->uri();
 		}
 		
 		return;
@@ -750,7 +733,7 @@ void Book::QueryUsedNamespaces(inst::NsHash &list, const CreateIfNeeded create_d
 	
 	for (inst::Abstract *top: tops)
 	{
-		top->ListUsedNamespaces(list);
+		top->ListUsedNamespaces(ns_hash);
 		
 		QVector<StringOrInst*> children;
 		top->ListChildren(children, Recursively::Yes);
@@ -758,7 +741,35 @@ void Book::QueryUsedNamespaces(inst::NsHash &list, const CreateIfNeeded create_d
 		for (StringOrInst *next: children)
 		{
 			if (next->is_inst())
-				next->as_inst()->ListUsedNamespaces(list);
+				next->as_inst()->ListUsedNamespaces(ns_hash);
+		}
+	}
+}
+
+void AddZipDir(QDir dir, QZipWriter &zw, QString relpath = QString()) {
+	for (const auto info: dir.entryInfoList()) {
+		QString name = info.fileName();
+		if (name == "." || name == "..") {
+			continue;
+		}
+		if (info.isDir()) {
+			QString new_relpath = relpath + "/" + name;
+			//mtl_info("%s, %s", qPrintable(new_relpath), qPrintable(relpath));
+			//zw.setCompressionPolicy(QZipWriter::CompressionPolicy::NeverCompress);
+			zw.addDirectory(new_relpath);
+			//zw.setCompressionPolicy(QZipWriter::CompressionPolicy::AutoCompress);
+			QDir new_dir(info.absoluteFilePath());
+			AddZipDir(new_dir, zw, new_relpath);
+		} else {
+			QFile file(info.absoluteFilePath());
+			if (file.open(QIODevice::ReadOnly)) {
+				QString fn = info.fileName();
+				if (!relpath.isEmpty()) {
+					fn = relpath + "/" + fn;
+				}
+				zw.addFile(fn, file.readAll());
+				file.close();
+			}
 		}
 	}
 }
@@ -810,23 +821,22 @@ bool Book::Save(const QFile &target, QString *err)
 		}
 	}
 	
-	QFileInfo fi(target);
-	QString ods_path = fi.absoluteFilePath();
-	if (!JlCompress::compressDir(ods_path, temp_dir_path_))
-	{
-		if (err != nullptr)
-			*err = QLatin1String("Failed to compress dir");
-		return false;
-	}
+	QString compressed_fp = QFileInfo(target).absoluteFilePath();
+	QZipWriter zw(compressed_fp);
+	AddZipDir(QDir(temp_dir_path_), zw);
+	zw.close();
+
+	// mtl_info("compressed_fp: \"%s\" temp_dir_path_: \"%s\"",
+	// 	qPrintable(compressed_fp), qPrintable(temp_dir_path_));
 	
 	if (ndff_enabled())
 	{
 		auto ms = timer.elapsed();
-		mtl_info("Save() took %lld ms", ms);
+		mtl_info("SaveToODS() took %lld ms", ms);
 		timer.restart();
-		ndff_path_ = ods_path + QLatin1String(".ndff");
+		ndff_path_ = compressed_fp + QLatin1String(".ndff");
 		SaveNDFF(err);
-		mtl_info("SaveNDFF() took %lld ms", timer.elapsed());
+		mtl_info("SaveToNDFF() took %lld ms", timer.elapsed());
 	}
 	
 	return true;
@@ -892,48 +902,41 @@ bool Book::SaveFromScratch(QString *err)
 	ci64 fei_table_loc = CreateFeiTable(main_buffer, 5,
 		ndff::MainHeaderPlaces::top_files_loc);
 	MTL_CHECK(fei_table_loc > 0);
-	i64 next_fei_loc = fei_table_loc;
+	i64 record_result_at = fei_table_loc;
 	
 	ndff::FileEntryInfo contents_fei(this);
-	AddFei(document_content_, filename::ContentXml,
-		ns_hash, keywords,
-		contents_fei,
-		main_buffer, next_fei_loc);
+	contents_fei.SetFei(document_content_, filename::ContentXml,
+		ns_hash, keywords, main_buffer, record_result_at);
 	
 	ndff::FileEntryInfo styles_fei(this);
-	AddFei(document_styles_, filename::StylesXml,
-		ns_hash, keywords, styles_fei,
-		main_buffer, next_fei_loc += 8);
+	styles_fei.SetFei(document_styles_, filename::StylesXml,
+		ns_hash, keywords, main_buffer, record_result_at += 8);
 	
 	ndff::FileEntryInfo meta_fei(this);
-	AddFei(document_meta_, filename::MetaXml,
-		ns_hash, keywords, meta_fei,
-		main_buffer, next_fei_loc += 8);
+	meta_fei.SetFei(document_meta_, filename::MetaXml,
+		ns_hash, keywords, main_buffer, record_result_at += 8);
 	
 	ndff::FileEntryInfo manifest_fei(this);
-	AddFei(manifest_, filename::ManifestXml,
-		ns_hash, keywords, manifest_fei,
-		main_buffer, -1);
+	manifest_fei.SetFei(manifest_, filename::ManifestXml,
+		ns_hash, keywords, main_buffer, -1);
 	
 	/// "META-INF" folder
 	ndff::FileEntryInfo folder_fei(this);
 	{
 		/// Tying "META-INFO/manifest.xml" to its parent folder
 		folder_fei.subfiles_loc(-manifest_fei.self_loc());
-		AddFolderFei(main_buffer, folder_fei, filename::MetaInf,
-			next_fei_loc += 8);
+		folder_fei.SetFolderFei(main_buffer, filename::MetaInf,
+			record_result_at += 8);
 	}
 	
 	ndff::FileEntryInfo mimetype_fei(this);
-	MTL_CHECK(CreateMimetypeFei(main_buffer, mimetype_fei, next_fei_loc += 8));
+	MTL_CHECK(CreateMimetypeFei(main_buffer, mimetype_fei, record_result_at += 8));
 	
-	mimetype_fei.AddFileData(main_buffer, filename::MimeType);
-	meta_fei.AddFileData(main_buffer, filename::MetaXml);
-	styles_fei.AddFileData(main_buffer, filename::StylesXml);
-	
-	contents_fei.AddFileData(main_buffer, filename::ContentXml);
-	
-	manifest_fei.AddFileData(main_buffer, filename::ManifestXml);
+	mimetype_fei.SetFileData(main_buffer, filename::MimeType);
+	meta_fei.SetFileData(main_buffer, filename::MetaXml);
+	styles_fei.SetFileData(main_buffer, filename::StylesXml);
+	contents_fei.SetFileData(main_buffer, filename::ContentXml);
+	manifest_fei.SetFileData(main_buffer, filename::ManifestXml);
 	
 	mimetype_fei.WriteEfa(main_buffer);
 	meta_fei.WriteEfa(main_buffer);
@@ -1010,11 +1013,18 @@ Book::spreadsheet() const
 	return body->spreadsheet();
 }
 
+Compression Book::WhatCompressionShouldBeUsed(QStringView file_path,
+	ci64 uncompressed_size) const
+{
+	return Compression::None;
+	//return ndff_.WhatCompressionShouldBeUsed(file_path, uncompressed_size);
+}
+
 void Book::WriteStartDocument(QXmlStreamWriter &xml)
 {
 	xml.setAutoFormatting(true);
 	xml.setAutoFormattingIndent(-1);
-	xml.writeStartDocument(QLatin1String("1.0"), false);
+	xml.writeStartDocument(QLatin1String("1.0"));
 }
 
 } // ods::

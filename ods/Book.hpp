@@ -26,7 +26,7 @@ class ODS_API Book
 	const Bits LoadingBit = 1u << 0;
 	const Bits DevModeBit = 1u << 1;
 	const Bits CreatedButNotSavedBit = 1u << 2;
-	const Bits NdffBit = 1u << 3;
+	const Bits NdffEnabledBit = 1u << 3;
 	
 private:
 	Book(const DevMode dm);
@@ -36,6 +36,8 @@ public:
 	static Book* FromNDFF(QStringView full_path);
 	static Book* New(const DevMode dm = DevMode::No);
 	virtual ~Book();
+	
+	QString GetMimeTypeForFile(QString full_path) const;
 	
 	bool dev_mode() const { return bits_ & DevModeBit; }
 	void dev_mode(cbool b) {
@@ -94,20 +96,20 @@ public:
 			bits_ &= ~LoadingBit;
 	}
 	
-	bool ndff_enabled() const { return bits_ & NdffBit; }
-	void ndff_enabled(cbool b) {
-		if (b)
-			bits_ |= NdffBit;
-		else
-			bits_ &= ~NdffBit;
-	}
+	bool ndff_enabled() const { return bits_ & NdffEnabledBit; }
+	// void ndff_enabled(cbool b) {
+	// 	if (b)
+	// 		bits_ |= NdffEnabledBit;
+	// 	else
+	// 		bits_ &= ~NdffEnabledBit;
+	// }
 	
 	QString ndff_path() const { return ndff_path_; }
 	
 	ndff::Container& ndff_container() { return ndff_; }
 	
-	void QueryUsedNamespaces(inst::NsHash &list, const CreateIfNeeded create_default);
-	void QueryKeywords(inst::Keywords &list);
+	void QueryUsedNamespaces(inst::NsHash &ns_hash, const CreateIfNeeded cr);
+	void QueryKeywords(inst::Keywords &words_hash);
 	// returns true on success
 	bool Save(const QFile &target, QString *err);
 	bool SaveNDFF(QString *err);
@@ -123,26 +125,16 @@ public:
 	const QString&
 	temp_dir_path() const { return temp_dir_path_; }
 	Compression WhatCompressionShouldBeUsed(QStringView file_path,
-		ci64 uncompressed_size) const
-	{
-		return ndff_.WhatCompressionShouldBeUsed(file_path, uncompressed_size);
-	}
+		ci64 uncompressed_size) const;
 	void WriteStartDocument(QXmlStreamWriter &xml);
 	
 private:
 	NO_ASSIGN_COPY_MOVE(Book);
 	
-	void AddFei(inst::Abstract *top, QStringView fn, inst::NsHash &ns_hash,
-		inst::Keywords &keywords,
-		ndff::FileEntryInfo &fei,
-		ByteArray &output_buffer,
-		ci64 record_result_loc);
-	
-	void AddFolderFei(ByteArray &buffer, ndff::FileEntryInfo &fei,
-		QString filename, ci64 record_result_loc = -1);
 	// success if ret val is positive
-	i64 CreateFeiTable(ByteArray &buffer, cu32 reserved,
-		ci64 record_table_loc = -1);
+	// @record_result_loc = -1 means don't record anything.
+	i64 CreateFeiTable(ByteArray &output, cu32 how_many,
+		ci64 record_result_loc = -1);
 	bool CreateMimetypeFei(ByteArray &buffer, ndff::FileEntryInfo &fei, ci64 record_fei_loc);
 	
 	bool created_but_not_saved() const { return bits_ & CreatedButNotSavedBit; }
@@ -161,7 +153,7 @@ private:
 	void InitDefault();
 	void InitTempDir();
 	bool InitNDFF(QStringView full_path);
-	void Load(QStringView full_path, QString *err);
+	void Load(QString full_path, QString *err);
 	void LoadContentXml(ci32 file_index, QString *err);
 	void LoadManifestXml(ci32 file_index, QString *err);
 	void LoadMetaXml(ci32 file_index, QString *err);

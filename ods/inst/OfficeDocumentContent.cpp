@@ -70,7 +70,7 @@ OfficeDocumentContent::Clone(Abstract *parent) const
 			office_font_face_decls_->Clone();
 	}
 	
-	if (office_scripts_ != nullptr)
+	if (office_scripts_)
 	{
 		p->office_scripts_ = (OfficeScripts*) office_scripts_->Clone();
 	}
@@ -96,22 +96,33 @@ void OfficeDocumentContent::Init(ndff::Container *cntr)
 	using Op = ndff::Op;
 	ndff::Property prop;
 	Op op = cntr->Next(prop, Op::None);
+	mtl_info("First OP: %s", ndff::ops(op));
 	NdffAttrs attrs;
 	op = cntr->Next(prop, op, &attrs);
+	mtl_info("OP after attrs: %s", ndff::ops(op));
 	CopyAttr(attrs, ns_->office(), ns::kVersion, office_version_);
 	mtl_info("office_version_: %s", qPrintable(office_version_));
 	if (op == Op::N32_TE)
+	{
+		mtl_trace("op %s", ndff::ops(op));
 		return;
+	}
 	
 	if (op == Op::TCF_CMS)
+	{
 		op = cntr->Next(prop, op);
+		mtl_trace("op %s (After TCF)", ndff::ops(op));
+	}
 	
 	while (true)
 	{
+		mtl_trace("op %s", ndff::ops(op));
 		if (op == Op::TS)
 		{
+			mtl_trace();
 			if (prop.is(ns_->office()))
 			{
+				//mtl_trace("prop.name: %s", qPrintable(prop.name));
 				if (prop.name == ns::kScripts) {
 					office_scripts_ = new OfficeScripts(this, 0, cntr);
 				} else if (prop.name == ns::kFontFaceDecls) {
@@ -132,7 +143,7 @@ void OfficeDocumentContent::Init(ndff::Container *cntr)
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
+		mtl_trace("Unexpected op: %s", ndff::ops(op));
 }
 
 void OfficeDocumentContent::InitDefault()

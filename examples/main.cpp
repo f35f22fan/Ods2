@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 //	CreateBoolean();
 //	ReadBoolean();
 	
-//	CreateFormula();
+	//CreateFormula();
 //	ReadFormula();
 	
  //CreateFormulaFunctions();
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
 	
-	auto *p = new sample::Invoice();
+	auto *p = new sample::Invoice(ods::EnableNdff::No);
 	ods::AutoDelete ad_p(p);
 	
 	if (false)

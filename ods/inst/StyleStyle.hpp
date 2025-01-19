@@ -112,7 +112,7 @@ public:
 	void SetBoldText(const bool bold);
 	
 	// "u8 sides" defined in attr/Border.hpp
-	void SetBorder(const ods::Length &width, const QColor &color,
+	void SetBorder(const ods::Length &width, const Color &color,
 		const ods::line::Style &line_style, const u8 sides = ods::BorderAll);
 	
 	void SetFamily(const style::Family f);

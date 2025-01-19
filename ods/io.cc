@@ -19,29 +19,30 @@
 
 namespace ods::io {
 
-QStringRef
-GetParentDirPath(const QString &full_path)
+QString
+GetParentDirPath(QStringView full_path)
 {
-	int at = full_path.size() - 1;
+	const auto fp = full_path.toString();
+	int at = fp.size() - 1;
 	
-	while ((at > 0) && (full_path.at(at) == '/')) {
+	while ((at > 0) && (fp.at(at) == '/')) {
 		at--;
 	}
 	
 	at--;
 	
-	while ((at >= 0) && (full_path.at(at) != '/')) {
+	while ((at >= 0) && (fp.at(at) != '/')) {
 		at--;
 	}
 	
 	if (at < 0) {
-		return QStringRef();
+		return QString();
 	}
 	
 	if (at == 0)
 		at = 1;
 	
-	return full_path.midRef(0, at);
+	return fp.mid(0, at);
 }
 
 bool ReadFile(QStringView full_path, ByteArray &buffer,
@@ -232,11 +233,11 @@ bool SetXAttr(const QString &full_path, const QString &xattr_name,
 	return ok;
 }
 
-bool WriteToFile(const QString &full_path, const char *data, ci64 size,
+bool WriteToFile(QStringView full_path, const char *data, ci64 size,
 	const PostWrite post_write, mode_t *custom_mode)
 {
 	auto path = full_path.toLocal8Bit();
-	const int fd = open(path.data(), O_LARGEFILE | O_WRONLY | O_CREAT | O_TRUNC,
+	cint fd = open(path.data(), O_LARGEFILE | O_WRONLY | O_CREAT | O_TRUNC,
 		(custom_mode == nullptr) ? io::FilePermissions : *custom_mode);
 	if (fd == -1)
 	{

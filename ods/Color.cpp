@@ -24,7 +24,7 @@ Color::Color(const ods::Color &rhs)
 
 Color Color::FromString(QStringView s)
 {
-	if (QColor::isValidColor(s)) {
+	if (QColor::isValidColorName(s)) {
 		return Color(QColor(s));
 	} else if (s == ns::kTransparent) {
 		return Color(ColorSet::Transparent);

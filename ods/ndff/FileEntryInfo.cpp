@@ -17,27 +17,49 @@ FileEntryInfo::~FileEntryInfo() {
 	}
 }
 
-FileEntryInfo* FileEntryInfo::From(ByteArray &buf, ci64 loc,
+FileEntryInfo* FileEntryInfo::From(ByteArray &from_buf, ci64 loc,
 	ods::Book *book)
 { // must keep location, Container::ReadFiles() depends on it.
 	FileEntryInfo *fei = new FileEntryInfo(book);
-	cauto saved_loc = buf.at();
-	buf.to(loc);
-	fei->Read(buf);
-	buf.to(saved_loc);
+	cauto saved_loc = from_buf.at();
+	from_buf.to(loc);
+	fei->Read(from_buf);
+	from_buf.to(saved_loc);
 	return fei;
 }
 
-void FileEntryInfo::AddFileData(ByteArray &output, QStringView file_path)
+void FileEntryInfo::SetFei(inst::Abstract *top, QStringView fn,
+	inst::NsHash &ns_hash, inst::Keywords &keywords,
+	ByteArray &output, ci64 record_result_at)
+{
+	file_data_.Clear();
+	top->WriteNDFF(ns_hash, keywords, nullptr, &file_data_);
+	self_loc(output.at());
+	SetRegularFile(fn);
+	SetTimesToNow();
+	WriteTo(output);
+	
+	if (record_result_at != -1) {
+		output.set_i64(record_result_at, self_loc());
+	} else {
+		/* if -1 then this FEI will be an entry in a folder FEI
+		which will be done separately by the method caller. */
+		mtl_info("Not automatically recording address of %s",
+			qPrintable(fn.toString()));
+	}
+}
+
+void FileEntryInfo::SetFileData(ByteArray &output, QStringView file_path)
 {
 	content_start_ = output.at();
 	output.set_i64(self_loc() + content_start_offset(), content_start_);
 	ci64 uncompressed_size = file_data_.size();
-	
-	switch (book_->WhatCompressionShouldBeUsed(file_path, uncompressed_size)) {
+	cauto cmpr = book_->WhatCompressionShouldBeUsed(file_path, uncompressed_size);
+	//cauto cmpr = Compression::None;
+	switch (cmpr) {
 	case Compression::None: {
 		output.add_i64(uncompressed_size);
-		output.add(&file_data_, From::Start);
+		output.add(file_data_);
 		auto str = file_path.toLocal8Bit();
 		mtl_info("%s file_data size: %ld", str.data(), uncompressed_size);
 		break;
@@ -47,7 +69,7 @@ void FileEntryInfo::AddFileData(ByteArray &output, QStringView file_path)
 		compressed_buf.Compress(Compression::ZSTD);
 		cauto compressed_size = compressed_buf.size();
 		output.add_i64(compressed_size);
-		output.add(&compressed_buf, From::Start);
+		output.add(compressed_buf);
 		UpdateCompressionTo(output, Compression::ZSTD);
 		auto str = file_path.toLocal8Bit();
 		mtl_info("%s file_data size: %ld (compressed: %ld)",
@@ -58,6 +80,16 @@ void FileEntryInfo::AddFileData(ByteArray &output, QStringView file_path)
 		mtl_tbd();
 	}
 	}
+}
+
+void FileEntryInfo::SetFolderFei(ByteArray &output, QStringView filename, ci64 record_result_loc)
+{
+	self_loc(output.at());
+	SetFolder(filename);
+	SetTimesToNow();
+	WriteTo(output);
+	if (record_result_loc != -1)
+		output.set_i64(record_result_loc, self_loc());
 }
 
 FileEntryInfo* FileEntryInfo::GetFile(QStringView name) const
@@ -94,37 +126,38 @@ void FileEntryInfo::PrintFileName(ByteArray &source)
 	source.to(saved);
 }
 
-void FileEntryInfo::Read(ods::ByteArray &buf)
+void FileEntryInfo::Read(ods::ByteArray &input)
 {
-	info_ = buf.next_u32();
+	info_ = input.next_u32();
 	//compression_ = ../
-	ci32 str_len = buf.next_u16();
-	buf.next_ba(path_, str_len);
+	ci32 str_len = input.next_u16();
+	input.next_ba(path_, str_len);
 	QString p = path_.toUtf8String();
 	mtl_info("Reading FEI: \"%s\", size: %d", qPrintable(p), str_len);
 	
 	if (has(FeiBit::CRC_32b))
-		crc_32b_ = buf.next_u32();
+		crc_32b_ = input.next_u32();
 	
 	if (is_regular_file())
 	{
-		content_start_ = buf.next_i64();
-		extra_region_ = buf.next_i64();
+		content_start_ = input.next_i64();
+		extra_region_ = input.next_i64();
 	} else if (is_folder()) {
-		subfiles_loc_ = buf.next_i64();
+		subfiles_loc_ = input.next_i64();
 	} else if (is_symlink()) {
-		cu16 len = buf.next_u16();
-		buf.next_ba(link_target_, len);
+		cu16 len = input.next_u16();
+		input.next_ba(link_target_, len);
 	}
 	
 	if (has(FeiBit::EFA))
 	{
-		efa_loc_ = buf.next_i64();
+		//mtl_trace("===============================GOT EFA");
+		efa_loc_ = input.next_i64();
 		if (efa_loc_ != -1)
 		{
-			efa_data_len_ = buf.next_u32();
+			efa_data_len_ = input.next_u32();
 			efa_data_ = new char[efa_data_len_];
-			memcpy(efa_data_, buf.data(), efa_data_len_);
+			memcpy(efa_data_, input.data(), efa_data_len_);
 			owns_efa_ = true;
 		}
 	}
@@ -167,37 +200,37 @@ void FileEntryInfo::UpdateCompressionTo(ByteArray &parent, const Compression c)
 	parent.to(saved_loc);
 }
 
-void FileEntryInfo::WriteEfa(ByteArray &buf)
+void FileEntryInfo::WriteEfa(ByteArray &output)
 {
-	buf.add_i64(efa_loc_);
+	output.add_i64(efa_loc_);
 	if (efa_loc_ != -1)
-		buf.add(efa_data_, efa_data_len_, ExactSize::Yes);
+		output.add(efa_data_, efa_data_len_, ExactSize::Yes);
 }
 
-void FileEntryInfo::WriteTo(ByteArray &buf)
+void FileEntryInfo::WriteTo(ByteArray &output)
 {
-	buf.add_u32(info_);
-	mtl_info("Writing FEI: %s, size: %d", path_.data(), path_.size());
+	output.add_u32(info_);
+	mtl_info("Writing FEI: %s, name_len: %d",
+		qPrintable(path_.toUtf8String()), path_.size());
 	ci32 path_len = path_.size();
-	buf.add_u16(path_len);
-	buf.add(path_.data(), path_.size(), ExactSize::Yes);
-	ci64 off = buf.at() - path_.size();
+	output.add_u16(path_len);
+	output.add(path_);
 	if (has(FeiBit::CRC_32b))
-		buf.add_u32(0); // TBD
+		output.add_u32(0); // TBD
 	
 	if (is_regular_file())
 	{
-		buf.add_i64(content_start_);
-		buf.add_i64(extra_region_);
+		output.add_i64(content_start_);
+		output.add_i64(extra_region_);
 	} else if (is_folder()) {
-		buf.add_i64(subfiles_loc_);
+		output.add_i64(subfiles_loc_);
 	} else if (is_symlink()) {
-		buf.add_u16(link_target_.size());
-		buf.add(link_target_.data(), link_target_.size(), ExactSize::Yes);
+		output.add_u16(link_target_.size());
+		output.add(link_target_);
 	}
 	
 	if (has(FeiBit::EFA))
-		WriteEfa(buf);
+		WriteEfa(output);
 }
 
 }

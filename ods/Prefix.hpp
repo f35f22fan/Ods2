@@ -13,8 +13,7 @@ public:
 	
 	virtual ~Prefix();
 	
-	static Prefix*
-	Create(UriId &id, const QString &name, const QString &uri);
+	static Prefix* Create(UriId &id, const QString &name, const QString &uri);
 	
 	UriId id() const { return id_; }
 	bool Is(QStringView name) const;
@@ -23,11 +22,8 @@ public:
 	void set_name(const QString &str) { name_ = str; }
 	void set_uri(const QString &uri) { uri_ = uri; }
 	
-	const QString&
-	name() const { return name_; }
-	
-	const QString&
-	uri() const { return uri_; }
+	const QString& name() const { return name_; }
+	const QString& uri() const { return uri_; }
 	
 	QString With(QStringView name) const;
 	void Write(QXmlStreamWriter &xml) const;
