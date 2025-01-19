@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0") 
     # Disable automoc for .hh files:
-    cmake_policy(SET CMP0100 OLD)
+    #cmake_policy(SET CMP0100 OLD)
 endif()
 
 include_directories(${Ods2_SOURCE_DIR})
@@ -19,14 +19,26 @@ endif (WIN32)
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 
+set(hh_files
+	examples1.hh
+	examples2.hh
+	util.hh
+)
+
+foreach(f IN LISTS hh_files)
+	set_property(SOURCE ${f} PROPERTY SKIP_AUTOMOC ON)
+endforeach()
+
 set(src_files
-	examples1.cc examples1.hh
-	examples2.cc examples2.hh
+	examples1.cc #examples1.hh
+	examples2.cc #examples2.hh
 	Invoice.cpp Invoice.hpp
 	InvoiceItem.cpp InvoiceItem.hpp
 	main.cpp
-    util.cc util.hh
+	util.cc #util.hh
 )
+
+list(APPEND ${src_files} ${hh_files})
 
 foreach(f IN LISTS src_files)
 	get_filename_component(b ${f} NAME)
@@ -37,8 +49,9 @@ endforeach()
 add_definitions(-DODS2_TEST_DIR="${Ods2_SOURCE_DIR}")
 set (exe_name "app")
 add_executable(${exe_name} ${GUI_TYPE} ${src_files})
-get_property(zlib_libs GLOBAL PROPERTY zlib_libs_property)
-target_link_libraries(${exe_name} ods quazip ${zlib_libs} Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui)
+#get_property(zlib_libs GLOBAL PROPERTY zlib_libs_property)
+target_link_libraries(${exe_name} ods Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui
+) #${zlib_libs}
 
 ## enable_testing() seems to not make a difference
 ## since cmake builds the tests regardless

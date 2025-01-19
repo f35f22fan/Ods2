@@ -3,6 +3,7 @@
 #include "../ByteArray.hpp"
 #include "decl.hxx"
 #include "../decl.hxx"
+#include "../inst/decl.hxx"
 #include "../err.hpp"
 #include "../types.hxx"
 #include "../ods.hxx"
@@ -60,7 +61,7 @@ public:
 	FileEntryInfo(ods::Book *p);
 	virtual ~FileEntryInfo();
 	
-	static FileEntryInfo* From(ByteArray &ba, ci64 loc, Book *b);
+	static FileEntryInfo* From(ByteArray &from_buf, ci64 loc, Book *b);
 	
 	Compression compression() const {
 		return Compression((info_ >> 12) & 7);
@@ -176,15 +177,19 @@ public:
 		return content_start_offset() + 8;
 	}
 	
-	void AddFileData(ByteArray &output, QStringView file_path);
+	void SetFei(inst::Abstract *top, QStringView fn,
+		inst::NsHash &ns_hash, inst::Keywords &keywords,
+		ByteArray &output, ci64 record_result_loc);
+	void SetFileData(ByteArray &output, QStringView file_path);
+	void SetFolderFei(ByteArray &output, QStringView filename, ci64 record_result_loc = -1);
 	
 	const ByteArray& path() const { return path_; }
 	void UpdateCompressionTo(ByteArray &parent, const Compression c);
 	/* @size() Computes how much memory to allocate for this FEI inside
 	the container */
 	i64 size() const;
-	void WriteEfa(ByteArray &buf);
-	void WriteTo(ByteArray &buf);
+	void WriteEfa(ByteArray &output);
+	void WriteTo(ByteArray &output);
 	
 private:
 	
@@ -192,7 +197,7 @@ private:
 		info_ &= ~AllFileTypes;
 	}
 	
-	void Read(ods::ByteArray &buf);
+	void Read(ods::ByteArray &input);
 	
 	ods::Book *book_ = 0;
 	ByteArray path_; // string in UTF-8

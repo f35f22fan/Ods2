@@ -122,7 +122,7 @@ bool DrawImage::LoadImage(const QString &src_img_path, QSize &sz)
 	xlink_href_ = ods::filename::MediaDirName;
 	xlink_href_.append('/');
 	xlink_href_.append(chosen_file_name);
-	manifest->AddEntry(xlink_href_);
+	manifest->AddEntry(xlink_href_, book_->GetMimeTypeForFile(src_img_path));
 	
 	xlink_type_ = QLatin1String("simple");
 	xlink_show_ = QLatin1String("embed");

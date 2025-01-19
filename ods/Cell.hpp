@@ -68,7 +68,7 @@ public:
 	
 	bool has_children(const inst::IncludingText itx) const override
 		{ return nodes_.size() > 0; }
-	void ListKeywords(inst::Keywords &list, const inst::LimitTo lt) override;
+	void ListKeywords(inst::Keywords &words_hash, const inst::LimitTo lt) override;
 	void ListUsedNamespaces(inst::NsHash &list) override;
 	
 	inst::DrawFrame* NewDrawFrame();

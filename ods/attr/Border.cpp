@@ -3,14 +3,12 @@
 #include "../Length.hpp"
 #include "../LineStyle.hpp"
 
-namespace ods { // ods::
-namespace attr { // ods::attr::
+namespace ods::attr {
 
 Border::Border() {}
 
 Border::~Border()
 {
-	delete color_;
 	delete line_style_;
 	delete width_;
 }
@@ -19,9 +17,7 @@ Border*
 Border::Clone() const
 {
 	auto *p = new Border();
-	
-	if (color_ != nullptr)
-		p->color_ = new QColor(*color_);
+	p->color_ = color_;
 	
 	if (line_style_ != nullptr)
 		p->line_style_ = line_style_->Clone();
@@ -32,15 +28,9 @@ Border::Clone() const
 	return p;
 }
 
-void
-Border::color(const QColor *c)
+void Border::color(const ods::Color &c)
 {
-	delete color_;
-	
-	if (c == nullptr)
-		color_ = nullptr;
-	else
-		color_ = new QColor(*c);
+	color_ = c;
 }
 
 Border*
@@ -63,7 +53,7 @@ Border::FromString(const QString &str)
 		
 		if (next.startsWith('#'))
 		{
-			border->color_ = new QColor(next);
+			border->color_ = ods::Color::FromString(next);
 			continue;
 		}
 		
@@ -105,12 +95,12 @@ Border::toString() const
 		str.append(line_style_->toString());
 	}
 	
-	if (color_ != nullptr)
+	if (color_.any())
 	{
 		if (width_ != nullptr || line_style_ != nullptr)
 			str.append(' ');
 		
-		str.append(color_->name());
+		str.append(color_.toString());
 	}
 	
 	return str;
@@ -128,4 +118,3 @@ Border::width(const Length *w)
 }
 
 } // ods::attr::
-} // ods::

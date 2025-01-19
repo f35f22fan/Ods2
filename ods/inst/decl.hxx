@@ -1,10 +1,33 @@
 #pragma once
 
 #include "../types.hxx"
+#include <QHash>
 
 namespace ods { // ods::
 using UriId = u16;
 namespace inst { // ods::inst::
+using NsHash = QHash<UriId, QString>;
+class IdAndCount {
+public:
+	i32 count = 0;
+	i32 id = 0;
+	
+	static IdAndCount FromId(ci32 id) {
+		return IdAndCount {.count = 1, .id = id};
+	}
+	
+	inline bool operator < (const IdAndCount &rhs) const noexcept
+	{
+		return count < rhs.count;
+	}
+	
+	inline bool operator == (const IdAndCount &rhs) const noexcept
+	{
+		return (id == rhs.id) && (count == rhs.count);
+	}
+};
+
+using Keywords = QHash<QString, IdAndCount>;
 
 class Abstract;
 class DcDate;

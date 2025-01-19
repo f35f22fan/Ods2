@@ -19,7 +19,6 @@
 #include <QMetaType> /// Q_DECLARE_METATYPE()
 #include <QMimeData>
 #include <QProcessEnvironment>
-#include <QStringRef>
 #include <QVector>
 #include <QUrl>
 
@@ -80,7 +79,7 @@ const auto ExecBits = S_IXUSR | S_IXGRP | S_IXOTH;
 const mode_t DirPermissions = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
 const mode_t FilePermissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
 
-QStringRef GetParentDirPath(const QString &full_path);
+QString GetParentDirPath(QStringView full_path);
 
 bool ReadFile(QStringView full_path, ByteArray &buffer,
 	const ReadParams &params);
@@ -94,7 +93,7 @@ i64 ReadToBuf(cint fd, char *buf, ci64 buf_size,
 bool RemoveXAttr(QStringView full_path, QStringView xattr_name,
 	const PrintErrors pe);
 
-bool WriteToFile(const QString &full_path, const char *data, ci64 size,
+bool WriteToFile(QStringView full_path, const char *data, ci64 size,
 	const PostWrite post_write = PostWrite::DoNothing,
 	mode_t *custom_mode = nullptr);
 

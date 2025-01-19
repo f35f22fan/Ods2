@@ -33,24 +33,20 @@ ManifestManifest::ManifestManifest(const ManifestManifest &cloner)
 	delete ns_;
 }
 
-ManifestManifest::~ManifestManifest() {}
-
-ManifestFileEntry*
-ManifestManifest::AddEntry(const QString &path)
-{
-	auto *p = new ManifestFileEntry(this);
-	p->full_path(path);
-	Append(p, TakeOwnership::Yes);
-	return p;
+ManifestManifest::~ManifestManifest() {
+	foreach (cauto *fe, file_entries_) {
+		delete fe;
+	}
+	file_entries_.clear();
 }
 
 ManifestFileEntry*
-ManifestManifest::AddEntry2(const QString &path, const QString &media_type)
+ManifestManifest::AddEntry(QString path, QString media_type)
 {
 	auto *p = new ManifestFileEntry(this);
 	p->full_path(path);
 	p->media_type(media_type);
-	Append(p, TakeOwnership::Yes);
+	file_entries_.append(p);
 
 	return p;
 }
@@ -62,6 +58,12 @@ ManifestManifest::Clone(Abstract *parent) const
 	
 	if (parent != nullptr)
 		p->parent(parent);
+	
+	foreach (auto *fe, file_entries_) {
+		p->file_entries_.append((ManifestFileEntry*)fe->Clone());
+	}
+	
+	p->CloneChildrenOf(this);
 	
 	return p;
 }
@@ -88,7 +90,8 @@ void ManifestManifest::Init(ndff::Container *cntr)
 			if (prop.is(ns_->manifest()))
 			{
 				if (prop.name == ns::kFileEntry) {
-					Append(new inst::ManifestFileEntry(this, 0, cntr), TakeOwnership::Yes);
+					auto *p = new inst::ManifestFileEntry(this, 0, cntr);
+					file_entries_.append(p);
 				}
 			}
 		} else if (ndff::is_text(op)) {
@@ -134,11 +137,11 @@ void ManifestManifest::InitDefault()
 	</manifest:manifest>
 */
 	
-	auto *p = AddEntry2("/", "application/vnd.oasis.opendocument.spreadsheet");
+	auto *p = AddEntry("/", "application/vnd.oasis.opendocument.spreadsheet");
 	p->version(manifest_version_);
-	AddEntry2(ods::filename::ContentXml, "text/xml");
-	AddEntry2(ods::filename::MetaXml, "text/xml");
-	AddEntry2(ods::filename::StylesXml, "text/xml");
+	AddEntry(ods::filename::ContentXml, "text/xml");
+	AddEntry(ods::filename::MetaXml, "text/xml");
+	AddEntry(ods::filename::StylesXml, "text/xml");
 	
 	// Not needed by default nor implemented:
 	// Add(ods::filename::SettingsXml, "text/xml");
@@ -164,7 +167,8 @@ void ManifestManifest::Scan(Tag *tag)
 		auto *next = x->as_tag();
 		
 		if (next->Is(ns_->manifest(), ns::kFileEntry)) {
-			Append(new ManifestFileEntry(this, next), TakeOwnership::Yes);
+			auto *p = new ManifestFileEntry(this, next);
+			file_entries_.append(p);
 		} else {
 			Scan(next);
 		}
@@ -174,6 +178,9 @@ void ManifestManifest::Scan(Tag *tag)
 void ManifestManifest::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->manifest(), ns::kVersion, manifest_version_);
+	foreach (auto *fe, file_entries_) {
+		fe->Write(xml);
+	}
 	WriteNodes(xml);
 }
 

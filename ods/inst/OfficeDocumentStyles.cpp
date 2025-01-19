@@ -114,19 +114,27 @@ void OfficeDocumentStyles::Init(ndff::Container *cntr)
 	NdffAttrs attrs;
 	Op op = cntr->Next(prop, Op::None);
 	op = cntr->Next(prop, op, &attrs);
-	CopyAttr(attrs, ns_->office(), ns::kVersion, office_version_);
+	mtl_info("office_version_: %s", qPrintable(office_version_));
 	if (op == Op::N32_TE)
+	{
+		mtl_trace("op %s", ndff::ops(op));
 		return;
+	}
 	
 	if (op == Op::TCF_CMS)
+	{
 		op = cntr->Next(prop, op);
+		mtl_trace("op %s", ndff::ops(op));
+	}
 	
 	while (true)
 	{
+		mtl_trace("op %s", ndff::ops(op));
 		if (op == Op::TS)
 		{
 			if (prop.is(ns_->office()))
 			{
+				mtl_trace("prop.name: %s", qPrintable(prop.name));
 				if (prop.name == ns::kFontFaceDecls) {
 					office_font_face_decls_ = new OfficeFontFaceDecls(this, 0, cntr);
 				} else if (prop.name == ns::kStyles) {
@@ -138,16 +146,19 @@ void OfficeDocumentStyles::Init(ndff::Container *cntr)
 				}
 			}
 		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
+			const QString s = cntr->NextString();
+			Append(s);
+			mtl_trace("Text: %s", qPrintable(s));
 		} else {
 			break;
 		}
 		
 		op = cntr->Next(prop, op);
+		mtl_trace("Next: %s", ndff::ops(op));
 	}
 	
 	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
+		mtl_trace("Unexpected op: %s", ndff::ops(op));
 }
 
 void OfficeDocumentStyles::Init(ods::Tag *tag)
@@ -234,6 +245,7 @@ void OfficeDocumentStyles::Scan(ods::Tag *tag)
 
 void OfficeDocumentStyles::WriteData(QXmlStreamWriter &xml)
 {
+//	mtl_trace("office_version: %s", qPrintable(office_version_));
 	Write(xml, ns_->office(), ns::kVersion, office_version_);
 	if (office_font_face_decls_)
 		office_font_face_decls_->Write(xml);
@@ -252,6 +264,7 @@ void OfficeDocumentStyles::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileD
 {
 	MTL_CHECK_VOID(ba);
 	WriteTag(kw, *ba);
+	mtl_trace("office_version: %s", qPrintable(office_version_));
 	WriteNdffProp(kw, *ba, ns_->office(), ns::kVersion, office_version_);
 	CloseBasedOnChildren(h, kw, file, ba);
 }

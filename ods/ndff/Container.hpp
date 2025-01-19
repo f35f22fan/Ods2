@@ -34,13 +34,15 @@ public:
 	bool GetString(ci32 id, QString &ret_val);
 	
 	ndff::Op Next(Property &prop, const Op last_op = Op::None,
-		QHash<UriId, QVector<Property> > *h = 0);
+		QHash<UriId, QVector<Property> > *h = 0,
+		CellNote *cn = 0);
 	QString NextString();
-	void PrepareFor(FileEntryInfo *fei);
+	bool PrepareFor(FileEntryInfo *fei);
 	void PrepareForParsing();
 	
 	Book* book() const { return book_; }
 	Ns* ns() const { return ns_; }
+	void SwitchToMainBuf();
 	Compression WhatCompressionShouldBeUsed(QStringView file_path, ci64 uncompressed_size) const;
 	
 private:

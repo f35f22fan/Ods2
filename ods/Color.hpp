@@ -9,7 +9,7 @@
 
 namespace ods {
 
-enum class ColorSet: i8 {
+enum class ODS_API ColorSet: i8 {
 	Color,
 	Transparent,
 	None
@@ -24,7 +24,15 @@ public:
 	static Color FromString(QStringView s);
 	
 	bool any() const { return set_ != ColorSet::None; }
+	void Clear() { set_ = ColorSet::None; }
+	const QColor& color() const { return color_; }
+	void color(const QColor &c) {
+		color_ = c;
+		set_ = ColorSet::Color;
+	}
+	ColorSet color_set() const { return set_; }
 	QString toString() const;
+	bool transparent() const { return set_ == ColorSet::Transparent; }
 	
 private:
 	

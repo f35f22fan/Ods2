@@ -1,6 +1,7 @@
 #include "Container.hpp"
 
 #include "../Book.hpp"
+#include "CellNote.hpp"
 #include "FileEntryInfo.hpp"
 #include "../filename.hxx"
 #include "../Ns.hpp"
@@ -50,7 +51,7 @@ bool Container::Init(Book *p, QStringView full_path)
 	MTL_CHECK(io::ReadFile(full_path_, buf_, params));
 	MTL_CHECK(buf_.size() > ndff::MainHeaderPlaces::MinSize);
 	MTL_CHECK(ndff::CheckMagicNumber(buf_.data()));
-	buf_.skip_read(4);
+	buf_.skip(4);
 	cu8 info = buf_.next_u8();
 	mtl_info("Document endianness: %s", (info & 1) ? "LE" : "BE");
 	maj_version = buf_.next_u8();
@@ -82,7 +83,7 @@ bool Container::Init(Book *p, QStringView full_path)
 }
 
 ndff::Op Container::Next(Property &prop, const Op last_op,
-	QHash<UriId, QVector<Property>> *h)
+	QHash<UriId, QVector<Property>> *h, CellNote *cn)
 {
 	prop.empty(true);
 	ByteArray &buf = helper_buf_ ? *helper_buf_ : buf_;
@@ -104,8 +105,8 @@ ndff::Op Container::Next(Property &prop, const Op last_op,
 			{
 				if (!GetString(prop.name_id, prop.name))
 					mtl_warn("Couldn't find name by id %d", prop.name_id);
-				//mtl_printq2("Property value: ", prop.value);
-				((*h)[prop.uri_id]).append(prop);
+//				mtl_info("%s: %s", qPrintable(prop.name), qPrintable(prop.value));
+//				((*h)[prop.uri_id]).append(prop);
 			}
 			op = buf_.next_op();
 		}
@@ -116,26 +117,27 @@ ndff::Op Container::Next(Property &prop, const Op last_op,
 
 QString Container::NextString()
 {
-	buf_.skip_read(-1);
+	buf_.skip(-1);
 	return buf_.next_string(Pack::NDFF);
 }
 
-void Container::PrepareFor(FileEntryInfo *fei)
+bool Container::PrepareFor(FileEntryInfo *fei)
 {
+	MTL_CHECK(fei);
 	buf_.to(fei->content_start());
 	ci64 size = buf_.next_i64();
-	mtl_info("Preparing for %s, size: %ld, compression: %d",
+	mtl_info("File %s, size: %ld, compression: %d",
 		fei->path().data(), size, i32(fei->compression()));
 	if (fei->compression() != Compression::None)
 	{
-		mtl_tbd();
 		helper_buf_ = buf_.CloneRegion(buf_.at(), size);
-		helper_buf_->Decompress(fei->compression());
-		buf_.to(buf_.at() + size);
+		MTL_CHECK(helper_buf_->Decompress(fei->compression()));
 	} else {
 		delete helper_buf_;
 		helper_buf_ = 0;
 	}
+	
+	return true;
 }
 
 void Container::PrepareForParsing()
@@ -199,7 +201,7 @@ bool Container::ReadDictionaryRegion()
 				temp->size(), before);
 			ReadDictionary(*temp, temp->size());
 			delete temp;
-			buf_.skip_read(block_size);
+			buf_.skip(block_size);
 		} else {
 			mtl_warn("Unsupported compression");
 		}
@@ -239,7 +241,7 @@ bool Container::ReadNamespacesRegion()
 		ReadNamespaces(*buf, buf->size());
 		//mtl_info("ZSTD Compression");
 		delete buf;
-		buf_.skip_read(region_size);
+		buf_.skip(region_size);
 	}
 	else
 		mtl_trace("Unsupported compression: %u", compression);
@@ -281,9 +283,18 @@ bool Container::ReadFiles(ci64 files_loc, QVector<FileEntryInfo*> &result_vec)
 	return true;
 }
 
+void Container::SwitchToMainBuf()
+{
+	delete helper_buf_;
+	helper_buf_ = 0;
+}
+
 Compression Container::WhatCompressionShouldBeUsed(QStringView file_path,
 	ci64 uncompressed_size) const
 {
+//	if (true)
+//		return Compression::None;
+	
 	if (uncompressed_size <= 512)
 		return Compression::None; // too small for (ZSTD) compression
 	

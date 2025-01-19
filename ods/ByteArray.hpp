@@ -4,6 +4,7 @@
 #include "global.hxx"
 #include "ndff/ndff.hh"
 
+#include <QFile>
 #include <QString>
 #include <vector>
 
@@ -22,16 +23,16 @@ public:
 	ByteArray& operator = (const ByteArray &rhs);
 	bool operator == (const ByteArray &rhs);
 	ByteArray* CloneFromHere();
-	ByteArray* CloneRegion(ci64 offset, ci64 len);
+	ByteArray* CloneRegion(ci64 from, ci64 how_much);
 	virtual ~ByteArray();
 	
 	void alloc(const isize n);
 	
 	void add_zeroes(cisize byte_count);
-	void add(const ByteArray *rhs, const From from);
+	void add(const ByteArray &rhs, const From from = From::Start);
 	void add(const char *p, cisize size, const ExactSize es = ExactSize::No);
-	void add(const QByteArray *rhs) {
-		add(rhs->data(), rhs->size(), ExactSize::Yes);
+	void add(const QByteArray &rhs) {
+		add(rhs.data(), rhs.size(), ExactSize::Yes);
 	}
 	void add_i8(const i8 n);
 	void add_u8(const u8 n);
@@ -49,7 +50,7 @@ public:
 	void Clear();
 	bool Compress(const Compression);
 	bool Decompress(const Compression);
-	void DumpToTerminal();
+	bool DumpToTerminal(QStringView full_path = QStringView());
 	char *data() const { return data_; }
 	const char *constData() const { return data_; }
 	
@@ -103,7 +104,7 @@ public:
 	
 	isize size() const { return size_; }
 	void size(cisize n) { size_ = n; }
-	void skip_read(cisize n) { at_ += n; }
+	void skip(cisize n) { at_ += n; }
 	isize heap_size() const { return heap_size_; }
 	void MakeSure(cisize more_bytes, const ExactSize es = ExactSize::No);
 	inline void to(cisize n) { at_ = n; }

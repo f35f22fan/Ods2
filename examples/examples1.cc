@@ -89,20 +89,20 @@ void CopyAnOdsFile()
 	}
 }
 
-void ReadWriteNDFF(QStringView full_path)
-{
-	ods::Book *book = ods::Book::FromNDFF(full_path);
-	if (!book)
-	{
-		mtl_warn("ods::Book == NULL");
-		return;
-	}
+// void ReadWriteNDFF(QStringView full_path)
+// {
+// 	ods::Book *book = ods::Book::FromNDFF(full_path);
+// 	if (!book)
+// 	{
+// 		mtl_warn("ods::Book == NULL");
+// 		return;
+// 	}
 	
-	book->dev_mode(true);
-	//book->compression(true);
-	ods::AutoDelete<ods::Book*> ad(book);
-	util::Save(book);
-}
+// 	book->ndff_enabled(true);
+// 	book->dev_mode(true);
+// 	ods::AutoDelete<ods::Book*> ad(book);
+// 	util::Save(book);
+// }
 
 void TestBug()
 {
@@ -354,11 +354,11 @@ void CreateColorsAndUnderline()
 	
 	// set text color:
 	auto *tp = style->FetchStyleTextProperties();
-	tp->SetColor(ods::Color(QColor(0, 0, 255)));
+	tp->SetColor(QColor(0, 0, 255));
 	
 	// set text underline color:
 	auto *tuc = new ods::attr::StyleTextUnderlineColor();
-	tuc->SetColor(ods::Color(QColor(0, 255, 0)));
+	tuc->SetColor(QColor(0, 255, 0));
 	tp->SetTextUnderlineColor(tuc);
 	
 	// set text underline style:
@@ -421,7 +421,9 @@ void ReadColorsAndUnderline()
 	const ods::Color& color = tp->color();
 	if (color.any())
 	{
-		mtl_info("Text color: %s", qPrintable(color.toString()));
+		const QColor &qc = color.color();
+		QString s = color.transparent() ? "transparent" : qc.name();
+		mtl_info("Text color: %s", qPrintable(s));
 	} else {
 		mtl_info("No text color");
 	}
@@ -434,7 +436,9 @@ void ReadColorsAndUnderline()
 		const ods::Color &color = tuc->color();
 		if (color.any())
 		{
-			mtl_info("Text underline color: %s", qPrintable(color.toString()));
+			const QColor &qc = color.color();
+			QString s = color.transparent() ? "transparent" : qc.name();
+			mtl_info("Text underline color: %s", qPrintable(s));
 		} else {
 			mtl_info("No text underline color attribute");
 		}
@@ -801,8 +805,7 @@ void CreateBorders()
 	ods::Length width(2.0, ods::Unit::Mm);
 	border.width(&width);
 	
-	QColor color(0, 0, 255);
-	border.color(&color);
+	border.color(QColor(0, 0, 255));
 	
 	tcp->border_top(&border);
 	tcp->border_bottom(&border);

@@ -36,6 +36,8 @@ enum Op: u8 { // Only up to 4 bits can be used!
 	None = 15,
 };
 
+const char* ops(const Op op);
+
 inline bool is_text(const Op op) { return op >= Op::S8 && op <= Op::S64; }
 
 enum MainHeaderPlaces: i16 {

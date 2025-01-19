@@ -6,7 +6,7 @@ void TestBugJuly2023();
 void CopyAnOdsFile();
 
 //==> Please ignore this
-void ReadWriteNDFF(QStringView full_path);
+//void ReadWriteNDFF(QStringView full_path);
 void TestBug();
 //<== Please ignore this
 

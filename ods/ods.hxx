@@ -7,8 +7,17 @@
 
 namespace ods {
 
+enum class ODS_API CloneChildren: i8 {
+	Yes,
+	No
+};
 
-enum class Compression: u8 {
+enum class ODS_API EnableNdff: i8 {
+	Yes,
+	No
+};
+
+enum class ODS_API Compression: u8 {
 	None = 0,
 	ZSTD = 1,
 };

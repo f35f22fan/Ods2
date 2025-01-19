@@ -1,6 +1,10 @@
 Ods2 - a library to read/write/update OpenDocument Spreadsheet (.ods) files.
 Supports the most commonly used formula functions (including evaluation).
 
+#### Moved to Qt6-only as of January 2025
+And using private headers (qzipreader/writer) which allowed dropping quazip and zlib.
+Apparently because of this images don't show up under LibreOffice. To be fixed.
+
 ##### API usage
 See examples/examples[1-2].cc
 
@@ -11,11 +15,8 @@ for the code that generated it is in examples/Invoice.cpp
 See how_to_build.html
 
 ##### License, etc
-Library updates might break API compatibility with previous updates to allow
-for easier development of this library.
-
 Licensed under the GPLv3 or MIT license, see LICENSE for details.
-For questions, feature requests, etc: f35f22fan AT gmail.com
+For questions, feature requests, etc: binkiepinkie1917 AT gmail DOT com
 
 ---
 

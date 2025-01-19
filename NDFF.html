@@ -5,7 +5,7 @@
 body {
     font-size: 15px;
     font-family: "Fira Code", Hack, "Liberation Mono", Monospace;
-    background-color: rgb(120, 120, 120);
+    background-color: rgb(180, 180, 180);
 }
 
 hr {
@@ -42,12 +42,11 @@ border-collapse: collapse;
     <tr>
     <td>XML text files and folders compressed into a .zip file with a special extension.
     </td>
-    <td>Binary XML files and folders in an efficient updatable container. Which means it should default to non-compressed data while at the same time to be successful it MUST take about as much space as the current compressed text-based solutions.</td>
+    <td>Binary XML files and folders in an efficient updatable container. Which means it should support random parts of the document container to be uncompressed, compressed or encrypted when needed.</td>
     </tr>
     </table>
     <br/>
-    Currently this library (NDFF) can do full circle: it can convert an .ods to .ndff, then take the .ndff and store it as an .ods so that its contents are the same as the original .ods file. And the .ndff file is typically smaller than the .ods file despite not (even) being compressed.
-    <br/> There's still a lot of work TBD.
+    Currently this library (NDFF) can do full circle: it can convert an .ods =&gt; .ndff =&gt; .ods so that its contents are the same as the original .ods file.
 </div>
 
 <p/>
@@ -63,10 +62,9 @@ Notes:
 <li/>LE = Little Endian, BE = Big Endian.<br/>
 
 The bits within each byte are always BE.<br/>
-The first bits of a byte are the ones at the lowest memory address.
 All the multi-byte numbers of the document can be either LE or BE as specified in the "info" field of the main header.
 
-<li/> The whole structure is inside a (NDFF) container, which on disk is a file and in memory is a memory area.
+<li/> Everything is inside a (NDFF) container, which on disk is a file and in memory is a memory area.
 </ul>
 
 <hr/>
@@ -161,7 +159,8 @@ without having to recreate the document. For example if
     <li/>Bits 16-19: Encryption method. 0=No encryption, 1=AES, 2...15 = some other encryption. If any encryption is used then a compression method must also be specified (data is first compressed, then encrypted).
 
     <li/>Bit 20: Set if CRC-32b is available
-    <li/>Remaining 11 bits reserved, to be defined when needed, not set by default.
+    <li/>Bit 21: If set <a href="#fei_pages">pages</a> are available.
+    <li/>Remaining 10 bits reserved, to be defined when needed, not set by default.
 </ul>
 <li/> <span class=field>path_len (u16)</span> -> next string's size
 <li/> <span class=field>path (String)</span> -> file's relative path
@@ -178,7 +177,13 @@ See <a href="#fei_table">FEI table</a>.
 <li/> <span class=field>efa_data_loc (i64)</span> -> <b>(only if EFA bit is set)</b> The location of
 an EFA region that starts with an u32 for its size (in bytes) followed immediately by the data itself. The data is structured as a key-value array where the key is an <a href="#ndff_string">NDFF String</a>, followed by its value as a U1-4 number for the size of the value (in bytes) followed by the value itself (as a char*).<br/>
 The key/value pairs as string/char* data types are based on the Extended File Attributes standard supported by POSIX systems.
-
+<li/> <span id="fei_pages" class=field>pages</span> -> <b>(available only if "pages" bit is set)</b> two continuous i32 numbers representing the (zero counted) range of pages in this file.
+<br/>
+For example the numbers 3 and 6 would mean the file has 4 pages: 3, 4, 5, 6.<br/>
+Negative values are supported in case one wants to logically represent the pages before the (book) contents starts (like preface, foreword).
+I.e. if the preface and foreword are say 17 pages, then they span from -17 to -1 inclusive, where -17 is the start of the book and -1 is the page before the actual contents of the (book) starts.
+<br/>
+This is useful as an optimization when the contents of the document are spread across multiple content.xml (or other) files and one needs to access only a few given pages - so that one doesn't have to read all content files.
 </ol>
 Note: the "<span class=field>only for/if (...)</span>" fields don't exist if the FEI doesn't meet the inherent prerequisite, this only concerns the layout on disk, not how developers might represent it in source code. For example if the EFA bit is not set then the (on disk) data has no memory/space allocated for the "efa_data_loc" field nor should anyone try to read it, which is why FEIs may vary in size.
 

@@ -68,11 +68,15 @@ OfficeFontFaceDecls::GetFontFace(const QString &font_name, const AddIfNeeded ain
 
 void OfficeFontFaceDecls::Init(ndff::Container *cntr)
 {
+	mtl_trace();
 	using Op = ndff::Op;
 	ndff::Property prop;
 	Op op = cntr->Next(prop, Op::TS);
 	if (op == Op::N32_TE)
+	{
+mtl_trace();
 		return;
+	}
 	
 	if (op == Op::TCF_CMS)
 		op = cntr->Next(prop, op);

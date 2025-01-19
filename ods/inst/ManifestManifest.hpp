@@ -16,7 +16,7 @@ public:
 	
 	virtual ~ManifestManifest();
 	
-	ManifestFileEntry* AddEntry(const QString &path);
+	ManifestFileEntry* AddEntry(QString path, QString media_type);
 	
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
@@ -34,6 +34,7 @@ private:
 	void Scan(Tag *tag);
 	
 	QString manifest_version_;
+	QList<ManifestFileEntry*> file_entries_;
 };
 
 } // ods::inst::

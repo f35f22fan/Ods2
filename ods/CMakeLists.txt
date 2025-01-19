@@ -8,63 +8,77 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	add_definitions(-funsigned-char)
 endif()
 
-#message(STATUS "C++ Compiler: " ${CMAKE_CXX_COMPILER})
+message(STATUS "C++ Compiler: " ${CMAKE_CXX_COMPILER})
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0") 
-    # Disable automoc for .hh files:
-    cmake_policy(SET CMP0100 OLD)
-endif()
-
 include_directories(${Ods2_SOURCE_DIR})
 link_directories(${Ods2_BINARY_DIR}/lib)
 
+set(hh_files
+	AutoDelete.hh
+	cmp_num.hh
+	currency.hh
+	eval.hh
+	function.hh
+	id.hh
+	io.hh
+	ndff/ndff.hh
+	ods.hh
+	op.hh
+	style.hh
+)
+
+foreach(f IN LISTS hh_files)
+	set_property(SOURCE ${f} PROPERTY SKIP_AUTOMOC ON)
+endforeach()
+
+
 set(lib_files
+	${hh_files}
 	Attr.cpp Attr.hpp
 	AutoDelete.hh
 	Book.cpp Book.hpp
 	ByteArray.cpp ByteArray.hpp
 	Cell.cpp Cell.hpp cell.hxx
 	CellRef.cpp CellRef.hpp
-	cmp_num.hh
 	Color.cpp Color.hpp
 	country.hxx
-	currency.cc currency.hh currency.hxx
+	currency.cc currency.hxx
 	decl.hxx
 	DurationInfo.cpp DurationInfo.hpp
 	err.hpp
-	eval.hh eval.cc
+	eval.cc
 	filename.hxx
 	Formula.cpp Formula.hpp formula.hxx
 	FormulaError.cpp FormulaError.hpp
 	FormulaNode.cpp FormulaNode.hpp
 	Function.cpp Function.hpp
-	function.cc function.hh
+	function.cc
 	global.hxx
 	HAlign.cpp HAlign.hpp
-	id.cc id.hh
-	io.cc io.hh
+	id.cc
+	io.cc
 	lang.hxx
 	Length.cpp Length.hpp
 	LineStyle.cpp LineStyle.hpp line.hxx
 	ndff/Container.cpp ndff/Container.hpp
 	ndff/FileEntryInfo.cpp ndff/FileEntryInfo.hpp
-	ndff/ndff.cc ndff/ndff.hh
+	ndff/ndff.cc
 	ndff/Property.cpp ndff/Property.hpp
 	Ns.cpp Ns.hpp ns.hxx
-	ods ods.cc ods.hh ods.hxx
-	op.cc op.hh
+	ods ods.cc ods.hxx
+	op.cc
 	Prefix.cpp Prefix.hpp
 	Reference.cpp Reference.hpp
 	Row.cpp Row.hpp
 	Sheet.cpp Sheet.hpp
 	StringOrInst.cpp StringOrInst.hpp
 	StringOrTag.cpp StringOrTag.hpp
-	style.cc style.hh style.hxx
+	style.cc style.hxx
 	Tag.cpp Tag.hpp
 	Time.cpp Time.hpp
 	types.hxx
@@ -163,11 +177,6 @@ set(lib_files
 foreach(f IN LISTS lib_files)
 	get_filename_component(b ${f} NAME)
 	set_source_files_properties(${f} PROPERTIES COMPILE_DEFINITIONS "SRC_FILE_NAME=\"${b}\"")
-
-	#if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	#	set_source_files_properties(${f} PROPERTIES COMPILE_OPTIONS "-funsigned-char")
-	#endif()
-
 endforeach()
 
 if (DEFINED ODS_STATIC)
@@ -178,4 +187,4 @@ else (DEFINED ODS_STATIC)
 endif (DEFINED ODS_STATIC)
 
 add_library(ods ${lib_type} ${lib_files})
-target_link_libraries(ods quazip Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui zstd)
+target_link_libraries(ods PRIVATE Qt6::Core Qt6::CorePrivate Qt${QT_VERSION_MAJOR}::Gui)

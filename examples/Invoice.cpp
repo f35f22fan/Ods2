@@ -7,8 +7,8 @@
 
 namespace sample {
 
-Invoice::Invoice() {
-	Init();
+Invoice::Invoice(const ods::EnableNdff en) {
+	Init(en);
 }
 
 Invoice::~Invoice() {
@@ -72,7 +72,7 @@ int Invoice::CreateSellerHeader()
 	} else {
 		QSize real_size;
 		ods::inst::DrawImage *img = cell->NewDrawFrame(full_img_path, &real_size);
-		mtl_info("Image size: %dx%d px", real_size.width(), real_size.height());
+//		mtl_info("Image size: %dx%d px", real_size.width(), real_size.height());
 		img->frame()->SetSize(60, 60, ods::Unit::Px);
 		
 	}
@@ -184,7 +184,7 @@ int Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 		auto *row = sheet_->NewRowAt(last_row_index);
 		
 		auto *cell = row->NewCellAt(next_col);
-		QString id_str = QString("IT0") + QString::number(item->id());
+		QString id_str = QString("ITEM0") + QString::number(item->id());
 		cell->SetValue(id_str);
 		cell->SetStyle(style);
 		
@@ -337,10 +337,12 @@ Invoice::GenItems()
 	return vec;
 }
 
-void Invoice::Init()
+void Invoice::Init(const ods::EnableNdff en)
 {
 	save_path_ = QDir::home().filePath("Invoice.ods");
 	book_ = ods::Book::New();
+	// if (en == ods::EnableNdff::Yes)
+	// 	book_->ndff_enabled(true);
 	auto *spr = book_->spreadsheet();
 	sheet_ = spr->NewSheet("Invoice");
 	int last_index = CreateSellerHeader();

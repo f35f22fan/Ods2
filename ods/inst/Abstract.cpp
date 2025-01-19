@@ -15,16 +15,16 @@
 
 namespace ods::inst {
 
-void AddKeywords(const QVector<QString> &words, Keywords &list)
+void AddKeywords(const QVector<QString> &words, Keywords &words_hash)
 {
 	for (const QString &word: words)
 	{
-		if (list.contains(word)) {
-			list[word].count++;
+		if (words_hash.contains(word)) {
+			words_hash[word].count++;
 		} else {
-			ci32 id = list.count() + 1;
+			ci32 id = words_hash.count() + 1;
 			IdAndCount ac = { .count = 1, .id = id };
-			list.insert(word, ac);
+			words_hash.insert(word, ac);
 		}
 	}
 }
@@ -315,16 +315,16 @@ bool Abstract::Is(const Id id1, const Id id2) const
 	return (id2 == Id::None || id_ == id2);
 }
 
-void Abstract::ListChildren(QVector<StringOrInst*> &vec,
+void Abstract::ListChildren(QVector<StringOrInst*> &output,
 	const Recursively r)
 {
 	for (StringOrInst *node: nodes_)
 	{
-		vec.append(node);
+		output.append(node);
 		
 		if (r == Recursively::Yes && node->is_inst())
 		{
-			node->as_inst()->ListChildren(vec, r);
+			node->as_inst()->ListChildren(output, r);
 		}
 	}
 }
@@ -447,22 +447,22 @@ void Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix,
 
 void Abstract::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *output)
 {
-	MTL_CHECK_VOID(output != nullptr);
+	MTL_CHECK_VOID(output);
 	WriteTag(kw, *output);
 	CloseBasedOnChildren(h, kw, file, output);
 }
 
 void Abstract::WriteNdffProp(inst::Keywords &kw,
-	ByteArray &ba, Prefix *prefix, QString key, QStringView value)
+	ByteArray &output, Prefix *prefix, QString key, QStringView value)
 {
 	if (value.isEmpty())
 		return;
 	
-	ba.add_u8(ndff::Op::S32_PS);
-	ba.add_unum(prefix->id());
-	ci32 string_id = kw[key].id;
-	ba.add_inum(string_id);
-	ba.add_string(value, Pack::NDFF);
+	output.add_u8(ndff::Op::S32_PS);
+	output.add_unum(prefix->id());
+	ci32 key_id = kw[key].id;
+	output.add_inum(key_id);
+	output.add_string(value, Pack::NDFF);
 }
 
 void Abstract::WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
