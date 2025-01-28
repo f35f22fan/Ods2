@@ -9,6 +9,8 @@ Color::Color(): set_(ColorSet::None) {}
 Color::Color(const QColor &c)
 {
 	color_ = c;
+	if(color_.isValid() && color_ != QColor())
+		set_ = ColorSet::Color;
 }
 
 Color::Color(const ColorSet cs)

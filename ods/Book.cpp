@@ -755,9 +755,9 @@ void AddZipDir(QDir dir, QZipWriter &zw, QString relpath = QString()) {
 		if (info.isDir()) {
 			QString new_relpath = relpath + "/" + name;
 			//mtl_info("%s, %s", qPrintable(new_relpath), qPrintable(relpath));
-			//zw.setCompressionPolicy(QZipWriter::CompressionPolicy::NeverCompress);
-			zw.addDirectory(new_relpath);
-			//zw.setCompressionPolicy(QZipWriter::CompressionPolicy::AutoCompress);
+			// zw.setCompressionPolicy(QZipWriter::CompressionPolicy::NeverCompress);
+			// zw.addDirectory(new_relpath);
+			// zw.setCompressionPolicy(QZipWriter::CompressionPolicy::AutoCompress);
 			QDir new_dir(info.absoluteFilePath());
 			AddZipDir(new_dir, zw, new_relpath);
 		} else {
