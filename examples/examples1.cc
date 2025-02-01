@@ -17,6 +17,14 @@
 
 #include <QSize>
 
+void TestBug1Feb2025() {
+	QString read_from_path = QDir::home().filePath("Downloads/Export_planning2.ods");
+	QString save_to_path = QDir::home().filePath("SavedTo.ods");
+	QString err;
+	ods::Book *src_book = ods::Book::FromFile(read_from_path, &err, ods::DevMode::Yes);
+	ods::AutoDelete ad(src_book);
+}
+
 void TestBugJuly2023()
 {
 	QString read_from_path = QDir::home().filePath("Downloads/slaves-original.ods");

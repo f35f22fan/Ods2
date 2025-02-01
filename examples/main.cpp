@@ -13,6 +13,8 @@ main(int argc, char *argv[])
 {
 	QGuiApplication qapp(argc, argv);
 	
+	TestBug1Feb2025();
+	
 //	TestBugJuly2023();
 	
 //	CopyAnOdsFile();
@@ -65,8 +67,8 @@ main(int argc, char *argv[])
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
 	
-	auto *p = new sample::Invoice(ods::EnableNdff::No);
-	ods::AutoDelete ad_p(p);
+	// auto *p = new sample::Invoice(ods::EnableNdff::No);
+	// ods::AutoDelete ad_p(p);
 	
 	if (false)
 	{ // Nevermind this block, it's purely for development purposes

@@ -26,7 +26,7 @@
 #include <QSaveFile>
 #include <QScreen>
 #include <QXmlStreamWriter>
-//#include <quazip/JlCompress.h>
+#include <quazip/JlCompress.h>
 #include <QtCore/private/qzipwriter_p.h>
 #include <QtCore/private/qzipreader_p.h>
 
@@ -455,16 +455,32 @@ void Book::Load(QString full_path, QString *err)
 		return;
 	}
 	
-	QZipReader zr(full_path);
-	auto load_ba = full_path.toLocal8Bit();
-	mtl_info("======================load from %s", load_ba.data());
-	MTL_CHECK_VOID(zr.extractAll(temp_dir_path_));
-	for (auto next: zr.fileInfoList()) {
-		auto ba = next.filePath.toLocal8Bit();
-		mtl_info("===FILE: %s", ba.data());
-		extracted_file_paths_.append(next.filePath);
+	// QZipReader zr(full_path);
+	// mtl_info("Loading from %s", qPrintable(full_path));
+	// if (!zr.extractAll(temp_dir_path_)) {
+	// 	mtl_info("QZipReader error status: %d\n", zr.status());
+	// 	return;
+	// }
+	// for (auto next: zr.fileInfoList()) {
+	// 	auto ba = next.filePath.toLocal8Bit();
+	// 	mtl_info("===FILE: %s", ba.data());
+	// 	extracted_file_paths_.append(next.filePath);
+	// }
+	// mtl_info("QZipReader status=%d, FileOpenError=%d, temp_dir_path_=%s\n",
+	// 	zr.status(), QZipReader::Status::FileOpenError, qPrintable(temp_dir_path_));
+	
+	mtl_info("full_path=\"%s\", temp_dir_path=\"%s\"", qPrintable(full_path),
+		qPrintable(temp_dir_path_));
+	QFile input(full_path);
+	QuaZip qz(&input);
+	qz.setZip64Enabled(true);
+	extracted_file_paths_ = JlCompress::extractDir(qz, temp_dir_path_);
+	mtl_info("Count: %d", extracted_file_paths_.size());
+	
+	for (int i = 0; i < extracted_file_paths_.size(); i++) {
+		const auto path = extracted_file_paths_[i];
+		mtl_info("path: %s", qPrintable(path));
 	}
-	//extracted_file_paths_ = JlCompress::extractDir(full_path.toString(), temp_dir_path_);
 	
 	if (extracted_file_paths_.isEmpty()) {
 		if (err != nullptr)

@@ -51,9 +51,9 @@ if (BUILD_STATIC_LIBRARIES)
 endif (BUILD_STATIC_LIBRARIES)
 
 #if (WIN32)
-#	add_subdirectory(zlib)
+	add_subdirectory(zlib)
 #endif(WIN32)
 
-#add_subdirectory(quazip)
+add_subdirectory(quazip)
 add_subdirectory(ods)
 add_subdirectory(examples)
