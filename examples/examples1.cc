@@ -19,10 +19,20 @@
 
 void TestBug1Feb2025() {
 	QString read_from_path = QDir::home().filePath("Downloads/Export_planning2.ods");
-	QString save_to_path = QDir::home().filePath("SavedTo.ods");
 	QString err;
 	ods::Book *src_book = ods::Book::FromFile(read_from_path, &err, ods::DevMode::Yes);
+	if (!src_book) {
+		mtl_info("No .ods file at %s", qPrintable(read_from_path));
+		return;
+	}
 	ods::AutoDelete ad(src_book);
+	auto *spreadsheet = src_book->spreadsheet();
+	auto *sheet = spreadsheet->GetSheet(0);
+	auto *row = sheet->GetRow(1);
+	auto *cell = row->GetCell(0);
+	QString s = cell->ValueToString();
+	const char *b = (s == "Matthias") ? "true" : "false";
+	mtl_info("Cell value: %s, result is correct: %s", qPrintable(s), b);
 }
 
 void TestBugJuly2023()

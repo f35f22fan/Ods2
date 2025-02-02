@@ -8,8 +8,7 @@
 
 #include <ods/types.hxx>
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	QGuiApplication qapp(argc, argv);
 	
@@ -67,8 +66,8 @@ main(int argc, char *argv[])
 //	GenerateFunctionsListForGitHub();
 //	ReadCellRange();
 	
-	// auto *p = new sample::Invoice(ods::EnableNdff::No);
-	// ods::AutoDelete ad_p(p);
+	auto *p = new sample::Invoice(ods::EnableNdff::No);
+	ods::AutoDelete ad_p(p);
 	
 	if (false)
 	{ // Nevermind this block, it's purely for development purposes

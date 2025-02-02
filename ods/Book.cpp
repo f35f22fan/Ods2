@@ -242,7 +242,10 @@ Book::FromFile(const QString &full_path, QString *err, const DevMode dm)
 {
 	auto *book = new Book(dm);
 	book->loading(true);
-	book->Load(full_path, err);
+	if (!book->Load(full_path, err)) {
+		delete book;
+		return nullptr;
+	}
 	book->loading(false);
 	return book;
 }
@@ -445,14 +448,14 @@ bool Book::InitNDFF(QStringView full_path)
 	return true;
 }
 
-void Book::Load(QString full_path, QString *err)
+bool Book::Load(QString full_path, QString *err)
 {
 	InitTempDir();
 	
 	if (!dev_mode() && !temp_dir_.isValid())
 	{
 		mtl_warn("temp dir invalid");
-		return;
+		return false;
 	}
 	
 	// QZipReader zr(full_path);
@@ -469,52 +472,54 @@ void Book::Load(QString full_path, QString *err)
 	// mtl_info("QZipReader status=%d, FileOpenError=%d, temp_dir_path_=%s\n",
 	// 	zr.status(), QZipReader::Status::FileOpenError, qPrintable(temp_dir_path_));
 	
-	mtl_info("full_path=\"%s\", temp_dir_path=\"%s\"", qPrintable(full_path),
-		qPrintable(temp_dir_path_));
+	// mtl_info("full_path=\"%s\", temp_dir_path=\"%s\"", qPrintable(full_path),
+	// 	qPrintable(temp_dir_path_));
 	QFile input(full_path);
 	QuaZip qz(&input);
 	qz.setZip64Enabled(true);
 	extracted_file_paths_ = JlCompress::extractDir(qz, temp_dir_path_);
-	mtl_info("Count: %d", extracted_file_paths_.size());
+	//mtl_info("Count: %d", extracted_file_paths_.size());
 	
-	for (int i = 0; i < extracted_file_paths_.size(); i++) {
-		const auto path = extracted_file_paths_[i];
-		mtl_info("path: %s", qPrintable(path));
-	}
+	// for (int i = 0; i < extracted_file_paths_.size(); i++) {
+	// 	const auto path = extracted_file_paths_[i];
+	// 	mtl_info("path: %s", qPrintable(path));
+	// }
 	
 	if (extracted_file_paths_.isEmpty()) {
 		if (err != nullptr)
 			*err = QLatin1String("Couldn't extract files");
-		return;
+		return false;
 	}
 	
 	{
 		cauto file_index = ods::FindIndexThatEndsWith(extracted_file_paths_,
 			QString(ods::filename::ManifestXml));
-		MTL_CHECK_VOID(file_index != -1);
+		MTL_CHECK(file_index != -1);
 		LoadManifestXml(file_index, err);
 	}
 	
 	{
 		cauto file_index = ods::FindIndexThatEndsWith(extracted_file_paths_,
 			QString(ods::filename::ContentXml));
-		MTL_CHECK_VOID(file_index != -1);
+		MTL_CHECK(file_index != -1);
 		LoadContentXml(file_index, err);
 	}
 	
 	{
 		cauto file_index = ods::FindIndexThatEndsWith(extracted_file_paths_,
 			QString(ods::filename::MetaXml));
-		MTL_CHECK_VOID(file_index != -1);
+		MTL_CHECK(file_index != -1);
 		LoadMetaXml(file_index, err);
 	}
 	
 	{
 		cauto file_index = ods::FindIndexThatEndsWith(extracted_file_paths_,
 			QString(ods::filename::StylesXml));
-		MTL_CHECK_VOID(file_index != -1);
+		MTL_CHECK(file_index != -1);
 		LoadStylesXml(file_index, err);
 	}
+	
+	return true;
 }
 
 void Book::LoadContentXml(ci32 file_index, QString *err)
@@ -837,20 +842,21 @@ bool Book::Save(const QFile &target, QString *err)
 		}
 	}
 	
-	QString compressed_fp = QFileInfo(target).absoluteFilePath();
-	QZipWriter zw(compressed_fp);
-	AddZipDir(QDir(temp_dir_path_), zw);
-	zw.close();
+	QString zip_filepath = QFileInfo(target).absoluteFilePath();
+	// QZipWriter zw(zip_filepath);
+	// AddZipDir(QDir(temp_dir_path_), zw);
+	if (!JlCompress::compressDir(zip_filepath, temp_dir_path_, true)) {
+		mtl_warn("Failed to compress .ods file to %s", qPrintable(zip_filepath));
+		return false;
+	}
+	//zw.close();
 
-	// mtl_info("compressed_fp: \"%s\" temp_dir_path_: \"%s\"",
-	// 	qPrintable(compressed_fp), qPrintable(temp_dir_path_));
-	
 	if (ndff_enabled())
 	{
 		auto ms = timer.elapsed();
 		mtl_info("SaveToODS() took %lld ms", ms);
 		timer.restart();
-		ndff_path_ = compressed_fp + QLatin1String(".ndff");
+		ndff_path_ = zip_filepath + QLatin1String(".ndff");
 		SaveNDFF(err);
 		mtl_info("SaveToNDFF() took %lld ms", timer.elapsed());
 	}
