@@ -15,8 +15,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-include_directories(${Ods2_SOURCE_DIR}/libzip/lib)
-link_directories(${Ods2_BINARY_DIR}/lib)
+include_directories("${Ods2_SOURCE_DIR}/libzip/lib")
+link_directories("${Ods2_BINARY_DIR}/lib" "${Ods2_BINARY_DIR}/lib/Debug" "${Ods2_BINARY_DIR}/lib/Release")
 
 set(hh_files
 	AutoDelete.hh

@@ -10,7 +10,7 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0")
 endif()
 
 include_directories("${Ods2_SOURCE_DIR}" "${Ods2_SOURCE_DIR}/libzip/lib")
-link_directories(${CMAKE_BINARY_DIR}/lib)
+link_directories("${Ods2_BINARY_DIR}/lib" "${Ods2_BINARY_DIR}/lib/Debug" "${Ods2_BINARY_DIR}/lib/Release")
 
 # Set some Win32 Specific Settings
 if(WIN32)

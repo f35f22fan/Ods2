@@ -131,11 +131,11 @@ bool ReadFile(QString full_path, ByteArray &buffer, ReadParams params)
 
 #else
 
-bool ReadFile_C(QString filepath, ByteArray &buf, ReadParams rp) {
+bool ReadFile(QString full_path, ByteArray& buf, ReadParams params) {
 	char * buffer;
 	size_t result;
 	
-	auto fp_ba = filepath.toLocal8Bit();
+	auto fp_ba = full_path.toLocal8Bit();
 	FILE* pFile = fopen (fp_ba.data(), "rb" );
 	if (pFile==NULL) {
 		fputs ("File error",stderr);

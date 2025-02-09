@@ -14,7 +14,7 @@ if(NOT libzip_VERSION_PATCH)
 endif()
 
 include_directories(${Ods2_SOURCE_DIR}/zlib)
-link_directories(${Ods2_BINARY_DIR}/lib)
+link_directories("${Ods2_BINARY_DIR}/lib" "${Ods2_BINARY_DIR}/lib/Debug" "${Ods2_BINARY_DIR}/lib/Release")
 
 option(ENABLE_COMMONCRYPTO "Enable use of CommonCrypto" OFF)
 option(ENABLE_GNUTLS "Enable use of GnuTLS" OFF)
