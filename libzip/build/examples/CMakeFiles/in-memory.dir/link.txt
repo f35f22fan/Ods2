@@ -1,0 +1,1 @@
+/usr/lib64/ccache/cc -g "CMakeFiles/in-memory.dir/in-memory.c.o" -o in-memory  -Wl,-rpath,/home/fox/Downloads/libzip/build/lib ../lib/libzip.so.5.5

@@ -1,0 +1,1 @@
+/usr/lib64/ccache/cc -g "CMakeFiles/autoclose-archive.dir/autoclose-archive.c.o" -o autoclose-archive  -Wl,-rpath,/home/fox/Downloads/libzip/build/lib ../lib/libzip.so.5.5

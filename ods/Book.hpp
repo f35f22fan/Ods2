@@ -153,7 +153,7 @@ private:
 	void InitDefault();
 	void InitTempDir();
 	bool InitNDFF(QStringView full_path);
-	bool Load(QString full_path, QString *err);
+	bool Load(QString zip_filepath, QString *err);
 	void LoadContentXml(ci32 file_index, QString *err);
 	void LoadManifestXml(ci32 file_index, QString *err);
 	void LoadMetaXml(ci32 file_index, QString *err);

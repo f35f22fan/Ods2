@@ -1,0 +1,1 @@
+/usr/lib64/ccache/cc -g "CMakeFiles/add-compressed-data.dir/add-compressed-data.c.o" -o add-compressed-data  -Wl,-rpath,/home/fox/Downloads/libzip/build/lib ../lib/libzip.so.5.5

@@ -1,0 +1,2935 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      The system is: Linux - 6.12.11-200.fc41.x86_64 - x86_64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /usr/lib64/ccache/cc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is GNU, found in:
+        /home/fox/Downloads/libzip/build/CMakeFiles/3.30.7/CompilerIdC/a.out
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-WlU3Lp"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-WlU3Lp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-WlU3Lp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bd74d/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_bd74d.dir/build.make CMakeFiles/cmTC_bd74d.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-WlU3Lp'
+        Building C object CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o
+        /usr/lib64/ccache/cc   -v -o CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-redhat-linux
+        Configured with: ../configure --enable-bootstrap --enable-languages=c,c++,fortran,objc,obj-c++,ada,go,d,m2,lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-gcc-major-version-only --enable-libstdcxx-backtrace --with-libstdcxx-zoneinfo=/usr/share/zoneinfo --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --with-isl=/builddir/build/BUILD/gcc-14.2.1-build/gcc-14.2.1-20250110/obj-x86_64-redhat-linux/isl-install --enable-offload-targets=nvptx-none,amdgcn-amdhsa --enable-offload-defaulted --without-cuda-driver --enable-gnu-indirect-function --enable-cet --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux --with-build-config=bootstrap-lto --enable-link-serialization=1
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 14.2.1 20250110 (Red Hat 14.2.1-7) (GCC) 
+        COLLECT_GCC_OPTIONS='-fdiagnostics-color=always' '-v' '-c' '-o' 'CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.o' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_6f0a6.dir/'
+         /usr/libexec/gcc/x86_64-redhat-linux/14/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_6f0a6.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fdiagnostics-color=always -o /tmp/ccCn4xUL.s
+        GNU C17 (GCC) version 14.2.1 20250110 (Red Hat 14.2.1-7) (x86_64-redhat-linux)
+        	compiled by GNU C version 14.2.1 20250110 (Red Hat 14.2.1-7), GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.24-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/14/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/14/../../../../x86_64-redhat-linux/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/lib/gcc/x86_64-redhat-linux/14/include
+         /usr/local/include
+         /usr/include
+        End of search list.
+        Compiler executable checksum: fecd655b22c360a0ff305bc79db7f32c
+        COLLECT_GCC_OPTIONS='-fdiagnostics-color=always' '-v' '-c' '-o' 'CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.o' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_6f0a6.dir/'
+         as -v --64 -o CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.o /tmp/ccCn4xUL.s
+        GNU assembler version 2.43.1 (x86_64-redhat-linux) using BFD version version 2.43.1-5.fc41
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/14/:/usr/libexec/gcc/x86_64-redhat-linux/14/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/14/:/usr/lib/gcc/x86_64-redhat-linux/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/14/:/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/14/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-fdiagnostics-color=always' '-v' '-c' '-o' 'CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.o' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.'
+        Linking C executable cmTC_bd74d
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bd74d.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -v -Wl,-v CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o -o cmTC_bd74d
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/14/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-redhat-linux
+        Configured with: ../configure --enable-bootstrap --enable-languages=c,c++,fortran,objc,obj-c++,ada,go,d,m2,lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-gcc-major-version-only --enable-libstdcxx-backtrace --with-libstdcxx-zoneinfo=/usr/share/zoneinfo --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --with-isl=/builddir/build/BUILD/gcc-14.2.1-build/gcc-14.2.1-20250110/obj-x86_64-redhat-linux/isl-install --enable-offload-targets=nvptx-none,amdgcn-amdhsa --enable-offload-defaulted --without-cuda-driver --enable-gnu-indirect-function --enable-cet --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux --with-build-config=bootstrap-lto --enable-link-serialization=1
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 14.2.1 20250110 (Red Hat 14.2.1-7) (GCC) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/14/:/usr/libexec/gcc/x86_64-redhat-linux/14/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/14/:/usr/lib/gcc/x86_64-redhat-linux/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/14/:/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/14/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_bd74d' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_bd74d.'
+         /usr/libexec/gcc/x86_64-redhat-linux/14/collect2 -plugin /usr/libexec/gcc/x86_64-redhat-linux/14/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/14/lto-wrapper -plugin-opt=-fresolution=/tmp/ccqP8iCZ.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_bd74d /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/14/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/14 -L/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/14/../../.. -v CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-redhat-linux/14/crtend.o /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crtn.o
+        collect2 version 14.2.1 20250110 (Red Hat 14.2.1-7)
+        /usr/bin/ld -plugin /usr/libexec/gcc/x86_64-redhat-linux/14/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/14/lto-wrapper -plugin-opt=-fresolution=/tmp/ccqP8iCZ.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_bd74d /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/14/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/14 -L/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/14/../../.. -v CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-redhat-linux/14/crtend.o /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crtn.o
+        GNU ld version 2.43.1-5.fc41
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_bd74d' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_bd74d.'
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-WlU3Lp'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:182 (message)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/lib/gcc/x86_64-redhat-linux/14/include]
+          add: [/usr/local/include]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/lib/gcc/x86_64-redhat-linux/14/include] ==> [/usr/lib/gcc/x86_64-redhat-linux/14/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/lib/gcc/x86_64-redhat-linux/14/include;/usr/local/include;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?))("|,| |$)]
+        ignore line: [Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-WlU3Lp']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bd74d/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_bd74d.dir/build.make CMakeFiles/cmTC_bd74d.dir/build]
+        ignore line: [gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-WlU3Lp']
+        ignore line: [Building C object CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/usr/lib64/ccache/cc   -v -o CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-redhat-linux]
+        ignore line: [Configured with: ../configure --enable-bootstrap --enable-languages=c c++ fortran objc obj-c++ ada go d m2 lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-gcc-major-version-only --enable-libstdcxx-backtrace --with-libstdcxx-zoneinfo=/usr/share/zoneinfo --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --with-isl=/builddir/build/BUILD/gcc-14.2.1-build/gcc-14.2.1-20250110/obj-x86_64-redhat-linux/isl-install --enable-offload-targets=nvptx-none amdgcn-amdhsa --enable-offload-defaulted --without-cuda-driver --enable-gnu-indirect-function --enable-cet --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux --with-build-config=bootstrap-lto --enable-link-serialization=1]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 14.2.1 20250110 (Red Hat 14.2.1-7) (GCC) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-fdiagnostics-color=always' '-v' '-c' '-o' 'CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.o' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_6f0a6.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-redhat-linux/14/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_6f0a6.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fdiagnostics-color=always -o /tmp/ccCn4xUL.s]
+        ignore line: [GNU C17 (GCC) version 14.2.1 20250110 (Red Hat 14.2.1-7) (x86_64-redhat-linux)]
+        ignore line: [	compiled by GNU C version 14.2.1 20250110 (Red Hat 14.2.1-7)  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.24-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/14/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-redhat-linux/14/../../../../x86_64-redhat-linux/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/lib/gcc/x86_64-redhat-linux/14/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: fecd655b22c360a0ff305bc79db7f32c]
+        ignore line: [COLLECT_GCC_OPTIONS='-fdiagnostics-color=always' '-v' '-c' '-o' 'CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.o' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_6f0a6.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.o /tmp/ccCn4xUL.s]
+        ignore line: [GNU assembler version 2.43.1 (x86_64-redhat-linux) using BFD version version 2.43.1-5.fc41]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/14/:/usr/libexec/gcc/x86_64-redhat-linux/14/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/14/:/usr/lib/gcc/x86_64-redhat-linux/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/14/:/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/14/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-fdiagnostics-color=always' '-v' '-c' '-o' 'CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.o' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_6f0a6.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C executable cmTC_bd74d]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bd74d.dir/link.txt --verbose=1]
+        ignore line: [/usr/lib64/ccache/cc  -v -Wl -v CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o -o cmTC_bd74d]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/14/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-redhat-linux]
+        ignore line: [Configured with: ../configure --enable-bootstrap --enable-languages=c c++ fortran objc obj-c++ ada go d m2 lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-gcc-major-version-only --enable-libstdcxx-backtrace --with-libstdcxx-zoneinfo=/usr/share/zoneinfo --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --with-isl=/builddir/build/BUILD/gcc-14.2.1-build/gcc-14.2.1-20250110/obj-x86_64-redhat-linux/isl-install --enable-offload-targets=nvptx-none amdgcn-amdhsa --enable-offload-defaulted --without-cuda-driver --enable-gnu-indirect-function --enable-cet --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux --with-build-config=bootstrap-lto --enable-link-serialization=1]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 14.2.1 20250110 (Red Hat 14.2.1-7) (GCC) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/14/:/usr/libexec/gcc/x86_64-redhat-linux/14/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/14/:/usr/lib/gcc/x86_64-redhat-linux/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/14/:/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/14/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_bd74d' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_bd74d.']
+        link line: [ /usr/libexec/gcc/x86_64-redhat-linux/14/collect2 -plugin /usr/libexec/gcc/x86_64-redhat-linux/14/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/14/lto-wrapper -plugin-opt=-fresolution=/tmp/ccqP8iCZ.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_bd74d /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/14/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/14 -L/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/14/../../.. -v CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-redhat-linux/14/crtend.o /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-redhat-linux/14/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-redhat-linux/14/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/14/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/ccqP8iCZ.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--no-add-needed] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_bd74d] ==> ignore
+          arg [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crt1.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crt1.o]
+          arg [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crti.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crti.o]
+          arg [/usr/lib/gcc/x86_64-redhat-linux/14/crtbegin.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/14/crtbegin.o]
+          arg [-L/usr/lib/gcc/x86_64-redhat-linux/14] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/14]
+          arg [-L/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64]
+          arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+          arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+          arg [-L/usr/lib/gcc/x86_64-redhat-linux/14/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/14/../../..]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [-lc] ==> lib [c]
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [/usr/lib/gcc/x86_64-redhat-linux/14/crtend.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/14/crtend.o]
+          arg [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crtn.o] ==> obj [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crtn.o]
+        ignore line: [collect2 version 14.2.1 20250110 (Red Hat 14.2.1-7)]
+        ignore line: [/usr/bin/ld -plugin /usr/libexec/gcc/x86_64-redhat-linux/14/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-redhat-linux/14/lto-wrapper -plugin-opt=-fresolution=/tmp/ccqP8iCZ.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_bd74d /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/14/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/14 -L/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/14/../../.. -v CMakeFiles/cmTC_bd74d.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-redhat-linux/14/crtend.o /usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crtn.o]
+        linker tool for 'C': /usr/bin/ld
+        collapse obj [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crt1.o] ==> [/usr/lib64/crt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crti.o] ==> [/usr/lib64/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64/crtn.o] ==> [/usr/lib64/crtn.o]
+        collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/14] ==> [/usr/lib/gcc/x86_64-redhat-linux/14]
+        collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/14/../../../../lib64] ==> [/usr/lib64]
+        collapse library dir [/lib/../lib64] ==> [/lib64]
+        collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
+        collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/14/../../..] ==> [/usr/lib]
+        implicit libs: [gcc;gcc_s;c;gcc;gcc_s]
+        implicit objs: [/usr/lib64/crt1.o;/usr/lib64/crti.o;/usr/lib/gcc/x86_64-redhat-linux/14/crtbegin.o;/usr/lib/gcc/x86_64-redhat-linux/14/crtend.o;/usr/lib64/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-redhat-linux/14;/usr/lib64;/lib64;/usr/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:8 (project)"
+    message: |
+      Running the C compiler's linker: "/usr/bin/ld" "-v"
+      GNU ld version 2.43.1-5.fc41
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFiles.cmake:132 (try_compile)"
+      - "CMakeLists.txt:46 (check_include_files)"
+    checks:
+      - "Looking for include file CommonCrypto/CommonCrypto.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Hx8BQa"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Hx8BQa"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "COMMONCRYPTO_FOUND"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Hx8BQa'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_180a0/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_180a0.dir/build.make CMakeFiles/cmTC_180a0.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Hx8BQa'
+        Building C object CMakeFiles/cmTC_180a0.dir/COMMONCRYPTO_FOUND.c.o
+        /usr/lib64/ccache/cc    -o CMakeFiles/cmTC_180a0.dir/COMMONCRYPTO_FOUND.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Hx8BQa/COMMONCRYPTO_FOUND.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Hx8BQa/COMMONCRYPTO_FOUND.c:2:10: fatal error: CommonCrypto/CommonCrypto.h: No such file or directory
+            2 | #include <CommonCrypto/CommonCrypto.h>
+              |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        compilation terminated.
+        gmake[1]: *** [CMakeFiles/cmTC_180a0.dir/build.make:78: CMakeFiles/cmTC_180a0.dir/COMMONCRYPTO_FOUND.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Hx8BQa'
+        gmake: *** [Makefile:127: cmTC_180a0/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:100 (check_function_exists)"
+    checks:
+      - "Looking for _close"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-G1YEkk"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-G1YEkk"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__CLOSE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-G1YEkk'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3599b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3599b.dir/build.make CMakeFiles/cmTC_3599b.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-G1YEkk'
+        Building C object CMakeFiles/cmTC_3599b.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_close -o CMakeFiles/cmTC_3599b.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-G1YEkk/CheckFunctionExists.c
+        Linking C executable cmTC_3599b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3599b.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_close CMakeFiles/cmTC_3599b.dir/CheckFunctionExists.c.o -o cmTC_3599b
+        /usr/bin/ld: CMakeFiles/cmTC_3599b.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_close'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_3599b.dir/build.make:99: cmTC_3599b] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-G1YEkk'
+        gmake: *** [Makefile:127: cmTC_3599b/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:101 (check_function_exists)"
+    checks:
+      - "Looking for _dup"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ODO2iT"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ODO2iT"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__DUP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ODO2iT'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_29264/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_29264.dir/build.make CMakeFiles/cmTC_29264.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ODO2iT'
+        Building C object CMakeFiles/cmTC_29264.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_dup -o CMakeFiles/cmTC_29264.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ODO2iT/CheckFunctionExists.c
+        Linking C executable cmTC_29264
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_29264.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_dup CMakeFiles/cmTC_29264.dir/CheckFunctionExists.c.o -o cmTC_29264
+        /usr/bin/ld: CMakeFiles/cmTC_29264.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_dup'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_29264.dir/build.make:99: cmTC_29264] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ODO2iT'
+        gmake: *** [Makefile:127: cmTC_29264/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:102 (check_function_exists)"
+    checks:
+      - "Looking for _fdopen"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2XPHB8"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2XPHB8"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__FDOPEN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2XPHB8'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6e60e/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6e60e.dir/build.make CMakeFiles/cmTC_6e60e.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2XPHB8'
+        Building C object CMakeFiles/cmTC_6e60e.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_fdopen -o CMakeFiles/cmTC_6e60e.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2XPHB8/CheckFunctionExists.c
+        Linking C executable cmTC_6e60e
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6e60e.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_fdopen CMakeFiles/cmTC_6e60e.dir/CheckFunctionExists.c.o -o cmTC_6e60e
+        /usr/bin/ld: CMakeFiles/cmTC_6e60e.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_fdopen'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_6e60e.dir/build.make:99: cmTC_6e60e] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2XPHB8'
+        gmake: *** [Makefile:127: cmTC_6e60e/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:103 (check_function_exists)"
+    checks:
+      - "Looking for _fileno"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JQDBxN"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JQDBxN"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__FILENO"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JQDBxN'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6533a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6533a.dir/build.make CMakeFiles/cmTC_6533a.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JQDBxN'
+        Building C object CMakeFiles/cmTC_6533a.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_fileno -o CMakeFiles/cmTC_6533a.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JQDBxN/CheckFunctionExists.c
+        Linking C executable cmTC_6533a
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6533a.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_fileno CMakeFiles/cmTC_6533a.dir/CheckFunctionExists.c.o -o cmTC_6533a
+        /usr/bin/ld: CMakeFiles/cmTC_6533a.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_fileno'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_6533a.dir/build.make:99: cmTC_6533a] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JQDBxN'
+        gmake: *** [Makefile:127: cmTC_6533a/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:104 (check_function_exists)"
+    checks:
+      - "Looking for _fseeki64"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GOE9Zk"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GOE9Zk"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__FSEEKI64"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GOE9Zk'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_61cb6/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_61cb6.dir/build.make CMakeFiles/cmTC_61cb6.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GOE9Zk'
+        Building C object CMakeFiles/cmTC_61cb6.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_fseeki64 -o CMakeFiles/cmTC_61cb6.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GOE9Zk/CheckFunctionExists.c
+        Linking C executable cmTC_61cb6
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_61cb6.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_fseeki64 CMakeFiles/cmTC_61cb6.dir/CheckFunctionExists.c.o -o cmTC_61cb6
+        /usr/bin/ld: CMakeFiles/cmTC_61cb6.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_fseeki64'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_61cb6.dir/build.make:99: cmTC_61cb6] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GOE9Zk'
+        gmake: *** [Makefile:127: cmTC_61cb6/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:105 (check_function_exists)"
+    checks:
+      - "Looking for _fstat64"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-xkaV4Y"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-xkaV4Y"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__FSTAT64"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-xkaV4Y'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_59827/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_59827.dir/build.make CMakeFiles/cmTC_59827.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-xkaV4Y'
+        Building C object CMakeFiles/cmTC_59827.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_fstat64 -o CMakeFiles/cmTC_59827.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-xkaV4Y/CheckFunctionExists.c
+        Linking C executable cmTC_59827
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_59827.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_fstat64 CMakeFiles/cmTC_59827.dir/CheckFunctionExists.c.o -o cmTC_59827
+        /usr/bin/ld: CMakeFiles/cmTC_59827.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_fstat64'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_59827.dir/build.make:99: cmTC_59827] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-xkaV4Y'
+        gmake: *** [Makefile:127: cmTC_59827/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:106 (check_function_exists)"
+    checks:
+      - "Looking for _setmode"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sVmPbk"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sVmPbk"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__SETMODE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sVmPbk'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_251b0/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_251b0.dir/build.make CMakeFiles/cmTC_251b0.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sVmPbk'
+        Building C object CMakeFiles/cmTC_251b0.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_setmode -o CMakeFiles/cmTC_251b0.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sVmPbk/CheckFunctionExists.c
+        Linking C executable cmTC_251b0
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_251b0.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_setmode CMakeFiles/cmTC_251b0.dir/CheckFunctionExists.c.o -o cmTC_251b0
+        /usr/bin/ld: CMakeFiles/cmTC_251b0.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_setmode'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_251b0.dir/build.make:99: cmTC_251b0] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sVmPbk'
+        gmake: *** [Makefile:127: cmTC_251b0/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:107 (check_function_exists)"
+    checks:
+      - "Looking for _stat64"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Daonfc"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Daonfc"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__STAT64"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Daonfc'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5f978/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5f978.dir/build.make CMakeFiles/cmTC_5f978.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Daonfc'
+        Building C object CMakeFiles/cmTC_5f978.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_stat64 -o CMakeFiles/cmTC_5f978.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Daonfc/CheckFunctionExists.c
+        Linking C executable cmTC_5f978
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5f978.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_stat64 CMakeFiles/cmTC_5f978.dir/CheckFunctionExists.c.o -o cmTC_5f978
+        /usr/bin/ld: CMakeFiles/cmTC_5f978.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_stat64'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_5f978.dir/build.make:99: cmTC_5f978] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Daonfc'
+        gmake: *** [Makefile:127: cmTC_5f978/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:108 (check_symbol_exists)"
+    checks:
+      - "Looking for _snprintf"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__SNPRINTF"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_22bbf/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_22bbf.dir/build.make CMakeFiles/cmTC_22bbf.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY'
+        Building C object CMakeFiles/cmTC_22bbf.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_22bbf.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY/CheckSymbolExists.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY/CheckSymbolExists.c: In function ‘main’:
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY/CheckSymbolExists.c:8:19: error: ‘_snprintf’ undeclared (first use in this function); did you mean ‘vsnprintf’?
+            8 |   return ((int*)(&_snprintf))[argc];
+              |                   ^~~~~~~~~
+              |                   vsnprintf
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_22bbf.dir/build.make:78: CMakeFiles/cmTC_22bbf.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oJQ1yY'
+        gmake: *** [Makefile:127: cmTC_22bbf/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:109 (check_symbol_exists)"
+    checks:
+      - "Looking for _snprintf_s"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__SNPRINTF_S"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_56ae7/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_56ae7.dir/build.make CMakeFiles/cmTC_56ae7.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7'
+        Building C object CMakeFiles/cmTC_56ae7.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_56ae7.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7/CheckSymbolExists.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7/CheckSymbolExists.c: In function ‘main’:
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7/CheckSymbolExists.c:8:19: error: ‘_snprintf_s’ undeclared (first use in this function); did you mean ‘vsnprintf’?
+            8 |   return ((int*)(&_snprintf_s))[argc];
+              |                   ^~~~~~~~~~~
+              |                   vsnprintf
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_56ae7.dir/build.make:78: CMakeFiles/cmTC_56ae7.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-EM44V7'
+        gmake: *** [Makefile:127: cmTC_56ae7/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:110 (check_symbol_exists)"
+    checks:
+      - "Looking for _snwprintf_s"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__SNWPRINTF_S"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_33cfb/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_33cfb.dir/build.make CMakeFiles/cmTC_33cfb.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ'
+        Building C object CMakeFiles/cmTC_33cfb.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_33cfb.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ/CheckSymbolExists.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ/CheckSymbolExists.c: In function ‘main’:
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ/CheckSymbolExists.c:8:19: error: ‘_snwprintf_s’ undeclared (first use in this function); did you mean ‘vsnprintf’?
+            8 |   return ((int*)(&_snwprintf_s))[argc];
+              |                   ^~~~~~~~~~~~
+              |                   vsnprintf
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_33cfb.dir/build.make:78: CMakeFiles/cmTC_33cfb.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ZJCkQJ'
+        gmake: *** [Makefile:127: cmTC_33cfb/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:111 (check_function_exists)"
+    checks:
+      - "Looking for _strdup"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5CEbE"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5CEbE"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__STRDUP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5CEbE'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ac3a6/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ac3a6.dir/build.make CMakeFiles/cmTC_ac3a6.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5CEbE'
+        Building C object CMakeFiles/cmTC_ac3a6.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_strdup -o CMakeFiles/cmTC_ac3a6.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5CEbE/CheckFunctionExists.c
+        Linking C executable cmTC_ac3a6
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ac3a6.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_strdup CMakeFiles/cmTC_ac3a6.dir/CheckFunctionExists.c.o -o cmTC_ac3a6
+        /usr/bin/ld: CMakeFiles/cmTC_ac3a6.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_strdup'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_ac3a6.dir/build.make:99: cmTC_ac3a6] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5CEbE'
+        gmake: *** [Makefile:127: cmTC_ac3a6/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:112 (check_symbol_exists)"
+    checks:
+      - "Looking for _stricmp"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__STRICMP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_c02ec/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_c02ec.dir/build.make CMakeFiles/cmTC_c02ec.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l'
+        Building C object CMakeFiles/cmTC_c02ec.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_c02ec.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l/CheckSymbolExists.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l/CheckSymbolExists.c: In function ‘main’:
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l/CheckSymbolExists.c:8:19: error: ‘_stricmp’ undeclared (first use in this function); did you mean ‘strncmp’?
+            8 |   return ((int*)(&_stricmp))[argc];
+              |                   ^~~~~~~~
+              |                   strncmp
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_c02ec.dir/build.make:78: CMakeFiles/cmTC_c02ec.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gv0W4l'
+        gmake: *** [Makefile:127: cmTC_c02ec/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:113 (check_function_exists)"
+    checks:
+      - "Looking for _strtoi64"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BzGnlN"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BzGnlN"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__STRTOI64"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BzGnlN'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_8f90f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_8f90f.dir/build.make CMakeFiles/cmTC_8f90f.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BzGnlN'
+        Building C object CMakeFiles/cmTC_8f90f.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_strtoi64 -o CMakeFiles/cmTC_8f90f.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BzGnlN/CheckFunctionExists.c
+        Linking C executable cmTC_8f90f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8f90f.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_strtoi64 CMakeFiles/cmTC_8f90f.dir/CheckFunctionExists.c.o -o cmTC_8f90f
+        /usr/bin/ld: CMakeFiles/cmTC_8f90f.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_strtoi64'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_8f90f.dir/build.make:99: cmTC_8f90f] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BzGnlN'
+        gmake: *** [Makefile:127: cmTC_8f90f/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:114 (check_function_exists)"
+    checks:
+      - "Looking for _strtoui64"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VnWexr"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VnWexr"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__STRTOUI64"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VnWexr'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f5506/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f5506.dir/build.make CMakeFiles/cmTC_f5506.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VnWexr'
+        Building C object CMakeFiles/cmTC_f5506.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_strtoui64 -o CMakeFiles/cmTC_f5506.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VnWexr/CheckFunctionExists.c
+        Linking C executable cmTC_f5506
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f5506.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_strtoui64 CMakeFiles/cmTC_f5506.dir/CheckFunctionExists.c.o -o cmTC_f5506
+        /usr/bin/ld: CMakeFiles/cmTC_f5506.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_strtoui64'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_f5506.dir/build.make:99: cmTC_f5506] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VnWexr'
+        gmake: *** [Makefile:127: cmTC_f5506/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:115 (check_function_exists)"
+    checks:
+      - "Looking for _unlink"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hyU9jv"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hyU9jv"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE__UNLINK"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hyU9jv'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_7ceef/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_7ceef.dir/build.make CMakeFiles/cmTC_7ceef.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hyU9jv'
+        Building C object CMakeFiles/cmTC_7ceef.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=_unlink -o CMakeFiles/cmTC_7ceef.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hyU9jv/CheckFunctionExists.c
+        Linking C executable cmTC_7ceef
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7ceef.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=_unlink CMakeFiles/cmTC_7ceef.dir/CheckFunctionExists.c.o -o cmTC_7ceef
+        /usr/bin/ld: CMakeFiles/cmTC_7ceef.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `_unlink'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_7ceef.dir/build.make:99: cmTC_7ceef] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hyU9jv'
+        gmake: *** [Makefile:127: cmTC_7ceef/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:116 (check_function_exists)"
+    checks:
+      - "Looking for arc4random"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-NPJpMj"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-NPJpMj"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_ARC4RANDOM"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-NPJpMj'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_61e3f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_61e3f.dir/build.make CMakeFiles/cmTC_61e3f.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-NPJpMj'
+        Building C object CMakeFiles/cmTC_61e3f.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=arc4random -o CMakeFiles/cmTC_61e3f.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-NPJpMj/CheckFunctionExists.c
+        Linking C executable cmTC_61e3f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_61e3f.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=arc4random CMakeFiles/cmTC_61e3f.dir/CheckFunctionExists.c.o -o cmTC_61e3f
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-NPJpMj'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:117 (check_function_exists)"
+    checks:
+      - "Looking for clonefile"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-DfGfht"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-DfGfht"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_CLONEFILE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-DfGfht'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0277f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0277f.dir/build.make CMakeFiles/cmTC_0277f.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-DfGfht'
+        Building C object CMakeFiles/cmTC_0277f.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=clonefile -o CMakeFiles/cmTC_0277f.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-DfGfht/CheckFunctionExists.c
+        Linking C executable cmTC_0277f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0277f.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=clonefile CMakeFiles/cmTC_0277f.dir/CheckFunctionExists.c.o -o cmTC_0277f
+        /usr/bin/ld: CMakeFiles/cmTC_0277f.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `clonefile'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_0277f.dir/build.make:99: cmTC_0277f] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-DfGfht'
+        gmake: *** [Makefile:127: cmTC_0277f/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:118 (check_function_exists)"
+    checks:
+      - "Looking for explicit_bzero"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-qZGscu"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-qZGscu"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_EXPLICIT_BZERO"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-qZGscu'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_005f3/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_005f3.dir/build.make CMakeFiles/cmTC_005f3.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-qZGscu'
+        Building C object CMakeFiles/cmTC_005f3.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=explicit_bzero -o CMakeFiles/cmTC_005f3.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-qZGscu/CheckFunctionExists.c
+        Linking C executable cmTC_005f3
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_005f3.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=explicit_bzero CMakeFiles/cmTC_005f3.dir/CheckFunctionExists.c.o -o cmTC_005f3
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-qZGscu'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:119 (check_function_exists)"
+    checks:
+      - "Looking for explicit_memset"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sKzagf"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sKzagf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_EXPLICIT_MEMSET"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sKzagf'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_97637/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_97637.dir/build.make CMakeFiles/cmTC_97637.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sKzagf'
+        Building C object CMakeFiles/cmTC_97637.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=explicit_memset -o CMakeFiles/cmTC_97637.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sKzagf/CheckFunctionExists.c
+        Linking C executable cmTC_97637
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_97637.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=explicit_memset CMakeFiles/cmTC_97637.dir/CheckFunctionExists.c.o -o cmTC_97637
+        /usr/bin/ld: CMakeFiles/cmTC_97637.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `explicit_memset'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_97637.dir/build.make:99: cmTC_97637] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sKzagf'
+        gmake: *** [Makefile:127: cmTC_97637/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:120 (check_function_exists)"
+    checks:
+      - "Looking for fchmod"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-giC4N5"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-giC4N5"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_FCHMOD"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-giC4N5'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_08577/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_08577.dir/build.make CMakeFiles/cmTC_08577.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-giC4N5'
+        Building C object CMakeFiles/cmTC_08577.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=fchmod -o CMakeFiles/cmTC_08577.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-giC4N5/CheckFunctionExists.c
+        Linking C executable cmTC_08577
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_08577.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=fchmod CMakeFiles/cmTC_08577.dir/CheckFunctionExists.c.o -o cmTC_08577
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-giC4N5'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:121 (check_function_exists)"
+    checks:
+      - "Looking for fileno"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-La7iAY"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-La7iAY"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_FILENO"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-La7iAY'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_c03af/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_c03af.dir/build.make CMakeFiles/cmTC_c03af.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-La7iAY'
+        Building C object CMakeFiles/cmTC_c03af.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=fileno -o CMakeFiles/cmTC_c03af.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-La7iAY/CheckFunctionExists.c
+        Linking C executable cmTC_c03af
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c03af.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=fileno CMakeFiles/cmTC_c03af.dir/CheckFunctionExists.c.o -o cmTC_c03af
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-La7iAY'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:122 (check_function_exists)"
+    checks:
+      - "Looking for fseeko"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GFRwwo"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GFRwwo"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_FSEEKO"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GFRwwo'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ba11f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ba11f.dir/build.make CMakeFiles/cmTC_ba11f.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GFRwwo'
+        Building C object CMakeFiles/cmTC_ba11f.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=fseeko -o CMakeFiles/cmTC_ba11f.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GFRwwo/CheckFunctionExists.c
+        Linking C executable cmTC_ba11f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ba11f.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=fseeko CMakeFiles/cmTC_ba11f.dir/CheckFunctionExists.c.o -o cmTC_ba11f
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GFRwwo'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:123 (check_function_exists)"
+    checks:
+      - "Looking for ftello"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9knuYn"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9knuYn"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_FTELLO"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9knuYn'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_12dcf/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_12dcf.dir/build.make CMakeFiles/cmTC_12dcf.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9knuYn'
+        Building C object CMakeFiles/cmTC_12dcf.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=ftello -o CMakeFiles/cmTC_12dcf.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9knuYn/CheckFunctionExists.c
+        Linking C executable cmTC_12dcf
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_12dcf.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=ftello CMakeFiles/cmTC_12dcf.dir/CheckFunctionExists.c.o -o cmTC_12dcf
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9knuYn'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:124 (check_function_exists)"
+    checks:
+      - "Looking for getprogname"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-S7T3db"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-S7T3db"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_GETPROGNAME"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-S7T3db'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d0382/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d0382.dir/build.make CMakeFiles/cmTC_d0382.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-S7T3db'
+        Building C object CMakeFiles/cmTC_d0382.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=getprogname -o CMakeFiles/cmTC_d0382.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-S7T3db/CheckFunctionExists.c
+        Linking C executable cmTC_d0382
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d0382.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=getprogname CMakeFiles/cmTC_d0382.dir/CheckFunctionExists.c.o -o cmTC_d0382
+        /usr/bin/ld: CMakeFiles/cmTC_d0382.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `getprogname'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_d0382.dir/build.make:99: cmTC_d0382] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-S7T3db'
+        gmake: *** [Makefile:127: cmTC_d0382/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:125 (check_function_exists)"
+    checks:
+      - "Looking for GetSecurityInfo"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Xvsk9v"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Xvsk9v"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_GETSECURITYINFO"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Xvsk9v'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ba728/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ba728.dir/build.make CMakeFiles/cmTC_ba728.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Xvsk9v'
+        Building C object CMakeFiles/cmTC_ba728.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=GetSecurityInfo -o CMakeFiles/cmTC_ba728.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Xvsk9v/CheckFunctionExists.c
+        Linking C executable cmTC_ba728
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ba728.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=GetSecurityInfo CMakeFiles/cmTC_ba728.dir/CheckFunctionExists.c.o -o cmTC_ba728
+        /usr/bin/ld: CMakeFiles/cmTC_ba728.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `GetSecurityInfo'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_ba728.dir/build.make:99: cmTC_ba728] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Xvsk9v'
+        gmake: *** [Makefile:127: cmTC_ba728/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:126 (check_symbol_exists)"
+    checks:
+      - "Looking for localtime_r"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VCG2Bv"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VCG2Bv"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_LOCALTIME_R"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VCG2Bv'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_07605/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_07605.dir/build.make CMakeFiles/cmTC_07605.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VCG2Bv'
+        Building C object CMakeFiles/cmTC_07605.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_07605.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VCG2Bv/CheckSymbolExists.c
+        Linking C executable cmTC_07605
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_07605.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_07605.dir/CheckSymbolExists.c.o -o cmTC_07605
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-VCG2Bv'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:127 (check_symbol_exists)"
+    checks:
+      - "Looking for localtime_s"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_LOCALTIME_S"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6771a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6771a.dir/build.make CMakeFiles/cmTC_6771a.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv'
+        Building C object CMakeFiles/cmTC_6771a.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_6771a.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv/CheckSymbolExists.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv/CheckSymbolExists.c: In function ‘main’:
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv/CheckSymbolExists.c:8:19: error: ‘localtime_s’ undeclared (first use in this function); did you mean ‘localtime_r’?
+            8 |   return ((int*)(&localtime_s))[argc];
+              |                   ^~~~~~~~~~~
+              |                   localtime_r
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_6771a.dir/build.make:78: CMakeFiles/cmTC_6771a.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BFokUv'
+        gmake: *** [Makefile:127: cmTC_6771a/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:128 (check_function_exists)"
+    checks:
+      - "Looking for memcpy_s"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-0OiB4M"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-0OiB4M"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_MEMCPY_S"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-0OiB4M'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0ccac/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0ccac.dir/build.make CMakeFiles/cmTC_0ccac.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-0OiB4M'
+        Building C object CMakeFiles/cmTC_0ccac.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=memcpy_s -o CMakeFiles/cmTC_0ccac.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-0OiB4M/CheckFunctionExists.c
+        Linking C executable cmTC_0ccac
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0ccac.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=memcpy_s CMakeFiles/cmTC_0ccac.dir/CheckFunctionExists.c.o -o cmTC_0ccac
+        /usr/bin/ld: CMakeFiles/cmTC_0ccac.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `memcpy_s'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_0ccac.dir/build.make:99: cmTC_0ccac] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-0OiB4M'
+        gmake: *** [Makefile:127: cmTC_0ccac/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:129 (check_function_exists)"
+    checks:
+      - "Looking for random"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vDeDca"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vDeDca"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_RANDOM"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vDeDca'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_87025/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_87025.dir/build.make CMakeFiles/cmTC_87025.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vDeDca'
+        Building C object CMakeFiles/cmTC_87025.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=random -o CMakeFiles/cmTC_87025.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vDeDca/CheckFunctionExists.c
+        Linking C executable cmTC_87025
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_87025.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=random CMakeFiles/cmTC_87025.dir/CheckFunctionExists.c.o -o cmTC_87025
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vDeDca'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:130 (check_function_exists)"
+    checks:
+      - "Looking for setmode"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-M9TfZf"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-M9TfZf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_SETMODE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-M9TfZf'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_f1a7e/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_f1a7e.dir/build.make CMakeFiles/cmTC_f1a7e.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-M9TfZf'
+        Building C object CMakeFiles/cmTC_f1a7e.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=setmode -o CMakeFiles/cmTC_f1a7e.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-M9TfZf/CheckFunctionExists.c
+        Linking C executable cmTC_f1a7e
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f1a7e.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=setmode CMakeFiles/cmTC_f1a7e.dir/CheckFunctionExists.c.o -o cmTC_f1a7e
+        /usr/bin/ld: CMakeFiles/cmTC_f1a7e.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `setmode'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_f1a7e.dir/build.make:99: cmTC_f1a7e] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-M9TfZf'
+        gmake: *** [Makefile:127: cmTC_f1a7e/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:131 (check_symbol_exists)"
+    checks:
+      - "Looking for snprintf"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-a4YYC2"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-a4YYC2"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_SNPRINTF"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-a4YYC2'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6b2a0/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6b2a0.dir/build.make CMakeFiles/cmTC_6b2a0.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-a4YYC2'
+        Building C object CMakeFiles/cmTC_6b2a0.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_6b2a0.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-a4YYC2/CheckSymbolExists.c
+        Linking C executable cmTC_6b2a0
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6b2a0.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_6b2a0.dir/CheckSymbolExists.c.o -o cmTC_6b2a0
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-a4YYC2'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:132 (check_symbol_exists)"
+    checks:
+      - "Looking for snprintf_s"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_SNPRINTF_S"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_1ea4a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_1ea4a.dir/build.make CMakeFiles/cmTC_1ea4a.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6'
+        Building C object CMakeFiles/cmTC_1ea4a.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_1ea4a.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6/CheckSymbolExists.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6/CheckSymbolExists.c: In function ‘main’:
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6/CheckSymbolExists.c:8:19: error: ‘snprintf_s’ undeclared (first use in this function); did you mean ‘snprintf’?
+            8 |   return ((int*)(&snprintf_s))[argc];
+              |                   ^~~~~~~~~~
+              |                   snprintf
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_1ea4a.dir/build.make:78: CMakeFiles/cmTC_1ea4a.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uW9pE6'
+        gmake: *** [Makefile:127: cmTC_1ea4a/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "CMakeLists.txt:133 (check_symbol_exists)"
+    checks:
+      - "Looking for strcasecmp"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-CyKvyL"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-CyKvyL"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRCASECMP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-CyKvyL'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_17f0f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_17f0f.dir/build.make CMakeFiles/cmTC_17f0f.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-CyKvyL'
+        Building C object CMakeFiles/cmTC_17f0f.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_17f0f.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-CyKvyL/CheckSymbolExists.c
+        Linking C executable cmTC_17f0f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_17f0f.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_17f0f.dir/CheckSymbolExists.c.o -o cmTC_17f0f
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-CyKvyL'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:134 (check_function_exists)"
+    checks:
+      - "Looking for strdup"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-YUMmxp"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-YUMmxp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRDUP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-YUMmxp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_e84ca/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_e84ca.dir/build.make CMakeFiles/cmTC_e84ca.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-YUMmxp'
+        Building C object CMakeFiles/cmTC_e84ca.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=strdup -o CMakeFiles/cmTC_e84ca.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-YUMmxp/CheckFunctionExists.c
+        <command-line>: warning: conflicting types for built-in function ‘strdup’; expected ‘char *(const char *)’ [-Wbuiltin-declaration-mismatch]
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-YUMmxp/CheckFunctionExists.c:7:3: note: in expansion of macro ‘CHECK_FUNCTION_EXISTS’
+            7 |   CHECK_FUNCTION_EXISTS(void);
+              |   ^~~~~~~~~~~~~~~~~~~~~
+        Linking C executable cmTC_e84ca
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e84ca.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=strdup CMakeFiles/cmTC_e84ca.dir/CheckFunctionExists.c.o -o cmTC_e84ca
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-YUMmxp'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:135 (check_function_exists)"
+    checks:
+      - "Looking for strerror_s"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-A3TdDh"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-A3TdDh"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRERROR_S"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-A3TdDh'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3a700/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3a700.dir/build.make CMakeFiles/cmTC_3a700.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-A3TdDh'
+        Building C object CMakeFiles/cmTC_3a700.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=strerror_s -o CMakeFiles/cmTC_3a700.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-A3TdDh/CheckFunctionExists.c
+        Linking C executable cmTC_3a700
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3a700.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=strerror_s CMakeFiles/cmTC_3a700.dir/CheckFunctionExists.c.o -o cmTC_3a700
+        /usr/bin/ld: CMakeFiles/cmTC_3a700.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `strerror_s'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_3a700.dir/build.make:99: cmTC_3a700] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-A3TdDh'
+        gmake: *** [Makefile:127: cmTC_3a700/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:136 (check_function_exists)"
+    checks:
+      - "Looking for strerrorlen_s"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hq5RdL"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hq5RdL"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRERRORLEN_S"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hq5RdL'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_9d345/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_9d345.dir/build.make CMakeFiles/cmTC_9d345.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hq5RdL'
+        Building C object CMakeFiles/cmTC_9d345.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=strerrorlen_s -o CMakeFiles/cmTC_9d345.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hq5RdL/CheckFunctionExists.c
+        Linking C executable cmTC_9d345
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9d345.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=strerrorlen_s CMakeFiles/cmTC_9d345.dir/CheckFunctionExists.c.o -o cmTC_9d345
+        /usr/bin/ld: CMakeFiles/cmTC_9d345.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `strerrorlen_s'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_9d345.dir/build.make:99: cmTC_9d345] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-hq5RdL'
+        gmake: *** [Makefile:127: cmTC_9d345/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:137 (check_function_exists)"
+    checks:
+      - "Looking for stricmp"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Yg34As"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Yg34As"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRICMP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Yg34As'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_67264/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_67264.dir/build.make CMakeFiles/cmTC_67264.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Yg34As'
+        Building C object CMakeFiles/cmTC_67264.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=stricmp -o CMakeFiles/cmTC_67264.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Yg34As/CheckFunctionExists.c
+        Linking C executable cmTC_67264
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_67264.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=stricmp CMakeFiles/cmTC_67264.dir/CheckFunctionExists.c.o -o cmTC_67264
+        /usr/bin/ld: CMakeFiles/cmTC_67264.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `stricmp'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_67264.dir/build.make:99: cmTC_67264] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-Yg34As'
+        gmake: *** [Makefile:127: cmTC_67264/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:138 (check_function_exists)"
+    checks:
+      - "Looking for strncpy_s"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z8JM7W"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z8JM7W"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRNCPY_S"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z8JM7W'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ef1cc/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ef1cc.dir/build.make CMakeFiles/cmTC_ef1cc.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z8JM7W'
+        Building C object CMakeFiles/cmTC_ef1cc.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=strncpy_s -o CMakeFiles/cmTC_ef1cc.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z8JM7W/CheckFunctionExists.c
+        Linking C executable cmTC_ef1cc
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ef1cc.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=strncpy_s CMakeFiles/cmTC_ef1cc.dir/CheckFunctionExists.c.o -o cmTC_ef1cc
+        /usr/bin/ld: CMakeFiles/cmTC_ef1cc.dir/CheckFunctionExists.c.o: in function `main':
+        CheckFunctionExists.c:(.text+0x10): undefined reference to `strncpy_s'
+        collect2: error: ld returned 1 exit status
+        gmake[1]: *** [CMakeFiles/cmTC_ef1cc.dir/build.make:99: cmTC_ef1cc] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z8JM7W'
+        gmake: *** [Makefile:127: cmTC_ef1cc/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:139 (check_function_exists)"
+    checks:
+      - "Looking for strtoll"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pWKmDN"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pWKmDN"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRTOLL"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pWKmDN'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_1b931/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_1b931.dir/build.make CMakeFiles/cmTC_1b931.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pWKmDN'
+        Building C object CMakeFiles/cmTC_1b931.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=strtoll -o CMakeFiles/cmTC_1b931.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pWKmDN/CheckFunctionExists.c
+        Linking C executable cmTC_1b931
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1b931.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=strtoll CMakeFiles/cmTC_1b931.dir/CheckFunctionExists.c.o -o cmTC_1b931
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pWKmDN'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:140 (check_function_exists)"
+    checks:
+      - "Looking for strtoull"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4RZsGi"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4RZsGi"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRTOULL"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4RZsGi'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_44ea9/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_44ea9.dir/build.make CMakeFiles/cmTC_44ea9.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4RZsGi'
+        Building C object CMakeFiles/cmTC_44ea9.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=strtoull -o CMakeFiles/cmTC_44ea9.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4RZsGi/CheckFunctionExists.c
+        Linking C executable cmTC_44ea9
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_44ea9.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=strtoull CMakeFiles/cmTC_44ea9.dir/CheckFunctionExists.c.o -o cmTC_44ea9
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4RZsGi'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFiles.cmake:132 (try_compile)"
+      - "CMakeLists.txt:142 (check_include_files)"
+    checks:
+      - "Looking for 3 include files sys/types.h, ..., fts.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-lfjEXu"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-lfjEXu"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_FTS_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-lfjEXu'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_80d0d/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_80d0d.dir/build.make CMakeFiles/cmTC_80d0d.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-lfjEXu'
+        Building C object CMakeFiles/cmTC_80d0d.dir/HAVE_FTS_H.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_80d0d.dir/HAVE_FTS_H.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-lfjEXu/HAVE_FTS_H.c
+        Linking C executable cmTC_80d0d
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_80d0d.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_80d0d.dir/HAVE_FTS_H.c.o -o cmTC_80d0d
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-lfjEXu'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "CMakeLists.txt:145 (check_function_exists)"
+    checks:
+      - "Looking for fts_open"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BhdITL"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BhdITL"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_FTS_OPEN"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BhdITL'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_544c1/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_544c1.dir/build.make CMakeFiles/cmTC_544c1.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BhdITL'
+        Building C object CMakeFiles/cmTC_544c1.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=fts_open -o CMakeFiles/cmTC_544c1.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BhdITL/CheckFunctionExists.c
+        Linking C executable cmTC_544c1
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_544c1.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=fts_open CMakeFiles/cmTC_544c1.dir/CheckFunctionExists.c.o -o cmTC_544c1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BhdITL'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFiles.cmake:132 (try_compile)"
+      - "CMakeLists.txt:161 (check_include_files)"
+    checks:
+      - "Looking for include file stdbool.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BQ4yfF"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BQ4yfF"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STDBOOL_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BQ4yfF'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d9ecb/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d9ecb.dir/build.make CMakeFiles/cmTC_d9ecb.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BQ4yfF'
+        Building C object CMakeFiles/cmTC_d9ecb.dir/HAVE_STDBOOL_H.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_d9ecb.dir/HAVE_STDBOOL_H.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BQ4yfF/HAVE_STDBOOL_H.c
+        Linking C executable cmTC_d9ecb
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d9ecb.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_d9ecb.dir/HAVE_STDBOOL_H.c.o -o cmTC_d9ecb
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BQ4yfF'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFiles.cmake:132 (try_compile)"
+      - "CMakeLists.txt:162 (check_include_files)"
+    checks:
+      - "Looking for include file strings.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oH4mzC"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oH4mzC"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STRINGS_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oH4mzC'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_cfe68/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_cfe68.dir/build.make CMakeFiles/cmTC_cfe68.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oH4mzC'
+        Building C object CMakeFiles/cmTC_cfe68.dir/HAVE_STRINGS_H.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_cfe68.dir/HAVE_STRINGS_H.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oH4mzC/HAVE_STRINGS_H.c
+        Linking C executable cmTC_cfe68
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cfe68.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_cfe68.dir/HAVE_STRINGS_H.c.o -o cmTC_cfe68
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-oH4mzC'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFiles.cmake:132 (try_compile)"
+      - "CMakeLists.txt:163 (check_include_files)"
+    checks:
+      - "Looking for include file unistd.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ElS2Ix"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ElS2Ix"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_UNISTD_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ElS2Ix'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6a3d5/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6a3d5.dir/build.make CMakeFiles/cmTC_6a3d5.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ElS2Ix'
+        Building C object CMakeFiles/cmTC_6a3d5.dir/HAVE_UNISTD_H.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_6a3d5.dir/HAVE_UNISTD_H.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ElS2Ix/HAVE_UNISTD_H.c
+        Linking C executable cmTC_6a3d5
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6a3d5.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_6a3d5.dir/HAVE_UNISTD_H.c.o -o cmTC_6a3d5
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-ElS2Ix'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFiles.cmake:132 (try_compile)"
+      - "CMakeLists.txt:165 (check_include_files)"
+    checks:
+      - "Looking for include file inttypes.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-zcLgiA"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-zcLgiA"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_INTTYPES_H_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-zcLgiA'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_9c5e4/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_9c5e4.dir/build.make CMakeFiles/cmTC_9c5e4.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-zcLgiA'
+        Building C object CMakeFiles/cmTC_9c5e4.dir/HAVE_INTTYPES_H_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_9c5e4.dir/HAVE_INTTYPES_H_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-zcLgiA/HAVE_INTTYPES_H_LIBZIP.c
+        Linking C executable cmTC_9c5e4
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9c5e4.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_9c5e4.dir/HAVE_INTTYPES_H_LIBZIP.c.o -o cmTC_9c5e4
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-zcLgiA'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFiles.cmake:132 (try_compile)"
+      - "CMakeLists.txt:166 (check_include_files)"
+    checks:
+      - "Looking for include file stdint.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-C2xuhM"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-C2xuhM"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STDINT_H_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-C2xuhM'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_1a087/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_1a087.dir/build.make CMakeFiles/cmTC_1a087.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-C2xuhM'
+        Building C object CMakeFiles/cmTC_1a087.dir/HAVE_STDINT_H_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_1a087.dir/HAVE_STDINT_H_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-C2xuhM/HAVE_STDINT_H_LIBZIP.c
+        Linking C executable cmTC_1a087
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1a087.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_1a087.dir/HAVE_STDINT_H_LIBZIP.c.o -o cmTC_1a087
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-C2xuhM'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFiles.cmake:132 (try_compile)"
+      - "CMakeLists.txt:167 (check_include_files)"
+    checks:
+      - "Looking for include file sys/types.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4VIMcp"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4VIMcp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_SYS_TYPES_H_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4VIMcp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_136ce/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_136ce.dir/build.make CMakeFiles/cmTC_136ce.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4VIMcp'
+        Building C object CMakeFiles/cmTC_136ce.dir/HAVE_SYS_TYPES_H_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_136ce.dir/HAVE_SYS_TYPES_H_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4VIMcp/HAVE_SYS_TYPES_H_LIBZIP.c
+        Linking C executable cmTC_136ce
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_136ce.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_136ce.dir/HAVE_SYS_TYPES_H_LIBZIP.c.o -o cmTC_136ce
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-4VIMcp'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:90 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:251 (check_include_file)"
+      - "CMakeLists.txt:173 (check_type_size)"
+    checks:
+      - "Looking for sys/types.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vFPDWq"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vFPDWq"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_SYS_TYPES_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vFPDWq'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6de5a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6de5a.dir/build.make CMakeFiles/cmTC_6de5a.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vFPDWq'
+        Building C object CMakeFiles/cmTC_6de5a.dir/CheckIncludeFile.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_6de5a.dir/CheckIncludeFile.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vFPDWq/CheckIncludeFile.c
+        Linking C executable cmTC_6de5a
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6de5a.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_6de5a.dir/CheckIncludeFile.c.o -o cmTC_6de5a
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-vFPDWq'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:90 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:252 (check_include_file)"
+      - "CMakeLists.txt:173 (check_type_size)"
+    checks:
+      - "Looking for stdint.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-r6XZHW"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-r6XZHW"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STDINT_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-r6XZHW'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3d20b/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3d20b.dir/build.make CMakeFiles/cmTC_3d20b.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-r6XZHW'
+        Building C object CMakeFiles/cmTC_3d20b.dir/CheckIncludeFile.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_3d20b.dir/CheckIncludeFile.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-r6XZHW/CheckIncludeFile.c
+        Linking C executable cmTC_3d20b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3d20b.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_3d20b.dir/CheckIncludeFile.c.o -o cmTC_3d20b
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-r6XZHW'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckIncludeFile.cmake:90 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:253 (check_include_file)"
+      - "CMakeLists.txt:173 (check_type_size)"
+    checks:
+      - "Looking for stddef.h"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-P31zqM"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-P31zqM"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_STDDEF_H"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-P31zqM'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0a24d/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0a24d.dir/build.make CMakeFiles/cmTC_0a24d.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-P31zqM'
+        Building C object CMakeFiles/cmTC_0a24d.dir/CheckIncludeFile.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_0a24d.dir/CheckIncludeFile.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-P31zqM/CheckIncludeFile.c
+        Linking C executable cmTC_0a24d
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0a24d.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_0a24d.dir/CheckIncludeFile.c.o -o cmTC_0a24d
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-P31zqM'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:173 (check_type_size)"
+    checks:
+      - "Check size of __int8"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GlLemk"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GlLemk"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE___INT8_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GlLemk'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bf191/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_bf191.dir/build.make CMakeFiles/cmTC_bf191.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GlLemk'
+        Building C object CMakeFiles/cmTC_bf191.dir/__INT8_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_bf191.dir/__INT8_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GlLemk/__INT8_LIBZIP.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GlLemk/__INT8_LIBZIP.c:27:22: error: ‘__int8’ undeclared here (not in a function); did you mean ‘u_int’?
+           27 | #define SIZE (sizeof(__int8))
+              |                      ^~~~~~
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GlLemk/__INT8_LIBZIP.c:29:12: note: in expansion of macro ‘SIZE’
+           29 |   ('0' + ((SIZE / 10000)%10)),
+              |            ^~~~
+        gmake[1]: *** [CMakeFiles/cmTC_bf191.dir/build.make:78: CMakeFiles/cmTC_bf191.dir/__INT8_LIBZIP.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-GlLemk'
+        gmake: *** [Makefile:127: cmTC_bf191/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:174 (check_type_size)"
+    checks:
+      - "Check size of int8_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9rB1sL"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9rB1sL"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_INT8_T_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9rB1sL'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_67e7d/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_67e7d.dir/build.make CMakeFiles/cmTC_67e7d.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9rB1sL'
+        Building C object CMakeFiles/cmTC_67e7d.dir/INT8_T_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_67e7d.dir/INT8_T_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9rB1sL/INT8_T_LIBZIP.c
+        Linking C executable cmTC_67e7d
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_67e7d.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_67e7d.dir/INT8_T_LIBZIP.c.o -o cmTC_67e7d
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-9rB1sL'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:175 (check_type_size)"
+    checks:
+      - "Check size of uint8_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BLP675"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BLP675"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_UINT8_T_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BLP675'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_cbe2d/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_cbe2d.dir/build.make CMakeFiles/cmTC_cbe2d.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BLP675'
+        Building C object CMakeFiles/cmTC_cbe2d.dir/UINT8_T_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_cbe2d.dir/UINT8_T_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BLP675/UINT8_T_LIBZIP.c
+        Linking C executable cmTC_cbe2d
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cbe2d.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_cbe2d.dir/UINT8_T_LIBZIP.c.o -o cmTC_cbe2d
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-BLP675'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:176 (check_type_size)"
+    checks:
+      - "Check size of __int16"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RIecvj"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RIecvj"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE___INT16_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RIecvj'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_e7067/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_e7067.dir/build.make CMakeFiles/cmTC_e7067.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RIecvj'
+        Building C object CMakeFiles/cmTC_e7067.dir/__INT16_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_e7067.dir/__INT16_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RIecvj/__INT16_LIBZIP.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RIecvj/__INT16_LIBZIP.c:27:22: error: ‘__int16’ undeclared here (not in a function); did you mean ‘__int16_t’?
+           27 | #define SIZE (sizeof(__int16))
+              |                      ^~~~~~~
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RIecvj/__INT16_LIBZIP.c:29:12: note: in expansion of macro ‘SIZE’
+           29 |   ('0' + ((SIZE / 10000)%10)),
+              |            ^~~~
+        gmake[1]: *** [CMakeFiles/cmTC_e7067.dir/build.make:78: CMakeFiles/cmTC_e7067.dir/__INT16_LIBZIP.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RIecvj'
+        gmake: *** [Makefile:127: cmTC_e7067/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:177 (check_type_size)"
+    checks:
+      - "Check size of int16_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-PlwOq9"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-PlwOq9"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_INT16_T_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-PlwOq9'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ca0ff/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ca0ff.dir/build.make CMakeFiles/cmTC_ca0ff.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-PlwOq9'
+        Building C object CMakeFiles/cmTC_ca0ff.dir/INT16_T_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_ca0ff.dir/INT16_T_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-PlwOq9/INT16_T_LIBZIP.c
+        Linking C executable cmTC_ca0ff
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ca0ff.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_ca0ff.dir/INT16_T_LIBZIP.c.o -o cmTC_ca0ff
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-PlwOq9'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:178 (check_type_size)"
+    checks:
+      - "Check size of uint16_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z89UBC"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z89UBC"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_UINT16_T_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z89UBC'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_04ae5/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_04ae5.dir/build.make CMakeFiles/cmTC_04ae5.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z89UBC'
+        Building C object CMakeFiles/cmTC_04ae5.dir/UINT16_T_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_04ae5.dir/UINT16_T_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z89UBC/UINT16_T_LIBZIP.c
+        Linking C executable cmTC_04ae5
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_04ae5.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_04ae5.dir/UINT16_T_LIBZIP.c.o -o cmTC_04ae5
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-z89UBC'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:179 (check_type_size)"
+    checks:
+      - "Check size of __int32"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-H15CVM"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-H15CVM"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE___INT32_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-H15CVM'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_626d9/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_626d9.dir/build.make CMakeFiles/cmTC_626d9.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-H15CVM'
+        Building C object CMakeFiles/cmTC_626d9.dir/__INT32_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_626d9.dir/__INT32_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-H15CVM/__INT32_LIBZIP.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-H15CVM/__INT32_LIBZIP.c:27:22: error: ‘__int32’ undeclared here (not in a function); did you mean ‘__int32_t’?
+           27 | #define SIZE (sizeof(__int32))
+              |                      ^~~~~~~
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-H15CVM/__INT32_LIBZIP.c:29:12: note: in expansion of macro ‘SIZE’
+           29 |   ('0' + ((SIZE / 10000)%10)),
+              |            ^~~~
+        gmake[1]: *** [CMakeFiles/cmTC_626d9.dir/build.make:78: CMakeFiles/cmTC_626d9.dir/__INT32_LIBZIP.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-H15CVM'
+        gmake: *** [Makefile:127: cmTC_626d9/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:180 (check_type_size)"
+    checks:
+      - "Check size of int32_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pOnWPp"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pOnWPp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_INT32_T_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pOnWPp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3f8f8/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3f8f8.dir/build.make CMakeFiles/cmTC_3f8f8.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pOnWPp'
+        Building C object CMakeFiles/cmTC_3f8f8.dir/INT32_T_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_3f8f8.dir/INT32_T_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pOnWPp/INT32_T_LIBZIP.c
+        Linking C executable cmTC_3f8f8
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3f8f8.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_3f8f8.dir/INT32_T_LIBZIP.c.o -o cmTC_3f8f8
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-pOnWPp'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:181 (check_type_size)"
+    checks:
+      - "Check size of uint32_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XuwLgl"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XuwLgl"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_UINT32_T_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XuwLgl'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6db50/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6db50.dir/build.make CMakeFiles/cmTC_6db50.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XuwLgl'
+        Building C object CMakeFiles/cmTC_6db50.dir/UINT32_T_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_6db50.dir/UINT32_T_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XuwLgl/UINT32_T_LIBZIP.c
+        Linking C executable cmTC_6db50
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6db50.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_6db50.dir/UINT32_T_LIBZIP.c.o -o cmTC_6db50
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XuwLgl'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:182 (check_type_size)"
+    checks:
+      - "Check size of __int64"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5Xasl"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5Xasl"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE___INT64_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5Xasl'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_053c0/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_053c0.dir/build.make CMakeFiles/cmTC_053c0.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5Xasl'
+        Building C object CMakeFiles/cmTC_053c0.dir/__INT64_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_053c0.dir/__INT64_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5Xasl/__INT64_LIBZIP.c
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5Xasl/__INT64_LIBZIP.c:27:22: error: ‘__int64’ undeclared here (not in a function); did you mean ‘__int64_t’?
+           27 | #define SIZE (sizeof(__int64))
+              |                      ^~~~~~~
+        /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5Xasl/__INT64_LIBZIP.c:29:12: note: in expansion of macro ‘SIZE’
+           29 |   ('0' + ((SIZE / 10000)%10)),
+              |            ^~~~
+        gmake[1]: *** [CMakeFiles/cmTC_053c0.dir/build.make:78: CMakeFiles/cmTC_053c0.dir/__INT64_LIBZIP.c.o] Error 1
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-D5Xasl'
+        gmake: *** [Makefile:127: cmTC_053c0/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:183 (check_type_size)"
+    checks:
+      - "Check size of int64_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XJIvdf"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XJIvdf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_INT64_T_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XJIvdf'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0c9c9/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0c9c9.dir/build.make CMakeFiles/cmTC_0c9c9.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XJIvdf'
+        Building C object CMakeFiles/cmTC_0c9c9.dir/INT64_T_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_0c9c9.dir/INT64_T_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XJIvdf/INT64_T_LIBZIP.c
+        Linking C executable cmTC_0c9c9
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0c9c9.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_0c9c9.dir/INT64_T_LIBZIP.c.o -o cmTC_0c9c9
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-XJIvdf'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:184 (check_type_size)"
+    checks:
+      - "Check size of uint64_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-huKaV6"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-huKaV6"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_UINT64_T_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-huKaV6'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_df21f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_df21f.dir/build.make CMakeFiles/cmTC_df21f.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-huKaV6'
+        Building C object CMakeFiles/cmTC_df21f.dir/UINT64_T_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_df21f.dir/UINT64_T_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-huKaV6/UINT64_T_LIBZIP.c
+        Linking C executable cmTC_df21f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_df21f.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_df21f.dir/UINT64_T_LIBZIP.c.o -o cmTC_df21f
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-huKaV6'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:185 (check_type_size)"
+    checks:
+      - "Check size of short"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-TOIEvk"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-TOIEvk"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_SHORT_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-TOIEvk'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_e397e/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_e397e.dir/build.make CMakeFiles/cmTC_e397e.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-TOIEvk'
+        Building C object CMakeFiles/cmTC_e397e.dir/SHORT_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_e397e.dir/SHORT_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-TOIEvk/SHORT_LIBZIP.c
+        Linking C executable cmTC_e397e
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e397e.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_e397e.dir/SHORT_LIBZIP.c.o -o cmTC_e397e
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-TOIEvk'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:186 (check_type_size)"
+    checks:
+      - "Check size of int"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sPCwAy"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sPCwAy"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_INT_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sPCwAy'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5c407/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5c407.dir/build.make CMakeFiles/cmTC_5c407.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sPCwAy'
+        Building C object CMakeFiles/cmTC_5c407.dir/INT_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_5c407.dir/INT_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sPCwAy/INT_LIBZIP.c
+        Linking C executable cmTC_5c407
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5c407.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_5c407.dir/INT_LIBZIP.c.o -o cmTC_5c407
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-sPCwAy'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:187 (check_type_size)"
+    checks:
+      - "Check size of long"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2eFdKo"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2eFdKo"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_LONG_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2eFdKo'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_1fef0/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_1fef0.dir/build.make CMakeFiles/cmTC_1fef0.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2eFdKo'
+        Building C object CMakeFiles/cmTC_1fef0.dir/LONG_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_1fef0.dir/LONG_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2eFdKo/LONG_LIBZIP.c
+        Linking C executable cmTC_1fef0
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1fef0.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_1fef0.dir/LONG_LIBZIP.c.o -o cmTC_1fef0
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-2eFdKo'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:188 (check_type_size)"
+    checks:
+      - "Check size of long long"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uC2YIE"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uC2YIE"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_LONG_LONG_LIBZIP"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uC2YIE'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5f795/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5f795.dir/build.make CMakeFiles/cmTC_5f795.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uC2YIE'
+        Building C object CMakeFiles/cmTC_5f795.dir/LONG_LONG_LIBZIP.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_5f795.dir/LONG_LONG_LIBZIP.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uC2YIE/LONG_LONG_LIBZIP.c
+        Linking C executable cmTC_5f795
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5f795.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_5f795.dir/LONG_LONG_LIBZIP.c.o -o cmTC_5f795
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-uC2YIE'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:189 (check_type_size)"
+    checks:
+      - "Check size of off_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-MyHRSl"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-MyHRSl"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_SIZEOF_OFF_T"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-MyHRSl'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_42210/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_42210.dir/build.make CMakeFiles/cmTC_42210.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-MyHRSl'
+        Building C object CMakeFiles/cmTC_42210.dir/SIZEOF_OFF_T.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_42210.dir/SIZEOF_OFF_T.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-MyHRSl/SIZEOF_OFF_T.c
+        Linking C executable cmTC_42210
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_42210.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_42210.dir/SIZEOF_OFF_T.c.o -o cmTC_42210
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-MyHRSl'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:147 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckTypeSize.cmake:272 (__check_type_size_impl)"
+      - "CMakeLists.txt:190 (check_type_size)"
+    checks:
+      - "Check size of size_t"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-3oelpm"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-3oelpm"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_SIZEOF_SIZE_T"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-3oelpm'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_fda4c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_fda4c.dir/build.make CMakeFiles/cmTC_fda4c.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-3oelpm'
+        Building C object CMakeFiles/cmTC_fda4c.dir/SIZEOF_SIZE_T.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_fda4c.dir/SIZEOF_SIZE_T.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-3oelpm/SIZEOF_SIZE_T.c
+        Linking C executable cmTC_fda4c
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fda4c.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_fda4c.dir/SIZEOF_SIZE_T.c.o -o cmTC_fda4c
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-3oelpm'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:192 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_FICLONERANGE"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RJuYCk"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RJuYCk"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_FICLONERANGE"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RJuYCk'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_d4e15/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_d4e15.dir/build.make CMakeFiles/cmTC_d4e15.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RJuYCk'
+        Building C object CMakeFiles/cmTC_d4e15.dir/src.c.o
+        /usr/lib64/ccache/cc -DHAVE_FICLONERANGE -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_d4e15.dir/src.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RJuYCk/src.c
+        Linking C executable cmTC_d4e15
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d4e15.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_d4e15.dir/src.c.o -o cmTC_d4e15
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-RJuYCk'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:154 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckSymbolExists.cmake:66 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "/usr/share/cmake/Modules/FindBZip2.cmake:96 (CHECK_SYMBOL_EXISTS)"
+      - "CMakeLists.txt:229 (find_package)"
+    checks:
+      - "Looking for BZ2_bzCompressInit"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gQJIVd"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gQJIVd"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "BZIP2_NEED_PREFIX"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gQJIVd'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_7f593/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_7f593.dir/build.make CMakeFiles/cmTC_7f593.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gQJIVd'
+        Building C object CMakeFiles/cmTC_7f593.dir/CheckSymbolExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1   -o CMakeFiles/cmTC_7f593.dir/CheckSymbolExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gQJIVd/CheckSymbolExists.c
+        Linking C executable cmTC_7f593
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7f593.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc CMakeFiles/cmTC_7f593.dir/CheckSymbolExists.c.o -o cmTC_7f593  /usr/lib64/libbz2.so
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-gQJIVd'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "/usr/share/cmake/Modules/FindLibLZMA.cmake:100 (CHECK_LIBRARY_EXISTS)"
+      - "CMakeLists.txt:238 (find_package)"
+    checks:
+      - "Looking for lzma_auto_decoder in /usr/lib64/liblzma.so"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-aJRNyS"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-aJRNyS"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "LIBLZMA_HAS_AUTO_DECODER"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-aJRNyS'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_cdc81/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_cdc81.dir/build.make CMakeFiles/cmTC_cdc81.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-aJRNyS'
+        Building C object CMakeFiles/cmTC_cdc81.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=lzma_auto_decoder -o CMakeFiles/cmTC_cdc81.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-aJRNyS/CheckFunctionExists.c
+        Linking C executable cmTC_cdc81
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cdc81.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=lzma_auto_decoder CMakeFiles/cmTC_cdc81.dir/CheckFunctionExists.c.o -o cmTC_cdc81  /usr/lib64/liblzma.so
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-aJRNyS'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "/usr/share/cmake/Modules/FindLibLZMA.cmake:101 (CHECK_LIBRARY_EXISTS)"
+      - "CMakeLists.txt:238 (find_package)"
+    checks:
+      - "Looking for lzma_easy_encoder in /usr/lib64/liblzma.so"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-F6QSGE"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-F6QSGE"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "LIBLZMA_HAS_EASY_ENCODER"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-F6QSGE'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_55208/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_55208.dir/build.make CMakeFiles/cmTC_55208.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-F6QSGE'
+        Building C object CMakeFiles/cmTC_55208.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=lzma_easy_encoder -o CMakeFiles/cmTC_55208.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-F6QSGE/CheckFunctionExists.c
+        Linking C executable cmTC_55208
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_55208.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=lzma_easy_encoder CMakeFiles/cmTC_55208.dir/CheckFunctionExists.c.o -o cmTC_55208  /usr/lib64/liblzma.so
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-F6QSGE'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "/usr/share/cmake/Modules/FindLibLZMA.cmake:102 (CHECK_LIBRARY_EXISTS)"
+      - "CMakeLists.txt:238 (find_package)"
+    checks:
+      - "Looking for lzma_lzma_preset in /usr/lib64/liblzma.so"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-IgamM8"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-IgamM8"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "LIBLZMA_HAS_LZMA_PRESET"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-IgamM8'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_43b7f/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_43b7f.dir/build.make CMakeFiles/cmTC_43b7f.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-IgamM8'
+        Building C object CMakeFiles/cmTC_43b7f.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=lzma_lzma_preset -o CMakeFiles/cmTC_43b7f.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-IgamM8/CheckFunctionExists.c
+        Linking C executable cmTC_43b7f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_43b7f.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=lzma_lzma_preset CMakeFiles/cmTC_43b7f.dir/CheckFunctionExists.c.o -o cmTC_43b7f  /usr/lib64/liblzma.so
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-IgamM8'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckFunctionExists.cmake:86 (try_compile)"
+      - "src/CMakeLists.txt:1 (check_function_exists)"
+    checks:
+      - "Looking for getopt"
+    directories:
+      source: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JZt9Id"
+      binary: "/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JZt9Id"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/fox/Downloads/libzip/cmake"
+    buildResult:
+      variable: "HAVE_GETOPT"
+      cached: true
+      stdout: |
+        Change Dir: '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JZt9Id'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_003ca/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_003ca.dir/build.make CMakeFiles/cmTC_003ca.dir/build
+        gmake[1]: Entering directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JZt9Id'
+        Building C object CMakeFiles/cmTC_003ca.dir/CheckFunctionExists.c.o
+        /usr/lib64/ccache/cc -D__STDC_WANT_LIB_EXT1__=1  -DCHECK_FUNCTION_EXISTS=getopt -o CMakeFiles/cmTC_003ca.dir/CheckFunctionExists.c.o -c /home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JZt9Id/CheckFunctionExists.c
+        Linking C executable cmTC_003ca
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_003ca.dir/link.txt --verbose=1
+        /usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=getopt CMakeFiles/cmTC_003ca.dir/CheckFunctionExists.c.o -o cmTC_003ca
+        gmake[1]: Leaving directory '/home/fox/Downloads/libzip/build/CMakeFiles/CMakeScratch/TryCompile-JZt9Id'
+        
+      exitCode: 0
+...

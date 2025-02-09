@@ -7,6 +7,11 @@
 
 namespace ods {
 
+enum class ODS_API Dir: i8 {
+	Yes,
+	No
+};
+
 enum class ODS_API CloneChildren: i8 {
 	Yes,
 	No

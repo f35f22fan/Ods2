@@ -10,12 +10,22 @@
 
 #include <algorithm>
 #include <cmath>
-#include <bits/stdc++.h> /// std::sort()
-#include <sys/xattr.h>
+//#if defined(_MSC_VER)
+//#include <__msvc_all_public_headers.hpp>
+//#else
+//#include <bits/stdc++.h> /// std::sort()
+//#endif
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef __linux__
 #include <unistd.h>
+#include <sys/xattr.h>
 #include <zstd.h>
+#endif
 
 namespace ods::io {
 
@@ -45,8 +55,8 @@ GetParentDirPath(QStringView full_path)
 	return fp.mid(0, at);
 }
 
-bool ReadFile(QStringView full_path, ByteArray &buffer,
-	const ReadParams &params)
+#ifdef __linux__
+bool ReadFile(QString full_path, ByteArray &buffer, ReadParams params)
 {
 	struct statx stx;
 	cauto path = full_path.toLocal8Bit();
@@ -119,10 +129,53 @@ bool ReadFile(QStringView full_path, ByteArray &buffer,
 	return true;
 }
 
+#else
+
+bool ReadFile_C(QString filepath, ByteArray &buf, ReadParams rp) {
+	char * buffer;
+	size_t result;
+	
+	auto fp_ba = filepath.toLocal8Bit();
+	FILE* pFile = fopen (fp_ba.data(), "rb" );
+	if (pFile==NULL) {
+		fputs ("File error",stderr);
+		return false;
+	}
+	
+	// obtain file size:
+	fseek (pFile , 0 , SEEK_END);
+	ci64 lSize = ftell (pFile);
+	rewind (pFile);
+	
+	// allocate memory to contain the whole file:
+	buffer = (char*) malloc (sizeof(char)*lSize);
+	if (buffer == NULL) {
+		fputs ("Memory error",stderr);
+		return false;
+	}
+	
+	// copy the file into the buffer:
+	result = fread (buffer,1,lSize,pFile);
+	if (result != lSize) {
+		fputs ("Reading error",stderr);
+		return false;
+	}
+	
+	/* the whole file is now loaded in the memory buffer. */
+	
+	// terminate
+	fclose (pFile);
+	buf.TakeOver(buffer, lSize, lSize);
+	
+	return true;
+}
+#endif
+
 i64 ReadToBuf(cint fd, char *buf, ci64 buf_size,
 	const PrintErrors pe)
 {
 	i64 so_far = 0;
+#ifdef __linux__
 	while (true)
 	{
 //mtl_info("Starting ::read()");
@@ -133,7 +186,7 @@ i64 ReadToBuf(cint fd, char *buf, ci64 buf_size,
 			if (errno == EAGAIN)
 				continue;
 			if (pe == PrintErrors::Yes)
-				mtl_warn("ReadFile: %s", strerror(errno));
+				mtl_warn("%s", strerror(errno));
 			return -1;
 		} else if (chunk == 0) {
 			/// Zero indicates the end of file, happens with sysfs files.
@@ -142,86 +195,33 @@ i64 ReadToBuf(cint fd, char *buf, ci64 buf_size,
 		
 		so_far += chunk;
 	}
-	
+#endif
 	return so_far;
+	
 }
-
-/*
-void ReadXAttrs(io::File &file, const QByteArray &full_path)
-{
-	if (!file.can_have_xattr())
-		return;
-
-	file.ClearXAttrs();
-	QHash<QString, ByteArray> &ext_attrs = file.ext_attrs();
-	
-	isize buflen = llistxattr(full_path.data(), NULL, 0);
-	if (buflen <= 0) {
-		return; /// 0 = no attributes, -1 = error
-	}
-	
-	/// Allocate the buffer.
-	char *buf = new char[buflen];
-	MTL_CHECK_VOID(buf != nullptr);
-	
-	AutoDeleteArr ad(buf);
-	/// Copy the list of attribute keys to the buffer.
-	buflen = llistxattr(full_path.data(), buf, buflen);
-	MTL_CHECK_VOID(buflen != -1);
-	
-//	Loop over the list of zero terminated strings with the
-//	attribute keys. Use the remaining buffer length to determine
-//	the end of the list.
-	char *key = buf;
-	
-	while (buflen > 0)
-	{
-		/// Determine length of the value.
-		isize vallen = lgetxattr(full_path.constData(), key, NULL, 0);
-		if (vallen <= 0)
-			break;
-		
-		ByteArray ba;
-		ba.alloc(vallen);
-		vallen = lgetxattr(full_path.constData(), key, ba.data(), ba.size());
-		if (vallen == -1)
-		{
-			mtl_status(errno);
-			break;
-		}
-		
-		ext_attrs.insert(key, ba);
-		{
-//			auto name = file.name().toLocal8Bit();
-//			mtl_info("Ext attr: \"%s\": \"%s\" (%s)", key,
-//				qPrintable(ba.toString()), name.data());
-		}
-		
-		/// Forward to next attribute key.
-		const isize keylen = strlen(key) + 1;
-		buflen -= keylen;
-		key += keylen;
-	}
-} */
 
 bool RemoveXAttr(QStringView full_path, QStringView xattr_name, const PrintErrors pe)
 {
+	bool ok = false;
+#ifdef __linux__
 	auto file_path_ba = full_path.toLocal8Bit();
 	auto xattr_name_ba = xattr_name.toLocal8Bit();
-	const bool ok = lremovexattr(file_path_ba.data(), xattr_name_ba.data()) == 0;
+	ok = lremovexattr(file_path_ba.data(), xattr_name_ba.data()) == 0;
 	
 	if (!ok && (pe == PrintErrors::Yes))
 		mtl_warn("lremovexattr on %s: %s", xattr_name_ba.data(), strerror(errno));
-	
+#endif
 	return ok;
 }
 
 bool SetXAttr(const QString &full_path, const QString &xattr_name,
 	const ByteArray &ba, const PrintErrors pe)
 {
+	bool ok = false;
+#ifdef __linux__
 	auto file_path_ba = full_path.toLocal8Bit();
 	auto xattr_name_ba = xattr_name.toLocal8Bit();
-	const bool ok = lsetxattr(file_path_ba.data(), xattr_name_ba.data(),
+	ok = lsetxattr(file_path_ba.data(), xattr_name_ba.data(),
 		ba.data(), ba.size(), 0) == 0;
 	
 	if (!ok && pe == PrintErrors::Yes)
@@ -229,16 +229,17 @@ bool SetXAttr(const QString &full_path, const QString &xattr_name,
 		mtl_warn("lsetxattr on %s: %s, FILE: %s", xattr_name_ba.data(),
 			strerror(errno), qPrintable(full_path));
 	}
-	
+#endif
 	return ok;
 }
 
-bool WriteToFile(QStringView full_path, const char *data, ci64 size,
-	const PostWrite post_write, mode_t *custom_mode)
+#ifdef __linux__
+bool WriteToFile(QStringView full_path, const char *data, ci64 size)
 {
 	auto path = full_path.toLocal8Bit();
 	cint fd = open(path.data(), O_LARGEFILE | O_WRONLY | O_CREAT | O_TRUNC,
-		(custom_mode == nullptr) ? io::FilePermissions : *custom_mode);
+		//(custom_mode == nullptr) ? io::FilePermissions : *custom_mode);
+		io::FilePermissions);
 	if (fd == -1)
 	{
 		mtl_status(errno);
@@ -265,16 +266,49 @@ bool WriteToFile(QStringView full_path, const char *data, ci64 size,
 		written += ret;
 	}
 	
-	switch (post_write) {
-	case PostWrite::DoNothing: break;
-	case PostWrite::FSync: fsync(fd); break;
-	case PostWrite::FDataSync: fdatasync(fd); break;
-	}
+	// switch (post_write) {
+	// case PostWrite::DoNothing: break;
+	// case PostWrite::FSync: fsync(fd); break;
+	// case PostWrite::FDataSync: fdatasync(fd); break;
+	// }
 	
 	close(fd);
 	
 	return true;
 }
+#else
+bool WriteToFile(QStringView full_path, const char* data, ci64 size) {
+//static int use_data(void *data, size_t size, const char *archive) {
+	auto name_ba = full_path.toLocal8Bit();
+	const char* archive = name_ba.data();
+	/* example implementation that writes data to file */
+	FILE *fp;
+	
+	if (data == NULL) {
+		if (remove(archive) < 0 && errno != ENOENT) {
+			fprintf(stderr, "can't remove %s: %s\n", archive, strerror(errno));
+			return false;
+		}
+		return true;
+	}
+	
+	if ((fp = fopen(archive, "wb")) == NULL) {
+		fprintf(stderr, "can't open %s: %s\n", archive, strerror(errno));
+		return false;
+	}
+	if (fwrite(data, 1, size, fp) < size) {
+		fprintf(stderr, "can't write %s: %s\n", archive, strerror(errno));
+		fclose(fp);
+		return false;
+	}
+	if (fclose(fp) < 0) {
+		fprintf(stderr, "can't write %s: %s\n", archive, strerror(errno));
+		return false;
+	}
+	
+	return true;
+}
+#endif
 
 } // ods::io::
 

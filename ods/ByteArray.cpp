@@ -44,7 +44,7 @@ bool ByteArray::operator == (const ByteArray &rhs)
 
 void ByteArray::Clear()
 {
-	delete[] data_;
+	free(data_);
 	data_ = nullptr;
 	size_ = heap_size_ = at_ = 0;
 }
@@ -67,6 +67,12 @@ ByteArray* ByteArray::CloneRegion(ci64 from, ci64 how_much)
 	p->add(data_ + from, how_much, ExactSize::Yes);
 	p->to(0);
 	return p;
+}
+
+char* ByteArray::CloneToHeap() {
+	char *buf = (char*)malloc(size());
+	memcpy(buf, data_, size());
+	return buf;
 }
 
 void ByteArray::add(const ByteArray &rhs, const From from)
@@ -352,11 +358,11 @@ void ByteArray::MakeSure(cisize more, const ExactSize es)
 	if (es != ExactSize::Yes)
 		heap_size_ *= 1.3;
 	
-	char *p = new char[heap_size_];
-	if (data_ != nullptr)
+	char *p = (char*) malloc(heap_size_);
+	if (data_)
 	{
 		memcpy(p, data_, size_);
-		delete[] data_;
+		free(data_);
 	}
 	
 	data_ = p;

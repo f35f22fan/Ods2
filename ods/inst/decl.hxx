@@ -13,7 +13,10 @@ public:
 	i32 id = 0;
 	
 	static IdAndCount FromId(ci32 id) {
-		return IdAndCount {.count = 1, .id = id};
+		IdAndCount iac;
+		iac.count = 1;
+		iac.id = id;
+		return iac;
 	}
 	
 	inline bool operator < (const IdAndCount &rhs) const noexcept

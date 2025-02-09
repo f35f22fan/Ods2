@@ -23,7 +23,9 @@ void AddKeywords(const QVector<QString> &words, Keywords &words_hash)
 			words_hash[word].count++;
 		} else {
 			ci32 id = words_hash.count() + 1;
-			IdAndCount ac = { .count = 1, .id = id };
+			IdAndCount ac;
+			ac.count = 1;
+			ac.id = id;
 			words_hash.insert(word, ac);
 		}
 	}

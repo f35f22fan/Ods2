@@ -1,0 +1,1 @@
+/usr/lib64/ccache/cc -g CMakeFiles/zipcmp.dir/zipcmp.c.o CMakeFiles/zipcmp.dir/diff_output.c.o -o zipcmp  -Wl,-rpath,/home/fox/Downloads/libzip/build/lib: ../lib/libzip.so.5.5 /usr/lib64/libz.so

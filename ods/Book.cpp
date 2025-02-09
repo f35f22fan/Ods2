@@ -26,9 +26,10 @@
 #include <QSaveFile>
 #include <QScreen>
 #include <QXmlStreamWriter>
-#include <quazip/JlCompress.h>
+//#include <quazip/JlCompress.h>
 #include <QtCore/private/qzipwriter_p.h>
-#include <QtCore/private/qzipreader_p.h>
+// #include <QtCore/private/qzipreader_p.h>
+#include "zip.hh"
 
 namespace ods {
 
@@ -123,8 +124,11 @@ void Book::CreateDictionaryRegion(ByteArray &buffer, inst::Keywords &list)
 	{
 		QStringView word = it.key();
 		const inst::IdAndCount idc = it.value();
-		vec.append({ .keyword = word.toString(), .count = idc.count,
-			.id = idc.id});
+		StringCount sc;
+		sc.keyword = word.toString();
+		sc.count = idc.count;
+		sc.id = idc.id;
+		vec.append(sc);
 	}
 	
 	std::sort(vec.begin(), vec.end(), SortDictionaryEntries);
@@ -448,7 +452,7 @@ bool Book::InitNDFF(QStringView full_path)
 	return true;
 }
 
-bool Book::Load(QString full_path, QString *err)
+bool Book::Load(QString zip_filepath, QString *err)
 {
 	InitTempDir();
 	
@@ -458,8 +462,8 @@ bool Book::Load(QString full_path, QString *err)
 		return false;
 	}
 	
-	// QZipReader zr(full_path);
-	// mtl_info("Loading from %s", qPrintable(full_path));
+	// QZipReader zr(zip_filepath);
+	// mtl_info("Loading from %s", qPrintable(zip_filepath));
 	// if (!zr.extractAll(temp_dir_path_)) {
 	// 	mtl_info("QZipReader error status: %d\n", zr.status());
 	// 	return;
@@ -472,12 +476,21 @@ bool Book::Load(QString full_path, QString *err)
 	// mtl_info("QZipReader status=%d, FileOpenError=%d, temp_dir_path_=%s\n",
 	// 	zr.status(), QZipReader::Status::FileOpenError, qPrintable(temp_dir_path_));
 	
-	// mtl_info("full_path=\"%s\", temp_dir_path=\"%s\"", qPrintable(full_path),
+	// mtl_info("zip_filepath=\"%s\", temp_dir_path=\"%s\"", qPrintable(zip_filepath),
 	// 	qPrintable(temp_dir_path_));
-	QFile input(full_path);
-	QuaZip qz(&input);
-	qz.setZip64Enabled(true);
-	extracted_file_paths_ = JlCompress::extractDir(qz, temp_dir_path_);
+    // QFile input(zip_filepath);
+    // QuaZip qz(&input);
+    // qz.setZip64Enabled(true);
+    // extracted_file_paths_ = JlCompress::extractDir(qz, temp_dir_path_);
+	
+	QString error_str;
+	extracted_file_paths_ = ods::zip::ExtractFiles(zip_filepath, temp_dir_path_, &error_str);
+	if (!error_str.isEmpty()) {
+		mtl_warn("%s", error_str);
+		if (err)
+			*err = error_str;
+		return false;
+	}
 	//mtl_info("Count: %d", extracted_file_paths_.size());
 	
 	// for (int i = 0; i < extracted_file_paths_.size(); i++) {
@@ -487,7 +500,7 @@ bool Book::Load(QString full_path, QString *err)
 	
 	if (extracted_file_paths_.isEmpty()) {
 		if (err != nullptr)
-			*err = QLatin1String("Couldn't extract files");
+			*err = QLatin1String("extracted_file_paths_ is empty.");
 		return false;
 	}
 	
@@ -845,12 +858,15 @@ bool Book::Save(const QFile &target, QString *err)
 	QString zip_filepath = QFileInfo(target).absoluteFilePath();
 	// QZipWriter zw(zip_filepath);
 	// AddZipDir(QDir(temp_dir_path_), zw);
-	if (!JlCompress::compressDir(zip_filepath, temp_dir_path_, true)) {
-		mtl_warn("Failed to compress .ods file to %s", qPrintable(zip_filepath));
-		return false;
-	}
-	//zw.close();
-
+	// zw.close();
+	
+	MTL_CHECK(ods::zip::CompressDir(temp_dir_path_, zip_filepath, err));
+	
+	// if (!JlCompress::compressDir(zip_filepath, temp_dir_path_, true)) {
+	// 	mtl_warn("Failed to compress .ods file to %s", qPrintable(zip_filepath));
+	// 	return false;
+	// }
+	
 	if (ndff_enabled())
 	{
 		auto ms = timer.elapsed();

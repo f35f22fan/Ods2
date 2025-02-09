@@ -9,7 +9,7 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0")
     #cmake_policy(SET CMP0100 OLD)
 endif()
 
-include_directories(${Ods2_SOURCE_DIR})
+include_directories("${Ods2_SOURCE_DIR}" "${Ods2_SOURCE_DIR}/libzip/lib")
 link_directories(${CMAKE_BINARY_DIR}/lib)
 
 # Set some Win32 Specific Settings
@@ -50,7 +50,7 @@ add_definitions(-DODS2_TEST_DIR="${Ods2_SOURCE_DIR}")
 set (exe_name "app")
 add_executable(${exe_name} ${GUI_TYPE} ${src_files})
 #get_property(zlib_libs GLOBAL PROPERTY zlib_libs_property)
-target_link_libraries(${exe_name} ods Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui
+target_link_libraries(${exe_name} PRIVATE ods Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui
 ) #${zlib_libs}
 
 ## enable_testing() seems to not make a difference

@@ -15,7 +15,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-include_directories(${Ods2_SOURCE_DIR}/quazip)
+include_directories(${Ods2_SOURCE_DIR}/libzip/lib)
 link_directories(${Ods2_BINARY_DIR}/lib)
 
 set(hh_files
@@ -30,6 +30,7 @@ set(hh_files
 	ods.hh
 	op.hh
 	style.hh
+	zip.hh
 )
 
 foreach(f IN LISTS hh_files)
@@ -83,6 +84,7 @@ set(lib_files
 	Time.cpp Time.hpp
 	types.hxx
 	VAlign.cpp VAlign.hpp
+	zip.cc
 	
 	attr/Border.cpp attr/Border.hpp
 	attr/decl.hxx
@@ -186,5 +188,10 @@ else (DEFINED ODS_STATIC)
 	add_definitions(-DODS_SHARED -DODS_BUILDING)
 endif (DEFINED ODS_STATIC)
 
+set (thezlib "z")
+if (WIN32)
+set (thezlib "zd")
+endif (WIN32)
 add_library(ods ${lib_type} ${lib_files})
-target_link_libraries(ods PRIVATE quazipd Qt6::Core Qt6::CorePrivate Qt${QT_VERSION_MAJOR}::Gui)
+target_link_libraries(ods PRIVATE Qt6::Core Qt6::CorePrivate
+	Qt${QT_VERSION_MAJOR}::Gui zip ${thezlib})

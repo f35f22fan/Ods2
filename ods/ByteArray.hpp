@@ -2,6 +2,7 @@
 
 #include "ods.hxx"
 #include "global.hxx"
+
 #include "ndff/ndff.hh"
 
 #include <QFile>
@@ -24,6 +25,7 @@ public:
 	bool operator == (const ByteArray &rhs);
 	ByteArray* CloneFromHere();
 	ByteArray* CloneRegion(ci64 from, ci64 how_much);
+	char *CloneToHeap();
 	virtual ~ByteArray();
 	
 	void alloc(const isize n);
@@ -51,7 +53,14 @@ public:
 	bool Compress(const Compression);
 	bool Decompress(const Compression);
 	bool DumpToTerminal(QStringView full_path = QStringView());
-	char *data() const { return data_; }
+	char* data() const { return data_; }
+	char* DisownBuffer(i64 &byte_count) {
+		byte_count = size_;
+		char *ret = data_;
+		data_ = 0;
+		at_ = size_ = heap_size_ = 0;
+		return ret;
+	}
 	const char *constData() const { return data_; }
 	
 	bool has_more(const isize n) const { return at_ + n <= size_; }
@@ -111,15 +120,17 @@ public:
 	QString toString() const { return QString::fromLocal8Bit(data_, size_); }
 	QString toUtf8String() const { return QString::fromUtf8(data_, size_); }
 	void SetUtf8(QStringView s, const ods::Clear c = ods::Clear::Yes);
-
+	void TakeOver(char *buf, ci64 heap_size, ci64 size);
+	
 private:
 ///	NO_ASSIGN_COPY_MOVE(ByteArray);
-	void TakeOver(char *buf, ci64 heap_size, ci64 size);
+	
 	
 	isize size_ = 0;
 	isize heap_size_ = 0;
 	isize at_ = 0;
 	char *data_ = nullptr;
+	bool owns_buffer_ = true;
 };
 
 }

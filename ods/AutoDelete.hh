@@ -10,7 +10,7 @@
 #include "global.hxx"
 
 namespace ods {
-
+#ifdef __linux__
 class ODS_API AutoCloseFd {
 public:
 	AutoCloseFd(int fd): fd_(fd) {}
@@ -22,6 +22,7 @@ private:
 	NO_ASSIGN_COPY_MOVE(AutoCloseFd);
 	int fd_ = -1;
 };
+#endif
 
 template <class A_Type> class ODS_API AutoFree {
 public:
@@ -29,7 +30,7 @@ public:
 	virtual ~AutoFree() { free(x_); }
 	
 private:
-	NO_ASSIGN_COPY_MOVE(AutoFree);
+	//NO_ASSIGN_COPY_MOVE(AutoFree);
 	A_Type x_ = nullptr;
 };
 
@@ -39,7 +40,7 @@ public:
 	virtual ~AutoDelete() { delete x_; }
 	
 private:
-	NO_ASSIGN_COPY_MOVE(AutoDelete);
+	//NO_ASSIGN_COPY_MOVE(AutoDelete);
 	A_Type x_ = nullptr;
 };
 
@@ -49,7 +50,7 @@ public:
 	virtual ~AutoDeleteArr() { delete [] x_; x_ = nullptr; }
 	
 private:
-	NO_ASSIGN_COPY_MOVE(AutoDeleteArr);
+	//NO_ASSIGN_COPY_MOVE(AutoDeleteArr);
 	A_Type x_ = nullptr;
 };
 
@@ -63,7 +64,7 @@ public:
 	}
 	
 private:
-	NO_ASSIGN_COPY_MOVE(AutoDeleteVec);
+	//NO_ASSIGN_COPY_MOVE(AutoDeleteVec);
 	VecType &vec_;
 };
 
@@ -78,7 +79,7 @@ public:
 	}
 	
 private:
-	NO_ASSIGN_COPY_MOVE(AutoDeleteVecP);
+	//NO_ASSIGN_COPY_MOVE(AutoDeleteVecP);
 	VecType vec_;
 };
 
@@ -90,7 +91,7 @@ public:
 			*b_ = false;
 	}
 private:
-	NO_ASSIGN_COPY_MOVE(SwitchToFalseLater);
+	//NO_ASSIGN_COPY_MOVE(SwitchToFalseLater);
 	bool *b_ = nullptr;
 };
 }
