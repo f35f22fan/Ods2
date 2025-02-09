@@ -17,6 +17,10 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # using Visual Studio C++
 endif()
 
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor")
+endif()
+
 find_package(QT NAMES Qt6 COMPONENTS Core Gui REQUIRED)
 find_package(Qt6 COMPONENTS Core Gui REQUIRED) #5.15
 # if (QT_VERSION_MAJOR EQUAL 6)

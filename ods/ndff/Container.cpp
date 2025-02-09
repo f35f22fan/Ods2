@@ -61,8 +61,8 @@ bool Container::Init(Book *p, QStringView full_path)
 	namespaces_loc = buf_.next_i64();
 	dictionary_loc = buf_.next_i64();
 	top_files_loc = buf_.next_i64();
-	mtl_info("ns_loc: %ld, dict_loc: %ld, top_files_loc: %ld",
-		namespaces_loc, dictionary_loc, top_files_loc);
+	// mtl_info("ns_loc: %lld, dict_loc: %lld, top_files_loc: %lld",
+	//	namespaces_loc, dictionary_loc, top_files_loc);
 	
 	doc_type_len = buf_.next_u8();
 	doc_type = buf_.NextStringUtf8(doc_type_len);

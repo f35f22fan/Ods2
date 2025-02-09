@@ -61,7 +61,7 @@ void FileEntryInfo::SetFileData(ByteArray &output, QStringView file_path)
 		output.add_i64(uncompressed_size);
 		output.add(file_data_);
 		auto str = file_path.toLocal8Bit();
-		mtl_info("%s file_data size: %ld", str.data(), uncompressed_size);
+		mtl_info("%s file_data size: %lld", str.data(), uncompressed_size);
 		break;
 	};
 	case Compression::ZSTD: {
@@ -72,7 +72,7 @@ void FileEntryInfo::SetFileData(ByteArray &output, QStringView file_path)
 		output.add(compressed_buf);
 		UpdateCompressionTo(output, Compression::ZSTD);
 		auto str = file_path.toLocal8Bit();
-		mtl_info("%s file_data size: %ld (compressed: %ld)",
+		mtl_info("%s file_data size: %lld (compressed: %lld)",
 			str.data(), uncompressed_size, compressed_size);
 		break;
 	};

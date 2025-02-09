@@ -272,7 +272,7 @@ bool ByteArray::DumpToTerminal(QStringView full_path)
 	}
 	
 	ci64 max = (size_ > 255) ? 255 : size_;
-	mtl_info("Dumping %ld bytes:", max);
+	mtl_info("Dumping %lld bytes:", max);
 	for (i64 i = 0; i < max; i++)
 	{
 		printf("%0X ", data_[i]);

@@ -12,32 +12,8 @@
 int main(int argc, char *argv[])
 {
 	QGuiApplication qapp(argc, argv);
-	
-	//TestBug1Feb2025();
-	
-	// QList<ods::zip::File> files;
-	// QString zip_filepath = QDir::home().absoluteFilePath("Downloads/Export_planning2.ods");
-	// QString target_dir = QDir::home().absoluteFilePath("ZipOutput");
-	// QString err;
-	
-	// if (!ods::zip::ListFiles(zip_filepath, files, &err)) {
-	// 	mtl_warn("%s", qPrintable(err));
-	// } else {
-	// 	mtl_info("File count: %ld", files.size());
-	// }
-	
-	// QList<QString> filepaths = ods::zip::ExtractFiles(zip_filepath, target_dir, &err);
-	// if (!err.isEmpty()) {
-	// 	mtl_warn("An error occurred: %s", qPrintable(err));
-	// 	return 1;
-	// }
-	
-	// mtl_info("The following files were unpacked:");
-	// for (QString path: filepaths) {
-	// 	mtl_info("%s", qPrintable(path));
-	// }
-	
-	
+
+//	TestBug1Feb2025();
 //	TestBugJuly2023();
 	
 //	CopyAnOdsFile();

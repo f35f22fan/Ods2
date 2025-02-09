@@ -53,7 +53,7 @@
 #ifdef _MSC_VER
 #define mtl_info(fmt, ...) fprintf(stdout, \
 	"%s[%s:%.3d %s]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
-	__LINE__, __FUNCTION__, MTL_COLOR_DEFAULT, __VA_ARGS__)
+	__LINE__, __FUNCTION__, MTL_COLOR_DEFAULT, ##__VA_ARGS__)
 #else
 #define mtl_info(fmt, args...) fprintf(stdout, \
 	"%s[%s:%.3d %s]%s " fmt "\n", MTL_COLOR_BLUE, SRC_FILE_NAME, \
@@ -63,7 +63,7 @@
 #ifdef _MSC_VER
 #define mtl_it_happened(fmt, ...) fprintf(stdout, \
 	"%sIT HAPPENED [%s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
-	__LINE__, __VA_ARGS__, MTL_COLOR_DEFAULT)
+	__LINE__, ##__VA_ARGS__, MTL_COLOR_DEFAULT)
 #else
 #define mtl_it_happened(fmt, args...) fprintf(stdout, \
 	"%sIT HAPPENED [%s %.3d] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
@@ -73,7 +73,7 @@
 #ifdef _MSC_VER
 #define mtl_warn(fmt, ...) fprintf(stderr, \
 	"%s[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
-	__LINE__, __FUNCTION__, __VA_ARGS__, MTL_COLOR_DEFAULT)
+	__LINE__, __FUNCTION__, ##__VA_ARGS__, MTL_COLOR_DEFAULT)
 #else
 #define mtl_warn(fmt, args...) fprintf(stderr, \
 	"%s[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_RED, SRC_FILE_NAME, \
@@ -83,7 +83,7 @@
 #ifdef _MSC_VER
 #define mtl_trace(fmt, ...) fprintf(stderr, \
 	"%s[%s:%.3d %s] " fmt "%s\n", MTL_COLOR_GREEN, SRC_FILE_NAME, \
-	__LINE__, __FUNCTION__, __VA_ARGS__, MTL_COLOR_DEFAULT)
+	__LINE__, __FUNCTION__, ##__VA_ARGS__, MTL_COLOR_DEFAULT)
 #else
 #define mtl_trace(fmt, args...) fprintf(stderr, \
 	"%s%s[%s:%.3d %s]%s " fmt "%s\n", MTL_BOLD, MTL_COLOR_MAGENTA, SRC_FILE_NAME, \

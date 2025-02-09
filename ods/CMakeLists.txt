@@ -190,7 +190,7 @@ endif (DEFINED ODS_STATIC)
 
 set (thezlib "z")
 if (WIN32)
-set (thezlib "zd")
+set (thezlib "z")
 endif (WIN32)
 add_library(ods ${lib_type} ${lib_files})
 target_link_libraries(ods PRIVATE Qt6::Core Qt6::CorePrivate

@@ -517,7 +517,7 @@ void CreateFormulaFunctions()
 			mtl_warn("QUOTIENT() failed");
 		} else {
 			i64 result = i64(node->as_any_double());
-			mtl_info("QUOTIENT(): %ld", result);
+			mtl_info("QUOTIENT(): %lld", result);
 		}
 		
 		last_col++;
