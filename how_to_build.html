@@ -7,22 +7,6 @@
 .note {
 	text-decoration: underline;
 }
-.parag {
-	font-size: 14px;
-	color: rgb(0, 0, 255);
-	font-weight: bold;
-	text-align: center;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	border: 1px solid blue;
-}
-.subparag {
-	font-size: 14px;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	color: rgb(100, 100, 255);
-	
-}
 
 body {
 	margin-bottom: 600px;
@@ -37,7 +21,7 @@ body {
 </div>
 
 <p/>
-How to build with Visual Studio 17 2022 on Windows:
+How to build with <b>Visual Studio 17 2022</b> on Windows:
 <p/>
 <ul>
 <li/> Update the "setup_windows_env.bat" file with proper values for your build environment.
@@ -47,12 +31,10 @@ How to build with Visual Studio 17 2022 on Windows:
 <li/> cmake -DCMAKE_BUILD_TYPE=Release ..
 <li/> It will create many files, among which Ods2.sln (if built for Visual Studio).
 <li/> Open Ods2.sln using Visual Studio
-<li/> Make sure it's in Release Mode:  From the Build menu, select Configuration Manager
-and choose Release.
-<li/> First build "zlib", then (lib)"zip", then "ods" and, if you want to build
-the examples, "app".
-<li/> The output is in $Ods2/build/lib, possibly in a subfolder like "Release" or "Debug".
+<li/> Build all in Release Mode.
+<li/> The library output is in $Ods2/build/lib, possibly in a "Release" or "Debug" subfolder.
 <li/> The needed files are ods.dll, z.dll (zlib) and zip.dll
+<li/> "examples" will create an .exe file in $Ods2/build/examples
 </ul> On the screenshot one can see what the "examples" (built as "app.exe")
 together with all needed .dll files looks like.<br/>
 The "platforms" folder contains "qwindows(d).dll"
@@ -62,7 +44,23 @@ The "platforms" folder contains "qwindows(d).dll"
 The build instructions were inspired from
 <a href="https://doc.qt.io/qt-6/windows-deployment.html">https://doc.qt.io/qt-6/windows-deployment.html</a>
 
-
+<br/><br/>
+<hr/>
+How to build with <b>LLVM MinGW</b> on Windows 10/11:
+<p/>
+<ul>
+<li/> Update the "setup_windows_env.bat" file with proper values for your build environment.
+<li/> Use "cmd.exe" to execute "setup_windows_env.bat", then
+<li/> mkdir build
+<li/> cd build
+<li/> cmake -G "MinGW Makefiles" ..
+<li/> cmake -DCMAKE_BUILD_TYPE=Release ..
+<li> Install "make" on windows (if you didn't already):
+On windows 10 or 11, you can run the command <pre>"winget install ezwinports.make"</pre> in the
+command line or powershell to quickly install it, then restart the command line or powershell.
+Now you can run "make"!
+<li/> make -j4
+</ul>
 </body>
 </html>
 

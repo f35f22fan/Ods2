@@ -41,9 +41,8 @@ find_package(Qt6 COMPONENTS Core Gui REQUIRED) #5.15
 #ENDIF (WIN32)
 
 if(WIN32)
-	set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.12.9\\5.12.9\\mingw73_64\\")
-#    set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.7.1\\5.7\\msvc2015_64\\")
-endif (WIN32)
+	#set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.12.9\\5.12.9\\mingw73_64\\")
+endif ()
 
 set(LIBRARY_OUTPUT_PATH "${Ods2_BINARY_DIR}/lib")
 
@@ -56,7 +55,7 @@ endif (BUILD_STATIC_LIBRARIES)
 
 #if (WIN32)
 	add_subdirectory(zlib SYSTEM)
-#endif(WIN32)
+#endif()
 add_subdirectory(libzip)
 add_subdirectory(ods)
 add_subdirectory(examples)

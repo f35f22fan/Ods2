@@ -190,7 +190,7 @@ protected:
 	
 	void CloneChildrenOf(const Abstract *rhs,
 		const ClonePart co = ClonePart::Text | ClonePart::Class);
-	
+
 	void Write(QXmlStreamWriter &xml, ods::Prefix *prefix, QStringView name,
 		QStringView value);
 	
@@ -214,7 +214,7 @@ protected:
 	inline void WriteSCT(ByteArray &ba) {
 		ba.add_u8(ndff::Op::SCT);
 	}
-	void WriteTag(Keywords &kw, ByteArray &ba);
+    void WriteTag(Keywords &kw, ByteArray &ba);
 	
 	inline void CloseBasedOnChildren(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
 	{

@@ -4,7 +4,9 @@ Supports the most commonly used formula functions (including evaluation).
 #### Building
 As of Jan 2025 moved to Qt6-only.<br/>
 <b>libzip</b> and <b>zlib</b> are used for .zip support (libzip needs zlib, and Ods2 needs libzip).
-Building tested on Windows with Visual Studio 17 2022, and Fedora Linux 41.
+<br/>
+Building tested on Windows with Visual Studio 17 2022 and LLVM MinGW,
+and with g++ on Fedora Linux 41.
 
 ##### API usage
 See examples/examples[1-2].cc

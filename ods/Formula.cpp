@@ -202,7 +202,7 @@ Formula::ParseNext(QStringView s, int &resume_at,
 	
 	if (whitespace_count == -1) {
 		mtl_trace();
-		return -1;
+		return false;
 	}
 	
 	resume_at += whitespace_count;

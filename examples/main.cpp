@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
 	QGuiApplication qapp(argc, argv);
 
-//	TestBug1Feb2025();
+    TestBug1Feb2025();
 //	TestBugJuly2023();
 	
 //	CopyAnOdsFile();

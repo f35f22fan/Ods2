@@ -9,7 +9,7 @@
 
 namespace ods {
 
-enum class ODS_API ColorSet: i8 {
+enum class ColorSet: i8 {
 	Color,
 	Transparent,
 	None

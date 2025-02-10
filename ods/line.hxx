@@ -1,9 +1,10 @@
 #pragma once
 
-namespace ods { // ods::
-namespace line { // ods::line::
+#include "types.hxx"
 
-enum class Style : uint8_t
+namespace ods::line {
+
+enum class Style : u8
 {
 	Invalid,
 	None,
@@ -18,6 +19,4 @@ enum class Style : uint8_t
 	Wave
 };
 
-} // ods::line::
-} // ods::
-
+}
