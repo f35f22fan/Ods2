@@ -6,14 +6,18 @@
 #include "examples2.hh"
 #include "Invoice.hpp"
 
-#include <ods/types.hxx>
-#include <ods/zip.hh>
+#include <ods/ods>
 
 int main(int argc, char *argv[])
 {
 	QGuiApplication qapp(argc, argv);
 
-//	TestBug1Feb2025();
+#if defined(_WIN32)
+// On Windows this enables text to be printed to the terminal in colors
+	ods::EnableConsoleColors();
+#endif
+
+//    TestBug1Feb2025();
 //	TestBugJuly2023();
 	
 //	CopyAnOdsFile();
@@ -76,5 +80,3 @@ int main(int argc, char *argv[])
 	
 	return 0;
 }
-
-

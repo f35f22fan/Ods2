@@ -20,10 +20,11 @@ int priority(const ods::Op op)
 	case Op::Percent:
 	case Op::Divide: return 6;
 	case Op::Exponent: return 7;
+    default: {
+        mtl_trace();
+        return -1;
+    }
 	}
-	
-	mtl_trace();
-	return -1;
 }
 
 namespace op {

@@ -14,7 +14,7 @@ namespace ods::ndff {
 
 using InfoType = u32;
 
-enum class ODS_API FeiBit: InfoType {
+enum class FeiBit: InfoType {
 	FileTypes         = 0xFu << 0, // 4 bits
 	
 	LastAccessed      = 1u << 4,

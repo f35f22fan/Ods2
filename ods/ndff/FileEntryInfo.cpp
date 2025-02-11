@@ -210,8 +210,8 @@ void FileEntryInfo::WriteEfa(ByteArray &output)
 void FileEntryInfo::WriteTo(ByteArray &output)
 {
 	output.add_u32(info_);
-	mtl_info("Writing FEI: %s, name_len: %d",
-		qPrintable(path_.toUtf8String()), path_.size());
+    mtl_info("Writing FEI: %s, name_len: %lld",
+        qPrintable(path_.toUtf8String()), (i64)path_.size());
 	ci32 path_len = path_.size();
 	output.add_u16(path_len);
 	output.add(path_);

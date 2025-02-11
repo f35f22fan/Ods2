@@ -19,7 +19,7 @@ public:
 			::close(fd_);
 	}
 private:
-	NO_ASSIGN_COPY_MOVE(AutoCloseFd);
+	//NO_ASSIGN_COPY_MOVE(AutoCloseFd);
 	int fd_ = -1;
 };
 #endif

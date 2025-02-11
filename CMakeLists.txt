@@ -18,6 +18,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 if(MSVC)
+	# This flag allows MSVC to compile variadic function arguments when they're omitted
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor")
 endif()
 
@@ -26,24 +27,6 @@ find_package(Qt6 COMPONENTS Core Gui REQUIRED) #5.15
 # if (QT_VERSION_MAJOR EQUAL 6)
 #     find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
 # endif()
-
-#only build zlib on windows because unix has it by default
-#IF(WIN32)
-#	include_directories(${Ods2_SOURCE_DIR}/zlib)
-#	link_directories(${Ods2_BINARY_DIR}/lib)
-#	set_property(GLOBAL PROPERTY zlib_libs_property "zlib")
-#ELSE (WIN32)
-#	find_package(ZLIB REQUIRED)
-#	if (ZLIB_FOUND)
-#    	include_directories(${ZLIB_INCLUDE_DIRS})
-#		set_property(GLOBAL PROPERTY zlib_libs_property "${ZLIB_LIBRARIES}")
-#	endif(ZLIB_FOUND)
-#ENDIF (WIN32)
-
-if(WIN32)
-	set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.12.9\\5.12.9\\mingw73_64\\")
-#    set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.7.1\\5.7\\msvc2015_64\\")
-endif (WIN32)
 
 set(LIBRARY_OUTPUT_PATH "${Ods2_BINARY_DIR}/lib")
 
@@ -56,7 +39,7 @@ endif (BUILD_STATIC_LIBRARIES)
 
 #if (WIN32)
 	add_subdirectory(zlib SYSTEM)
-#endif(WIN32)
+#endif()
 add_subdirectory(libzip)
 add_subdirectory(ods)
 add_subdirectory(examples)

@@ -7,22 +7,22 @@
 
 namespace ods {
 
-enum class ODS_API Dir: i8 {
+enum class Dir: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API CloneChildren: i8 {
+enum class CloneChildren: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API EnableNdff: i8 {
+enum class EnableNdff: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API Compression: u8 {
+enum class Compression: u8 {
 	None = 0,
 	ZSTD = 1,
 };
@@ -45,57 +45,57 @@ inline i32 operator | (ci32 n, const Compression c) {
 	return i32(c) | n;
 }
 
-enum class ODS_API DocumentFormat: i8 {
+enum class DocumentFormat: i8 {
 	Text,
 	Binary
 };
 
-enum class ODS_API Clear: i8 {
+enum class Clear: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API ClearTheRest: i8 {
+enum class ClearTheRest: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API DevMode: i8 {
+enum class DevMode: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API Owns: i8 {
+enum class Owns: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API Recursively: i8 {
+enum class Recursively: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API TakeOwnership: i8 {
+enum class TakeOwnership: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API From: i8 {
+enum class From: i8 {
 	Start,
 	CurrentPosition
 };
 
-enum class ODS_API ExactSize: i8 {
+enum class ExactSize: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API ToStringArgs: u8 {
+enum class ToStringArgs: u8 {
 	None,
 	IncludeQuotMarks
 };
 
-enum class ODS_API ValueType: u8
+enum class ValueType: u8
 {
 	Bool = 1,
 	Currency,
@@ -108,13 +108,13 @@ enum class ODS_API ValueType: u8
 	String, // string support implemented as TextP
 };
 
-enum class ODS_API Brace : u8 {
+enum class Brace: u8 {
 	None,
 	Open,
 	Close
 };
 
-enum class ODS_API Bool : u8 {
+enum class Bool: u8 {
 	None,
 	True,
 	False,
@@ -137,29 +137,29 @@ const double kPointsInACm = 28.3464567;
 const double kInchesInACm = 0.393701;
 const double kCmInAnInch = 2.54;
 
-enum class ODS_API PrintText: i8 {
+enum class PrintText: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API UseNDFF: i8 {
+enum class UseNDFF: i8 {
 	Yes,
 	No
 };
 
-enum class ODS_API AddIfNeeded: i8
+enum class AddIfNeeded: i8
 {
 	Yes,
 	No
 };
 
-enum class ODS_API CreateIfNeeded: i8
+enum class CreateIfNeeded: i8
 {
 	Yes,
 	No
 };
 
-enum class ODS_API Place : u8
+enum class Place: u8
 {
 	ContentFile,
 	StylesFile,
@@ -167,7 +167,7 @@ enum class ODS_API Place : u8
 };
 
 
-enum class ODS_API FormError: i16 {
+enum class FormError: i16 {
 // https://wiki.openoffice.org/wiki/Calc_Error_Codes
 	None				= 0,
 	

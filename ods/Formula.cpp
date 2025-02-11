@@ -92,9 +92,9 @@ QByteArray
 GetColored(const QString &str, int start, int count)
 {
 	QString s = str.mid(0, start);
-	s += MTL_COLOR_GREEN;
+	s += ods::color_green();
 	s += str.mid(start, count);
-	s += MTL_COLOR_DEFAULT;
+	s += ods::color_default();
 	s += str.mid(start + count);
 	return s.toLocal8Bit();
 }
@@ -202,7 +202,7 @@ Formula::ParseNext(QStringView s, int &resume_at,
 	
 	if (whitespace_count == -1) {
 		mtl_trace();
-		return -1;
+		return false;
 	}
 	
 	resume_at += whitespace_count;

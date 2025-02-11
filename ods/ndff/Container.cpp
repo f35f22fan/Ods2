@@ -126,7 +126,7 @@ bool Container::PrepareFor(FileEntryInfo *fei)
 	MTL_CHECK(fei);
 	buf_.to(fei->content_start());
 	ci64 size = buf_.next_i64();
-	mtl_info("File %s, size: %ld, compression: %d",
+    mtl_info("File %s, size: %lld, compression: %d",
 		fei->path().data(), size, i32(fei->compression()));
 	if (fei->compression() != Compression::None)
 	{
@@ -197,7 +197,7 @@ bool Container::ReadDictionaryRegion()
 			auto *temp = buf_.CloneRegion(buf_.at(), block_size);
 			cauto before = temp->size();
 			temp->Decompress(compression);
-			mtl_info("Size decompressed: %ld, compressed: %ld",
+            mtl_info("Size decompressed: %lld, compressed: %lld",
 				temp->size(), before);
 			ReadDictionary(*temp, temp->size());
 			delete temp;
@@ -244,7 +244,7 @@ bool Container::ReadNamespacesRegion()
 		buf_.skip(region_size);
 	}
 	else
-		mtl_trace("Unsupported compression: %u", compression);
+        mtl_trace("Unsupported compression: %d", i32(compression));
 	
 	return true;
 }

@@ -149,7 +149,7 @@ void Book::CreateDictionaryRegion(ByteArray &buffer, inst::Keywords &list)
 	case Compression::ZSTD: {
 		ci64 uncompressed_size = buf.size();
 		MTL_CHECK_VOID(buf.Compress(compression));
-		mtl_info("Compressed buf size: %ld, uncompressed: %ld",
+        mtl_info("Compressed buf size: %lld, uncompressed: %lld",
 				 buf.size(), uncompressed_size);
 		//buf.DumpToTerminal();
 		break;
@@ -214,7 +214,7 @@ void Book::CreateNamespacesRegion(ByteArray &result, inst::NsHash &h)
 	};
 	case Compression::ZSTD: {
 		MTL_CHECK_VOID(buf.Compress(compression));
-		mtl_info("Compressed buf size: %ld, uncompressed: %ld",
+        mtl_info("Compressed buf size: %lld, uncompressed: %lld",
 				 buf.size(), uncompressed_size);
 		//buf.DumpToTerminal();
 		break;
@@ -486,7 +486,7 @@ bool Book::Load(QString zip_filepath, QString *err)
 	QString error_str;
 	extracted_file_paths_ = ods::zip::ExtractFiles(zip_filepath, temp_dir_path_, &error_str);
 	if (!error_str.isEmpty()) {
-		mtl_warn("%s", error_str);
+        mtl_warn("%s", qPrintable(error_str));
 		if (err)
 			*err = error_str;
 		return false;
