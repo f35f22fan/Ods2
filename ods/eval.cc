@@ -660,7 +660,7 @@ void PrintNodes(const QVector<FormulaNode*> &nodes, const QString &msg)
 void PrintNodesInOneLine(const QVector<FormulaNode *> &v, const char *msg)
 {
 	QString s;
-	QString separator = QString(MTL_COLOR_GREEN) + "|" + MTL_COLOR_DEFAULT;
+	QString separator = QString(ods::color_green()) + "|" + ods::color_default();
 	for (ods::FormulaNode *node : v) {
 		s.append(node->toString()).append(separator);
 	}

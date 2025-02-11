@@ -9,8 +9,35 @@
 #include "Sheet.hpp"
 
 #include <cmath>
+#include <iostream>
 
 namespace ods {
+
+bool ColorsEnabled(bool* enable) {
+#ifdef _WIN32
+		static bool enabled = false;
+#else
+		static bool enabled = true;
+#endif
+
+	if (enable) {
+		enabled = *enable;
+	}
+	return enabled;
+}
+
+const char* color_blue() { return ColorsEnabled() ? "\x1B[34m" : ""; }
+const char* color_default() { return ColorsEnabled() ? "\x1B[0m" : ""; }
+const char* color_green() { return ColorsEnabled() ? "\x1B[32m" : ""; }
+const char* color_red() { return ColorsEnabled() ? "\x1B[0;91m" : ""; }
+const char* color_yellow() { return ColorsEnabled() ? "\x1B[93m" : ""; }
+const char* color_magenta() { return ColorsEnabled() ? "\x1B[35m" : ""; }
+const char* color_blink_start() { return ColorsEnabled() ? "\x1B[5m" : ""; }
+const char* color_blink_end() { return ColorsEnabled() ? "\x1B[25m" : ""; }
+const char* color_bold_start() { return ColorsEnabled() ? "\x1B[1m" : ""; }
+const char* color_bold_end() { return ColorsEnabled() ? "\x1B[0m" : ""; }
+const char* color_underline_start() { return ColorsEnabled() ? "\x1B[4m" : ""; }
+const char* color_underline_end() { return ColorsEnabled() ? "\x1B[0m" : ""; }
 
 static double dpi = -1.0;
 
@@ -350,3 +377,67 @@ FromString(const QString &s) {
 }
 
 }
+
+
+#if defined(_WIN32) 
+#define WIN32_NO_STATUS
+#include <windows.h>
+#undef WIN32_NO_STATUS
+
+#ifdef __MINGW32__
+#include <_mingw.h>
+#ifdef __MINGW64_VERSION_MAJOR
+#include <ntstatus.h>
+#else
+#include <ddk/ntddk.h>
+#endif
+#else
+#include <ntstatus.h>
+#endif
+
+#include <stdio.h>
+
+namespace ods {
+	void EnableConsoleColors()
+	{
+		RTL_OSVERSIONINFOW rtl_os = { sizeof rtl_os, };
+
+		NTSTATUS(NTAPI * RtlGetVersion)
+			(RTL_OSVERSIONINFOW * lpVersionInformation) =
+			(NTSTATUS(NTAPI*)(RTL_OSVERSIONINFOW*))
+			GetProcAddress(GetModuleHandleW(L"ntdll"), "RtlGetVersion");
+
+		if (RtlGetVersion) {
+			NTSTATUS ntstatus = RtlGetVersion(&rtl_os);
+			if (ntstatus < 0) {
+				printf("RtlGetVersion failed, error %lld\n", (i64)ntstatus);
+			}
+
+			//printf("RtlGetVersion: %lu.%lu.%lu\n", rtl_os.dwMajorVersion, rtl_os.dwMinorVersion, rtl_os.dwBuildNumber);
+		}
+		else {
+			return;
+		}
+
+		if (rtl_os.dwBuildNumber < 10586) {
+			mtl_info("For console colors Windows >=10 (build number >= 10.0.10586) is needed.");
+			return;
+		}
+
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		DWORD consoleMode;
+		GetConsoleMode(hConsole, &consoleMode);
+		consoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+		if (!SetConsoleMode(hConsole, consoleMode))
+		{
+			auto e = GetLastError();
+			std::cout << "error " << e << "\n";
+		}
+		else {
+			bool enable = true;
+			ColorsEnabled(&enable);
+		}
+	}
+} // ods::
+#endif

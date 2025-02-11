@@ -9,6 +9,21 @@
 
 namespace ods {
 
+ODS_API bool ColorsEnabled(bool* enable = 0);
+ODS_API const char* color_blue();
+ODS_API const char* color_default();
+ODS_API const char* color_green();
+ODS_API const char* color_red();
+ODS_API const char* color_yellow();
+ODS_API const char* color_magenta();
+ODS_API const char* color_blink_start();
+ODS_API const char* color_blink_end();
+ODS_API const char* color_bold_start();
+ODS_API const char* color_bold_end();
+ODS_API const char* color_underline_start();
+ODS_API const char* color_underline_end();
+ODS_API void EnableConsoleColors();
+
 bool IsAnyCell(const QStringView s);
 
 u32 CRC_32b(const char *s, ci64 count);

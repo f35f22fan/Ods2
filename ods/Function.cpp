@@ -230,7 +230,7 @@ Function::PrintArgs(const QString &msg) const
 		mtl_info("%s() Args:", meta_->name);
 	}
 	MTL_CHECK_VOID(args_);
-	QString separator = QString(MTL_COLOR_GREEN) + "|" + MTL_COLOR_DEFAULT;
+	QString separator = QString(ods::color_green()) + "|" + ods::color_default();
 	
 	for (int i = 0; i < args_->size(); i++) {
 		QVector<FormulaNode*> *subvec = (*args_)[i];

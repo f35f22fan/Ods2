@@ -168,7 +168,7 @@ TableTableColumn::ToSchemaString() const
 	s = QChar('[') + s + QChar(']');
 	
 	if (selected()) {
-		return QString(MTL_COLOR_RED) + s + QString(MTL_COLOR_DEFAULT);
+		return  s;
 	}
 	
 	return s;

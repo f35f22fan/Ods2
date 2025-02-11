@@ -767,7 +767,7 @@ Cell::ToSchemaString() const
 	s = QChar('[') + s + QChar(']');
 	
 	if (selected()) {
-		return QString(MTL_COLOR_RED) + s + QString(MTL_COLOR_DEFAULT);
+		return QString(ods::color_red()) + s + QString(ods::color_default());
 	}
 	
 	return s;

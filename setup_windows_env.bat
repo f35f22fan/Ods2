@@ -11,17 +11,17 @@ rem command line or powershell to quickly install it, then restart the command l
 rem Then you can run "make"!
 
 rem echo Setting up Windows Qt environment for CMake and MinGW
-rem set QT_DIR=C:/Qt/6.8.2/llvm-mingw_64/lib/cmake/Qt6
-rem set PATH=C:/Qt/6.8.2/llvm-mingw_64/bin;C:/Qt/Tools/llvm-mingw1706_64/bin;%PATH%
+set QT_DIR=C:/Qt/6.8.2/llvm-mingw_64/lib/cmake/Qt6
+set PATH=C:/Qt/6.8.2/llvm-mingw_64/bin;C:/Qt/Tools/llvm-mingw1706_64/bin;%PATH%
 rem [END]
 
 
 
 rem [START] ENVIRONMENT: Microsoft Visual Studio
 rem Generate with: cmake -G "Visual Studio 17 2022"
-echo Setting up Windows Qt environment for MSVC
-set QT_DIR=C:/Qt/6.8.2/msvc2022_64/lib/cmake/Qt6
-set PATH=C:/Qt/6.8.2/msvc2022_64/bin;%PATH%
+rem echo Setting up Windows Qt environment for MSVC
+rem set QT_DIR=C:/Qt/6.8.2/msvc2022_64/lib/cmake/Qt6
+rem set PATH=C:/Qt/6.8.2/msvc2022_64/bin;%PATH%
 rem [END]
 
 echo Done
