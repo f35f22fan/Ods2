@@ -64,12 +64,12 @@ int main(int argc, char *argv[])
 	// ReadCurrency();
 	
 	// CreateFormula();
-	ReadFormula();
+	// ReadFormula();
 	
 	//CreateFormulaFunctions();
 	
-	// auto *invoice = new sample::Invoice();
-	// ods::AutoDelete ad_p(invoice);
+	auto *invoice = new sample::Invoice();
+	ods::AutoDelete ad_p(invoice);
 	
 	if (false)
 	{ // Nevermind this block, it's purely for development purposes

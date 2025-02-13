@@ -1,1 +1,0 @@
-/usr/lib64/ccache/cc -g CMakeFiles/zip_read_file_fuzzer.dir/zip_read_file_fuzzer.c.o CMakeFiles/zip_read_file_fuzzer.dir/fuzz_main.c.o -o zip_read_file_fuzzer  -Wl,-rpath,/home/fox/Downloads/libzip/build/lib ../lib/libzip.so.5.5

@@ -91,7 +91,7 @@ zip_source_t* create_layered_autoclose(zip_source_t* source, zip_t *archive, zip
 
 int
 main(int argc, char *argv[]) {
-    const char *dest_zip_filepath, *source_zip_filepath, *source_filename;
+    const char *destination_archive, *source_archive, *source_file;
     zip_int64_t index;
     zip_source_t *src, *src_autoclose;
     zip_t *z_source, *z_destination;
@@ -101,27 +101,27 @@ main(int argc, char *argv[]) {
         fprintf(stderr, "usage: %s destination-archive source-archive source-file\n", argv[0]);
         return 1;
     }
-    dest_zip_filepath = argv[1];
-    source_zip_filepath = argv[2];
-    source_filename = argv[3];
+    destination_archive = argv[1];
+    source_archive = argv[2];
+    source_file = argv[3];
 
 
-    if ((z_source = zip_open(source_zip_filepath, 0, &err)) == NULL) {
+    if ((z_source = zip_open(source_archive, 0, &err)) == NULL) {
         zip_error_t error;
         zip_error_init_with_code(&error, err);
-        fprintf(stderr, "%s: cannot open zip archive '%s': %s\n", argv[0], source_zip_filepath, zip_error_strerror(&error));
+        fprintf(stderr, "%s: cannot open zip archive '%s': %s\n", argv[0], source_archive, zip_error_strerror(&error));
         zip_error_fini(&error);
         exit(1);
     }
 
-    if ((index = zip_name_locate(z_source, source_filename, 0)) < 0) {
-        fprintf(stderr, "%s: cannot find file '%s' in '%s': %s\n", argv[0], source_filename, source_zip_filepath, zip_strerror(z_source));
+    if ((index = zip_name_locate(z_source, source_file, 0)) < 0) {
+        fprintf(stderr, "%s: cannot find file '%s' in '%s': %s\n", argv[0], source_file, source_archive, zip_strerror(z_source));
         zip_discard(z_source);
         exit(1);
 
     }
     if ((src = zip_source_zip_file(z_source, z_source, index, 0, 0, -1, NULL)) == NULL) {
-        fprintf(stderr, "%s: cannot open file '%s' in '%s': %s\n", argv[0], source_filename, source_zip_filepath, zip_strerror(z_source));
+        fprintf(stderr, "%s: cannot open file '%s' in '%s': %s\n", argv[0], source_file, source_archive, zip_strerror(z_source));
         zip_discard(z_source);
         exit(1);
     }
@@ -134,16 +134,16 @@ main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if ((z_destination = zip_open(dest_zip_filepath, ZIP_CREATE, &err)) == NULL) {
+    if ((z_destination = zip_open(destination_archive, ZIP_CREATE, &err)) == NULL) {
         zip_error_init_with_code(&error, err);
-        fprintf(stderr, "%s: cannot open zip archive '%s': %s\n", argv[0], dest_zip_filepath, zip_error_strerror(&error));
+        fprintf(stderr, "%s: cannot open zip archive '%s': %s\n", argv[0], destination_archive, zip_error_strerror(&error));
         zip_error_fini(&error);
         zip_source_free(src_autoclose); /* freeing src_autoclose closes z_source */
         exit(1);
     }
 
 
-    if ((zip_file_add(z_destination, source_filename, src_autoclose, 0)) < 0) {
+    if ((zip_file_add(z_destination, source_file, src_autoclose, 0)) < 0) {
         fprintf(stderr, "%s: cannot add file: %s\n", argv[0], zip_strerror(z_source));
         zip_source_free(src_autoclose);
         zip_discard(z_destination);
@@ -151,7 +151,7 @@ main(int argc, char *argv[]) {
     }
 
     if ((zip_close(z_destination)) < 0) {
-        fprintf(stderr, "%s: cannot close archive '%s': %s\n", argv[0], dest_zip_filepath, zip_strerror(z_source));
+        fprintf(stderr, "%s: cannot close archive '%s': %s\n", argv[0], destination_archive, zip_strerror(z_source));
         zip_discard(z_destination);
         exit(1);
     }

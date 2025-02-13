@@ -29,10 +29,10 @@ option(ENABLE_ZSTD "Enable use of Zstandard" OFF)
 option(ENABLE_FDOPEN "Enable zip_fdopen, which is not allowed in Microsoft CRT secure libraries" ON)
 
 option(BUILD_TOOLS "Build tools in the src directory (zipcmp, zipmerge, ziptool)" ON)
-option(BUILD_REGRESS "Build regression tests" OFF)
-option(BUILD_OSSFUZZ "Build fuzzers for ossfuzz" OFF)
-option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_DOC "Build documentation" OFF)
+option(BUILD_REGRESS "Build regression tests" ON)
+option(BUILD_OSSFUZZ "Build fuzzers for ossfuzz" ON)
+option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_DOC "Build documentation" ON)
 
 include(CheckFunctionExists)
 include(CheckIncludeFiles)
@@ -197,23 +197,21 @@ check_c_source_compiles("#include <sys/ioctl.h>
 int main(int argc, char *argv[]) { unsigned long x = FICLONERANGE; }" HAVE_FICLONERANGE)
 
 test_big_endian(WORDS_BIGENDIAN)
-#list(APPEND CMAKE_MODULE_PATH "${Ods2_BINARY_DIR}/zlib")
-#find_package(ZLIB CONFIG REQUIRED) #1.1.2
-# so developers on systems where zlib is named differently (Windows, sometimes)
-# can override the name used in the pkg-config file
+
+# find_package(ZLIB 1.1.2 REQUIRED)
+# # so developers on systems where zlib is named differently (Windows, sometimes)
+# # can override the name used in the pkg-config file
 # if (NOT ZLIB_LINK_LIBRARY_NAME)
-#    set(ZLIB_LINK_LIBRARY_NAME "z")
+#   set(ZLIB_LINK_LIBRARY_NAME "z")
 
 #   # Get the correct name in common cases
-#    list(LENGTH ZLIB_LIBRARIES N_ZLIB_LIBRARIES)
-#    if(N_ZLIB_LIBRARIES EQUAL 1)
-#      set(ZLIB_FILENAME ${ZLIB_LIBRARIES})
-#    elseif(N_ZLIB_LIBRARIES EQUAL 4)
-	  
-#      # ZLIB_LIBRARIES might have the target_link_library() format like
-#      # "optimized;path/to/zlib.lib;debug;path/to/zlibd.lib". Use the 'optimized'
-#      # case unless we know we are in a Debug build.
-	
+#   list(LENGTH ZLIB_LIBRARIES N_ZLIB_LIBRARIES)
+#   if(N_ZLIB_LIBRARIES EQUAL 1)
+#     set(ZLIB_FILENAME ${ZLIB_LIBRARIES})
+#   elseif(N_ZLIB_LIBRARIES EQUAL 4)
+#     # ZLIB_LIBRARIES might have the target_link_library() format like
+#     # "optimized;path/to/zlib.lib;debug;path/to/zlibd.lib". Use the 'optimized'
+#     # case unless we know we are in a Debug build.
 #     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 #       list(FIND ZLIB_LIBRARIES "debug" ZLIB_LIBRARIES_INDEX_OF_CONFIG)
 #     else()
@@ -230,22 +228,54 @@ test_big_endian(WORDS_BIGENDIAN)
 #   endif()
 # endif(NOT ZLIB_LINK_LIBRARY_NAME)
 
-if (COMMONCRYPTO_FOUND)
-  set(HAVE_CRYPTO 1)
-  set(HAVE_COMMONCRYPTO 1)
-elseif (WINDOWS_CRYPTO_FOUND)
-  set(HAVE_CRYPTO 1)
-  set(HAVE_WINDOWS_CRYPTO 1)
-elseif (OPENSSL_FOUND)
-  set(HAVE_CRYPTO 1)
-  set(HAVE_OPENSSL 1)
-elseif (GNUTLS_FOUND AND NETTLE_FOUND)
-  set(HAVE_CRYPTO 1)
-  set(HAVE_GNUTLS 1)
-elseif (MBEDTLS_FOUND)
-  set(HAVE_CRYPTO 1)
-  set(HAVE_MBEDTLS 1)
-endif()
+# if(ENABLE_BZIP2)
+#   find_package(BZip2)
+#   if(BZIP2_FOUND)
+#     set(HAVE_LIBBZ2 1)
+#   else()
+#     message(WARNING "-- bzip2 library not found; bzip2 support disabled")
+#   endif(BZIP2_FOUND)
+# endif(ENABLE_BZIP2)
+
+# if(ENABLE_LZMA)
+#   find_package(LibLZMA 5.2)
+#   if(LIBLZMA_FOUND)
+#     set(HAVE_LIBLZMA 1)
+#   else()
+#     message(WARNING "-- lzma library not found; lzma/xz support disabled")
+#   endif(LIBLZMA_FOUND)
+# endif(ENABLE_LZMA)
+
+# if(ENABLE_ZSTD)
+#   find_package(zstd 1.4.0)
+#   if(zstd_FOUND)
+#     set(HAVE_LIBZSTD 1)
+#     if(TARGET zstd::libzstd_shared AND BUILD_SHARED_LIBS)
+#       set(zstd_TARGET zstd::libzstd_shared)
+#     else()
+#       set(zstd_TARGET zstd::libzstd_static)
+#     endif()
+#   else()
+#     message(WARNING "-- zstd library not found; zstandard support disabled")
+#   endif(zstd_FOUND)
+# endif(ENABLE_ZSTD)
+
+# if (COMMONCRYPTO_FOUND)
+#   set(HAVE_CRYPTO 1)
+#   set(HAVE_COMMONCRYPTO 1)
+# elseif (WINDOWS_CRYPTO_FOUND)
+#   set(HAVE_CRYPTO 1)
+#   set(HAVE_WINDOWS_CRYPTO 1)
+# elseif (OPENSSL_FOUND)
+#   set(HAVE_CRYPTO 1)
+#   set(HAVE_OPENSSL 1)
+# elseif (GNUTLS_FOUND AND NETTLE_FOUND)
+#   set(HAVE_CRYPTO 1)
+#   set(HAVE_GNUTLS 1)
+# elseif (MBEDTLS_FOUND)
+#   set(HAVE_CRYPTO 1)
+#   set(HAVE_MBEDTLS 1)
+# endif()
 
 if ((ENABLE_COMMONCRYPTO OR ENABLE_GNUTLS OR ENABLE_MBEDTLS OR ENABLE_OPENSSL OR ENABLE_WINDOWS_CRYPTO) AND NOT HAVE_CRYPTO)
   message(WARNING "-- neither Common Crypto, GnuTLS, mbed TLS, OpenSSL, nor Windows Cryptography found; AES support disabled")
@@ -272,10 +302,42 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Testing
-ENABLE_TESTING()
+# ENABLE_TESTING()
 
 # Targets
 ADD_SUBDIRECTORY(lib)
+
+# if(BUILD_DOC)
+#   ADD_SUBDIRECTORY(man)
+# endif()
+
+# if(BUILD_TOOLS)
+#   ADD_SUBDIRECTORY(src)
+# else(BUILD_TOOLS)
+#   if(BUILD_REGRESS)
+#     message(WARNING "-- tools build has been disabled, but they are needed for regression tests; regression testing disabled")
+#     set(BUILD_REGRESS OFF)
+#   endif(BUILD_REGRESS)
+# endif()
+
+# find_program(NIHTEST nihtest)
+
+# if(BUILD_REGRESS AND NOT NIHTEST)
+#   message(WARNING "-- nihtest not found, regression testing disabled")
+#   set(BUILD_REGRESS OFF)
+# endif()
+
+# if(BUILD_REGRESS)
+#   add_subdirectory(regress)
+# endif()
+
+# if(BUILD_OSSFUZZ)
+#   add_subdirectory(ossfuzz)
+# endif()
+
+# if(BUILD_EXAMPLES)
+#   add_subdirectory(examples)
+# endif()
 
 
 # pkgconfig file
@@ -307,9 +369,9 @@ string(REGEX REPLACE "-lOpenSSL::Crypto" "-lssl -lcrypto" LIBS ${LIBS})
 string(REGEX REPLACE "-lGnuTLS::GnuTLS" "-lgnutls" LIBS ${LIBS})
 string(REGEX REPLACE "-lNettle::Nettle" "-lnettle" LIBS ${LIBS})
 configure_file(libzip.pc.in libzip.pc @ONLY)
-if(LIBZIP_DO_INSTALL)
-  install(FILES ${PROJECT_BINARY_DIR}/libzip.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
-endif()
+ if(LIBZIP_DO_INSTALL)
+   install(FILES ${PROJECT_BINARY_DIR}/libzip.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+ endif()
 
 # fixed size integral types
 
@@ -436,4 +498,7 @@ if(LIBZIP_DO_INSTALL)
   install(EXPORT ${PROJECT_NAME}-targets NAMESPACE libzip:: FILE ${PROJECT_NAME}-targets.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
     )
+  # install(EXPORT ${PROJECT_NAME}-bin-targets NAMESPACE libzip:: FILE ${PROJECT_NAME}-bin-targets.cmake
+  #         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  # )
 endif()

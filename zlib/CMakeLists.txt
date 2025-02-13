@@ -162,7 +162,7 @@ set_source_files_properties(
 
 if(WIN32)
     set(zlib_static_suffix "s")
-    set(CMAKE_DEBUG_POSTFIX "d")
+    #set(CMAKE_DEBUG_POSTFIX "d")
 endif(WIN32)
 
 if(ZLIB_BUILD_SHARED)

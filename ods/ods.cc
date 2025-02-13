@@ -420,7 +420,7 @@ namespace ods {
 		}
 
 		if (rtl_os.dwBuildNumber < 10586) {
-			mtl_info("For console colors Windows >=10 (build number >= 10.0.10586) is needed.");
+            mtl_info("Windows >=10 (build number >= 10.0.10586) is needed for console colors.");
 			return;
 		}
 
