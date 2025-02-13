@@ -25,12 +25,15 @@ public:
 	void AddCloseBrace();
 	void AddOpenBrace();
 	void Add(ods::Cell *cell);
-	void Add(QString *s);
+	void Add(QString s);
+	void Add(const char *s) { Add(QString(s)); }
 	void AddCellRange(Cell *start, Cell *end);
 	ods::Function* Add(const ods::FunctionId id);
 	
 	ods::Sheet* default_sheet() const { return default_sheet_; }
 	const QString& error() const { return error_; }
+	
+	// User must free the returned object:
 	FormulaNode *Eval();
 	
 	bool evaluating() const { return bits_ & ods::EvaluatingBit; }

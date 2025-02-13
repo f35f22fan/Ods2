@@ -14,6 +14,7 @@
 #include <QDateTime>
 
 #include <cmath>
+#include <QtMath>
 #include <unordered_set>
 
 namespace ods::function {
@@ -87,6 +88,23 @@ FormulaNode* Concatenate(const QVector<ods::FormulaNode*> &values)
 	result->SetString(s);
 	
 	return result;
+}
+
+FormulaNode* Cos(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	double n = qCos(node->as_any_double());
+	return FormulaNode::Double(double(n));
+}
+
+FormulaNode* Cot(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	const double x = node->as_any_double();
+	double ret = cos(x) / sin(x);
+	return FormulaNode::Double(ret);
 }
 
 FormulaNode* Count(const QVector<ods::FormulaNode*> &values)
@@ -573,6 +591,14 @@ FormulaNode* RoundAnyWay(const QVector<FormulaNode*> &values, const RoundType ro
 	return FormulaNode::Double(number);
 }
 
+FormulaNode* Sin(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	double n = qSin(node->as_any_double());
+	return FormulaNode::Double(double(n));
+}
+
 FormulaNode* Sum(const QVector<ods::FormulaNode*> &values)
 {
 	double d = 0;
@@ -629,6 +655,15 @@ FormulaNode* SumIf(const QVector<ods::FormulaNode*> &values, ods::Sheet *default
 	}
 	
 	return sumup.Clone();
+}
+
+FormulaNode* Tan(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	const double x = node->as_any_double();
+	double ret = sin(x) / cos(x);
+	return FormulaNode::Double(ret);
 }
 
 FormulaNode* Text(const QVector<FormulaNode *> &values)

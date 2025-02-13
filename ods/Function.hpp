@@ -19,14 +19,16 @@ public:
 
 	void AddArg(ods::FormulaNode *node);
 	void AddArg(ods::Reference *a);
+	void AddArg(ods::Cell *cell);
+	void AddArgRange(ods::Cell *from, ods::Cell *till);
 	void AddArg(double d);
 	void AddArg(i32 n) { AddArg(double(n)); }
 	ods::Function* AddArg(const ods::FunctionId id);
 	void AddArg(ods::Currency *c);
 	void AddArg(ods::Brace b);
 	void AddArg(ods::Op op);
-	void AddArg(QString *s);
-	void AddArg(const char *s) { return AddArg(new QString(s)); }
+	void AddArg(QString s);
+	void AddArg(const char *s) { return AddArg(QString(s)); }
 	void AddArg(QVector<FormulaNode*> *subvec);
 	Function* Clone();
 	ods::Sheet* default_sheet() const;

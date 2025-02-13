@@ -17,61 +17,59 @@ int main(int argc, char *argv[])
 	ods::EnableConsoleColors();
 #endif
 
-//    TestBug1Feb2025();
+//  TestBug1Feb2025();
 //	TestBugJuly2023();
 	
-//	CopyAnOdsFile();
-//	TestBug();
 	
-//	SetColumnWidths();
-//	ReadColumnWidths();
+	// The function calls below come from examples(1/2).cc
 	
-//	CreateFont();
-//	ReadFont();
 	
-//	CreateColorsAndUnderline();
-//	ReadColorsAndUnderline();
+	// SetColumnWidths();
+	// ReadColumnWidths();
 	
-//	CellSpan();
-//	ReadCellSpan();
+	// CreateFont();
+	// ReadFont();
 	
-//	CreatePercentage();
-//	ReadPercentage();
+	// CreateColorsAndUnderline();
+	// ReadColorsAndUnderline();
 	
-//	CreateHAlignment();
-//	ReadHAlignment();
+	// CellSpan();
+	// ReadCellSpan();
 	
-//	CreateVAlignment();
-//	ReadVAlignment();
+	// CreatePercentage();
+	// ReadPercentage();
 	
-//	CreateBorders();
-//	ReadBorders();
+	// CreateHAlignment();
+	// ReadHAlignment();
 	
-//	CreateImage();
-//	ReadImage();
+	// CreateVAlignment();
+	// ReadVAlignment();
 	
-//	CreateDate();
-//	ReadDate();
+	// CreateBorders();
+	// ReadBorders();
 	
-//	CreateCurrency();
-//	ReadCurrency();
+	// CreateImage();
+	// ReadImage();
 	
-//	CreateTime();
-//	ReadTime();
+	// CreateDate();
+	// ReadDate();
 	
-//	CreateBoolean();
-//	ReadBoolean();
+	// CreateTime();
+	// ReadTime();
 	
-	//CreateFormula();
-//	ReadFormula();
+	// CreateBoolean();
+	// ReadBoolean();
 	
- //CreateFormulaFunctions();
+	// CreateCurrency();
+	// ReadCurrency();
 	
-//	GenerateFunctionsListForGitHub();
-//	ReadCellRange();
+	// CreateFormula();
+	ReadFormula();
 	
-	auto *invoice = new sample::Invoice(ods::EnableNdff::No);
-	ods::AutoDelete ad_p(invoice);
+	//CreateFormulaFunctions();
+	
+	// auto *invoice = new sample::Invoice();
+	// ods::AutoDelete ad_p(invoice);
 	
 	if (false)
 	{ // Nevermind this block, it's purely for development purposes

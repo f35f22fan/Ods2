@@ -153,6 +153,11 @@ Cell::FetchStyle()
 	return style;
 }
 
+ods::FormulaNode* Cell::formulaNode()
+{
+	return ods::FormulaNode::Reference(row_->sheet()->NewReference(this));
+}
+
 QString
 Cell::FullName() const
 {
@@ -582,7 +587,7 @@ void Cell::ReadValue(ods::Tag *tag, NdffAttrs *attrs)
 		// a date or date-time, so check for ":" to guess which one.
 		
 		QString date_value_str = GetAttr(tag, attrs, ns_->office(), ns::kDateValue);
-		mtl_printq2("||||||||||||||||||||||date_value_str: ", date_value_str);
+		//mtl_printq2("date_value_str: ", date_value_str);
 		if (date_value_str.indexOf(':') != -1) {
 			auto dt = QDateTime::fromString(date_value_str, Qt::ISODate);
 			SetDateTime(new QDateTime(dt));

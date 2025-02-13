@@ -145,19 +145,18 @@ void PrintPercentage(ods::Cell *cell)
 	
 }
 
-void PrintWidth(ods::inst::TableTableColumn *col)
+void PrintWidth(ods::inst::TableTableColumn *col, const ods::MustHave mh)
 {
-	if (col == nullptr)
-	{
-		mtl_warn("col == null");
-		return;
-	}
-	
+	MTL_CHECK_VOID(col != nullptr);
 	ods::inst::StyleStyle *style = col->GetStyle();
 	
 	if (style == nullptr)
 	{
-		mtl_warn("No style");
+		if (mh == ods::MustHave::No) {
+			mtl_info("No style, as expected");
+		} else {
+			mtl_warn("No style");
+		}
 		return;
 	}
 	
@@ -203,13 +202,11 @@ void PrintWidth(ods::inst::TableTableColumn *col)
 	mtl_info("Column width: %s", ba.data());
 }
 
-void Save(ods::Book *book)//, const char *file_name)
+void Save(ods::Book *book, const char *file_name)
 {
-	if (!book)
-		return;
-	
-	//QString path = file_name ? file_name : "out.ods";
-	QFile file(QDir::home().filePath("out.ods"));
+	MTL_CHECK_VOID(book != nullptr);
+	QString name = file_name ? file_name : "out.ods";
+	QFile file(QDir::home().filePath(name));
 	QString err;
 	if (book->Save(file, &err))
 	{

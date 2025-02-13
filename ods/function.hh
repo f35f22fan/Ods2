@@ -14,6 +14,8 @@ FormulaNode* Count(const QVector<ods::FormulaNode*> &values);
 FormulaNode* CountA(const QVector<ods::FormulaNode*> &values);
 FormulaNode* CountBlank(const QVector<ods::FormulaNode*> &values);
 FormulaNode* CountIf(const QVector<FormulaNode *> &values, Sheet *default_sheet);
+FormulaNode* Cos(const QVector<FormulaNode*> &values);
+FormulaNode* Cot(const QVector<FormulaNode*> &values);
 FormulaNode* Date(const QVector<ods::FormulaNode*> &values);
 FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dmy);
 FormulaNode* If(const QVector<ods::FormulaNode*> &values);
@@ -30,9 +32,11 @@ FormulaNode* Power(const QVector<FormulaNode*> &values);
 FormulaNode* Product(const QVector<FormulaNode*> &values);
 FormulaNode* Quotient(const QVector<FormulaNode*> &values);
 FormulaNode* RoundAnyWay(const QVector<FormulaNode*> &values, const RoundType round_type);
-FormulaNode* Sum(const QVector<FormulaNode *> &values);
-FormulaNode* SumIf(const QVector<FormulaNode *> &values, Sheet *default_sheet);
-FormulaNode* Text(const QVector<FormulaNode *> &values);
+FormulaNode* Sin(const QVector<FormulaNode*> &values);
+FormulaNode* Sum(const QVector<FormulaNode*> &values);
+FormulaNode* SumIf(const QVector<FormulaNode*> &values, Sheet *default_sheet);
+FormulaNode* Tan(const QVector<FormulaNode*> &values);
+FormulaNode* Text(const QVector<FormulaNode*> &values);
 FormulaNode* Today();
 } // ods::+function::
 

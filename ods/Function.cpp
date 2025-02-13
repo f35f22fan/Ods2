@@ -8,6 +8,8 @@
 #include "formula.hxx"
 #include "function.hh"
 #include "ods.hh"
+#include "Row.hpp"
+#include "Sheet.hpp"
 
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -49,6 +51,18 @@ Function::AddArg(ods::Reference *a) {
 	AddArg(ods::FormulaNode::Reference(a));
 }
 
+void Function::AddArg(ods::Cell *cell) {
+	ods::Sheet *sheet = cell->row()->sheet();
+	auto *ref = sheet->NewReference(cell);
+	AddArg(ods::FormulaNode::Reference(ref));
+}
+
+void Function::AddArgRange(ods::Cell *from, ods::Cell *till) {
+	ods::Sheet *sheet = from->row()->sheet();
+	auto *ref = sheet->NewReference(from, till);
+	AddArg(ods::FormulaNode::Reference(ref));
+}
+
 void
 Function::AddArg(double d) {
 	AddArg(ods::FormulaNode::Double(d));
@@ -78,8 +92,8 @@ Function::AddArg(ods::Currency *c) {
 }
 
 void
-Function::AddArg(QString *s) {
-	AddArg(ods::FormulaNode::String(s));
+Function::AddArg(QString s) {
+	AddArg(ods::FormulaNode::String(new QString(s)));
 }
 
 void
@@ -206,6 +220,10 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Offset: return function::Offset(fn_args);
 	case FunctionId::Text: return function::Text(fn_args);
 	case FunctionId::Match: return function::Match(fn_args);
+	case FunctionId::Sin: return function::Sin(fn_args);
+	case FunctionId::Cos: return function::Cos(fn_args);
+	case FunctionId::Tan: return function::Tan(fn_args);
+	case FunctionId::Cot: return function::Cot(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

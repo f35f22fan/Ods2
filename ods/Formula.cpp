@@ -62,8 +62,8 @@ Formula::Add(ods::Cell *cell)
 }
 
 void
-Formula::Add(QString *s) {
-	nodes_.append(FormulaNode::String(s));
+Formula::Add(QString s) {
+	nodes_.append(FormulaNode::String(new QString(s)));
 }
 
 void
@@ -75,14 +75,11 @@ Formula::AddCellRange(Cell *start, Cell *end)
 
 Formula*
 Formula::Clone() {
-mtl_trace();
 	Formula *p = new Formula(cell_);
 	
 	for (FormulaNode *node : nodes_) {
-mtl_trace();
 		p->nodes_.append(node->Clone());
 	}
-	
 	p->str_to_evaluate_ = str_to_evaluate_;
 	
 	return p;
@@ -181,8 +178,7 @@ Formula::EvaluateNodes(QVector<FormulaNode *> &nodes)
 	MTL_CHECK_NULL((nodes.size() == 1));
 	FormulaNode *result = nodes[0];
 #ifdef DEBUG_FORMULA_EVAL
-	auto ba = result->toString().toLocal8Bit();
-	mtl_info("Formula Result: \"%s\"", ba.data());
+	mtl_info("Formula Result: \"%s\"", qPrintable(result->toString()));
 #endif
 	return result->Clone();
 }

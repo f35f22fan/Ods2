@@ -3,7 +3,6 @@
 #include "util.hh"
 
 #include <ods/ods>
-#include <ods/err.hpp>
 #include <ods/inst/SvgDesc.hpp>
 #include <ods/inst/SvgTitle.hpp>
 #include <ods/inst/NumberBooleanStyle.hpp>
@@ -107,20 +106,20 @@ void CopyAnOdsFile()
 	}
 }
 
-// void ReadWriteNDFF(QStringView full_path)
-// {
-// 	ods::Book *book = ods::Book::FromNDFF(full_path);
-// 	if (!book)
-// 	{
-// 		mtl_warn("ods::Book == NULL");
-// 		return;
-// 	}
+/** void ReadWriteNDFF(QStringView full_path)
+{
+	ods::Book *book = ods::Book::FromNDFF(full_path);
+	if (!book)
+	{
+		mtl_warn("ods::Book == NULL");
+		return;
+	}
 	
-// 	book->ndff_enabled(true);
-// 	book->dev_mode(true);
-// 	ods::AutoDelete<ods::Book*> ad(book);
-// 	util::Save(book);
-// }
+	book->ndff_enabled(true);
+	book->dev_mode(true);
+	ods::AutoDelete<ods::Book*> ad(book);
+	util::Save(book);
+} **/
 
 void TestBug()
 {
@@ -202,10 +201,9 @@ void ReadColumnWidths()
 		return;
 	}
 	
-	
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
-	util::PrintWidth(sheet->GetColumn(0));
+	util::PrintWidth(sheet->GetColumn(0), ods::MustHave::No);
 	util::PrintWidth(sheet->GetColumn(1));
 	util::PrintWidth(sheet->GetColumn(3));
 	util::PrintWidth(sheet->GetColumn(6));
@@ -343,8 +341,8 @@ void ReadFont()
 	{
 		mtl_info("No font face");
 	} else {
-		auto ba = font_face->font_family().toLocal8Bit();
-		mtl_info("Font family: \"%s\"", ba.data());
+		auto name = font_face->font_family().toLocal8Bit();
+		mtl_info("Font family: \"%s\"", name.data());
 	}
 }
 
@@ -396,8 +394,8 @@ void CreateColorsAndUnderline()
 	/// also wrap text:
 	///stcp->SetWrapOption(true);
 	
-	auto ba = cell->TypeAndValueString();
-	mtl_info("Cell type and value: %s", ba.data());
+	auto tv = cell->TypeAndValueString();
+	mtl_info("Cell type and value: %s", tv.data());
 	
 	util::Save(book);
 }
@@ -529,7 +527,6 @@ void CellSpan()
 	cell = row->NewCellAt(5);
 	cell->SetString("4 cols repeated");
 	cell->number_columns_repeated(4); // default is 1
-	
 	util::Save(book);
 }
 

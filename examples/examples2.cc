@@ -155,7 +155,7 @@ void CreateFormula()
 		formula->Add(1.5);
 		
 		ods::FormulaNode *result = formula->Eval();
-		
+		ods::AutoDelete ad(result);
 		if (result == nullptr) {
 			mtl_info("Formula evaluation failed");
 		} else {
@@ -195,7 +195,7 @@ void CreateFormula()
 		formula2->PrintNodes("Formula2 nodes are");
 		
 		auto *result = formula2->Eval();
-		
+		ods::AutoDelete ad(result);
 		if (result == nullptr) {
 			mtl_info("formula2 eval failed");
 			return;
@@ -220,9 +220,9 @@ void CreateFormula()
 		auto *function = formula->Add(ods::FunctionId::Product);
 		ods::Cell *start_cell = cells[0];
 		ods::Cell *end_cell = cells[cells.size() - 1];
-		auto *cell_range = sheet->NewReference(start_cell, end_cell);
-		function->AddArg(cell_range);
+		function->AddArgRange(start_cell, end_cell);
 		auto *node = formula->Eval();
+		ods::AutoDelete ad(node);
 		MTL_CHECK_VOID(node);
 		auto ba = node->toString().toLocal8Bit();
 		mtl_info("PRODUCT() formula value: %s", ba.data());
@@ -240,9 +240,10 @@ void CreateFormula()
 		formula->Add(ods::Op::Ampersand); // concatenates strings
 		formula->Add(cell2);
 		formula->Add(ods::Op::Ampersand); // concatenate some more
-		formula->Add(new QString("!!"));
+		formula->Add("!!");
 		
 		auto *result = formula->Eval();
+		ods::AutoDelete ad(result);
 		MTL_CHECK_VOID(result);
 		
 		auto ba = result->toString().toLocal8Bit();
@@ -269,7 +270,7 @@ void ReadFormula()
 		return;
 	}
 	
-	ods::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad_book(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(0);
 	int row_index = 2;
@@ -296,6 +297,7 @@ void ReadFormula()
 	
 	ods::Formula *formula = cell->formula();
 	const ods::FormulaNode *value = formula->Eval();
+	ods::AutoDelete ad(value);
 	if (value == nullptr || formula->has_error()) {
 		if (value == nullptr)
 			mtl_info("value = nullptr");
@@ -322,8 +324,21 @@ void ReadFormula()
 		MTL_CHECK_VOID((cell->has_formula()));
 		ods::Formula *f = cell->formula();
 		auto *node = f->Eval();
+		ods::AutoDelete ad(node);
 		auto ba = node->toString().toLocal8Bit();
 		mtl_info("NOW() is: %s", ba.data());
+	}
+	
+	const char* math_ops[] = {"SIN", "COS", "TAN", "COT"};
+	for (int i = 0; i < 4; i++) { // sin, cos, tan, cot
+		auto *row = sheet->GetRow(++row_index);
+		auto *cell = row->GetCell(0);
+		MTL_CHECK_VOID((cell->has_formula()));
+		ods::Formula *f = cell->formula();
+		auto *node = f->Eval();
+		ods::AutoDelete ad(node);
+		auto ba = node->toString().toLocal8Bit();
+		mtl_info("%s()=: %s", math_ops[i], ba.data());
 	}
 	
 	util::Save(book);
@@ -340,7 +355,7 @@ void CreateFormulaFunctions()
 	// Enclosed in multiple if(true/false){} blocks to selectively disable execution
 	// while still compiling - for the purpose of easing development:
 	
-	if (false) { // CONCATENATE()
+	if (true) { // CONCATENATE()
 // Summary: Concatenate the text strings
 // Semantics: Concatenate each text value, in order, into a
 // single text result.
@@ -352,15 +367,14 @@ void CreateFormulaFunctions()
 		auto *formula_cell = row->NewCellAt(2);
 		ods::Formula *formula = formula_cell->NewFormula();
 		ods::Function *concatenate = formula->Add(ods::FunctionId::Concatenate);
-		concatenate->AddArg(sheet->NewReference(cell));
-		concatenate->AddArg(new QString(" "));
-		concatenate->AddArg(sheet->NewReference(cell2));
-		concatenate->AddArg(new QString("!"));
+		concatenate->AddArg(cell);
+		concatenate->AddArg(", ");
+		concatenate->AddArg(cell2);
+		concatenate->AddArg("!");
 		
 		ods::FormulaNode *result = formula->Eval();
 		MTL_CHECK_VOID(result);
-		auto ba = result->toString().toLocal8Bit();
-		mtl_info("CONCATENATE(): \"%s\"", ba.data());
+		mtl_info("CONCATENATE(): \"%s\"", qPrintable(result->toString()));
 	}
 	
 	if (false) { // NOW(), TODAY(), DATE()
@@ -431,7 +445,7 @@ void CreateFormulaFunctions()
 			auto *cell = row->NewCellAt(col++);
 			auto *formula = cell->NewFormula();
 			auto *fn = formula->Add(ods::FunctionId::Sum);
-			fn->AddArg(sheet->NewReference(row->GetCell(0)));
+			fn->AddArg(row->GetCell(0));
 			fn->AddArg(25);
 			fn->AddArg(20);
 			ods::FormulaNode *node = formula->Eval();
@@ -499,57 +513,64 @@ void CreateFormulaFunctions()
 		}
 	}
 	
-	if (false) { // QUOTIENT(), MOD(), POWER()
+	if (true) { // QUOTIENT(), MOD(), POWER()
 		auto *row = sheet->NewRowAt(last_row++);
-		auto *lhs = row->NewCellAt(0);
-		lhs->SetDouble(-11.7);
 		int last_col = 1;
-		auto *rhs = row->NewCellAt(last_col++);
-		rhs->SetDouble(3);
-		auto *f_cell = row->NewCellAt(last_col++);
-		auto *f = f_cell->NewFormula();
-		auto *fn = f->Add(ods::FunctionId::Quotient);
-		fn->AddArg(sheet->NewReference(lhs));
-		fn->AddArg(sheet->NewReference(rhs));
-		auto *node = f->Eval();
-		
-		if (node == nullptr || !node->is_any_double()) {
-			mtl_warn("QUOTIENT() failed");
-		} else {
+		{
+			auto *lhs = row->NewCellAt(0);
+			lhs->SetDouble(-11.7);
+			auto *rhs = row->NewCellAt(last_col++);
+			rhs->SetDouble(3);
+			auto *f_cell = row->NewCellAt(last_col++);
+			auto *f = f_cell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Quotient);
+			fn->AddArg(lhs);
+			fn->AddArg(rhs);
+			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
+			if (node == nullptr || !node->is_any_double()) {
+				mtl_warn("QUOTIENT() failed");
+			} else {
 			i64 result = i64(node->as_any_double());
 			mtl_info("QUOTIENT(): %lld", result);
 		}
-		
-		last_col++;
-		lhs = row->NewCellAt(last_col++);
-		lhs->SetDouble(7.5);
-		f_cell = row->NewCellAt(last_col++);
-		f = f_cell->NewFormula();
-		fn = f->Add(ods::FunctionId::Mod);
-		fn->AddArg(sheet->NewReference(lhs));
-		fn->AddArg(2.1);
-		node = f->Eval();
-		if (node == nullptr || !node->is_any_double()) {
-			mtl_warn("MOD() failed");
-		} else {
-			double result = node->as_any_double();
-			mtl_info("MOD(): %.2f", result);
+		}
+		{
+			last_col++;
+			auto *lhs = row->NewCellAt(last_col++);
+			lhs->SetDouble(7.5);
+			auto *f_cell = row->NewCellAt(last_col++);
+			auto *f = f_cell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Mod);
+			fn->AddArg(lhs);
+			fn->AddArg(2.1);
+			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
+			if (node == nullptr || !node->is_any_double()) {
+				mtl_warn("MOD() failed");
+			} else {
+				double result = node->as_any_double();
+				mtl_info("MOD(): %.2f", result);
+			}
 		}
 		
-		last_col++;
-		lhs = row->NewCellAt(last_col++);
-		lhs->SetDouble(3.4);
-		f_cell = row->NewCellAt(last_col++);
-		f = f_cell->NewFormula();
-		fn = f->Add(ods::FunctionId::Power);
-		fn->AddArg(sheet->NewReference(lhs));
-		fn->AddArg(4.4);
-		node = f->Eval();
-		if (node == nullptr || !node->is_any_double()) {
-			mtl_warn("POWER() failed");
-		} else {
-			double result = node->as_any_double();
-			mtl_info("POWER(): %.4f", result);
+		{
+			last_col++;
+			auto *lhs = row->NewCellAt(last_col++);
+			lhs->SetDouble(3.4);
+			auto *f_cell = row->NewCellAt(last_col++);
+			auto *f = f_cell->NewFormula();
+			auto *fn = f->Add(ods::FunctionId::Power);
+			fn->AddArg(lhs);
+			fn->AddArg(4.4);
+			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
+			if (node == nullptr || !node->is_any_double()) {
+				mtl_warn("POWER() failed");
+			} else {
+				double result = node->as_any_double();
+				mtl_info("POWER(): %.4f", result);
+			}
 		}
 	}
 	
@@ -566,8 +587,7 @@ void CreateFormulaFunctions()
 			auto *cell0 = row->NewCellAt(0);
 			cell0->SetDouble(25.0);
 			auto *condition = new QVector<ods::FormulaNode*>();
-			ods::Reference *a = sheet->NewReference(cell0);
-			condition->append(ods::FormulaNode::Reference(a));
+			condition->append(cell0->formulaNode());
 			condition->append(ods::FormulaNode::Op(ods::Op::GreaterOrEqual));
 			condition->append(ods::FormulaNode::Double(98));
 			fn_if->AddArg(condition);
@@ -579,7 +599,7 @@ void CreateFormulaFunctions()
 			false_option->AddArg(15);
 			
 			auto *node = f->Eval();
-			
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_warn("IF(numbers) failed");
 			} else {
@@ -602,11 +622,9 @@ void CreateFormulaFunctions()
 			auto *fn_if = f->Add(ods::FunctionId::If);
 			
 			auto *condition = new QVector<ods::FormulaNode*>();
-			auto *lhs = ods::FormulaNode::Reference(sheet->NewReference(cell1));
-			condition->append(lhs);
+			condition->append(cell1->formulaNode());
 			condition->append(ods::FormulaNode::Op(ods::Op::GreaterOrEqual));
-			auto *rhs = ods::FormulaNode::Reference(sheet->NewReference(cell2));
-			condition->append(rhs);
+			condition->append(cell2->formulaNode());
 			fn_if->AddArg(condition);
 			
 			auto *true_option = ods::FormulaNode::String(new QString("true!"));
@@ -640,11 +658,12 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Count);
 			fn->AddArg(43.2);
-			fn->AddArg(new QString("hi"));
-			fn->AddArg(sheet->NewReference(num_cell));
-			fn->AddArg(sheet->NewReference(str_cell));
+			fn->AddArg("hi");
+			fn->AddArg(num_cell);
+			fn->AddArg(str_cell);
 			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr || !node->is_double()) {
 				mtl_info("COUNT() eval failed");
 			} else {
@@ -658,10 +677,10 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::CountA);
 			fn->AddArg(43.2);
-			fn->AddArg(new QString("hi"));
-			fn->AddArg(sheet->NewReference(num_cell));
-			fn->AddArg(sheet->NewReference(empty_cell));
-			fn->AddArg(sheet->NewReference(str_cell));
+			fn->AddArg("hi");
+			fn->AddArg(num_cell);
+			fn->AddArg(empty_cell);
+			fn->AddArg(str_cell);
 			
 			auto *node = f->Eval();
 			if (node == nullptr || !node->is_double()) {
@@ -687,13 +706,12 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 	
 			auto *fn = f->Add(ods::FunctionId::SumIf);
-			auto *a = sheet->NewReference(row->GetCell(0), row->GetCell(2));
-			fn->AddArg(a);
+			fn->AddArgRange(row->GetCell(0), row->GetCell(2));
 			fn->AddArg(">3");
-			a = sheet->NewReference(row->GetCell(3), row->GetCell(5));
-			fn->AddArg(a);
+			fn->AddArgRange(row->GetCell(3), row->GetCell(5));
 			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("SUMIF() Eval() failed");
 			} else if (node->is_none()) {
@@ -709,21 +727,18 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			
 			auto *fn = f->Add(ods::FunctionId::SumIf);
-			auto *a = sheet->NewReference(row->GetCell(0), row->GetCell(2));
 			// SUMIF() test range:
-			fn->AddArg(a);
+			fn->AddArgRange(row->GetCell(0), row->GetCell(2));
 			
 			auto *cond_vec = new QVector<ods::FormulaNode*>();
-			a = sheet->NewReference(row->GetCell(2));
-			cond_vec->append(ods::FormulaNode::Reference(a));
+			cond_vec->append(row->GetCell(2)->formulaNode());
 			cond_vec->append(ods::FormulaNode::Op(ods::Op::Minus));
 			cond_vec->append(ods::FormulaNode::Double(2));
 			// SUMIF() condition:
 			fn->AddArg(cond_vec);
 			
-			a = sheet->NewReference(row->GetCell(3), row->GetCell(5));
 			// SUMIF() sum range:
-			fn->AddArg(a);
+			fn->AddArgRange(row->GetCell(3), row->GetCell(5));
 			
 			auto *node = f->Eval();
 			if (node == nullptr) {
@@ -750,11 +765,11 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 	
 			auto *fn = f->Add(ods::FunctionId::CountIf);
-			auto *a = sheet->NewReference(row->GetCell(0), row->GetCell(3));
-			fn->AddArg(a);
+			fn->AddArgRange(row->GetCell(0), row->GetCell(3));
 			fn->AddArg(">1");
 			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("COUNTIF() Eval() failed");
 			} else {
@@ -768,13 +783,11 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			
 			auto *fn = f->Add(ods::FunctionId::CountIf);
-			auto *a = sheet->NewReference(row->GetCell(0), row->GetCell(2));
 			// COUNTIF() test range:
-			fn->AddArg(a);
+			fn->AddArgRange(row->GetCell(0), row->GetCell(2));
 			
 			auto *cond_vec = new QVector<ods::FormulaNode*>();
-			a = sheet->NewReference(row->GetCell(2));
-			cond_vec->append(ods::FormulaNode::Reference(a));
+			cond_vec->append(row->GetCell(2)->formulaNode());
 			cond_vec->append(ods::FormulaNode::Op(ods::Op::Minus));
 			cond_vec->append(ods::FormulaNode::Double(2));
 			// COUNTIF() condition:
@@ -805,10 +818,10 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 		
 			auto *fn = f->Add(ods::FunctionId::CountBlank);
-			auto *a = sheet->NewReference(row->GetCell(0), row->GetCell(3));
-			fn->AddArg(a);
+			fn->AddArgRange(row->GetCell(0), row->GetCell(3));
 			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("COUNTBLANK() Eval() failed");
 			} else {
@@ -822,10 +835,10 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 		
 			auto *fn = f->Add(ods::FunctionId::Average);
-			auto *a = sheet->NewReference(row->GetCell(0), row->GetCell(3));
-			fn->AddArg(a);
+			fn->AddArgRange(row->GetCell(0), row->GetCell(3));
 			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("AVERAGE() Eval() failed");
 			} else {
@@ -848,8 +861,8 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Day);
 			fn->AddArg(date_str);
-			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("DAY() failed");
 			} else {
@@ -865,6 +878,7 @@ void CreateFormulaFunctions()
 			fn->AddArg(date_str);
 			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("MONTH() failed");
 			} else {
@@ -878,8 +892,8 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Year);
 			fn->AddArg(date_str);
-			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("YEAR() failed");
 			} else {
@@ -892,9 +906,10 @@ void CreateFormulaFunctions()
 			auto *fcell = row->NewCellAt(col++);
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::And);
-			auto *a = sheet->NewReference(row->GetCell(0), row->GetCell(1));
-			fn->AddArg(ods::FormulaNode::Reference(a));
+			fn->AddArg(row->GetCell(0));
+			fn->AddArg(row->GetCell(1));
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("AND() eval() failed");
 			} else {
@@ -906,9 +921,9 @@ void CreateFormulaFunctions()
 			auto *fcell = row->NewCellAt(col++);
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Or);
-			auto *a = sheet->NewReference(row->GetCell(2));
-			fn->AddArg(ods::FormulaNode::Reference(a));
+			fn->AddArg(row->GetCell(2));
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("OR() eval() failed");
 			} else {
@@ -920,9 +935,9 @@ void CreateFormulaFunctions()
 			auto *fcell = row->NewCellAt(col++);
 			auto *f = fcell->NewFormula();
 			auto *fn = f->Add(ods::FunctionId::Columns);
-			auto *a = sheet->NewReference(row->GetCell(0), row->GetCell(5));
-			fn->AddArg(ods::FormulaNode::Reference(a));
+			fn->AddArgRange(row->GetCell(0), row->GetCell(5));
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("COLUMNS() eval() failed");
 			} else {
@@ -935,6 +950,7 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			f->Add(ods::FunctionId::True);
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("TRUE() eval() failed");
 			} else {
@@ -947,6 +963,7 @@ void CreateFormulaFunctions()
 			auto *f = fcell->NewFormula();
 			f->Add(ods::FunctionId::False);
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("FALSE() eval() failed");
 			} else {
@@ -960,6 +977,7 @@ void CreateFormulaFunctions()
 			auto *fn = f->Add(ods::FunctionId::Not);
 			fn->AddArg(false);
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("NOT() eval() failed");
 			} else {
@@ -988,6 +1006,7 @@ void CreateFormulaFunctions()
 			fn->AddArg(0);
 			
 			auto *node = f->Eval();
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("INDIRECT() failed");
 			} else if (node->is_error()) {
@@ -1014,7 +1033,7 @@ void CreateFormulaFunctions()
 			fn->AddArg(1);
 			
 			ods::FormulaNode *node = f->Eval();
-			
+			ods::AutoDelete ad(node);
 			if (node == nullptr) {
 				mtl_info("OFFSET() failed");
 			} else if (node->is_error()) {
@@ -1048,6 +1067,7 @@ void CreateFormulaFunctions()
 				fn->AddArg("###.#");
 				
 				auto *node = f->Eval();
+				ods::AutoDelete ad(node);
 				if (node == nullptr) {
 					mtl_info("TEXT() failed");
 				} else if (node->is_error()) {
@@ -1066,6 +1086,7 @@ void CreateFormulaFunctions()
 				fn->AddArg("mm/dd/YYYY hh:m:ss");
 				
 				auto *node = f->Eval();
+				ods::AutoDelete ad(node);
 				if (node == nullptr) {
 					mtl_info("TEXT() failed");
 				} else if (node->is_error()) {
@@ -1084,6 +1105,7 @@ void CreateFormulaFunctions()
 				fn->AddArg("yy.m.dd");
 				
 				auto *node = f->Eval();
+				ods::AutoDelete ad(node);
 				if (node == nullptr) {
 					mtl_info("TEXT() failed");
 				} else if (node->is_error()) {
@@ -1102,6 +1124,7 @@ void CreateFormulaFunctions()
 				fn->AddArg("hh:m:s.zzz");
 				
 				auto *node = f->Eval();
+				ods::AutoDelete ad(node);
 				if (node == nullptr) {
 					mtl_info("TEXT() failed");
 				} else if (node->is_error()) {
@@ -1113,7 +1136,7 @@ void CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // MATCH()
+	if (false) { // MATCH()
 		auto *row = sheet->NewRowAt(last_row++);
 		int col = 0;
 		const int first_cell = col;
@@ -1134,6 +1157,7 @@ void CreateFormulaFunctions()
 		fn->AddArg(0);
 		
 		auto *node = f->Eval();
+		ods::AutoDelete ad(node);
 		if (node == nullptr) {
 			mtl_info("MATCH() failed");
 		} else if (node->is_error()) {
@@ -1142,16 +1166,24 @@ void CreateFormulaFunctions()
 			mtl_info("MATCH(%.1f) at %s", num, qPrintable(node->toString()));
 		}
 	}
-	util::Save(book);
+	
+	if (false) { // SIN()
+		auto *row = sheet->NewRowAt(last_row++);
+		cint col = 5;
+		auto *value_cell = row->NewCellAt(col);
+		value_cell->SetDouble(2);
+		auto *formula_cell = row->NewCellAt(col+1);
+		auto *formula = formula_cell->NewFormula();
+		auto *fn = formula->Add(ods::FunctionId::Sin);
+		fn->AddArg(value_cell);
+	}
+	util::Save(book, "CreateFormulaFunctions.ods");
 }
 
 void ReadCellRange()
 {
-	QString full_path = "/home/fox/Documents/NamedRange.ods";
-	
-	if (full_path.isEmpty())
-		return;
-	
+	QString full_path = QDir::home().absoluteFilePath("Documents/NamedRange.ods");
+	MTL_CHECK_VOID(!full_path.isEmpty());
 	QString err;
 	auto *book = ods::Book::FromFile(full_path, &err);
 	
@@ -1161,7 +1193,7 @@ void ReadCellRange()
 		return;
 	}
 	
-	ods::AutoDelete<ods::Book*> ad(book);
+	ods::AutoDelete<ods::Book*> ad_book(book);
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->GetSheet(1);
 	
@@ -1172,7 +1204,7 @@ void ReadCellRange()
 	auto *f = fcell->formula();
 	MTL_CHECK_VOID(f);
 	auto *node = f->Eval();
-	
+	ods::AutoDelete ad(node);
 	if (node == nullptr) {
 		mtl_info("Named Range formula failed");
 	} else {
@@ -1200,8 +1232,7 @@ bool CompareVec(QStringView lhs, QStringView rhs) {
 
 void GenerateFunctionsListForGitHub()
 {
-	QFile file("/media/data/Documents/ListOfAllFormulaFunctions.txt");
-	
+	QFile file(QDir::home().absoluteFilePath("Documents/ListOfAllFormulaFunctions.txt"));
 	MTL_CHECK_VOID(file.open(QIODevice::ReadOnly | QIODevice::Text));
 	QTextStream in(&file);
 	QString all = in.readAll();
@@ -1251,7 +1282,7 @@ void GenerateFunctionsListForGitHub()
 	
 	heap.prepend(prepend);
 	
-	const QString full_path = QDir::homePath() + "/out.txt";
+	const QString full_path = QDir::home().absoluteFilePath("ListOfFunctions.txt");
 	QFile out_file(full_path);
 	out_file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 	QTextStream out(&out_file);

@@ -349,7 +349,8 @@ EvalDeepestGroup(QVector<FormulaNode*> &input)
 		}
 	}
 	
-	input.erase(input.begin() + start, input.begin() + start + count);
+	cauto start_iter = input.begin() + start;
+	input.erase(start_iter, start_iter + count);
 	MTL_CHECK(EvalNodesByOpPrecedence(ret));
 	MTL_CHECK((ret.size() == 1));
 	input.insert(input.begin() + start, ret[0]);
@@ -363,7 +364,7 @@ EvalNodesByOpPrecedence(QVector<FormulaNode*> &nodes)
 	while (nodes.size() > 1)
 	{
 		if (iter++ > 300) {
-			mtl_trace();
+			mtl_warn("Too many iterations");
 			return false;
 		}
 		
@@ -583,6 +584,10 @@ GetSupportedFunctions() {
 	FunctionMeta ("OFFSET", FunctionId::Offset, 0),
 	FunctionMeta ("TEXT", FunctionId::Text),
 	FunctionMeta ("MATCH", FunctionId::Match, 0),
+	FunctionMeta ("SIN", FunctionId::Sin, 1),
+	FunctionMeta ("COS", FunctionId::Cos, 1),
+	FunctionMeta ("TAN", FunctionId::Tan, 1),
+	FunctionMeta ("COT", FunctionId::Cot, 1),
 	};
 	return v;
 }

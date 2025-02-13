@@ -7,6 +7,11 @@
 
 namespace ods {
 
+enum class MustHave: i8 {
+	Yes,
+	No
+};
+
 enum class Dir: i8 {
 	Yes,
 	No

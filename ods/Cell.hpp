@@ -32,7 +32,7 @@ public:
 	double* as_percentage() const { return as_double(); }
 	ods::Time* as_time() const { return (ods::Time*) value_data_; }
 	void ClearValue(const bool delete_data = true);
-	
+	FormulaNode *formulaNode();
 	virtual inst::Abstract*
 	Clone(inst::Abstract *parent = nullptr) const override;
 	
