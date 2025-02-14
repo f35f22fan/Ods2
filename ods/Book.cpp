@@ -27,7 +27,7 @@
 #include <QScreen>
 #include <QXmlStreamWriter>
 //#include <quazip/JlCompress.h>
-#include <QtCore/private/qzipwriter_p.h>
+//#include <QtCore/private/qzipwriter_p.h>
 // #include <QtCore/private/qzipreader_p.h>
 #include "zip.hh"
 
@@ -780,34 +780,6 @@ void Book::QueryUsedNamespaces(inst::NsHash &ns_hash, const CreateIfNeeded cr)
 	}
 }
 
-void AddZipDir(QDir dir, QZipWriter &zw, QString relpath = QString()) {
-	for (const auto info: dir.entryInfoList()) {
-		QString name = info.fileName();
-		if (name == "." || name == "..") {
-			continue;
-		}
-		if (info.isDir()) {
-			QString new_relpath = relpath + "/" + name;
-			//mtl_info("%s, %s", qPrintable(new_relpath), qPrintable(relpath));
-			// zw.setCompressionPolicy(QZipWriter::CompressionPolicy::NeverCompress);
-			// zw.addDirectory(new_relpath);
-			// zw.setCompressionPolicy(QZipWriter::CompressionPolicy::AutoCompress);
-			QDir new_dir(info.absoluteFilePath());
-			AddZipDir(new_dir, zw, new_relpath);
-		} else {
-			QFile file(info.absoluteFilePath());
-			if (file.open(QIODevice::ReadOnly)) {
-				QString fn = info.fileName();
-				if (!relpath.isEmpty()) {
-					fn = relpath + "/" + fn;
-				}
-				zw.addFile(fn, file.readAll());
-				file.close();
-			}
-		}
-	}
-}
-
 bool Book::Save(const QFile &target, QString *err)
 {
 	MTL_CHECK(document_content_ && document_styles_);
@@ -856,10 +828,6 @@ bool Book::Save(const QFile &target, QString *err)
 	}
 	
 	QString zip_filepath = QFileInfo(target).absoluteFilePath();
-	// QZipWriter zw(zip_filepath);
-	// AddZipDir(QDir(temp_dir_path_), zw);
-	// zw.close();
-	
 	MTL_CHECK(ods::zip::CompressDir(temp_dir_path_, zip_filepath, err));
 	
 	// if (!JlCompress::compressDir(zip_filepath, temp_dir_path_, true)) {

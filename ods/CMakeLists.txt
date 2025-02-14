@@ -188,10 +188,5 @@ else (DEFINED ODS_STATIC)
 	add_definitions(-DODS_SHARED -DODS_BUILDING)
 endif (DEFINED ODS_STATIC)
 
-set (thezlib "z")
-if (WIN32)
-set (thezlib "z")
-endif (WIN32)
 add_library(ods ${lib_type} ${lib_files})
-target_link_libraries(ods PRIVATE Qt6::Core Qt6::CorePrivate
-	Qt${QT_VERSION_MAJOR}::Gui zip ${thezlib})
+target_link_libraries(ods PRIVATE Qt6::Core Qt${QT_VERSION_MAJOR}::Gui zip z)

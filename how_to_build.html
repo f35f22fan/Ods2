@@ -46,7 +46,7 @@ The build instructions were inspired from
 
 <br/><br/>
 <hr/>
-How to build with <b>LLVM MinGW</b> on Windows 10/11:
+<b>How to build with LLVM MinGW on Windows 10/11</b>:
 <p/>
 <ul>
 <li/> Update the "setup_windows_env.bat" file with proper values for your build environment.
@@ -61,6 +61,31 @@ command line or powershell to quickly install it, then restart the command line 
 Now you can run "make"!
 <li/> make -j4
 </ul>
+
+<br/><br/>
+<hr/>
+<b>How to build on Linux</b>
+<p/>
+It is build from the terminal, .pro files for QtCreator not available.
+<p/>
+<ul>
+<li/>If not already installed - install the Qt6 dev package, which is qt6-base-dev on Ubuntu and qt6-qtbase-devel
+on Fedora, also install cmake and git.
+<li/>cd ${Ods2}
+<li/>mkdir build
+<li/>cd build
+<li/>cmake ..
+<li/>make -j4
+</ul>
+The resulting libraries will be in build/lib, you need 3 of them:
+<ol>
+<li/>"libods.so" - the Ods2 library, which depends on
+<li/>"libzip.so" for zip support, which depends on
+<li/>"libz.so" for zlib compression, Windows doesn't ship it so it is bundled.
+</ol>
+<br/>
+The example code is compiled to an executable as build/examples/app and thus can be run
+from the terminal from the ${Ods2}/build directory as "examples/app".
 </body>
 </html>
 
