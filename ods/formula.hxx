@@ -42,6 +42,12 @@ enum class ColsOrRows: u8 {
 
 enum class FunctionId : u16 {
 	None,
+	Acos,
+	Acot,
+	Asin,
+	Atan,
+	Atan2,
+	Abs,
 	And,
 	Average,
 	Columns,

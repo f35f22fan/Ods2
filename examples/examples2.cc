@@ -329,18 +329,6 @@ void ReadFormula()
 		mtl_info("NOW() is: %s", ba.data());
 	}
 	
-	const char* math_ops[] = {"SIN", "COS", "TAN", "COT"};
-	for (int i = 0; i < 4; i++) { // sin, cos, tan, cot
-		auto *row = sheet->GetRow(++row_index);
-		auto *cell = row->GetCell(0);
-		MTL_CHECK_VOID((cell->has_formula()));
-		ods::Formula *f = cell->formula();
-		auto *node = f->Eval();
-		ods::AutoDelete ad(node);
-		auto ba = node->toString().toLocal8Bit();
-		mtl_info("%s()=: %s", math_ops[i], ba.data());
-	}
-	
 	util::Save(book);
 }
 
@@ -355,7 +343,7 @@ void CreateFormulaFunctions()
 	// Enclosed in multiple if(true/false){} blocks to selectively disable execution
 	// while still compiling - for the purpose of easing development:
 	
-	if (true) { // CONCATENATE()
+	if (false) { // CONCATENATE()
 // Summary: Concatenate the text strings
 // Semantics: Concatenate each text value, in order, into a
 // single text result.
@@ -513,7 +501,7 @@ void CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // QUOTIENT(), MOD(), POWER()
+	if (false) { // QUOTIENT(), MOD(), POWER()
 		auto *row = sheet->NewRowAt(last_row++);
 		int last_col = 1;
 		{
@@ -1167,15 +1155,33 @@ void CreateFormulaFunctions()
 		}
 	}
 	
-	if (false) { // SIN()
-		auto *row = sheet->NewRowAt(last_row++);
-		cint col = 5;
-		auto *value_cell = row->NewCellAt(col);
-		value_cell->SetDouble(2);
-		auto *formula_cell = row->NewCellAt(col+1);
-		auto *formula = formula_cell->NewFormula();
-		auto *fn = formula->Add(ods::FunctionId::Sin);
-		fn->AddArg(value_cell);
+	if (true) { // SIN()
+		{
+			const char* math_ops[] = {"SIN", "COS", "TAN", "COT", "ABS",
+			"ACOS", "ACOT", "ASIN", "ATAN", "ATAN2"};
+			const ods::FunctionId funcs[] = {
+			ods::FunctionId::Sin, ods::FunctionId::Cos, ods::FunctionId::Tan,
+			ods::FunctionId::Cot, ods::FunctionId::Abs, ods::FunctionId::Acos,
+			ods::FunctionId::Acot, ods::FunctionId::Asin, ods::FunctionId::Atan,
+			ods::FunctionId::Atan2};
+			for (int i = 0; i < 10; i++) {
+				auto *row = sheet->NewRowAt(last_row++);
+				cint col = 0;
+				auto *value_cell = row->NewCellAt(col);
+				value_cell->SetDouble(-1);
+				auto *formula_cell = row->NewCellAt(col+1);
+				auto *formula = formula_cell->NewFormula();
+				cauto func_id = funcs[i];
+				auto *fn = formula->Add(func_id);
+				fn->AddArg(value_cell);
+				if (func_id == ods::FunctionId::Atan2) {
+					fn->AddArg(0);
+				}
+				auto *value_node = formula->Eval();
+				ods::AutoDelete ad(value_node);
+				mtl_info("%s()=: %s", math_ops[i], qPrintable(value_node->toString()));
+			}
+		}
 	}
 	util::Save(book, "CreateFormulaFunctions.ods");
 }

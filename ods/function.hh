@@ -5,6 +5,12 @@
 #include "op.hh"
 
 namespace ods::function {
+FormulaNode* Abs(const QVector<ods::FormulaNode*> &values);
+FormulaNode* Acos(const QVector<ods::FormulaNode*> &values);
+FormulaNode* Acot(const QVector<ods::FormulaNode*> &values);
+FormulaNode* Asin(const QVector<ods::FormulaNode*> &values);
+FormulaNode* Atan(const QVector<ods::FormulaNode*> &values);
+FormulaNode* Atan2(const QVector<ods::FormulaNode*> &values);
 FormulaNode* And(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Average(const QVector<ods::FormulaNode*> &values);
 FormulaNode* Bool(const bool flag);

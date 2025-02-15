@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	// CreateFormula();
 	// ReadFormula();
 	
-	//CreateFormulaFunctions();
+	// CreateFormulaFunctions();
 	
 	auto *invoice = new sample::Invoice();
 	ods::AutoDelete ad_p(invoice);

@@ -224,6 +224,12 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Cos: return function::Cos(fn_args);
 	case FunctionId::Tan: return function::Tan(fn_args);
 	case FunctionId::Cot: return function::Cot(fn_args);
+	case FunctionId::Abs: return function::Abs(fn_args);
+	case FunctionId::Acos: return function::Acos(fn_args);
+	case FunctionId::Acot: return function::Acot(fn_args);
+	case FunctionId::Asin: return function::Asin(fn_args);
+	case FunctionId::Atan: return function::Atan(fn_args);
+	case FunctionId::Atan2: return function::Atan2(fn_args);
 	default: { mtl_trace();	return nullptr; }
 	}
 }

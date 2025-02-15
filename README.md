@@ -20,15 +20,15 @@ Licensed under the GPLv3 or MIT license, see LICENSE for details.
 For questions, feature requests, etc: binkiepinkie1917 AT gmail DOT com
 
 ---
-##### 39 out of 388 functions implemented
+##### 45 out of 388 functions implemented
 
 Column 1 | Column 2 | Column 3 | Column 4
 -------- | ---------- | -------- | ---------
-:black_square_button: abs() | :black_square_button: accrint() | :black_square_button: accrintm() | :black_square_button: acos()
-:black_square_button: acosh() | :black_square_button: acot() | :black_square_button: acoth() | :black_square_button: address()
+:ballot_box_with_check: abs() | :black_square_button: accrint() | :black_square_button: accrintm() | :ballot_box_with_check: acos()
+:black_square_button: acosh() | :ballot_box_with_check: acot() | :black_square_button: acoth() | :black_square_button: address()
 :black_square_button: amordegrc() | :black_square_button: amorlinc() | :ballot_box_with_check: and() | :black_square_button: arabic()
-:black_square_button: areas() | :black_square_button: asin() | :black_square_button: asinh() | :black_square_button: atan()
-:black_square_button: atan2() | :black_square_button: atanh() | :black_square_button: avedev() | :ballot_box_with_check: average()
+:black_square_button: areas() | :ballot_box_with_check: asin() | :black_square_button: asinh() | :ballot_box_with_check: atan()
+:ballot_box_with_check: atan2() | :black_square_button: atanh() | :black_square_button: avedev() | :ballot_box_with_check: average()
 :black_square_button: averagea() | :black_square_button: averageifs() | :black_square_button: b() | :black_square_button: bahttext()
 :black_square_button: base() | :black_square_button: besseli() | :black_square_button: besselj() | :black_square_button: besselk()
 :black_square_button: bessely() | :black_square_button: betadist() | :black_square_button: betainv() | :black_square_button: bin2dec()
@@ -121,6 +121,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: weibull() | :black_square_button: workday() | :black_square_button: xirr() | :black_square_button: xnpv()
 :black_square_button: xor() | :ballot_box_with_check: year() | :black_square_button: yearfrac() | :black_square_button: years()
 :black_square_button: yield() | :black_square_button: yielddisc() | :black_square_button: yieldmat() | :black_square_button: ztest()
+
 
 
 

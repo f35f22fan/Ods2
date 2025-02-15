@@ -19,6 +19,58 @@
 
 namespace ods::function {
 
+FormulaNode* Acos(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	const double x = node->as_any_double();
+	double ret = acos(x);
+	return FormulaNode::Double(ret);
+}
+
+FormulaNode* Acot(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	const double x = node->as_any_double();
+	double ret = M_PI/2 - atan(x);
+	return FormulaNode::Double(ret);
+}
+
+FormulaNode* Asin(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	const double x = node->as_any_double();
+	double ret = asin(x);
+	return FormulaNode::Double(ret);
+}
+
+FormulaNode* Atan(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	const double x = node->as_any_double();
+	double ret = atan(x);
+	return FormulaNode::Double(ret);
+}
+
+FormulaNode* Atan2(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 2);
+	double ret = atan2(values[1]->as_any_double(), values[0]->as_any_double());
+	return FormulaNode::Double(ret);
+}
+
+FormulaNode* Abs(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	auto *node = values[0];
+	const double x = node->as_any_double();
+	double ret = abs(x);
+	return FormulaNode::Double(ret);
+}
+
 FormulaNode* And(const QVector<ods::FormulaNode*> &values)
 {
 	bool all_true = true;

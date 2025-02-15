@@ -588,6 +588,12 @@ GetSupportedFunctions() {
 	FunctionMeta ("COS", FunctionId::Cos, 1),
 	FunctionMeta ("TAN", FunctionId::Tan, 1),
 	FunctionMeta ("COT", FunctionId::Cot, 1),
+	FunctionMeta ("ABS", FunctionId::Abs, 1),
+	FunctionMeta ("ACOS", FunctionId::Acos, 1),
+	FunctionMeta ("ACOT", FunctionId::Acot, 1),
+	FunctionMeta ("ASIN", FunctionId::Asin, 1),
+	FunctionMeta ("ATAN", FunctionId::Atan, 1),
+	FunctionMeta ("ATAN2", FunctionId::Atan2, 1),
 	};
 	return v;
 }
