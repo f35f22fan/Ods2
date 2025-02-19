@@ -16,40 +16,53 @@ Time::Time()
 
 Time::Time(const Time &rhs)
 {
-	DeepCopy(*this, rhs);
+	h_ = rhs.h_;
+	m_ = rhs.m_;
+	s_ = rhs.s_;
 }
 
-Time::Time(const i32 h, const i32 m, const i32 s, const int msec)
+Time::Time(ci32 h, ci32 m, ci32 s)
 {
-	hours(h);
-	minutes(m);
-	seconds(s);
-	ms(msec);
+	Apply(h, m, s);
 }
 
-Time::~Time()
-{}
+Time::Time(const QTime &t)
+{
+	Apply(t.hour(), t.minute(), t.second());
+}
+
+Time::~Time() {}
+
+bool Time::operator>(const ods::Time &rhs) const {
+	return total() > rhs.total();
+}
+bool Time::operator<(const ods::Time &rhs) const {
+	return total() < rhs.total();
+}
+bool Time::operator>=(const ods::Time &rhs) const {
+	return total() >= rhs.total();
+}
+bool Time::operator<=(const ods::Time &rhs) const {
+	return total() <= rhs.total();
+}
+bool Time::operator==(const ods::Time &rhs) const {
+	return total() == rhs.total();
+}
+bool Time::operator!=(const ods::Time &rhs) const {
+	return total() != rhs.total();
+}
+
+void Time::Apply(ci32 h, ci32 m, ci32 s) {
+	h_ = m_ = s_ = 0;
+	add_seconds(s);
+	add_minutes(m);
+	add_hours(h);
+}
 
 Time*
 Time::Clone() const
 {
-	auto *p = new Time();
-	DeepCopy(*p, *this);
-	return p;
-}
-
-void
-Time::DeepCopy(Time &lhs, const Time &rhs)
-{
-	lhs.ms_ = rhs.ms_;
-}
-
-Time*
-Time::New(const i32 h, const i32 m, const i32 s)
-{
-	auto *p = new Time();
-	p->ms_ = h * H + m * M + s * S;
-	return p;
+	return new Time(h_, m_, s_);
 }
 
 Time
@@ -62,7 +75,9 @@ Time::operator+(const Time &rhs) const {
 void
 Time::operator+=(const ods::Time &rhs)
 {
-	ms_ += rhs.ms_;
+	add_hours(rhs.hours());
+	add_minutes(rhs.minutes());
+	add_seconds(rhs.seconds());
 }
 
 Time
@@ -72,10 +87,41 @@ Time::operator-(const Time &rhs) const {
 	return d;
 }
 
-void
-Time::operator-=(const ods::Time &rhs)
+void Time::operator-=(const ods::Time &rhs)
 {
-	ms_ -= rhs.ms_;
+	subtract_hours(rhs.h_);
+	subtract_minutes(rhs.m_);
+	subtract_seconds(rhs.s_);
+}
+
+void Time::add_seconds(ci32 s) {
+	s_ += s;
+	i32 minutes = s_ / 60;
+	s_ %= 60;
+	if (s_ < 0) {
+		s_ = 60 + s_;
+		minutes--;
+	}
+	if (minutes != 0) {
+		add_minutes(minutes);
+	}
+}
+
+void Time::add_minutes(ci32 m) {
+	m_ += m;
+	i32 hours = m_ / 60;
+	m_ %= 60;
+	if (m_ < 0) {
+		m_ = 60 + m_;
+		hours--;
+	}
+	if (hours != 0) {
+		add_hours(hours);
+	}
+}
+void Time::add_hours(ci32 h) {
+	h_ += h;
+	h_ %= 24;
 }
 
 bool Time::Parse(const QString &orig_str)
@@ -115,7 +161,6 @@ bool Time::Parse(const QString &orig_str)
 	MTL_CHECK(ok);
 	min = n;
 	
-	
 	str_ref = str_ref.mid(m_index + 1);
 	MTL_CHECK(str_ref.endsWith('S'));
 	str_ref = str_ref.left(str_ref.size() - 1);
@@ -138,55 +183,65 @@ bool Time::Parse(const QString &orig_str)
 		ms = n;
 	}
 	
-//	mtl_info("%d, %d, %d, %d", hrs, min, sec, ms);
-	ms_ = hrs * H + min * M + sec * S + ms;
-	
-	if (negative)
-		ms_ = -ms_;
+	if (negative) {
+		h_ = -h_;
+		m_ = -m_;
+		s_ = -s_;
+	}
 	
 	return true;
+}
+
+bool Time::ParseSimple(QString input) {
+	auto list = input.split(':');
+	if (list.size() != 3) {
+		return false;
+	}
+	
+	bool ok;
+	i32 h = list[0].toInt(&ok);
+	if (!ok) return false;
+	i32 m = list[1].toInt(&ok);
+	if (!ok) return false;
+	i32 s = list[2].toInt(&ok);
+	if (!ok) return false;
+	
+	//mtl_info("h=%d, m=%d, s=%d", h, m, s);
+	Apply(h, m, s);
+	//mtl_info("h=%d, m=%d, s=%d", h_, m_, s_);
+	
+	return true;
+}
+
+void Time::subtract_seconds(ci32 s) {
+	s_ -= s;
+	if (s_ >= 0)
+		return;
+	i32 minutes = s_ / 60;
+	s_ = 60 - (s_ % 60);
+	if (s_ > 0)
+		minutes++;
+	subtract_minutes(minutes);
+}
+
+void Time::subtract_minutes(ci32 m) {
+	m_ -= m;
+	if (m_ >= 0)
+		return;
+	i32 hours = m_ / 60;
+	m_ = 60 - (m_ % 60);
+	if (m_ > 0)
+		hours++;
+	subtract_hours(hours);
+}
+
+void Time::subtract_hours(ci32 h) {
+	h_ -= h;
 }
 
 Time::operator QString()
 {
 	return toString();
-}
-
-void Time::ms(const i32 n) {
-	ms_ = ms_ - ms() + n;
-}
-
-i32 Time::ms() const {
-	return ms_ % 1000;
-}
-
-i32 Time::seconds() const {
-	const i32 n = ms_ - hours() * H - minutes() * M;
-	return n / 1000;
-}
-
-void Time::seconds(const i32 n) {
-	const i32 sec_ms = seconds() * S;
-	ms_ = ms_ - sec_ms + n * S;
-}
-
-i32 Time::minutes() const {
-	i32 m = ms_ - hours() * H;
-	return m / M;
-}
-
-void Time::minutes(const i32 num) {
-	const i32 hrs_ms = hours() * H;
-	const i32 no_hrs = ms_ - hrs_ms;
-	const i32 min_ms = minutes() * M;
-	const i32 below_min = no_hrs - min_ms;
-	ms_ = hrs_ms + num * M + below_min;
-}
-
-void
-Time::hours(const i32 n) {
-	ms_ = ms_ % H;
-	ms_ += H * n;
 }
 
 QString
@@ -196,7 +251,7 @@ Time::toString() const
 	// <text:p>07:14:22.015</text:p>
 	QString str = QLatin1String("PT");
 	
-	if (ms_ < 0)
+	if (h_ < 0 || m_ < 0 || s_ < 0)
 		str = QChar('-') + str;
 	
 	str += QString::number(std::abs(hours()));
@@ -204,18 +259,6 @@ Time::toString() const
 	str += QString::number(std::abs(minutes()));
 	str += 'M';
 	str += QString::number(std::abs(seconds()));
-	const i32 mil = std::abs(ms());
-	
-	if (mil > 0) {
-		str += QChar('.');
-		const QString mil_str = QString::number(mil);
-		if (mil < 10)
-			str += QLatin1String("00") + mil_str;
-		else if (mil < 100)
-			str += QChar('0') + mil_str;
-		else
-			str += mil_str;
-	}
 	str += 'S';
 	return str;
 }

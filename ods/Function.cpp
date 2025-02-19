@@ -230,7 +230,12 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Asin: return function::Asin(fn_args);
 	case FunctionId::Atan: return function::Atan(fn_args);
 	case FunctionId::Atan2: return function::Atan2(fn_args);
-	default: { mtl_trace();	return nullptr; }
+	case FunctionId::Time: return function::Time(fn_args);
+	case FunctionId::TimeValue: return function::TimeValue(fn_args);
+	case FunctionId::Hour: return function::HourMinuteSecond(fn_args, ods::HMS::Hour);
+	case FunctionId::Minute: return function::HourMinuteSecond(fn_args, ods::HMS::Minute);
+	case FunctionId::Second: return function::HourMinuteSecond(fn_args, ods::HMS::Second);
+	default: { mtl_trace(); return nullptr; }
 	}
 }
 

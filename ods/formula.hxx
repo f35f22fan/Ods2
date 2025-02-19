@@ -29,6 +29,12 @@ enum class RoundType : u8 {
 	Round
 };
 
+enum class HMS: i8 {
+	Hour,
+	Minute,
+	Second
+};
+
 enum class DMY : u8 {
 	Day,
 	Month,
@@ -61,11 +67,13 @@ enum class FunctionId : u16 {
 	Date,
 	Day,
 	False,
+	Hour,
 	If,
 	Indirect,
 	Match,
 	Max,
 	Min,
+	Minute,
 	Mod,
 	Month,
 	Not,
@@ -78,24 +86,27 @@ enum class FunctionId : u16 {
 	RoundUp,
 	RoundDown,
 	Rows,
+	Second,
 	Sin,
 	Sum,
 	SumIf,
 	Product,
 	Tan,
 	Text,
+	Time,
+	TimeValue,
 	Today,
 	True,
 	Year,
 };
 
 struct FunctionMeta {
-	const char *name;
+	QString name;
 	FunctionId id;
 	u32 settings; // possible value: ods::FlattenOutParamsBit
 	
 	FunctionMeta(const char *n, const FunctionId fi, const u32 bits = ods::DefaultFunctionSettings) {
-		name = n;
+		name = QLatin1String(n);
 		id = fi;
 		settings = bits;
 	}

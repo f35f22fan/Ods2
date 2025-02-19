@@ -252,7 +252,7 @@ FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dm
 	MTL_CHECK_NULL((values.size() == 1));
 	
 	FormulaNode *node = values[0];
-	int ret_val = -1;
+	i32 ret_val = -1;
 	
 	if (node->is_date()) {
 		QDate *date = node->as_date();
@@ -322,7 +322,82 @@ FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dm
 	}
 	
 	MTL_CHECK_NULL(ret_val != -1);
-	return FormulaNode::Double(ret_val);	
+	return FormulaNode::Double(ret_val);
+}
+
+FormulaNode* HourMinuteSecond(const QVector<ods::FormulaNode*> &values, const HMS hms)
+{
+	MTL_CHECK_NULL((values.size() == 1));
+	FormulaNode *node = values[0];
+	i32 ret_val = -1;
+	
+	if (node->is_time()) {
+		ods::Time *t = node->as_time();
+		if (hms == HMS::Hour)
+			ret_val = t->hours();
+		else if (hms == HMS::Minute)
+			ret_val = t->minutes();
+		else if (hms == HMS::Second)
+			ret_val = t->seconds();
+		else {
+			mtl_trace();
+			return nullptr;
+		}
+	} else if (node->is_date_time()) {
+		QDateTime *dt = node->as_date_time();
+		if (hms == HMS::Hour) {
+			ret_val = dt->time().hour();
+			// mtl_info("ret_val (hour): %d", ret_val);
+		} else if (hms == HMS::Minute) {
+			ret_val = dt->time().minute();
+			// mtl_info("ret_val (minute): %d", ret_val);
+		} else if (hms == HMS::Second) {
+			ret_val = dt->time().second();
+			// mtl_info("ret_val (second): %d", ret_val);
+		} else {
+			mtl_trace();
+			return nullptr;
+		}
+	} else if (node->is_string()) {
+		// Expected formats: "HH-MM-SS"
+		QString *date_str = node->as_string();
+		QChar sep('.');
+		
+		if (date_str->indexOf('-') != -1)
+			sep = QChar('-');
+		else if (date_str->indexOf('/') != -1)
+			sep = QChar('/');
+		
+		auto list = QStringView(*date_str).split(sep);
+		MTL_CHECK_NULL((list.size() == 3));
+		int index = -1;
+		
+		if (hms == HMS::Hour)
+			index = 0;
+		else if (hms == HMS::Minute)
+			index = 1;
+		else if (hms == HMS::Second)
+			index = 2;
+		else {
+			mtl_trace();
+			return nullptr;
+		}
+		
+		auto str = list[index];
+		bool ok;
+		ret_val = str.toInt(&ok);
+		
+		if (!ok) {
+			mtl_trace("Invalid time: \"%s\"", qPrintable(*date_str));
+			return nullptr;
+		}
+	} else {
+		mtl_warn("Cell is none of the above");
+	}
+	
+	MTL_CHECK_NULL(ret_val != -1);
+	
+	return FormulaNode::Double(ret_val);
 }
 
 FormulaNode* If(const QVector<FormulaNode*> &values)
@@ -746,7 +821,7 @@ FormulaNode* Text(const QVector<FormulaNode *> &values)
 			MTL_CHECK_NULL(eval::FormatAsDateTime(format_str, date, nullptr, result));
 		} else if (num_node->is_time()) {
 			ods::Time *t = num_node->as_time();
-			QTime time_arg(t->hours(), t->minutes(), t->seconds(), t->ms());
+			QTime time_arg(t->hours(), t->minutes(), t->seconds());
 			MTL_CHECK_NULL(eval::FormatAsDateTime(format_str, nullptr, &time_arg, result));
 		} else {
 			mtl_it_happened();
@@ -757,8 +832,72 @@ FormulaNode* Text(const QVector<FormulaNode *> &values)
 	return FormulaNode::String(new QString(result));
 }
 
+bool ParseHMS(FormulaNode *node, i32 &value) {
+	if (node->is_any_double()) {
+		value = node->as_any_double();
+		return true;
+	} else if (node->is_string()) {
+		QString *s = node->as_string();
+		bool ok;
+		cint m = s->toInt(&ok);
+		if (!ok)
+			return false;
+		value = m;
+		return true;
+	}
+	
+	return false;
+}
+
+inline double timeval(i32 h, i32 m, i32 s) {
+	return ((double(h) * 60 * 60) + (m * 60) + s) / (24 * 60 * 60);
+}
+
+FormulaNode* Time(const QVector<FormulaNode*> &values) {
+	MTL_CHECK_NULL(values.size() == 3);
+	i32 h, m, s;
+	MTL_CHECK_NULL(ParseHMS(values[0], h));
+	MTL_CHECK_NULL(ParseHMS(values[1], m));
+	MTL_CHECK_NULL(ParseHMS(values[2], s));
+	
+	return FormulaNode::Double(timeval(h, m, s));
+}
+
+FormulaNode* TimeValue(const QVector<FormulaNode*> &values) {
+	MTL_CHECK_NULL(values.size() == 1);
+	FormulaNode *node = values[0];
+	ods::Time t;
+	if (node->is_string()) {
+		QString strval = *node->as_string();
+		cint sc_pos = strval.indexOf(':');
+		if (strval.indexOf('-') < sc_pos) { //date-time "YYYY-MM-DD HH:MM::SS"
+			auto dt = QDateTime::fromString(strval, Qt::ISODate);
+			QTime time = dt.time();
+			//mtl_info("h=%d, m=%d, s=%d", time.hour(), time.minute(), time.second());
+			t = time;
+		} else if (sc_pos > 0) { // only time "HH:MM:SS"
+			MTL_CHECK_NULL(t.ParseSimple(strval));
+			//mtl_info("h=%d, m=%d, s=%d", t.hours(), t.minutes(), t.seconds());
+		} else {
+			mtl_trace();
+			return nullptr;
+		}
+	} else if (node->is_time()) {
+		t = *node->as_time();
+	}
+	
+	if (t.valid()) {
+		i32 h = t.hours();
+		i32 m = t.minutes();
+		i32 s = t.seconds();
+		return FormulaNode::Double(timeval(h, m, s));
+	}
+	
+	return nullptr;
+}
+
 FormulaNode* Today() {
 	auto *p = new QDate(QDate::currentDate());
 	return FormulaNode::Date(p);
 }
-} // ods::
+} // ods::function::

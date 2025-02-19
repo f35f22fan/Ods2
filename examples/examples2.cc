@@ -1044,7 +1044,7 @@ void CreateFormulaFunctions()
 			auto *dt = new QDateTime(QDateTime::currentDateTime());
 			row->NewCellAt(col++)->SetDateTime(dt);
 			row->NewCellAt(col++)->SetDate(new QDate(QDate::currentDate()));
-			row->NewCellAt(col++)->SetTime(new ods::Time(6, 2, 34, 8));
+			row->NewCellAt(col++)->SetTime(new ods::Time(6, 2, 34));
 			
 			if (true) { // TEXT(number)
 				auto *fcell = row->NewCellAt(col++);
@@ -1155,34 +1155,79 @@ void CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // SIN()
-		{
-			const char* math_ops[] = {"SIN", "COS", "TAN", "COT", "ABS",
+	if (false) { // "SIN", "COS", "TAN", "COT", "ABS", "ACOS", "ACOT", "ASIN", "ATAN", "ATAN2"
+		const char* math_ops[] = {"SIN", "COS", "TAN", "COT", "ABS",
 			"ACOS", "ACOT", "ASIN", "ATAN", "ATAN2"};
-			const ods::FunctionId funcs[] = {
+		const ods::FunctionId funcs[] = {
 			ods::FunctionId::Sin, ods::FunctionId::Cos, ods::FunctionId::Tan,
 			ods::FunctionId::Cot, ods::FunctionId::Abs, ods::FunctionId::Acos,
 			ods::FunctionId::Acot, ods::FunctionId::Asin, ods::FunctionId::Atan,
 			ods::FunctionId::Atan2};
-			for (int i = 0; i < 10; i++) {
-				auto *row = sheet->NewRowAt(last_row++);
-				cint col = 0;
-				auto *value_cell = row->NewCellAt(col);
-				value_cell->SetDouble(-1);
-				auto *formula_cell = row->NewCellAt(col+1);
-				auto *formula = formula_cell->NewFormula();
-				cauto func_id = funcs[i];
-				auto *fn = formula->Add(func_id);
-				fn->AddArg(value_cell);
-				if (func_id == ods::FunctionId::Atan2) {
-					fn->AddArg(0);
-				}
-				auto *value_node = formula->Eval();
-				ods::AutoDelete ad(value_node);
-				mtl_info("%s()=: %s", math_ops[i], qPrintable(value_node->toString()));
+		for (int i = 0; i < 10; i++) {
+			auto *row = sheet->NewRowAt(last_row++);
+			cint col = 0;
+			auto *value_cell = row->NewCellAt(col);
+			value_cell->SetDouble(-1);
+			auto *formula_cell = row->NewCellAt(col+1);
+			auto *formula = formula_cell->NewFormula();
+			cauto func_id = funcs[i];
+			auto *fn = formula->Add(func_id);
+			fn->AddArg(value_cell);
+			if (func_id == ods::FunctionId::Atan2) {
+				fn->AddArg(0);
+			}
+			auto *value_node = formula->Eval();
+			ods::AutoDelete ad(value_node);
+			mtl_info("%s()=: %s", math_ops[i], qPrintable(value_node->toString()));
+		}
+	}
+	
+	if (true) { // TIME, TIMEVALUE, HOUR, MINUTE, SECOND
+		{
+			auto *row = sheet->NewRowAt(last_row++);
+			cint col = 0;
+			auto *cell = row->NewCellAt(col);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::Time);
+			fn->AddArg(9);
+			fn->AddArg(45);
+			fn->AddArg(-200);
+			
+			auto *node = formula->Eval();
+			ods::AutoDelete ad(node);
+			mtl_info("TIME()= %s", qPrintable(node->toString()));
+		}
+		{
+			auto *row = sheet->NewRowAt(last_row++);
+			cint col = 0;
+			auto *cell = row->NewCellAt(col);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::TimeValue);
+			fn->AddArg("09:45:-200");
+			
+			auto *node = formula->Eval();
+			ods::AutoDelete ad(node);
+			mtl_info("TIMEVALUE()= %s", qPrintable(node->toString()));
+		}
+		{
+			auto *row = sheet->NewRowAt(last_row++);
+			const ods::FunctionId funcs[] = {ods::FunctionId::Hour,
+				ods::FunctionId::Minute, ods::FunctionId::Second};
+			const char *names[] = {"HOUR", "MINUTE", "SECOND"};
+			auto *date_cell = row->NewCellAt(4);
+			date_cell->SetTime(new ods::Time(23, 45, 50));
+			for (int i = 0; i < 3; i++) {
+				auto *cell = row->NewCellAt(i);
+				auto *formula = cell->NewFormula();
+				auto *fn = formula->Add(funcs[i]);
+				fn->AddArg(date_cell);
+				auto *node = formula->Eval();
+				ods::AutoDelete ad(node);
+				mtl_info("%s()=%s", names[i], qPrintable(node->toString()));
 			}
 		}
 	}
+	
 	util::Save(book, "CreateFormulaFunctions.ods");
 }
 
@@ -1224,7 +1269,7 @@ bool IsFunctionImplemented(QStringView s) {
 	const QVector<ods::FunctionMeta> &vec = ods::eval::GetSupportedFunctions();
 	
 	for (const auto &next: vec) {
-		if (s == QLatin1String(next.name)) {
+		if (s == next.name) {
 			return true;
 		}
 	}
@@ -1288,7 +1333,7 @@ void GenerateFunctionsListForGitHub()
 	
 	heap.prepend(prepend);
 	
-	const QString full_path = QDir::home().absoluteFilePath("ListOfFunctions.txt");
+	const QString full_path = QDir::home().absoluteFilePath("list_of_implemented_functions.txt");
 	QFile out_file(full_path);
 	out_file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 	QTextStream out(&out_file);

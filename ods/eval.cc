@@ -594,6 +594,11 @@ GetSupportedFunctions() {
 	FunctionMeta ("ASIN", FunctionId::Asin, 1),
 	FunctionMeta ("ATAN", FunctionId::Atan, 1),
 	FunctionMeta ("ATAN2", FunctionId::Atan2, 1),
+	FunctionMeta ("TIME", FunctionId::Time, 1),
+	FunctionMeta ("TIMEVALUE", FunctionId::TimeValue, 1),
+	FunctionMeta ("HOUR", FunctionId::Hour, 1),
+	FunctionMeta ("MINUTE", FunctionId::Minute, 1),
+	FunctionMeta ("SECOND", FunctionId::Second, 1),
 	};
 	return v;
 }

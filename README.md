@@ -7,20 +7,20 @@ As of Jan 2025 moved to Qt6-only.<br/>
 <br/>
 Building tested on Windows with Visual Studio 17 2022 and LLVM MinGW,
 and with g++ on Fedora Linux 41.<br/>
-See how_to_build.html
+See <b>how_to_build.html</b>
 
 ##### API usage
 See examples/examples[1-2].cc
 
-Also, the file examples/Invoice.ods was generated with Ods2, the source code
-for the code that generated it is in examples/Invoice.cpp
+The file examples/Invoice.ods was generated with Ods2, the source code
+that generated it is in examples/Invoice.cpp
 
 ##### License, etc
 Licensed under the GPLv3 or MIT license, see LICENSE for details.
-For questions, feature requests, etc: binkiepinkie1917 AT gmail DOT com
+For questions, feature requests, etc: f35f22fan AT gmail DOT com
 
 ---
-##### 45 out of 388 functions implemented
+##### 50 out of 388 functions implemented
 
 Column 1 | Column 2 | Column 3 | Column 4
 -------- | ---------- | -------- | ---------
@@ -63,7 +63,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: gammadist() | :black_square_button: gammainv() | :black_square_button: gammaln() | :black_square_button: gauss()
 :black_square_button: gcd() | :black_square_button: gcd_add() | :black_square_button: geomean() | :black_square_button: gestep()
 :black_square_button: growth() | :black_square_button: harmean() | :black_square_button: hex2bin() | :black_square_button: hex2dec()
-:black_square_button: hex2oct() | :black_square_button: hlookup() | :black_square_button: hour() | :black_square_button: hyperlink()
+:black_square_button: hex2oct() | :black_square_button: hlookup() | :ballot_box_with_check: hour() | :black_square_button: hyperlink()
 :black_square_button: hypgeomdist() | :ballot_box_with_check: if() | :black_square_button: imabs() | :black_square_button: imaginary()
 :black_square_button: imargument() | :black_square_button: imconjugate() | :black_square_button: imcos() | :black_square_button: imcosh()
 :black_square_button: imcot() | :black_square_button: imcsc() | :black_square_button: imcsch() | :black_square_button: imdiv()
@@ -83,7 +83,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: loginv() | :black_square_button: lognormdist() | :black_square_button: lookup() | :black_square_button: lower()
 :ballot_box_with_check: match() | :ballot_box_with_check: max() | :black_square_button: maxa() | :black_square_button: mdeterm()
 :black_square_button: mduration() | :black_square_button: median() | :black_square_button: mid() | :ballot_box_with_check: min()
-:black_square_button: mina() | :black_square_button: minute() | :black_square_button: minverse() | :black_square_button: mirr()
+:black_square_button: mina() | :ballot_box_with_check: minute() | :black_square_button: minverse() | :black_square_button: mirr()
 :black_square_button: mmult() | :ballot_box_with_check: mod() | :black_square_button: mode() | :ballot_box_with_check: month()
 :black_square_button: months() | :black_square_button: mround() | :black_square_button: multinomial() | :black_square_button: munit()
 :black_square_button: n() | :black_square_button: na() | :black_square_button: negbinomdist() | :black_square_button: networkdays()
@@ -102,7 +102,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: right() | :black_square_button: roman() | :ballot_box_with_check: round() | :ballot_box_with_check: rounddown()
 :ballot_box_with_check: roundup() | :black_square_button: row() | :ballot_box_with_check: rows() | :black_square_button: rri()
 :black_square_button: rsq() | :black_square_button: search() | :black_square_button: sec() | :black_square_button: sech()
-:black_square_button: second() | :black_square_button: seriessum() | :black_square_button: sheet() | :black_square_button: sheets()
+:ballot_box_with_check: second() | :black_square_button: seriessum() | :black_square_button: sheet() | :black_square_button: sheets()
 :black_square_button: sign() | :ballot_box_with_check: sin() | :black_square_button: sinh() | :black_square_button: skew()
 :black_square_button: sln() | :black_square_button: slope() | :black_square_button: small() | :black_square_button: sqrt()
 :black_square_button: sqrtpi() | :black_square_button: standardize() | :black_square_button: stdev() | :black_square_button: stdeva()
@@ -111,8 +111,8 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: sumifs() | :black_square_button: sumproduct() | :black_square_button: sumsq() | :black_square_button: sumx2my2()
 :black_square_button: sumx2py2() | :black_square_button: sumxmy2() | :black_square_button: syd() | :black_square_button: t()
 :ballot_box_with_check: tan() | :black_square_button: tanh() | :black_square_button: tbilleq() | :black_square_button: tbillprice()
-:black_square_button: tbillyield() | :black_square_button: tdist() | :ballot_box_with_check: text() | :black_square_button: time()
-:black_square_button: timevalue() | :black_square_button: tinv() | :ballot_box_with_check: today() | :black_square_button: transpose()
+:black_square_button: tbillyield() | :black_square_button: tdist() | :ballot_box_with_check: text() | :ballot_box_with_check: time()
+:ballot_box_with_check: timevalue() | :black_square_button: tinv() | :ballot_box_with_check: today() | :black_square_button: transpose()
 :black_square_button: trend() | :black_square_button: trim() | :black_square_button: trimmean() | :ballot_box_with_check: true()
 :black_square_button: trunc() | :black_square_button: ttest() | :black_square_button: type() | :black_square_button: upper()
 :black_square_button: value() | :black_square_button: var() | :black_square_button: vara() | :black_square_button: varp()
@@ -121,6 +121,7 @@ Column 1 | Column 2 | Column 3 | Column 4
 :black_square_button: weibull() | :black_square_button: workday() | :black_square_button: xirr() | :black_square_button: xnpv()
 :black_square_button: xor() | :ballot_box_with_check: year() | :black_square_button: yearfrac() | :black_square_button: years()
 :black_square_button: yield() | :black_square_button: yielddisc() | :black_square_button: yieldmat() | :black_square_button: ztest()
+
 
 
 
