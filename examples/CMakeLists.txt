@@ -10,7 +10,7 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.17.0")
 endif()
 
 include_directories("${Ods2_SOURCE_DIR}" "${Ods2_SOURCE_DIR}/libzip/lib")
-link_directories("${Ods2_BINARY_DIR}/lib" "${Ods2_BINARY_DIR}/lib/Debug" "${Ods2_BINARY_DIR}/lib/Release")
+link_directories("${Ods2_SOURCE_DIR}/lib")
 
 # Set some Win32 Specific Settings
 if(WIN32)
@@ -46,7 +46,7 @@ foreach(f IN LISTS src_files)
 		COMPILE_DEFINITIONS "SRC_FILE_NAME=\"${b}\"")
 endforeach()
 
-add_definitions(-DODS2_TEST_DIR="${Ods2_SOURCE_DIR}")
+#add_definitions(-DODS2_TEST_DIR="${Ods2_SOURCE_DIR}")
 set (exe_name "app")
 add_executable(${exe_name} ${GUI_TYPE} ${src_files})
 #get_property(zlib_libs GLOBAL PROPERTY zlib_libs_property)

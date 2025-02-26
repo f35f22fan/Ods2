@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	// ReadBoolean();
 	
 	// CreateCurrency();
-	// ReadCurrency();
+	ReadCurrency();
 	
 	// CreateFormula();
 	// ReadFormula();

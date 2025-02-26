@@ -43,9 +43,11 @@ void CreateCurrency()
 void ReadCurrency()
 {
 	auto full_path = util::FindFile("Currency.ods");
-	
-	if (full_path.isEmpty())
+
+    if (full_path.isEmpty()) {
+        mtl_warn("Couldn't find file Currency.ods");
 		return;
+    }
 	
 	QString err;
 	auto *book = ods::Book::FromFile(full_path, &err);

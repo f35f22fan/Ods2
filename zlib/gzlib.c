@@ -5,6 +5,8 @@
 
 #include "gzguts.h"
 
+#include <string.h>
+
 #if defined(__DJGPP__)
 #  define LSEEK llseek
 #elif defined(_WIN32) && !defined(__BORLANDC__) && !defined(UNDER_CE)

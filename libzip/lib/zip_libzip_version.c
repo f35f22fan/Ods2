@@ -34,8 +34,7 @@
 
 #include "zipint.h"
 
-
-ZIP_EXTERN const char *
-zip_libzip_version(void) {
-    return LIBZIP_VERSION;
+ZIP_EXTERN const char* zip_libzip_version(void) {
+	return ""LIBZIP_VERSION"";
+	//return "1.11.3";
 }

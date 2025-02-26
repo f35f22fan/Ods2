@@ -16,14 +16,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 include_directories("${Ods2_SOURCE_DIR}/libzip/lib")
-link_directories("${Ods2_BINARY_DIR}/lib" "${Ods2_BINARY_DIR}/lib/Debug" "${Ods2_BINARY_DIR}/lib/Release")
+link_directories("${Ods2_SOURCE_DIR}/lib")
 
 set(hh_files
 	AutoDelete.hh
 	cmp_num.hh
 	currency.hh
 	eval.hh
-	function.hh
+	functions.hh
 	id.hh
 	io.hh
 	ndff/ndff.hh
@@ -41,7 +41,6 @@ endforeach()
 set(lib_files
 	${hh_files}
 	Attr.cpp Attr.hpp
-	AutoDelete.hh
 	Book.cpp Book.hpp
 	ByteArray.cpp ByteArray.hpp
 	Cell.cpp Cell.hpp cell.hxx
@@ -58,7 +57,7 @@ set(lib_files
 	FormulaError.cpp FormulaError.hpp
 	FormulaNode.cpp FormulaNode.hpp
 	Function.cpp Function.hpp
-	function.cc
+	functions.cc
 	global.hxx
 	HAlign.cpp HAlign.hpp
 	id.cc

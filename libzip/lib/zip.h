@@ -51,7 +51,8 @@ extern "C" {
 #endif
 #endif
 
-#include <zipconf.h>
+//#include <zipconf.h>
+#include "config.h"
 
 #ifndef ZIP_EXTERN
 #ifndef ZIP_STATIC

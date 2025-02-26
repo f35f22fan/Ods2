@@ -28,7 +28,7 @@ find_package(Qt6 COMPONENTS Core Gui REQUIRED) #5.15
 #     find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
 # endif()
 
-set(LIBRARY_OUTPUT_PATH "${Ods2_BINARY_DIR}/lib")
+set(LIBRARY_OUTPUT_PATH "${Ods2_SOURCE_DIR}/lib")
 
 #set (BUILD_STATIC_LIBRARIES "1")
 if (BUILD_STATIC_LIBRARIES)

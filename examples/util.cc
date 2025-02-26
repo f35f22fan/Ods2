@@ -1,7 +1,7 @@
 #include "util.hh"
 
 #include <ods/ods>
-
+#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QStandardPaths>
@@ -10,18 +10,17 @@ namespace util {
 
 QString FindFile(const QString &file_name)
 {
-	QString full_path = QString(ODS2_TEST_DIR)
-		+ QLatin1String("/examples/test_files/") + file_name;
+	QString dir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+	QString fullpath = dir + QLatin1String("/test_files/") + file_name;
 	
-	auto ba = full_path.toLocal8Bit();
-	
-	if (QFile(full_path).exists())
+	if (QFile(fullpath).exists())
 	{
-		mtl_info("Using file: %s", ba.data());
-		return full_path;
+		mtl_info("Using file: %s", qPrintable(fullpath));
+		return fullpath;
 	}
 	
-	mtl_warn("File not found: %s", ba.data());
+	mtl_warn("File not found: %s", qPrintable(fullpath));
+    mtl_info("Hint: Copy the \"test_files\" folder from Ods2 into your home Documents folder and try again.");
 	return QString();
 }
 

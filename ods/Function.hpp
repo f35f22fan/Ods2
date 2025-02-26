@@ -2,7 +2,7 @@
 
 #include "currency.hxx"
 #include "eval.hh"
-#include "function.hh"
+#include "functions.hh"
 #include "global.hxx"
 #include "ods.hxx"
 #include "types.hxx"

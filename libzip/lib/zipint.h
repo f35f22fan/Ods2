@@ -38,6 +38,12 @@
 
 #include "compat.h"
 
+#ifdef _MSC_VER
+#include <io.h>
+#else
+#  include <unistd.h>         /* for SEEK_*, off_t, and _LFS64_LARGEFILE */
+#endif
+
 #ifdef ZIP_ALLOCATE_BUFFER
 #include <stdlib.h>
 #endif

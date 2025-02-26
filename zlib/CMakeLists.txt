@@ -15,17 +15,21 @@ set(CPACK_PACKAGE_DESCRIPTION_FILE ${zlib_SOURCE_DIR}/README)
 set(CPACK_RESOURCE_FILE_LICENSE ${zlib_SOURCE_DIR}/LICENSE)
 set(CPACK_RESOURCE_FILE_README ${zlib_SOURCE_DIR}/README)
 
+add_definitions(-DSTDC -D_FILE_OFFSET_BITS=64 -DHAVE_FTELLO -DHAVE_LOCALTIME_S)
+if (NOT WIN32)
+    add_definitions(-DHAVE_LOCALTIME_R)
+endif()
+
 # ============================================================================
 # configuration
 # ============================================================================
 
-option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" ON)
+option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" OFF)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Enable building zlib static library" ON)
 option(ZLIB_BUILD_MINIZIP "Enable building libminizip contrib library" OFF)
 option(ZLIB_INSTALL "Enable installation of zlib" ON)
-option(ZLIB_PREFIX "prefix for all types and library functions, see zconf.h.in"
-       OFF)
+option(ZLIB_PREFIX "prefix for all types and library functions, see zconf.h.in" OFF)
 mark_as_advanced(ZLIB_PREFIX)
 
 if(WIN32)
@@ -125,6 +129,7 @@ include_directories(${zlib_BINARY_DIR} ${zlib_SOURCE_DIR})
 # zlib
 # ============================================================================
 
+#message(STATUS, "==============zlib binary dir: ${zlib_BINARY_DIR}")
 set(ZLIB_PUBLIC_HDRS ${zlib_BINARY_DIR}/zconf.h zlib.h)
 
 set(ZLIB_PRIVATE_HDRS

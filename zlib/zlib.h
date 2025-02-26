@@ -28,9 +28,18 @@
   (zlib format), rfc1951 (deflate format) and rfc1952 (gzip format).
 */
 
+#ifdef _MSC_VER
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NONSTDC_NO_DEPRECATE
+#define _CRT_SECURE_NO_DEPRECATE
+#endif
+#endif
+
 #ifndef ZLIB_H
 #define ZLIB_H
 
+#include <stdarg.h>
 #include "zconf.h"
 
 #ifdef __cplusplus

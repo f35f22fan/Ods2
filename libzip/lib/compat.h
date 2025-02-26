@@ -34,8 +34,9 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "zipconf.h"
-
+//#include "zipconf.h"
+#include <time.h>
+#include <stdio.h>
 #include "config.h"
 
 /* to have *_MAX definitions for all types when compiling with g++ */

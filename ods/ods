@@ -16,7 +16,7 @@
 #include <ods/FormulaError.hpp>
 #include <ods/FormulaNode.hpp>
 #include <ods/Function.hpp>
-#include <ods/function.hh>
+#include <ods/functions.hh>
 #include <ods/HAlign.hpp>
 #include <ods/id.hh>
 #include <ods/lang.hxx>

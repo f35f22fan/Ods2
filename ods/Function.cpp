@@ -6,7 +6,6 @@
 #include "Formula.hpp"
 #include "FormulaNode.hpp"
 #include "formula.hxx"
-#include "function.hh"
 #include "ods.hh"
 #include "Row.hpp"
 #include "Sheet.hpp"
@@ -253,10 +252,9 @@ void
 Function::PrintArgs(const QString &msg) const
 {
 	if (msg.size() > 0) {
-		auto ba = msg.toLocal8Bit();
-		mtl_info("%s", ba.data());
+		mtl_info("%s", qPrintable(msg));
 	} else {
-		mtl_info("%s() Args:", meta_->name);
+		mtl_info("%s() Args:", qPrintable(meta_->name));
 	}
 	MTL_CHECK_VOID(args_);
 	QString separator = QString(ods::color_green()) + "|" + ods::color_default();

@@ -14,7 +14,7 @@ if(NOT libzip_VERSION_PATCH)
 endif()
 
 include_directories(${Ods2_SOURCE_DIR}/zlib)
-link_directories("${Ods2_BINARY_DIR}/lib" "${Ods2_BINARY_DIR}/lib/Debug" "${Ods2_BINARY_DIR}/lib/Release")
+link_directories("${Ods2_SOURCE_DIR}/lib")
 
 option(ENABLE_COMMONCRYPTO "Enable use of CommonCrypto" OFF)
 option(ENABLE_GNUTLS "Enable use of GnuTLS" OFF)
@@ -67,7 +67,7 @@ endif()
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(LIBZIP_DO_INSTALL "Install libzip and the related files" ON)
 
-option(SHARED_LIB_VERSIONNING "Add SO version in .so build" ON)
+option(SHARED_LIB_VERSIONNING "Add SO version in .so build" OFF)
 
 find_program(MDOCTOOL NAMES mandoc groff)
 if (MDOCTOOL)
