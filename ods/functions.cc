@@ -1,4 +1,4 @@
-#include "function.hh"
+#include "functions.hh"
 
 #include "Reference.hpp"
 #include "Cell.hpp"
@@ -14,8 +14,25 @@
 #include <QDateTime>
 
 #include <cmath>
+#include <stdlib.h> // rand()
 #include <QtMath>
 #include <unordered_set>
+#include <random>
+#include <iostream>
+#include <thread>
+
+static int GenRandomNumber(cint min, cint max) {
+	cauto time_seed = static_cast<size_t>(std::time(0));
+	cauto clock_seed = static_cast<size_t>(std::clock());
+	const size_t pid_seed = std::hash<std::thread::id>()(std::this_thread::get_id());
+	std::seed_seq seed_value { time_seed, clock_seed, pid_seed };
+	
+	std::mt19937 gen;
+	gen.seed(seed_value);
+	std::uniform_int_distribution<> dist{min, max};
+	cint r = dist(gen);
+	return r;
+}
 
 namespace ods::function {
 
@@ -98,6 +115,41 @@ FormulaNode* Average(const QVector<ods::FormulaNode*> &values)
 	}
 	
 	return ods::FormulaNode::Double(total / count);
+}
+
+FormulaNode* Bit(const QVector<ods::FormulaNode*> &values, const BitOp bo)
+{
+	MTL_CHECK_NULL(values.size() == 2);
+	MTL_CHECK_NULL(values[0]->is_any_integer() && values[1]->is_any_integer());
+	ci64 a = values[0]->as_any_integer();
+	ci64 b = values[1]->as_any_integer();
+	i64 result = 0;
+	switch (bo) {
+	case BitOp::And: result = a & b; break;
+	case BitOp::Or: result = a | b; break;
+	case BitOp::Xor: result = a ^ b; break;
+	default: {
+		mtl_it_happened();
+	}
+	}
+	return FormulaNode::Integer(result);
+}
+
+FormulaNode* BitShift(const QVector<ods::FormulaNode*> &values, const Shift shift)
+{
+	MTL_CHECK_NULL(values.size() == 2);
+	MTL_CHECK_NULL(values[0]->is_any_integer() && values[1]->is_any_integer());
+	ci64 a = values[0]->as_any_integer();
+	ci64 b = values[1]->as_any_integer();
+	i64 result = 0;
+	switch (shift) {
+	case Shift::Left: result = a << std::abs(b); break;
+	case Shift::Right: result = a >> std::abs(b); break;
+	default: {
+		mtl_it_happened();
+	}
+	}
+	return FormulaNode::Integer(result);
 }
 
 FormulaNode* Bool(const bool flag) {
@@ -323,6 +375,21 @@ FormulaNode* DayMonthYear(const QVector<ods::FormulaNode*> &values, const DMY dm
 	
 	MTL_CHECK_NULL(ret_val != -1);
 	return FormulaNode::Double(ret_val);
+}
+
+FormulaNode* Formula(const QVector<ods::FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 1);
+	FormulaNode *node = values[0];
+	MTL_CHECK_NULL(node->is_reference());
+	ods::Cell *cell = node->as_reference()->cell()->GetCell();
+	MTL_CHECK_NULL(cell);
+	if (!cell->has_formula()) {
+		return FormulaNode::String(new QString());
+	}
+	auto *str = new QString(cell->formula()->ToXmlString());
+	//mtl_info("Does have a formula: %s", qPrintable(*str));
+	return FormulaNode::String(str);
 }
 
 FormulaNode* HourMinuteSecond(const QVector<ods::FormulaNode*> &values, const HMS hms)
@@ -620,6 +687,11 @@ FormulaNode* Or(const QVector<ods::FormulaNode*> &values)
 	return ods::FormulaNode::Bool(is_any_true);
 }
 
+FormulaNode* PI()
+{
+	return FormulaNode::Double(M_PI);
+}
+
 FormulaNode* Power(const QVector<FormulaNode*> &values)
 {
 	MTL_CHECK_NULL(values.size() == 2);
@@ -671,6 +743,36 @@ FormulaNode* Quotient(const QVector<FormulaNode*> &values)
 	double lhs = lhs_node->as_any_double();
 	i64 n = lhs / rhs;
 	return FormulaNode::Double(double(n));
+}
+
+FormulaNode* Rand() {
+	//cauto r = (double)rand() / (double)((unsigned)RAND_MAX + 1); // +1 for range [0, 1)
+	
+	double r = GenRandomNumber(0, RAND_MAX);
+	r /= double((unsigned)RAND_MAX + 1); // make range = [0, 1)
+	
+	return FormulaNode::Double(r);
+}
+
+FormulaNode* RandBetween(const QVector<FormulaNode*> &values)
+{
+	MTL_CHECK_NULL(values.size() == 2);
+	MTL_CHECK_NULL(values[0]->is_any_integer() && values[1]->is_any_integer());
+	cint min = values[0]->as_any_integer();
+	cint max = values[1]->as_any_integer();
+	cint RandomValue = GenRandomNumber(min, max);
+	
+	// It must return an Integer, not a Double, so this was commented out:
+	// double r = GenRandomNumber(0, RAND_MAX);
+	// cdouble OldMin = 0;
+	// cdouble OldValue = r;
+	// cdouble NewMin = min;
+	// cdouble OldRange = (RAND_MAX - 0);
+	// cdouble NewRange = (max - min);
+	// cdouble RandomValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin;
+	//return FormulaNode::Double(RandomValue);
+	
+	return FormulaNode::Integer(RandomValue);
 }
 
 FormulaNode* RoundAnyWay(const QVector<FormulaNode*> &values, const RoundType round_type)

@@ -23,7 +23,7 @@ set(hh_files
 	cmp_num.hh
 	currency.hh
 	eval.hh
-	function.hh
+	functions.hh
 	id.hh
 	io.hh
 	ndff/ndff.hh
@@ -58,7 +58,7 @@ set(lib_files
 	FormulaError.cpp FormulaError.hpp
 	FormulaNode.cpp FormulaNode.hpp
 	Function.cpp Function.hpp
-	function.cc
+	functions.cc
 	global.hxx
 	HAlign.cpp HAlign.hpp
 	id.cc
@@ -183,10 +183,10 @@ endforeach()
 
 if (DEFINED ODS_STATIC)
 	set(lib_type STATIC)
-else (DEFINED ODS_STATIC)
+else ()
 	set(lib_type SHARED)
-	add_definitions(-DODS_SHARED -DODS_BUILDING)
-endif (DEFINED ODS_STATIC)
+	add_definitions(-DODS_SHARED -DODS_BUILDING_DLL)
+endif ()
 
 add_library(ods ${lib_type} ${lib_files})
 target_link_libraries(ods PRIVATE Qt6::Core Qt${QT_VERSION_MAJOR}::Gui zip z)

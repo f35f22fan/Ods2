@@ -23,6 +23,8 @@ using isize = ssize_t;
 using f32 = float;
 using f64 = double;
 using uchar = unsigned char;
+using uint = unsigned int;
+using ulong = unsigned long;
 
 using cu8 = const u8;
 using ci8 = const i8;
@@ -38,4 +40,7 @@ using cint = const int;
 using cf32 = const f32;
 using cf64 = const f64;
 using cbool = const bool;
+using cdouble = const double;
+using cuint = const unsigned int;
+using culong = const unsigned long;
 #define cauto const auto

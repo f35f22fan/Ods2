@@ -380,7 +380,6 @@ Formula::RemoveAllNodes()
 		delete node;
 	}
 	nodes_.clear();
-	str_to_evaluate_.clear();
 }
 
 bool
@@ -438,10 +437,6 @@ QString
 Formula::ToXmlString()
 {
 	if (nodes_.isEmpty()) {
-//		auto ba = str_to_evaluate_.toLocal8Bit();
-//		mtl_info("\"%s\"", ba.data());
-		// valid but has no nodes because they
-		// get generated when Eval() gets called.
 		return str_to_evaluate_;
 	}
 	

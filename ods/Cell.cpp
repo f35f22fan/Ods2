@@ -89,6 +89,8 @@ Cell::ClearValue(const bool delete_data)
 	{
 		if (is_double() || is_percentage() || is_currency())
 			delete as_double();
+		else if (is_integer())
+			delete as_integer();
 		else if (is_date_time())
 			delete as_date_time();
 		else if (is_date())
@@ -689,6 +691,12 @@ void Cell::SetDouble(const double d)
 	value_data_ = new double(d);
 }
 
+void Cell::SetInteger(ci64 n) {
+	ClearValue(true);
+	office_value_type_ = ods::ValueType::Integer;
+	value_data_ = new i64(n);
+}
+
 void Cell::SetFirstString(const QString &s, bool change_value_type)
 {
 	auto *inst = Get(Id::TextP);
@@ -894,6 +902,8 @@ void Cell::WriteValue(QXmlStreamWriter &xml)
 	if (is_double())
 	{
 		Write(xml, ns_->office(), ns::kValue, QString::number(*as_double()));
+	} else if (is_integer()) {
+		Write(xml, ns_->office(), ns::kValue, QString::number(*as_integer()));
 	} else if (is_currency()) {
 		Write(xml, ns_->office(), ns::kValue, QString::number(*as_double()));
 		Write(xml, ns_->office(), ns::kCurrency, office_currency_);

@@ -94,12 +94,6 @@ CommonForSumIfLikeFunctions_Eval(const FormulaNode &test_node,
 	return result;
 }
 
-//void
-//AppendDateTimeParam(const QStringRef &ref, QString &result)
-//{
-//	if (ref ==)
-//}
-
 void
 MarkMonth(QVector<QString> &tokens)
 {
@@ -407,6 +401,8 @@ ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 		ods::FormulaNode *value = f->Eval();
 		MTL_CHECK(value);
 		result = *value;
+	} else if (cell->is_integer()) {
+		result.SetInteger(*cell->as_integer());
 	} else if (cell->is_any_double()) {
 		double d = *cell->as_double();
 		result.SetDouble(d);
@@ -599,6 +595,15 @@ GetSupportedFunctions() {
 	FunctionMeta ("HOUR", FunctionId::Hour, 1),
 	FunctionMeta ("MINUTE", FunctionId::Minute, 1),
 	FunctionMeta ("SECOND", FunctionId::Second, 1),
+	FunctionMeta ("PI", FunctionId::PI, 0),
+	FunctionMeta ("RAND", FunctionId::Rand, 0),
+	FunctionMeta ("RANDBETWEEN", FunctionId::RandBetween, 1),
+	FunctionMeta ("BITAND", FunctionId::BitAnd, 1),
+	FunctionMeta ("BITOR", FunctionId::BitOr, 1),
+	FunctionMeta ("BITXOR", FunctionId::BitXor, 1),
+	FunctionMeta ("BITLSHIFT", FunctionId::BitLShift, 1),
+	FunctionMeta ("BITRSHIFT", FunctionId::BitRShift, 1),
+	FunctionMeta ("FORMULA", FunctionId::Formula, 0),
 	};
 	return v;
 }

@@ -338,6 +338,7 @@ TypeToString(const ods::ValueType value_type)
 	switch (value_type)
 	{
 	case ods::ValueType::Double: return ns::kDouble;
+	case ods::ValueType::Integer: return ns::kInteger;
 	case ods::ValueType::String: return ns::kString;
 	case ods::ValueType::Currency: return ns::kCurrency;
 	case ods::ValueType::Percentage: return ns::kPercentage;

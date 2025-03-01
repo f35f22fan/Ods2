@@ -1182,7 +1182,7 @@ void CreateFormulaFunctions()
 		}
 	}
 	
-	if (true) { // TIME, TIMEVALUE, HOUR, MINUTE, SECOND
+	if (false) { // TIME, TIMEVALUE, HOUR, MINUTE, SECOND
 		{
 			auto *row = sheet->NewRowAt(last_row++);
 			cint col = 0;
@@ -1224,6 +1224,121 @@ void CreateFormulaFunctions()
 				auto *node = formula->Eval();
 				ods::AutoDelete ad(node);
 				mtl_info("%s()=%s", names[i], qPrintable(node->toString()));
+			}
+		}
+	}
+	
+	if (true) { // PI, RAND, RANDBETWEEN, BITAND
+		{ // PI
+			auto *row = sheet->NewRowAt(last_row++);
+			auto *cell = row->NewCellAt(0);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::PI);
+			
+			auto *val = formula->Eval();
+			ods::AutoDelete ad(val);
+			mtl_info("PI()=%s", qPrintable(val->toString()));
+		}
+		{ // RAND
+			auto *row = sheet->NewRowAt(last_row++);
+			auto *cell = row->NewCellAt(0);
+			auto *formula = cell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::Rand);
+			
+			auto *val = formula->Eval();
+			ods::AutoDelete ad(val);
+			mtl_info("RAND()=%s", qPrintable(val->toString()));
+		}
+		{ // RANDBETWEEN
+			auto *row = sheet->NewRowAt(last_row++);
+			auto *min = row->NewCellAt(0);
+			min->SetDouble(-50);
+			auto *max = row->NewCellAt(1);
+			max->SetDouble(100);
+			
+			auto *fmcell = row->NewCellAt(2);
+			auto *formula = fmcell->NewFormula();
+			auto *fn = formula->Add(ods::FunctionId::RandBetween);
+			fn->AddArg(min);
+			fn->AddArg(max);
+			
+			auto *val = formula->Eval();
+			ods::AutoDelete ad(val);
+			mtl_info("RANDBETWEEN()=%s", qPrintable(val->toString()));
+		}
+		{ // BITAND, BITOR, BITXOR, BITLSHIFT, BITRSHIFT
+			auto *row = sheet->NewRowAt(last_row++);
+			ods::Cell *a = row->NewCellAt(0);
+			a->SetInteger(3);
+			ods::Cell *b = row->NewCellAt(1);
+			b->SetInteger(6);
+			int col = 2;
+			{
+				auto *cell = row->NewCellAt(col++);
+				auto *formula = cell->NewFormula();
+				auto *fn = formula->Add(ods::FunctionId::BitAnd);
+				fn->AddArg(a);
+				fn->AddArg(b);
+				
+				auto *val = formula->Eval();
+				ods::AutoDelete ad(val);
+				mtl_info("BITAND()=%s", qPrintable(val->toString()));
+			}
+			
+			{
+				auto *cell = row->NewCellAt(col++);
+				auto *formula = cell->NewFormula();
+				auto *fn = formula->Add(ods::FunctionId::BitOr);
+				fn->AddArg(a);
+				fn->AddArg(b);
+				
+				auto *val = formula->Eval();
+				ods::AutoDelete ad(val);
+				mtl_info("BITOR()=%s", qPrintable(val->toString()));
+			}
+			{
+				auto *cell = row->NewCellAt(col++);
+				auto *formula = cell->NewFormula();
+				auto *fn = formula->Add(ods::FunctionId::BitXor);
+				fn->AddArg(a);
+				fn->AddArg(b);
+				
+				auto *val = formula->Eval();
+				ods::AutoDelete ad(val);
+				mtl_info("BITXOR()=%s", qPrintable(val->toString()));
+			}
+			cint shift_col = col;
+			auto *shift_by = row->NewCellAt(col++);
+			shift_by->SetInteger(2);
+			{
+				auto *cell = row->NewCellAt(col++);
+				auto *formula = cell->NewFormula();
+				auto *fn = formula->Add(ods::FunctionId::BitLShift);
+				fn->AddArg(b);
+				fn->AddArg(shift_by);
+				
+				auto *val = formula->Eval();
+				ods::AutoDelete ad(val);
+				mtl_info("BITLSHIFT()=%s", qPrintable(val->toString()));
+			}
+			{ // BITRSHIFT, FORMULA
+				auto *cell = row->NewCellAt(col++);
+				auto *formula = cell->NewFormula();
+				auto *fn = formula->Add(ods::FunctionId::BitRShift);
+				fn->AddArg(b);
+				fn->AddArg(shift_by);
+				
+				auto *val = formula->Eval();
+				ods::AutoDelete ad(val);
+				mtl_info("BITRSHIFT()=%s", qPrintable(val->toString()));
+				
+				auto *fm_cell = row->NewCellAt(col++);
+				auto *fm_formula = fm_cell->NewFormula();
+				auto *fm_fn = fm_formula->Add(ods::FunctionId::Formula);
+				fm_fn->AddArg(cell);
+				auto *fm_val = fm_formula->Eval();
+				ods::AutoDelete fm_ad(fm_val);
+				mtl_info("FORMULA()=%s", qPrintable(fm_val->toString()));
 			}
 		}
 	}
@@ -1316,7 +1431,7 @@ void GenerateFunctionsListForGitHub()
 			heap.append(not_impl_str);
 		}
 		heap.append(' ');
-		heap.append(name.toString().toLower());
+		heap.append(name.toString().toUpper());
 		heap.append(QLatin1String("()"));
 		int col = i % columns;
 		
@@ -1342,3 +1457,4 @@ void GenerateFunctionsListForGitHub()
 	out_file.close(); 
 	
 }
+

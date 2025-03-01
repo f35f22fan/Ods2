@@ -6,7 +6,6 @@
 #include "Formula.hpp"
 #include "FormulaNode.hpp"
 #include "formula.hxx"
-#include "function.hh"
 #include "ods.hh"
 #include "Row.hpp"
 #include "Sheet.hpp"
@@ -235,6 +234,15 @@ Function::ExecOpenFormulaFunction(QVector<ods::FormulaNode*> &fn_args)
 	case FunctionId::Hour: return function::HourMinuteSecond(fn_args, ods::HMS::Hour);
 	case FunctionId::Minute: return function::HourMinuteSecond(fn_args, ods::HMS::Minute);
 	case FunctionId::Second: return function::HourMinuteSecond(fn_args, ods::HMS::Second);
+	case FunctionId::PI: return function::PI();
+	case FunctionId::Rand: return function::Rand();
+	case FunctionId::RandBetween: return function::RandBetween(fn_args);
+	case FunctionId::BitAnd: return function::Bit(fn_args, BitOp::And);
+	case FunctionId::BitOr: return function::Bit(fn_args, BitOp::Or);
+	case FunctionId::BitXor: return function::Bit(fn_args, BitOp::Xor);
+	case FunctionId::BitLShift: return function::BitShift(fn_args, Shift::Left);
+	case FunctionId::BitRShift: return function::BitShift(fn_args, Shift::Right);
+	case FunctionId::Formula: return function::Formula(fn_args);
 	default: { mtl_trace(); return nullptr; }
 	}
 }
@@ -256,7 +264,7 @@ Function::PrintArgs(const QString &msg) const
 		auto ba = msg.toLocal8Bit();
 		mtl_info("%s", ba.data());
 	} else {
-		mtl_info("%s() Args:", meta_->name);
+		mtl_info("%s() Args:", qPrintable(meta_->name));
 	}
 	MTL_CHECK_VOID(args_);
 	QString separator = QString(ods::color_green()) + "|" + ods::color_default();

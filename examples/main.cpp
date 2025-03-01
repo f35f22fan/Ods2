@@ -66,15 +66,21 @@ int main(int argc, char *argv[])
 	// CreateFormula();
 	// ReadFormula();
 	
-	// CreateFormulaFunctions();
+	//CreateFormulaFunctions();
 	
 	auto *invoice = new sample::Invoice();
 	ods::AutoDelete ad_p(invoice);
 	
-	if (false)
-	{ // Nevermind this block, it's purely for development purposes
-		//ReadWriteNDFF(p->book()->ndff_path());
-	}
+	
+	
+	
+	
+	
+	
+	
+	
+	// Nevermind this block, it's purely for development purposes:
+	// ReadWriteNDFF(p->book()->ndff_path());
 	
 	return 0;
 }

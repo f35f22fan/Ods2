@@ -56,6 +56,11 @@ enum class FunctionId : u16 {
 	Abs,
 	And,
 	Average,
+	BitAnd,
+	BitLShift,
+	BitOr,
+	BitRShift,
+	BitXor,
 	Columns,
 	Concatenate,
 	Count,
@@ -67,6 +72,7 @@ enum class FunctionId : u16 {
 	Date,
 	Day,
 	False,
+	Formula,
 	Hour,
 	If,
 	Indirect,
@@ -80,8 +86,11 @@ enum class FunctionId : u16 {
 	Now,
 	Offset,
 	Or,
+	PI,
 	Power,
 	Quotient,
+	Rand,
+	RandBetween,
 	Round,
 	RoundUp,
 	RoundDown,
@@ -102,10 +111,10 @@ enum class FunctionId : u16 {
 
 struct FunctionMeta {
 	QString name;
-	FunctionId id;
-	u32 settings; // possible value: ods::FlattenOutParamsBit
+	FunctionId id = FunctionId::None;
+	u32 settings = 0; // possible value: ods::FlattenOutParamsBit
 	
-	FunctionMeta(const char *n, const FunctionId fi, const u32 bits = ods::DefaultFunctionSettings) {
+	FunctionMeta(const char *n, const FunctionId fi, cu32 bits = ods::DefaultFunctionSettings) {
 		name = QLatin1String(n);
 		id = fi;
 		settings = bits;

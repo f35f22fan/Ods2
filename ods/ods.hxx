@@ -7,6 +7,17 @@
 
 namespace ods {
 
+enum class Shift: i8 {
+	Left,
+	Right
+};
+
+enum class BitOp: i8 {
+	And,
+	Or,
+	Xor
+};
+
 enum class MustHave: i8 {
 	Yes,
 	No
@@ -107,6 +118,7 @@ enum class ValueType: u8
 	Date,
 	DateTime,
 	Double,
+	Integer, // implemented as i64
 	Time,
 	None, // default
 	Percentage,

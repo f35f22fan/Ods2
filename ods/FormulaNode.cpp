@@ -43,6 +43,8 @@ FormulaNode::AdoptDefaultValueFrom(const FormulaNode &rhs)
 {
 	if (rhs.is_double()) {
 		SetDouble(0);
+	} else if (rhs.is_integer()) {
+		SetInteger(0);
 	} else if (rhs.is_currency()) {
 		auto *c = rhs.as_currency()->Clone();
 		c->qtty = 0;
@@ -94,19 +96,43 @@ FormulaNode::as_any_double() const
 {
 	if (is_double())
 		return as_double();
+	if (is_integer())
+		return as_integer();
 	if (is_currency())
 		return as_currency()->qtty;
 	if (is_percentage())
 		return as_percentage();
+	if (is_bool()) {
+		return as_bool() ? 1.0 : 0.0;
+	}
 	
 	mtl_trace();
 	return 0.0;
 }
 
+i64
+FormulaNode::as_any_integer() const
+{
+	if (is_integer())
+		return as_integer();
+	if (is_double())
+		return (i64)as_double();
+	if (is_currency())
+		return as_currency()->qtty;
+	if (is_percentage())
+		return as_percentage();
+	if (is_bool()) {
+		return as_bool() ? 1 : 0;
+	}
+	
+	mtl_trace();
+	return 0;
+}
+
 void
 FormulaNode::Clear()
 {
-	if (is_any_double()) {
+	if (is_any_double()) { // here it's same as is_any_integer()
 		type_ = Type::None;
 		return;
 	}
@@ -173,7 +199,9 @@ FormulaNode::DeepCopy(FormulaNode &dest, const FormulaNode &src)
 	} else if (src.is_function())
 		dest.data_.function = src.data_.function->Clone();
 	else if (src.is_double())
-		dest.data_.number = src.data_.number;
+		dest.data_.fpn = src.data_.fpn;
+	else if (src.is_integer())
+		dest.data_.integer = src.data_.integer;
 	else if (src.is_op())
 		dest.data_.op = src.data_.op;
 	else if (src.is_brace())
@@ -217,7 +245,16 @@ FormulaNode::Double(const double d)
 {
 	auto *p = new FormulaNode();
 	p->type_ = Type::Double;
-	p->data_.number = d;
+	p->data_.fpn = d;
+	return p;
+}
+
+FormulaNode*
+FormulaNode::Integer(ci64 n)
+{
+	auto *p = new FormulaNode();
+	p->type_ = Type::Integer;
+	p->data_.integer = n;
 	return p;
 }
 
@@ -724,7 +761,9 @@ FormulaNode::toString(const ods::ToStringArgs args) const
 		return data_.function->toXmlString();
 	else if (is_double())
 		return QString::number(as_double());
-	else if (is_currency())
+	else if (is_integer()) {
+		return QString::number(as_integer());
+	} else if (is_currency())
 		return QString::number(as_currency()->qtty);
 	else if (is_percentage())
 		return QString::number(as_percentage());

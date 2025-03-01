@@ -195,7 +195,7 @@ int Invoice::CreateTable(QVector<InvoiceItem*> *vec, const int kLastRow)
 		
 		next_col += 3;
 		auto *qtty_cell = row->NewCellAt(next_col);
-		qtty_cell->SetValue(item->qtty_ordered());
+		qtty_cell->SetInteger(item->qtty_ordered());
 		qtty_cell->SetStyle(style);
 		
 		auto *price_cell = row->NewCellAt(++next_col);

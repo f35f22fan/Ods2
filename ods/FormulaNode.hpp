@@ -34,9 +34,10 @@ public:
 	
 	ods::Reference* as_reference() const { return data_.reference; }
 	ods::Function* as_function() const { return data_.function; }
-	double as_double() const { return data_.number; }
 	double as_any_double() const;
-	
+	i64 as_any_integer() const;
+	double as_double() const { return data_.fpn; }
+	i64 as_integer() const { return data_.integer; }
 	ods::Op as_op() const { return data_.op; }
 	ods::Brace as_brace() const { return data_.brace; }
 	ods::Time* as_time() const { return data_.time; }
@@ -53,6 +54,7 @@ public:
 	static FormulaNode* Reference(ods::Reference *a);
 	static FormulaNode* Function(ods::Function *f);
 	static FormulaNode* Double(const double d);
+	static FormulaNode* Integer(ci64 n);
 	static FormulaNode* Op(const ods::Op op);
 	static FormulaNode* Brace(ods::Brace p);
 	static FormulaNode* Empty() { return new FormulaNode(); }
@@ -69,10 +71,13 @@ public:
 	static FormulaNode* Error(ods::FormulaError *e);
 	
 	bool is_any_double() const { return type_ == Type::Double ||
-		type_ == Type::Currency || type_ == Type::Percentage; }
+		type_ == Type::Currency || type_ == Type::Percentage ||
+		type_ == Type::Integer || type_ == Type::Bool; }
+	bool is_any_integer() const { return is_any_double(); }
 	bool is_reference() const { return type_ == Type::Reference; }
 	bool is_function() const { return type_ == Type::Function; }
 	bool is_double() const { return type_ == Type::Double; }
+	bool is_integer() const { return type_ == Type::Integer; }
 	bool is_none() const { return type_ == Type::None; }
 	bool is_empty() const { return is_none(); }
 	bool is_op() const { return type_ == Type::Op; }
@@ -125,8 +130,14 @@ public:
 	
 	void SetDouble(double d) {
 		Clear();
-		data_.number = d;
+		data_.fpn = d;
 		type_ = Type::Double;
+	}
+	
+	void SetInteger(i64 n) {
+		Clear();
+		data_.integer = n;
+		type_ = Type::Integer;
 	}
 	
 	void SetNamedRange(inst::TableNamedRange *p) {
@@ -175,6 +186,7 @@ private:
 		Function,
 		Op,
 		Double,
+		Integer,
 		Brace,
 		Time,
 		Date,
@@ -191,7 +203,8 @@ private:
 	union Data {
 		ods::Reference *reference;
 		ods::Function *function;
-		double number;
+		double fpn; // fpn=floating point number
+		i64 integer;
 		ods::Op op;
 		ods::Brace brace;
 		ods::Time *time;

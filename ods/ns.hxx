@@ -137,6 +137,7 @@ static const auto kId				 = QStringLiteral("id");
 static const auto kImage			 = QStringLiteral("image");
 static const auto kImageOpacity	 = QStringLiteral("image-opacity");
 static const auto kInitialCreator	 = QStringLiteral("initial-creator");
+static const auto kInteger			 = QStringLiteral("float"); // because table-cell office:value-type="float"
 static const auto kItalic			 = QStringLiteral("italic");
 static const auto kLanguage		 = QStringLiteral("language");
 static const auto kLanguageAsian	 = QStringLiteral("language-asian");

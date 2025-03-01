@@ -10,7 +10,7 @@
 #include <QtCore/QtGlobal>
 
 #ifdef ODS_SHARED
-	#if defined (ODS_BUILDING)
+	#if defined (ODS_BUILDING_DLL)
 		#define ODS_API Q_DECL_EXPORT
 	#else
 		#define ODS_API Q_DECL_IMPORT

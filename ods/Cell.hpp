@@ -29,6 +29,7 @@ public:
 	QDate* as_date() const { return (QDate*) value_data_; }
 	QDateTime* as_date_time() const { return (QDateTime*) value_data_; }
 	double* as_double() const { return (double*) value_data_; }
+	i64* as_integer() const { return (i64*)value_data_; }
 	double* as_percentage() const { return as_double(); }
 	ods::Time* as_time() const { return (ods::Time*) value_data_; }
 	void ClearValue(const bool delete_data = true);
@@ -54,12 +55,13 @@ public:
 	
 	bool has_delete_region() const { return delete_region_.start != -1; }
 	bool has_formula() const { return formula_ != nullptr; }
-	bool is_any_double() const { return is_double() || is_currency() || is_percentage(); }
+	bool is_any_double() const { return is_double() || is_currency() || is_percentage() || is_integer(); }
 	bool is_boolean() const { return office_value_type_ == ods::ValueType::Bool; }
 	bool is_currency() const { return office_value_type_ == ods::ValueType::Currency; }
 	bool is_date() const { return office_value_type_ == ods::ValueType::Date; }
 	bool is_date_time() const { return office_value_type_ == ods::ValueType::DateTime; }
 	bool is_double() const { return office_value_type_ == ods::ValueType::Double; }
+	bool is_integer() const { return office_value_type_ == ods::ValueType::Integer; }
 	bool is_time() const { return office_value_type_ == ods::ValueType::Time; }
 	bool is_percentage() const { return office_value_type_ == ods::ValueType::Percentage; }
 	bool is_string() const { return office_value_type_ == ods::ValueType::String; }
@@ -111,6 +113,7 @@ public:
 	void SetDate(QDate *p);
 	void SetDateTime(QDateTime *p);
 	void SetDouble(const double d);
+	void SetInteger(const i64 n);
 	void SetTime(Time *p);
 	void SetFirstString(const QString &s, bool change_value_type = true);
 	void SetRowColSpan(int rows, int cols);
@@ -119,7 +122,6 @@ public:
 	void SetPercentage(const double d);
 	void SetStyle(Abstract *a);
 	void SetValue(const QString &s) { SetString(s); }
-	void SetValue(const i64 n) { SetDouble(double(n)); }
 	void SetValue(void *value)
 	{
 		ClearValue(true);
