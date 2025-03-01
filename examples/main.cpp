@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
 	
 	// Nevermind this block, it's purely for development purposes:
 	// ReadWriteNDFF(p->book()->ndff_path());
+	// GenerateFunctionsListForGitHub();
 	
 	return 0;
 }
