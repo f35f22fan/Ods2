@@ -59,6 +59,9 @@ public:
 	void SetTextUnderlineStyle(LineStyle *stus);
 	void SetTextUnderlineWidth(attr::StyleTextUnderlineWidth *stuw);
 	
+	void SetTextLineThroughStyle(QString s) { style_text_line_through_style_ = s; }
+	void SetTextLineThroughType(QString s) { style_text_line_through_type_ = s; }
+	
 	attr::StyleTextUnderlineColor*
 	text_underline_color() const { return style_text_underline_color_; }
 	
@@ -67,6 +70,12 @@ public:
 	
 	attr::StyleTextUnderlineWidth*
 	text_underline_width() const { return style_text_underline_width_; }
+	
+	QString
+	text_line_through_style() const { return style_text_line_through_style_; }
+	
+	QString
+	text_line_through_type() const { return style_text_line_through_type_; }
 	
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
@@ -115,6 +124,9 @@ private:
 	QString style_font_family_generic_complex_;
 	QString style_font_pitch_asian_;
 	QString style_font_pitch_complex_;
+	
+	QString style_text_line_through_style_; // i.e. style:text-line-through-style="solid"
+	QString style_text_line_through_type_; // i.e. style:text-line-through-type="single"
 };
 
 } // ods::inst::

@@ -1431,6 +1431,25 @@ void ReadRowHeight()
 	mtl_info("Row height: %s", qPrintable(ls));
 }
 
+void CreateTextLineThrough()
+{
+	auto *book = ods::Book::New();
+	ods::AutoDelete<ods::Book*> ad(book);
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->NewSheet("Sheet name");	
+	
+	auto *row = sheet->NewRowAt(0);
+	auto *cell = row->NewCellAt(0);
+	cell->SetValue("Hello");
+	auto *style = cell->FetchStyle();
+	ods::inst::StyleTextProperties *stp = style->FetchStyleTextProperties();
+	stp->SetTextLineThroughStyle("solid");
+	stp->SetTextLineThroughType("single");
+	
+	util::Save(book);
+}
+
+
 bool IsFunctionImplemented(QStringView s) {
 	const QVector<ods::FunctionMeta> &vec = ods::eval::GetSupportedFunctions();
 	

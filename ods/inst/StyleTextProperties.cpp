@@ -120,6 +120,8 @@ StyleTextProperties::Clone(Abstract *parent) const
 	p->style_font_family_generic_complex_ = style_font_family_generic_complex_;
 	p->style_font_pitch_asian_ = style_font_pitch_asian_;
 	p->style_font_pitch_complex_ = style_font_pitch_complex_;
+	p->style_text_line_through_style_ = style_text_line_through_style_;
+	p->style_text_line_through_type_ = style_text_line_through_type_;
 	
 	return p;
 }
@@ -191,6 +193,9 @@ void StyleTextProperties::Init(ndff::Container *cntr)
 	CopyAttr(attrs, ns_->style(), ns::kFontPitchAsian, style_font_pitch_asian_);
 	CopyAttr(attrs, ns_->style(), ns::kFontPitchComplex, style_font_pitch_complex_);
 	
+	CopyAttr(attrs, ns_->style(), ns::kTextLineThroughStyle, style_text_line_through_style_);
+	CopyAttr(attrs, ns_->style(), ns::kTextLineThroughType, style_text_line_through_type_);
+	
 	ReadStrings(cntr, op);
 }
 
@@ -256,6 +261,9 @@ void StyleTextProperties::Init(ods::Tag *tag)
 	tag->Copy(ns_->style(), ns::kFontPitchAsian, style_font_pitch_asian_);
 	tag->Copy(ns_->style(), ns::kFontPitchComplex, style_font_pitch_complex_);
 	
+	tag->Copy(ns_->style(), ns::kTextLineThroughStyle, style_text_line_through_style_);
+	tag->Copy(ns_->style(), ns::kTextLineThroughType, style_text_line_through_type_);
+	
 	ReadStrings(tag);
 }
 
@@ -287,7 +295,9 @@ void StyleTextProperties::ListKeywords(Keywords &list, const LimitTo lt)
 		ns::kFontFamilyGenericAsian,
 		ns::kFontFamilyGenericComplex,
 		ns::kFontPitchAsian,
-		ns::kFontPitchComplex}, list);
+		ns::kFontPitchComplex,
+		ns::kTextLineThroughStyle,
+		ns::kTextLineThroughType}, list);
 }
 
 void StyleTextProperties::ListUsedNamespaces(NsHash &list)
@@ -419,6 +429,9 @@ void StyleTextProperties::WriteData(QXmlStreamWriter &xml)
 	Write(xml, ns_->style(), ns::kFontPitchAsian, style_font_pitch_asian_);
 	Write(xml, ns_->style(), ns::kFontPitchComplex, style_font_pitch_complex_);
 	
+	Write(xml, ns_->style(), ns::kTextLineThroughStyle, style_text_line_through_style_);
+	Write(xml, ns_->style(), ns::kTextLineThroughType, style_text_line_through_type_);
+	
 	WriteNodes(xml);
 }
 
@@ -481,6 +494,9 @@ void StyleTextProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDe
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kFontFamilyGenericComplex, style_font_family_generic_complex_);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kFontPitchAsian, style_font_pitch_asian_);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kFontPitchComplex, style_font_pitch_complex_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kTextLineThroughStyle, style_text_line_through_style_);
+	WriteNdffProp(kw, *ba, ns_->style(), ns::kTextLineThroughType, style_text_line_through_type_);
+	
 	CloseBasedOnChildren(h, kw, file, ba);
 }
 

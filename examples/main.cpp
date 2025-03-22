@@ -72,10 +72,10 @@ int main(int argc, char *argv[])
 	// ods::AutoDelete ad_p(invoice);
 	
 	
-	CreateRowHeight();
-	//ReadRowHeight();
+	// CreateRowHeight();
+	// ReadRowHeight();
 	
-	
+	CreateTextLineThrough();
 	
 	
 	
