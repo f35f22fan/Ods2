@@ -121,34 +121,6 @@ void CopyAnOdsFile()
 	util::Save(book);
 } **/
 
-void TestBug()
-{
-	auto *book = ods::Book::New();
-	ods::AutoDelete<ods::Book*> ad(book);
-	
-	auto *spreadsheet = book->spreadsheet();
-	auto *sheet = spreadsheet->NewSheet("Sheet name");
-	
-	auto *row = sheet->NewRowAt(0);
-	auto *cell = row->NewCellAt(0);
-	cell->ncr(2);
-	
-	
-	cell = row->NewCellAt(2);
-	auto *date = new QDate(QDate::currentDate());
-	cell->SetDate(date);
-	
-	for (int i = 0; i < 3; i++) {
-		auto *next = row->GetCell(i);
-		mtl_info("Cell %d is empty: %s, (%s)",
-			i, next->is_empty() ? "true" : "false",
-			qPrintable(next->ValueToString()));
-	}
-	
-	
-	util::Save(book);
-}
-
 void SetColumnWidths()
 {
 	auto *book = ods::Book::New();
@@ -218,7 +190,7 @@ void CreateFont()
 	auto *row = sheet->NewRowAt(0);
 	
 	const int col = 2;
-	auto *cell = row->NewCellAt(col);
+	ods::Cell *cell = row->NewCellAt(col);
 	cell->SetString("Row2Cel0");
 	auto *style = cell->FetchStyle();
 	ods::inst::StyleTextProperties *tp = style->FetchStyleTextProperties();
@@ -1328,22 +1300,4 @@ void ReadBoolean()
 			mtl_warn("Cell type not boolean");
 		}
 	}
-}
-
-void TestReportedBug()
-{
-mtl_trace();
-	auto *book = ods::Book::New();
-	ods::AutoDelete<ods::Book*> ad(book);
-	auto *spreadsheet = book->spreadsheet();
-	auto *sheet = spreadsheet->NewSheet("Sheet name"); // creating new sheet
-	auto *row = sheet->NewRowAt(0);
-	auto *cell = row->NewCellAt(0);
-	
-	cell->SetString("first cell");
-	cell->number_rows_spanned(3); // code which doesn't work
-	
-	QFile file(QDir::home().filePath("bug.ods"));
-	book->Save(file, nullptr);
-mtl_trace();
 }

@@ -51,6 +51,9 @@ public:
 	inst::StyleTableColumnProperties*
 	FetchTableColumnProperties();
 	
+	inst::StyleTableRowProperties*
+	FetchTableRowProperties();
+	
 	NumberBooleanStyle*
 	GetBooleanStyle() const;
 	

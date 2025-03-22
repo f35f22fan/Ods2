@@ -31,6 +31,8 @@ public:
 			bits_ &= ~CoveredBit;
 	}
 	
+	inst::StyleStyle* FetchStyle();
+	
 	ods::Cell*
 	GetCell(cint place);
 	

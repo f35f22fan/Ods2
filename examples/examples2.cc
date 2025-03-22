@@ -2,6 +2,7 @@
 
 #include "util.hh"
 #include <ods/ods>
+#include <ods/inst/StyleTableRowProperties.hpp>
 #include <float.h>
 
 #include <QFile>
@@ -1348,7 +1349,7 @@ void CreateFormulaFunctions()
 
 void ReadCellRange()
 {
-	QString full_path = QDir::home().absoluteFilePath("Documents/NamedRange.ods");
+	auto full_path = util::FindFile("NamedRange.ods");
 	MTL_CHECK_VOID(!full_path.isEmpty());
 	QString err;
 	auto *book = ods::Book::FromFile(full_path, &err);
@@ -1378,6 +1379,56 @@ void ReadCellRange()
 	}
 	
 	util::Save(book);
+}
+
+void CreateRowHeight()
+{
+	auto *book = ods::Book::New();
+	ods::AutoDelete<ods::Book*> ad(book);
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->NewSheet("Sheet name");	
+	
+	for (int i = 0; i < 10; i++) {
+		auto *row = sheet->NewRowAt(i);
+		
+		if (i == 5) {
+			auto *style = row->FetchStyle();
+			auto *trp = style->FetchTableRowProperties();
+			auto *l = new ods::Length(5.5, ods::Unit::Cm);
+			trp->SetRowHeight(l);
+		}
+		
+		auto *cell = row->NewCellAt(0);
+		cell->SetValue("Row #" + QString::number(i));
+	}
+	
+	util::Save(book);
+}
+
+void ReadRowHeight()
+{
+	auto full_path = util::FindFile("RowHeight.ods");
+	MTL_CHECK_VOID(!full_path.isEmpty());
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
+	ods::AutoDelete<ods::Book*> ad_book(book);
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->GetSheet(0);
+	
+	auto *row = sheet->GetRow(5);
+	MTL_CHECK_VOID(row);
+	
+	auto *style = row->FetchStyle();
+	MTL_CHECK_VOID(style != nullptr);
+	
+	auto *trp = style->FetchTableRowProperties();
+	MTL_CHECK_VOID(trp != nullptr);
+	
+	ods::Length *l = trp->GetRowHeight();
+	MTL_CHECK_VOID(l != nullptr);
+	
+	QString ls = l->toString();
+	mtl_info("Row height: %s", qPrintable(ls));
 }
 
 bool IsFunctionImplemented(QStringView s) {

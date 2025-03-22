@@ -20,8 +20,12 @@ public:
 	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	void ListUsedNamespaces(NsHash &list) override;
 	void SetOptimal(Length *size);
+	void SetRowHeight(Length *size);
 	void WriteData(QXmlStreamWriter &xml) override;
 	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
+	
+	Length* GetRowHeight() { return style_row_height_; }
+	
 private:
 	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);

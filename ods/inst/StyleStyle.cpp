@@ -120,6 +120,19 @@ StyleStyle::FetchTableColumnProperties()
 	return p;
 }
 
+inst::StyleTableRowProperties*
+StyleStyle::FetchTableRowProperties()
+{
+	auto *p = (StyleTableRowProperties*)Get(Id::StyleTableRowProperties);
+	
+	if (p == nullptr) {
+		p = new StyleTableRowProperties(this);
+		Append(p, TakeOwnership::Yes);
+	}
+	
+	return p;
+}
+
 StyleTextProperties*
 StyleStyle::FetchStyleTextProperties()
 {

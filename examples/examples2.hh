@@ -8,8 +8,8 @@ void ReadFormula();
 
 void CreateFormulaFunctions();
 
-
-
+void CreateRowHeight();
+void ReadRowHeight();
 
 
 // personal:

@@ -6,7 +6,6 @@
 void TestBug1Feb2025();
 void TestBugJuly2023();
 void CopyAnOdsFile();
-void TestBug();
 //void ReadWriteNDFF(QStringView full_path);
 //<== Please ignore these
 
@@ -45,5 +44,3 @@ void ReadTime();
 
 void CreateBoolean();
 void ReadBoolean();
-
-void TestReportedBug();

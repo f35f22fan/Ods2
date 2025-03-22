@@ -88,6 +88,12 @@ void StyleTableRowProperties::SetOptimal(Length *size)
 	style_row_height_ = size;
 }
 
+void StyleTableRowProperties::SetRowHeight(Length *size)
+{
+	style_use_optimal_row_height_ = ods::Bool::False;
+	style_row_height_ = size;
+}
+
 void StyleTableRowProperties::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->fo(), ns::kBreakBefore, fo_break_before_);

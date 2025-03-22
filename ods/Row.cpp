@@ -109,6 +109,17 @@ void Row::DeleteCellRegion(ods::Cell *cell, cint vec_index)
 	cell->delete_region({-1, -1, -1});
 }
 
+inst::StyleStyle*
+Row::FetchStyle()
+{
+	auto *style = Get(table_style_name_);
+	
+	if (style == nullptr)
+		style = NewStyle();
+	
+	return style;
+}
+
 ods::Cell*
 Row::GetCell(cint place)
 {

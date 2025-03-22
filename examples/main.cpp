@@ -68,12 +68,12 @@ int main(int argc, char *argv[])
 	
 	//CreateFormulaFunctions();
 	
-	auto *invoice = new sample::Invoice();
-	ods::AutoDelete ad_p(invoice);
+	// auto *invoice = new sample::Invoice();
+	// ods::AutoDelete ad_p(invoice);
 	
 	
-	
-	
+	CreateRowHeight();
+	//ReadRowHeight();
 	
 	
 	
