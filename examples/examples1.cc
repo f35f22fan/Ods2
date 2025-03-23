@@ -360,7 +360,7 @@ void CreateColorsAndUnderline()
 	tp->SetTextUnderlineWidth(tuw);
 	
 	// set background color:
-	auto *stcp = style->FetchStyleTableCellProperties();
+	auto *stcp = style->FetchTableCellProperties();
 	stcp->SetBackgroundColor(QColor(255, 255, 0));
 	
 	/// also wrap text:

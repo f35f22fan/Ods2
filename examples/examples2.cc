@@ -1421,7 +1421,7 @@ void ReadRowHeight()
 	auto *style = row->FetchStyle();
 	MTL_CHECK_VOID(style != nullptr);
 	
-	auto *trp = style->FetchTableRowProperties();
+	auto *trp = style->GetTableRowProperties();
 	MTL_CHECK_VOID(trp != nullptr);
 	
 	ods::Length *l = trp->GetRowHeight();
@@ -1490,7 +1490,7 @@ void ReadPageBreak()
 	auto *style = row->FetchStyle();
 	MTL_CHECK_VOID(style != nullptr);
 	
-	auto *trp = style->FetchTableRowProperties();
+	auto *trp = style->GetTableRowProperties();
 	MTL_CHECK_VOID(trp != nullptr);
 	
 	ods::attr::VisualBreak *vb = trp->visual_break();

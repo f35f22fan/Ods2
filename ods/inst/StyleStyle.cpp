@@ -94,17 +94,16 @@ StyleStyle::FetchPercentageStyle()
 	return p;
 }
 
-inst::StyleTableCellProperties*
-StyleStyle::FetchStyleTableCellProperties()
+StyleTableCellProperties*
+StyleStyle::FetchTableCellProperties()
 {
-	auto *p = (StyleTableCellProperties*)Get(Id::StyleTableCellProperties);
+	auto *tcp = (ods::inst::StyleTableCellProperties*)
+	Get(ods::Id::StyleTableCellProperties);
 	
-	if (p == nullptr) {
-		p = new StyleTableCellProperties(this);
-		Append(p, TakeOwnership::Yes);
-	}
+	if (tcp == nullptr)
+		tcp = NewTableCellProperties();
 	
-	return p;
+	return tcp;
 }
 
 inst::StyleTableColumnProperties*
@@ -144,18 +143,6 @@ StyleStyle::FetchStyleTextProperties()
 	}
 	
 	return p;
-}
-
-StyleTableCellProperties*
-StyleStyle::FetchTableCellProperties()
-{
-	auto *tcp = (ods::inst::StyleTableCellProperties*)
-		Get(ods::Id::StyleTableCellProperties);
-	
-	if (tcp == nullptr)
-		tcp = NewTableCellProperties();
-	
-	return tcp;
 }
 
 NumberBooleanStyle*
@@ -455,7 +442,7 @@ void StyleStyle::Scan(ods::Tag *tag)
 void StyleStyle::SetBackgroundColor(const QColor &color)
 {
 	// set background color:
-	auto *stcp = FetchStyleTableCellProperties();
+	auto *stcp = FetchTableCellProperties();
 	stcp->SetBackgroundColor(color);
 }
 

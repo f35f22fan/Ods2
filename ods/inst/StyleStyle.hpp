@@ -39,9 +39,6 @@ public:
 	NumberPercentageStyle*
 	FetchPercentageStyle();
 	
-	inst::StyleTableCellProperties*
-	FetchStyleTableCellProperties();
-	
 	StyleTextProperties*
 	FetchStyleTextProperties();
 	
