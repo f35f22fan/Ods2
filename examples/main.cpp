@@ -75,9 +75,10 @@ int main(int argc, char *argv[])
 	// CreateRowHeight();
 	// ReadRowHeight();
 	
-	CreateTextLineThrough();
+	// CreateTextLineThrough();
 	
-	
+	CreatePageBreak();
+	// ReadPageBreak();
 	
 	// Nevermind this block, it's purely for development purposes:
 	// ReadWriteNDFF(p->book()->ndff_path());

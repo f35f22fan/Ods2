@@ -9,5 +9,6 @@ class FoFontWeight;
 class StyleBorderLineWidth;
 class StyleTextUnderlineColor;
 class StyleTextUnderlineWidth;
+class VisualBreak;
 
 }} // ods::attr::

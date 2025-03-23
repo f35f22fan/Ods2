@@ -93,6 +93,7 @@ set(lib_files
 	attr/StyleBorderLineWidth.cpp attr/StyleBorderLineWidth.hpp
 	attr/StyleTextUnderlineColor.cpp attr/StyleTextUnderlineColor.hpp
 	attr/StyleTextUnderlineWidth.cpp attr/StyleTextUnderlineWidth.hpp
+	attr/VisualBreak.cpp attr/VisualBreak.hpp
 
 	inst/Abstract.cpp inst/Abstract.hpp
 	inst/decl.hxx

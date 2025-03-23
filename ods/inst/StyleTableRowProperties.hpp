@@ -2,6 +2,7 @@
 
 #include "Abstract.hpp"
 #include "decl.hxx"
+#include "../attr/decl.hxx"
 #include "../err.hpp"
 #include "../ods.hxx"
 
@@ -26,13 +27,16 @@ public:
 	
 	Length* GetRowHeight() { return style_row_height_; }
 	
+	attr::VisualBreak* visual_break() const { return visual_break_; }
+	void SetVisualBreak(attr::VisualBreak *visual_break) { visual_break_ = visual_break; }
+	
 private:
 	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
-	QString fo_break_before_;
 	ods::Bool style_use_optimal_row_height_ = ods::Bool::None;
 	Length *style_row_height_ = nullptr;
+	attr::VisualBreak *visual_break_ = nullptr;
 };
 
 } // ods::inst::

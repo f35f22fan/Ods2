@@ -1449,6 +1449,57 @@ void CreateTextLineThrough()
 	util::Save(book);
 }
 
+void CreatePageBreak()
+{
+	auto *book = ods::Book::New();
+	ods::AutoDelete<ods::Book*> ad(book);
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->NewSheet("Sheet name");	
+	
+	for (int i = 0; i < 20; i++) {
+		auto *row = sheet->NewRowAt(i);
+		
+		if (i == 15) {
+			auto *style = row->FetchStyle();
+			auto *trp = style->FetchTableRowProperties();
+			auto *vb = ods::attr::VisualBreak::Before();
+			vb->break_type(ods::BreakType::Page);
+			trp->SetVisualBreak(vb);
+		}
+		
+		auto *cell = row->NewCellAt(0);
+		cell->SetValue("Row #" + QString::number(i));
+	}
+	
+	util::Save(book);
+}
+
+void ReadPageBreak()
+{
+	auto full_path = util::FindFile("VisualBreak.ods");
+	MTL_CHECK_VOID(!full_path.isEmpty());
+	QString err;
+	auto *book = ods::Book::FromFile(full_path, &err);
+	ods::AutoDelete<ods::Book*> ad_book(book);
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->GetSheet(0);
+	
+	auto *row = sheet->GetRow(15);
+	MTL_CHECK_VOID(row);
+	
+	auto *style = row->FetchStyle();
+	MTL_CHECK_VOID(style != nullptr);
+	
+	auto *trp = style->FetchTableRowProperties();
+	MTL_CHECK_VOID(trp != nullptr);
+	
+	ods::attr::VisualBreak *vb = trp->visual_break();
+	MTL_CHECK_VOID(vb != nullptr);
+	
+	QString s = vb->toString();
+	mtl_info("Visual Break: %s", qPrintable(s));
+}
+
 
 bool IsFunctionImplemented(QStringView s) {
 	const QVector<ods::FunctionMeta> &vec = ods::eval::GetSupportedFunctions();

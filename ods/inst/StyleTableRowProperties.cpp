@@ -4,6 +4,7 @@
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Tag.hpp"
+#include "../attr/VisualBreak.hpp"
 
 #include "../ndff/Container.hpp"
 #include "../ndff/Property.hpp"
@@ -28,6 +29,9 @@ StyleTableRowProperties::~StyleTableRowProperties()
 {
 	delete style_row_height_;
 	style_row_height_ = nullptr;
+	
+	delete visual_break_;
+	visual_break_ = nullptr;
 }
 
 Abstract*
@@ -38,9 +42,13 @@ StyleTableRowProperties::Clone(Abstract *parent) const
 	if (parent != nullptr)
 		p->parent(parent);
 	
-	p->fo_break_before_ = fo_break_before_;
 	p->style_use_optimal_row_height_ = style_use_optimal_row_height_;
 	p->style_row_height_ = style_row_height_;
+	
+	if (visual_break_) {
+		p->visual_break_ = visual_break_->Clone();
+	}
+	
 	p->CloneChildrenOf(this);
 
 	return p;
@@ -52,7 +60,17 @@ void StyleTableRowProperties::Init(ndff::Container *cntr)
 	ndff::Property prop;
 	NdffAttrs attrs;
 	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	
+	QString break_str;
+	CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, break_str);
+	visual_break_ = attr::VisualBreak::FromString(break_str);
+	
+	if (!visual_break_) {
+		break_str.clear();
+		CopyAttr(attrs, ns_->fo(), ns::kBreakAfter, break_str);
+		visual_break_ = attr::VisualBreak::FromString(break_str);
+	}
+	
 	CopyAttr(attrs, ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
 	CopyAttr(attrs, ns_->style(), ns::kRowHeight, &style_row_height_);
 	ReadStrings(cntr, op);
@@ -60,7 +78,16 @@ void StyleTableRowProperties::Init(ndff::Container *cntr)
 
 void StyleTableRowProperties::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	QString break_str;
+	tag->Copy(ns_->fo(), ns::kBreakBefore, break_str);
+	visual_break_ = attr::VisualBreak::FromString(break_str);
+	
+	if (!visual_break_) {
+		break_str.clear();
+		tag->Copy(ns_->fo(), ns::kBreakAfter, break_str);
+		visual_break_ = attr::VisualBreak::FromString(break_str);
+	}
+	
 	tag->Copy(ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
 	tag->Copy(ns_->style(), ns::kRowHeight, &style_row_height_);
 	ReadStrings(tag);
@@ -76,7 +103,7 @@ void StyleTableRowProperties::ListUsedNamespaces(NsHash &list)
 {
 	Add(ns_->style(), list);
 	
-	if (!fo_break_before_.isEmpty())
+	if (visual_break_)
 	{
 		Add(ns_->fo(), list);
 	}
@@ -96,7 +123,11 @@ void StyleTableRowProperties::SetRowHeight(Length *size)
 
 void StyleTableRowProperties::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	if (visual_break_) {
+		cauto name = visual_break_->before() ? ns::kBreakBefore : ns::kBreakAfter;
+		Write(xml, ns_->fo(), name, visual_break_->toString());
+	}
+	
 	Write(xml, ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
 	Write(xml, ns_->style(), ns::kRowHeight, style_row_height_);
 	WriteNodes(xml);
@@ -106,7 +137,11 @@ void StyleTableRowProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFi
 {
 	MTL_CHECK_VOID(ba);
 	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	if (visual_break_) {
+		cauto name = visual_break_->before() ? ns::kBreakBefore : ns::kBreakAfter;
+		WriteNdffProp(kw, *ba, ns_->fo(), name, visual_break_->toString());
+	}
+	
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
 	WriteNdffProp(kw, *ba, ns_->style(), ns::kRowHeight, style_row_height_);
 	CloseBasedOnChildren(h, kw, file, ba);

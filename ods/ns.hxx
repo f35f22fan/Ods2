@@ -36,6 +36,7 @@ static const auto kBorderLineWidth	 = QStringLiteral("border-line-width");
 static const auto kBorderRight		 = QStringLiteral("border-right");
 static const auto kBorderTop		 = QStringLiteral("border-top");
 static const auto kBottom			 = QStringLiteral("bottom");
+static const auto kBreakAfter		 = QStringLiteral("break-after");
 static const auto kBreakBefore		 = QStringLiteral("break-before");
 static const auto kCalculationSettings = QStringLiteral("calculation-settings");
 static const auto kCaseSensitive	 = QStringLiteral("case-sensitive");

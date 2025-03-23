@@ -36,6 +36,7 @@
 #include <ods/attr/FoFontWeight.hpp>
 #include <ods/attr/StyleTextUnderlineColor.hpp>
 #include <ods/attr/StyleTextUnderlineWidth.hpp>
+#include <ods/attr/VisualBreak.hpp>
 
 #include <ods/inst/Abstract.hpp>
 #include <ods/inst/DrawFrame.hpp>

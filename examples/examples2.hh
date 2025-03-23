@@ -13,6 +13,9 @@ void ReadRowHeight();
 
 void CreateTextLineThrough();
 
+void CreatePageBreak();
+void ReadPageBreak();
+
 // personal:
 void GenerateFunctionsListForGitHub();
 void ReadCellRange();
