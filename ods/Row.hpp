@@ -31,15 +31,13 @@ public:
 			bits_ &= ~CoveredBit;
 	}
 	
-	inst::StyleStyle* FetchStyle();
+	inst::StyleStyle* FetchStyle(); // if the style doesn't exist creates it first and then returns it
+	inst::StyleStyle* GetStyle() const; // just returns the style, if it doesn't exist returns nullptr
 	
 	ods::Cell*
 	GetCell(cint place);
 	
 	int GetColumnIndex(const ods::Cell *cell) const;
-	
-	inst::StyleStyle*
-	GetStyle() const;
 	
 	bool has_children(const inst::IncludingText itx) const override {
 		return cells_.size() > 0 || Abstract::has_children(itx);

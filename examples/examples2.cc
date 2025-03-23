@@ -1418,7 +1418,7 @@ void ReadRowHeight()
 	auto *row = sheet->GetRow(5);
 	MTL_CHECK_VOID(row);
 	
-	auto *style = row->FetchStyle();
+	auto *style = row->GetStyle();
 	MTL_CHECK_VOID(style != nullptr);
 	
 	auto *trp = style->GetTableRowProperties();
@@ -1487,7 +1487,9 @@ void ReadPageBreak()
 	auto *row = sheet->GetRow(15);
 	MTL_CHECK_VOID(row);
 	
-	auto *style = row->FetchStyle();
+	 // row->FetchStyle() first creates style if it doesn't exist, so it can't return nullptr
+	// row->GetStyle() only returns the existing style, if it doesn't exist returns nullptr
+	auto *style = row->GetStyle();
 	MTL_CHECK_VOID(style != nullptr);
 	
 	auto *trp = style->GetTableRowProperties();
