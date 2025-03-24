@@ -1455,10 +1455,10 @@ void CreatePageBreak()
 	auto *spreadsheet = book->spreadsheet();
 	auto *sheet = spreadsheet->NewSheet("Sheet name");	
 	
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < 25; i++) {
 		auto *row = sheet->NewRowAt(i);
 		
-		if (i == 15) {
+		if (i % 5 == 0) {
 			auto *style = row->FetchStyle();
 			auto *trp = style->FetchTableRowProperties();
 			auto *vb = ods::attr::VisualBreak::Before();
