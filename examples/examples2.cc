@@ -2,7 +2,6 @@
 
 #include "util.hh"
 #include <ods/ods>
-#include <ods/inst/StyleTableRowProperties.hpp>
 #include <float.h>
 
 #include <QFile>

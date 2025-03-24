@@ -59,6 +59,7 @@
 #include <ods/inst/StyleStyle.hpp>
 #include <ods/inst/StyleTableCellProperties.hpp>
 #include <ods/inst/StyleTableColumnProperties.hpp>
+#include <ods/inst/StyleTableRowProperties.hpp>
 #include <ods/inst/StyleTextProperties.hpp>
 #include <ods/inst/TableNamedRange.hpp>
 #include <ods/inst/TableTableColumn.hpp>

@@ -61,14 +61,17 @@ void StyleTableRowProperties::Init(ndff::Container *cntr)
 	NdffAttrs attrs;
 	Op op = cntr->Next(prop, Op::TS, &attrs);
 	
-	QString break_str;
-	CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, break_str);
-	visual_break_ = attr::VisualBreak::FromString(break_str);
-	
-	if (!visual_break_) {
-		break_str.clear();
-		CopyAttr(attrs, ns_->fo(), ns::kBreakAfter, break_str);
-		visual_break_ = attr::VisualBreak::FromString(break_str);
+	QString input_str;
+	{
+		CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, input_str);
+		visual_break_ = attr::VisualBreak::FromString(input_str);
+		
+		if (!visual_break_) {
+			input_str.clear();
+			CopyAttr(attrs, ns_->fo(), ns::kBreakAfter, input_str);
+			visual_break_ = attr::VisualBreak::FromString(input_str);
+		}
+		input_str.clear();
 	}
 	
 	CopyAttr(attrs, ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
@@ -78,14 +81,16 @@ void StyleTableRowProperties::Init(ndff::Container *cntr)
 
 void StyleTableRowProperties::Init(ods::Tag *tag)
 {
-	QString break_str;
-	tag->Copy(ns_->fo(), ns::kBreakBefore, break_str);
-	visual_break_ = attr::VisualBreak::FromString(break_str);
-	
-	if (!visual_break_) {
-		break_str.clear();
-		tag->Copy(ns_->fo(), ns::kBreakAfter, break_str);
-		visual_break_ = attr::VisualBreak::FromString(break_str);
+	QString input_str;
+	{
+		tag->Copy(ns_->fo(), ns::kBreakBefore, input_str);
+		visual_break_ = attr::VisualBreak::FromString(input_str);
+		
+		if (!visual_break_) {
+			tag->Copy(ns_->fo(), ns::kBreakAfter, input_str);
+			visual_break_ = attr::VisualBreak::FromString(input_str);
+		}
+		input_str.clear();
 	}
 	
 	tag->Copy(ns_->style(), ns::kUseOptimalRowHeight, style_use_optimal_row_height_);
@@ -95,8 +100,8 @@ void StyleTableRowProperties::Init(ods::Tag *tag)
 
 void StyleTableRowProperties::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	inst::AddKeywords({tag_name(), ns::kBreakBefore, ns::kUseOptimalRowHeight,
-		ns::kRowHeight}, list);
+	inst::AddKeywords({tag_name(), ns::kBreakBefore, ns::kBreakAfter,
+		ns::kUseOptimalRowHeight, ns::kRowHeight}, list);
 }
 
 void StyleTableRowProperties::ListUsedNamespaces(NsHash &list)

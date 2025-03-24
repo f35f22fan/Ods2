@@ -4,6 +4,7 @@
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Tag.hpp"
+#include "../attr/VisualBreak.hpp"
 
 #include "../ndff/Container.hpp"
 #include "../ndff/Property.hpp"
@@ -26,6 +27,10 @@ StyleTableColumnProperties::StyleTableColumnProperties(const StyleTableColumnPro
 StyleTableColumnProperties::~StyleTableColumnProperties()
 {
 	delete style_column_width_;
+	style_column_width_ = nullptr;
+	
+	delete visual_break_;
+	visual_break_ = nullptr;
 }
 
 Abstract*
@@ -36,7 +41,9 @@ StyleTableColumnProperties::Clone(Abstract *parent) const
 	if (parent)
 		p->parent(parent);
 	
-	p->fo_break_before_ = fo_break_before_;
+	if (visual_break_) {
+		p->visual_break_ = visual_break_->Clone();
+	}
 	
 	if (style_column_width_)
 		p->style_column_width_ = style_column_width_->Clone();
@@ -52,34 +59,55 @@ void StyleTableColumnProperties::Init(ndff::Container *cntr)
 	ndff::Property prop;
 	QHash<UriId, QVector<ndff::Property>> attrs;
 	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, fo_break_before_);
-	QString col_width;
-	CopyAttr(attrs, ns_->style(), ns::kColumnWidth, col_width);
-	style_column_width_ = Length::FromString(col_width);
+	
+	QString input_str;
+	{
+		CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, input_str);
+		visual_break_ = attr::VisualBreak::FromString(input_str);
+		
+		if (!visual_break_) {
+			input_str.clear();
+			CopyAttr(attrs, ns_->fo(), ns::kBreakAfter, input_str);
+			visual_break_ = attr::VisualBreak::FromString(input_str);
+		}
+		input_str.clear();
+	}
+	
+	CopyAttr(attrs, ns_->style(), ns::kColumnWidth, input_str);
+	style_column_width_ = Length::FromString(input_str);
 	ReadStrings(cntr, op);
 }
 
 void StyleTableColumnProperties::Init(ods::Tag *tag)
 {
-	tag->Copy(ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	QString input_str;
+	{
+		tag->Copy(ns_->fo(), ns::kBreakBefore, input_str);
+		visual_break_ = attr::VisualBreak::FromString(input_str);
+		
+		if (!visual_break_) {
+			tag->Copy(ns_->fo(), ns::kBreakAfter, input_str);
+			visual_break_ = attr::VisualBreak::FromString(input_str);
+		}
+		input_str.clear();
+	}
 	
-	QString str;
-	tag->Copy(ns_->style(), ns::kColumnWidth, str);
-	style_column_width_ = Length::FromString(str);
+	tag->Copy(ns_->style(), ns::kColumnWidth, input_str);
+	style_column_width_ = Length::FromString(input_str);
 	
 	ReadStrings(tag);
 }
 
 void StyleTableColumnProperties::ListKeywords(Keywords &list, const LimitTo lt)
 {
-	inst::AddKeywords({tag_name(), ns::kBreakBefore, ns::kColumnWidth}, list);
+	inst::AddKeywords({tag_name(), ns::kBreakBefore, ns::kBreakAfter, ns::kColumnWidth}, list);
 }
 
 void StyleTableColumnProperties::ListUsedNamespaces(NsHash &list)
 {
 	Add(ns_->style(), list);
 	
-	if (!fo_break_before_.isEmpty())
+	if (visual_break_)
 	{
 		Add(ns_->fo(), list);
 	}
@@ -98,7 +126,10 @@ void StyleTableColumnProperties::SetColumnWidth(Length *length)
 void
 StyleTableColumnProperties::WriteData(QXmlStreamWriter &xml)
 {
-	Write(xml, ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	if (visual_break_) {
+		cauto name = visual_break_->before() ? ns::kBreakBefore : ns::kBreakAfter;
+		Write(xml, ns_->fo(), name, visual_break_->toString());
+	}
 	
 	if (style_column_width_)
 	{
@@ -113,7 +144,12 @@ void StyleTableColumnProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, 
 {
 	MTL_CHECK_VOID(ba != nullptr);
 	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->fo(), ns::kBreakBefore, fo_break_before_);
+	
+	if (visual_break_) {
+		cauto name = visual_break_->before() ? ns::kBreakBefore : ns::kBreakAfter;
+		WriteNdffProp(kw, *ba, ns_->fo(), name, visual_break_->toString());
+	}
+	
 	if (style_column_width_)
 	{
 		WriteNdffProp(kw, *ba, ns_->style(), ns::kColumnWidth,

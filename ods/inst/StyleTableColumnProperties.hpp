@@ -2,7 +2,7 @@
 
 #include "Abstract.hpp"
 #include "decl.hxx"
-
+#include "../attr/decl.hxx"
 #include "../err.hpp"
 
 namespace ods::inst {
@@ -18,8 +18,10 @@ public:
 	virtual Abstract*
 	Clone(Abstract *parent = nullptr) const override;
 	
-	Length*
-	column_width() const { return style_column_width_; }
+	Length* column_width() const { return style_column_width_; }
+	
+	attr::VisualBreak* visual_break() const { return visual_break_; }
+	void SetVisualBreak(attr::VisualBreak *visual_break) { visual_break_ = visual_break; }
 	
 	void ListKeywords(Keywords &list, const LimitTo lt) override;
 	void ListUsedNamespaces(NsHash &list) override;
@@ -31,7 +33,7 @@ private:
 	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
-	QString fo_break_before_;
+	attr::VisualBreak *visual_break_ = nullptr;
 	Length *style_column_width_ = nullptr;
 };
 
