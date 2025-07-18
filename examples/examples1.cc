@@ -64,7 +64,7 @@ void TestBugJuly2023()
 		mtl_warn("No cell at row %d, col %d", row_index, col_index);
 	}
 	
-	src_book->Save(save_to_path, &err);
+	src_book->Save(QFile(save_to_path), &err);
 	if (!err.isEmpty())
 	{
 		mtl_warn("Error: %s", qPrintable(err));
@@ -98,7 +98,7 @@ void CopyAnOdsFile()
 	}
 	const char *file_name = "MyCopy.ods";
 	QString out_path = QDir::home().filePath(file_name);
-	src_book->Save(out_path, &err);
+	src_book->Save(QFile(out_path), &err);
 	if (!err.isEmpty())
 	{
 		mtl_info("Error: %s", qPrintable(err));

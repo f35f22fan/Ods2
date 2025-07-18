@@ -68,8 +68,8 @@ int main(int argc, char *argv[])
 	
 	//CreateFormulaFunctions();
 	
-	// auto *invoice = new sample::Invoice();
-	// ods::AutoDelete ad_p(invoice);
+	auto *invoice = new sample::Invoice();
+	ods::AutoDelete ad_p(invoice);
 	
 	
 	// CreateRowHeight();
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	
 	// CreateTextLineThrough();
 	
-	CreatePageBreak();
+	// CreatePageBreak();
 	// ReadPageBreak();
 	
 	// Nevermind this block, it's purely for development purposes:
