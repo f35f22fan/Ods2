@@ -995,7 +995,7 @@ bool Book::SaveNDFF(QString *err)
 bool Book::SaveXmlFile(inst::Abstract *top, const QString &full_path, QString *err)
 {
 	QSaveFile out(full_path);
-	out.open(QIODevice::WriteOnly | QIODevice::Truncate);
+	MTL_CHECK(out.open(QIODevice::WriteOnly | QIODevice::Truncate));
 	
 	QXmlStreamWriter xml(&out);
 	WriteStartDocument(xml);

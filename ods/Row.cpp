@@ -48,11 +48,13 @@ Row::At(cint place, int &vec_index)
 {
 	int so_far = 0;
 	cint count = cells_.size();
+	// mtl_info("cells count: %d", count);
 	
 	for (int i = 0; i < count; i++)
 	{
 		ods::Cell *cell = cells_[i];
 		so_far += cell->ncr();
+		// mtl_info("so_far: %d, place: %d", so_far, place);
 		if (so_far > place)
 		{
 			vec_index = i;
@@ -60,6 +62,7 @@ Row::At(cint place, int &vec_index)
 		}
 	}
 	
+	mtl_trace();
 	return nullptr;
 }
 
@@ -334,14 +337,14 @@ Row::NewStyle()
 
 void Row::Print() const
 {
-	int count = 0;
+	int cell_count = 0;
 	for (auto *cell: cells_) {
 		auto ba = cell->ToSchemaString().toLocal8Bit();
 		printf("%s ", ba.data());
-		count += cell->ncr();
+		cell_count += cell->ncr();
 	}
 	
-	printf("{%d}\n", count);
+	printf("{%d}\n", cell_count);
 }
 
 Length*

@@ -16,6 +16,42 @@
 
 #include <QSize>
 
+void TestBugDec2025() {
+	auto *book = ods::Book::New();
+	ods::AutoDelete<ods::Book*> ad(book);
+	
+	auto *spreadsheet = book->spreadsheet();
+	auto *sheet = spreadsheet->NewSheet("Sheet name");
+	
+	cint line = 5;
+	ods::Row *row = sheet->GetRow(line);
+	if(!row) {
+		mtl_info("Creating new row at %d", line);
+		MTL_CHECK_VOID(row = sheet->NewRowAt(line));
+	} else if (row->num() > 1) {
+		// It's likely the "default" single row that is created when the sheet is created
+		// which has number_rows_repeated=big_number.
+		// Thus create a new row that is repeated only once:
+		mtl_info("Creating a new row with num_rows_repeated=1");
+		row = sheet->NewRowAt(line);
+		if (row == nullptr) {
+			mtl_warn("Failed to create row!");
+			return;
+		}
+		// row->number_rows_repeated() and row->num() is the same thing
+		mtl_info("The new row is repeated %d times", row->num());
+	}
+	
+	auto *cell = row->NewCellAt(1);
+	if (cell) {
+		cell->SetValue("Hello");
+	} else {
+		mtl_warn("Cell == nullptr");
+	}
+	
+	util::Save(book);
+}
+
 void TestBug1Feb2025() {
 	QString read_from_path = QDir::home().filePath("Downloads/Export_planning2.ods");
 	QString err;

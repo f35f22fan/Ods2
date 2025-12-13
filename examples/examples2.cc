@@ -1572,7 +1572,7 @@ void GenerateFunctionsListForGitHub()
 	
 	const QString full_path = QDir::home().absoluteFilePath("list_of_implemented_functions.txt");
 	QFile out_file(full_path);
-	out_file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+	MTL_CHECK_VOID(out_file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate));
 	QTextStream out(&out_file);
 	out << heap;
 	// optional, as QFile destructor will already do it:

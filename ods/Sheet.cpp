@@ -284,8 +284,7 @@ void Sheet::InitDefault()
 	column->number_columns_repeated(num_cols_);
 	columns_.append(column);
 	
-	ods::Tag *tag = nullptr;
-	auto *row = new ods::Row(this, tag, 0);
+	auto *row = new ods::Row(this);
 	row->num(DefaultRowCountPerSheet);
 	rows_.append(row);
 }

@@ -184,8 +184,9 @@ OfficeSpreadsheet::NewSheet(QString name)
 		return nullptr;
 	}
 	
-	if (GetSheet(name) != nullptr)
-		return nullptr;
+	auto *existing = GetSheet(name);
+	if (existing)
+		return existing;
 	
 	auto *sheet = new ods::Sheet(this);
 	sheet->name(name);
