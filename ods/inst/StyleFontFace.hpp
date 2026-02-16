@@ -3,15 +3,13 @@
 #include "Abstract.hpp"
 #include "decl.hxx"
 #include "../err.hpp"
-#include "../ndff/ndff.hh"
 
 namespace ods::inst {
 
 class ODS_API StyleFontFace : public Abstract
 {
 public:
-	StyleFontFace(ods::inst::Abstract *parent, ods::Tag *tag = 0,
-		ndff::Container *cntr = 0);
+	StyleFontFace(ods::inst::Abstract *parent, ods::Tag *tag = 0);
 	StyleFontFace(const StyleFontFace &cloner);
 	virtual ~StyleFontFace();
 	
@@ -37,10 +35,7 @@ public:
 	QString* style_name() override { return &style_name_; }
 	
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	QString svg_font_family_;

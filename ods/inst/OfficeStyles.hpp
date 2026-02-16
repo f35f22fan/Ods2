@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API OfficeStyles : public Abstract
 {
 public:
-	OfficeStyles(ods::inst::Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
+	OfficeStyles(ods::inst::Abstract *parent, ods::Tag *tag = 0);
 	OfficeStyles(const OfficeStyles &cloner);
 	virtual ~OfficeStyles();
 	
@@ -28,7 +28,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
 };

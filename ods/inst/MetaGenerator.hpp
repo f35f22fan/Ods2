@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API MetaGenerator: public Abstract
 {
 public:
-	MetaGenerator(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	MetaGenerator(Abstract *parent, Tag *tag = 0);
 	MetaGenerator(const MetaGenerator &cloner);
 	virtual ~MetaGenerator();
 	

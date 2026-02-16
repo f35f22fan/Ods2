@@ -4,8 +4,6 @@
 #include "Prefix.hpp"
 
 #include "inst/Abstract.hpp"
-#include "ndff/Container.hpp"
-
 #include <algorithm>
 
 namespace ods { // ods::
@@ -85,15 +83,6 @@ Ns* Ns::FromXml(QXmlStreamReader &xml, ci32 file_index)
 	Ns *ns = new Ns();
 	ns->InitDefault(WillInitFromData::Yes);
 	ns->SyncWith(xml, file_index);
-	return ns;
-}
-
-Ns* Ns::FromNDFF(ndff::Container *ndff)
-{
-	Ns *ns = new Ns();
-	ns->InitDefault(WillInitFromData::Yes);
-	ns->SyncWith(ndff);
-	
 	return ns;
 }
 
@@ -191,35 +180,6 @@ void Ns::InitDefault(const WillInitFromData atr)
 		for (Prefix *prefix: prefixes_)
 		{
 			prefix->set_id(UriIds::None);
-		}
-	}
-}
-
-void Ns::SyncWith(ndff::Container *ptr)
-{
-	ndff_ = ptr;
-	UriId largest = 0;
-	auto &ns_hash = ndff_->ns_hash();
-	QString base_name = QLatin1String("ns");
-	for (auto next = ns_hash.constBegin(); next != ns_hash.constEnd(); next++)
-	{
-		cauto decl_uri = next.value();
-		for (Prefix *existing_prefix: prefixes_)
-		{
-	// Almost all URIs start with the same chars and only differ at
-	// the end - thus an optimization is to compare them from the end:
-			if (existing_prefix->uri().endsWith(decl_uri))
-			{
-				cauto uri_id = next.key();
-				if (existing_prefix->name().isEmpty())
-					existing_prefix->set_name(base_name + QString::number(uri_id));
-				existing_prefix->set_id(uri_id);
-				
-				if (largest < uri_id)
-					largest = uri_id;
-				
-				break;
-			}
 		}
 	}
 }

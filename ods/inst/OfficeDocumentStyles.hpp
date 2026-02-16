@@ -10,8 +10,7 @@ namespace ods::inst {
 class ODS_API OfficeDocumentStyles : public Abstract
 {
 public:
-	OfficeDocumentStyles(ods::Book *book, ods::Ns *ns, ods::Tag *tag = 0,
-		ndff::Container *cntr = 0);
+	OfficeDocumentStyles(ods::Book *book, ods::Ns *ns, ods::Tag *tag = 0);
 	OfficeDocumentStyles(const OfficeDocumentStyles &cloner);
 	virtual ~OfficeDocumentStyles();
 	
@@ -42,10 +41,8 @@ public:
 	office_styles() const { return office_styles_; }
 	
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void LoadStylesXml(const QString &full_path);

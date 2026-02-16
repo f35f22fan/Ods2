@@ -4,17 +4,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-StylePageLayoutProperties::StylePageLayoutProperties(Abstract *parent, Tag *tag, ndff::Container *cntr)
+StylePageLayoutProperties::StylePageLayoutProperties(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::StylePageLayoutProperties)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -38,16 +33,6 @@ StylePageLayoutProperties::Clone(Abstract *parent) const
 	return p;
 }
 
-void StylePageLayoutProperties::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->style(), ns::kWritingMode, style_writing_mode_);
-	ReadStrings(cntr, op);
-}
-
 void StylePageLayoutProperties::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->style(), ns::kWritingMode, style_writing_mode_);
@@ -68,14 +53,6 @@ void StylePageLayoutProperties::WriteData(QXmlStreamWriter &xml)
 {
 	Write(xml, ns_->style(), ns::kWritingMode, style_writing_mode_);
 	WriteNodes(xml);
-}
-
-void StylePageLayoutProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kWritingMode, style_writing_mode_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

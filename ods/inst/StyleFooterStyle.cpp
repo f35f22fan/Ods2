@@ -6,17 +6,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-StyleFooterStyle::StyleFooterStyle(Abstract *parent, Tag *tag, ndff::Container *cntr)
+StyleFooterStyle::StyleFooterStyle(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::StyleFooterStyle)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -38,38 +33,6 @@ StyleFooterStyle::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
-}
-
-void StyleFooterStyle::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	Op op = cntr->Next(prop, Op::TS);
-	if (op == Op::N32_TE)
-		return;
-	
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->style()))
-			{
-				if (prop.name == ns::kHeaderFooterProperties)
-					Append(new StyleHeaderFooterProperties(this, 0, cntr), TakeOwnership::Yes);
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void StyleFooterStyle::Init(ods::Tag *tag)

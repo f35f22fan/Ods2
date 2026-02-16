@@ -126,75 +126,6 @@ void Abstract::CloneChildrenOf(const Abstract *rhs, const ClonePart co)
 	}
 }
 
-void Abstract::CopyAttr(NdffAttrs &attrs,
-	ods::Prefix *prefix, QStringView attr_name, QString &result)
-{
-	result.clear(); // must clear first, so that on multiple reuse of the
-	// save variable one can see if nothing was found.
-	
-	if (!attrs.contains(prefix->id()))
-		return;
-	
-	QVector<ndff::Property> &props = attrs[prefix->id()];
-	
-	for (const ndff::Property &prop: props)
-	{
-		if (prop.name == attr_name)
-		{
-			result = prop.value;
-			break;
-		}
-	}
-}
-
-void Abstract::CopyAttr(NdffAttrs &attrs,
-	ods::Prefix *prefix, QStringView attr_name, ods::Bool &result)
-{
-	QString s;
-	CopyAttr(attrs, prefix, attr_name, s);
-	ods::ApplyBool(s, result);
-}
-
-void Abstract::CopyAttr(NdffAttrs &attrs,
-	ods::Prefix *prefix, QStringView attr_name, ods::Length **size)
-{
-	QString s;
-	CopyAttr(attrs, prefix, attr_name, s);
-	ods::Length *l = ods::Length::FromString(s);
-	if (l)
-		*size = l;
-}
-
-void Abstract::CopyAttrI8(QHash<UriId, QVector<ndff::Property> > &attrs,
-	Prefix *prefix, QStringView attr_name, i8 &result)
-{
-	QString s;
-	CopyAttr(attrs, prefix, attr_name, s);
-	
-	if (!s.isEmpty())
-	{
-		bool ok;
-		ci16 k = s.toShort(&ok);
-		if (ok)
-			result = k;
-	}
-}
-
-void Abstract::CopyAttrI32(QHash<UriId, QVector<ndff::Property> > &attrs,
-	Prefix *prefix, QStringView attr_name, i32 &result)
-{
-	QString s;
-	CopyAttr(attrs, prefix, attr_name, s);
-	
-	if (!s.isEmpty())
-	{
-		bool ok;
-		ci32 k = s.toInt(&ok);
-		if (ok)
-			result = k;
-	}
-}
-
 void Abstract::DeleteNodes()
 {
 	for (auto *next: nodes_)
@@ -331,41 +262,6 @@ void Abstract::ListChildren(QVector<StringOrInst*> &output,
 	}
 }
 
-void Abstract::ReadStrings(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	Op op = cntr->Next(prop, Op::TS);
-	ReadStrings(cntr, op);
-}
-
-void Abstract::ReadStrings(ndff::Container *cntr, ndff::Op op)
-{
-	using Op = ndff::Op;
-	if (op == Op::N32_TE)
-		return;
-	
-	ndff::Property prop;
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			mtl_trace();
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
-}
-
 void Abstract::ReadStrings(Tag *tag)
 {
 	for (StringOrTag *x: tag->nodes())
@@ -447,53 +343,6 @@ void Abstract::Write(QXmlStreamWriter &xml, ods::Prefix *prefix,
 		xml.writeAttribute(prefix->With(name), QString::number(num));
 }
 
-void Abstract::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *output)
-{
-	MTL_CHECK_VOID(output);
-	WriteTag(kw, *output);
-	CloseBasedOnChildren(h, kw, file, output);
-}
-
-void Abstract::WriteNdffProp(inst::Keywords &kw,
-	ByteArray &output, Prefix *prefix, QString key, QStringView value)
-{
-	if (value.isEmpty())
-		return;
-	
-	output.add_u8(ndff::Op::S32_PS);
-	output.add_unum(prefix->id());
-	ci32 key_id = kw[key].id;
-	output.add_inum(key_id);
-	output.add_string(value, Pack::NDFF);
-}
-
-void Abstract::WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
-	ods::Prefix *prefix, QString name, const ods::Bool value)
-{
-	if (value != Bool::None)
-	{
-		QString s = (value == Bool::True) ? ns::True : ns::False;
-		WriteNdffProp(kw, ba, prefix, name, s);
-	}
-}
-
-void Abstract::WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
-	ods::Prefix *prefix, QString name, const ods::Length *value)
-{
-	if (value) {
-		QString v = value->toString();
-		WriteNdffProp(kw, ba, prefix, name, v);
-	}
-}
-
-void Abstract::WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
-	Prefix *prefix, QString name,
-	cint num, cint except)
-{
-	if (num != except)
-		WriteNdffProp(kw, ba, prefix, name, QString::number(num));
-}
-
 void Abstract::WriteNodes(QXmlStreamWriter &xml)
 {
 	for (StringOrInst *node: nodes_)
@@ -503,44 +352,6 @@ void Abstract::WriteNodes(QXmlStreamWriter &xml)
 		else
 			node->as_inst()->Write(xml);
 	}
-}
-
-void Abstract::WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba, const PrintText pt)
-{
-	QVector<StringOrInst*> vec;
-	ListChildren(vec, Recursively::No);
-	bool found = false;
-	for (StringOrInst *soi: vec)
-	{
-		if (soi->is_inst()) {
-			soi->as_inst()->WriteNDFF(h, kw, nullptr, &ba);
-		} else {
-			found = true;
-			QString s = soi->as_string();
-			if (pt == PrintText::Yes) {
-				auto ba = s.toLocal8Bit();
-				mtl_info("=============\"%s\"", ba.data());
-			}
-			ba.add_string(s, Pack::NDFF);
-		}
-	}
-	
-	if (pt == PrintText::Yes && !found)
-		mtl_info("=============");
-}
-
-void Abstract::WriteTag(Keywords &kw, ByteArray &ba)
-{
-	ci32 name_id = kw.value(tag_name(), {0, 0}).id;
-	if (name_id == 0)
-	{
-		mtl_warn("No id for tag \"%s\"", qPrintable(tag_name()));
-		return;
-	}
-	//mtl_info("tag: \"%s\", id: %d", qPrintable(tag_name()), name_id);
-	ba.add_u8(ndff::Op::TS);
-	ba.add_unum(prefix_->id());
-	ba.add_inum(name_id);
 }
 
 } // ods::inst::

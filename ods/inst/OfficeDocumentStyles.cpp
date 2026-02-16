@@ -17,15 +17,13 @@
 
 namespace ods::inst {
 
-OfficeDocumentStyles::OfficeDocumentStyles(ods::Book *book, ods::Ns *ns, Tag *tag, ndff::Container *cntr) :
+OfficeDocumentStyles::OfficeDocumentStyles(ods::Book *book, ods::Ns *ns, Tag *tag) :
 Abstract(nullptr, ns, id::OfficeDocumentStyles)
 {
 	book_ = book;
 	book_->document_styles_ = this;
 	
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -105,60 +103,6 @@ OfficeDocumentStyles::GetAnyStyle(const QString &name)
 		return a;
 	
 	return office_font_face_decls_->GetStyleRecursive(name);
-}
-
-void OfficeDocumentStyles::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	NdffAttrs attrs;
-	Op op = cntr->Next(prop, Op::None);
-	op = cntr->Next(prop, op, &attrs);
-	mtl_info("office_version_: %s", qPrintable(office_version_));
-	if (op == Op::N32_TE)
-	{
-		mtl_trace("op %s", ndff::ops(op));
-		return;
-	}
-	
-	if (op == Op::TCF_CMS)
-	{
-		op = cntr->Next(prop, op);
-		mtl_trace("op %s", ndff::ops(op));
-	}
-	
-	while (true)
-	{
-		mtl_trace("op %s", ndff::ops(op));
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->office()))
-			{
-				mtl_trace("prop.name: %s", qPrintable(prop.name));
-				if (prop.name == ns::kFontFaceDecls) {
-					office_font_face_decls_ = new OfficeFontFaceDecls(this, 0, cntr);
-				} else if (prop.name == ns::kStyles) {
-					office_styles_ = new OfficeStyles(this, 0, cntr);
-				} else if (prop.name == ns::kAutomaticStyles) {
-					office_automatic_styles_ = new OfficeAutomaticStyles(this, 0, cntr);
-				} else if (prop.name == ns::kMasterStyles) {
-					office_master_styles_ = new OfficeMasterStyles(this, 0, cntr);
-				}
-			}
-		} else if (ndff::is_text(op)) {
-			const QString s = cntr->NextString();
-			Append(s);
-			mtl_trace("Text: %s", qPrintable(s));
-		} else {
-			break;
-		}
-		
-		op = cntr->Next(prop, op);
-		mtl_trace("Next: %s", ndff::ops(op));
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %s", ndff::ops(op));
 }
 
 void OfficeDocumentStyles::Init(ods::Tag *tag)
@@ -258,15 +202,6 @@ void OfficeDocumentStyles::WriteData(QXmlStreamWriter &xml)
 	
 	if (office_master_styles_)
 		office_master_styles_->Write(xml);
-}
-
-void OfficeDocumentStyles::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba);
-	WriteTag(kw, *ba);
-	mtl_trace("office_version: %s", qPrintable(office_version_));
-	WriteNdffProp(kw, *ba, ns_->office(), ns::kVersion, office_version_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

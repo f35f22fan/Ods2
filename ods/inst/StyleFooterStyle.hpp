@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API StyleFooterStyle : public Abstract
 {
 public:
-	StyleFooterStyle(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
+	StyleFooterStyle(Abstract *parent, ods::Tag *tag = 0);
 	StyleFooterStyle(const StyleFooterStyle &cloner);
 	virtual ~StyleFooterStyle();
 	
@@ -21,7 +21,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
 };

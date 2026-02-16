@@ -8,20 +8,15 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-ManifestManifest::ManifestManifest(ods::Book *book, Ns *ns, Tag *tag, ndff::Container *cntr)
+ManifestManifest::ManifestManifest(ods::Book *book, Ns *ns, Tag *tag)
 : Abstract(nullptr, ns, id::ManifestManifest)
 {
 	book_ = book;
 	book_->manifest_ = this;
 	
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -66,44 +61,6 @@ ManifestManifest::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
-}
-
-void ManifestManifest::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	Op op = cntr->Next(prop, Op::None);
-	NdffAttrs attrs;
-	op = cntr->Next(prop, op, &attrs);
-	CopyAttr(attrs, ns_->manifest(), ns::kVersion, manifest_version_);
-	mtl_info("manifest_version_: %s", qPrintable(manifest_version_));
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->manifest()))
-			{
-				if (prop.name == ns::kFileEntry) {
-					auto *p = new inst::ManifestFileEntry(this, 0, cntr);
-					file_entries_.append(p);
-				}
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void ManifestManifest::Init(Tag *tag)
@@ -182,15 +139,6 @@ void ManifestManifest::WriteData(QXmlStreamWriter &xml)
 		fe->Write(xml);
 	}
 	WriteNodes(xml);
-}
-
-void ManifestManifest::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	//mtl_info("manifest_version_: %s", qPrintable(manifest_version_));
-	WriteNdffProp(kw, *ba, ns_->manifest(), ods::ns::kVersion, manifest_version_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

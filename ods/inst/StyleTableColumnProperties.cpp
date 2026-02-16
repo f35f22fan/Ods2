@@ -6,17 +6,12 @@
 #include "../Tag.hpp"
 #include "../attr/VisualBreak.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
 StyleTableColumnProperties::StyleTableColumnProperties(Abstract *parent,
-ods::Tag *tag, ndff::Container *cntr) : Abstract(parent, parent->ns(), ods::id::StyleTableColumnProperties)
+ods::Tag *tag) : Abstract(parent, parent->ns(), ods::id::StyleTableColumnProperties)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -51,31 +46,6 @@ StyleTableColumnProperties::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
-}
-
-void StyleTableColumnProperties::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	
-	QString input_str;
-	{
-		CopyAttr(attrs, ns_->fo(), ns::kBreakBefore, input_str);
-		visual_break_ = attr::VisualBreak::FromString(input_str);
-		
-		if (!visual_break_) {
-			input_str.clear();
-			CopyAttr(attrs, ns_->fo(), ns::kBreakAfter, input_str);
-			visual_break_ = attr::VisualBreak::FromString(input_str);
-		}
-		input_str.clear();
-	}
-	
-	CopyAttr(attrs, ns_->style(), ns::kColumnWidth, input_str);
-	style_column_width_ = Length::FromString(input_str);
-	ReadStrings(cntr, op);
 }
 
 void StyleTableColumnProperties::Init(ods::Tag *tag)
@@ -138,25 +108,6 @@ StyleTableColumnProperties::WriteData(QXmlStreamWriter &xml)
 	}
 	
 	WriteNodes(xml);
-}
-
-void StyleTableColumnProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	
-	if (visual_break_) {
-		cauto name = visual_break_->before() ? ns::kBreakBefore : ns::kBreakAfter;
-		WriteNdffProp(kw, *ba, ns_->fo(), name, visual_break_->toString());
-	}
-	
-	if (style_column_width_)
-	{
-		WriteNdffProp(kw, *ba, ns_->style(), ns::kColumnWidth,
-			style_column_width_->toString());
-	}
-	
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

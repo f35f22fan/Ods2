@@ -3,12 +3,10 @@
 
 namespace ods::inst {
 
-NumberTextContent::NumberTextContent(Abstract *parent, Tag *tag, ndff::Container *cntr)
+NumberTextContent::NumberTextContent(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::NumberTextContent)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API OfficeMasterStyles : public Abstract
 {
 public:
-	OfficeMasterStyles(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	OfficeMasterStyles(Abstract *parent, Tag *tag = 0);
 	OfficeMasterStyles(const OfficeMasterStyles &cloner);
 	virtual ~OfficeMasterStyles();
 	
@@ -21,7 +21,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 
 private:
-	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	void Scan(Tag *tag);
 };

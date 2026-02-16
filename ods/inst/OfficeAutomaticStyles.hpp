@@ -9,8 +9,7 @@ namespace ods::inst {
 class ODS_API OfficeAutomaticStyles : public Abstract
 {
 public:
-	OfficeAutomaticStyles(Abstract *parent, ods::Tag *tag = 0,
-		ndff::Container *cntr = 0);
+	OfficeAutomaticStyles(Abstract *parent, ods::Tag *tag = 0);
 	OfficeAutomaticStyles(const OfficeAutomaticStyles &cloner);
 	virtual ~OfficeAutomaticStyles();
 	
@@ -45,7 +44,6 @@ public:
 	
 private:
 	
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
 };

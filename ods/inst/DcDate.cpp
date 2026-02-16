@@ -6,12 +6,10 @@
 
 namespace ods::inst {
 
-DcDate::DcDate(Abstract *parent, Tag *tag, ndff::Container *cntr)
+DcDate::DcDate(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::DcDate)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

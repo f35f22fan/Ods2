@@ -27,12 +27,10 @@
 
 namespace ods::inst {
 
-StyleStyle::StyleStyle(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
+StyleStyle::StyleStyle(Abstract *parent, ods::Tag *tag)
 : Abstract (parent, parent->ns(), id::StyleStyle)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -231,63 +229,6 @@ StyleStyle::GetTimeStyle() const
 		return (inst::NumberTimeStyle*) ds;
 	
 	return nullptr;
-}
-
-void StyleStyle::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->style(), ns::kDataStyleName, style_data_style_name_);
-	QString style_family;
-	CopyAttr(attrs, ns_->style(), ns::kFamily, style_family);
-	style_family_ = style::FamilyFromString(style_family);
-	CopyAttr(attrs, ns_->style(), ns::kMasterPageName, style_master_page_name_);
-	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
-	CopyAttr(attrs, ns_->style(), ns::kParentStyleName, style_parent_style_name_);
-	CopyAttr(attrs, ns_->style(), ns::kDisplayName, style_display_name_);
-	if (op == Op::N32_TE)
-		return;
-	
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->style()))
-			{
-				if (prop.name == ns::kTableColumnProperties) {
-					Append(new StyleTableColumnProperties(this, 0, cntr), TakeOwnership::Yes);
-				} else if (prop.name == ns::kTextProperties) {
-					Append(new StyleTextProperties(this, 0, cntr), TakeOwnership::Yes);
-				} else if (prop.name == ns::kTableCellProperties) {
-					Append(new StyleTableCellProperties(this, 0, cntr), TakeOwnership::Yes);
-				} else if (prop.name == ns::kTableProperties) {
-					Append(new StyleTableProperties(this, 0, cntr), TakeOwnership::Yes);
-				} else if (prop.name == ns::kTableRowProperties) {
-					Append(new StyleTableRowProperties(this, 0, cntr), TakeOwnership::Yes);
-				} else if (prop.name == ns::kParagraphProperties) {
-					Append(new StyleParagraphProperties(this, 0, cntr), TakeOwnership::Yes);
-				} else {
-					mtl_trace();
-				}
-			} else {
-				mtl_trace();
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void StyleStyle::Init(ods::Tag *tag)
@@ -576,26 +517,6 @@ void StyleStyle::WriteData(QXmlStreamWriter &xml)
 	Write(xml, ns_->style(), ns::kDisplayName, style_display_name_);
 	
 	WriteNodes(xml);
-}
-
-void StyleStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kDataStyleName, style_data_style_name_);
-	
-	if (style_family_ != style::Family::None)
-	{
-		auto str = style::FamilyToString(style_family_);
-		WriteNdffProp(kw, *ba, ns_->style(), ns::kFamily, str);
-	}
-	
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kMasterPageName, style_master_page_name_);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kParentStyleName, style_parent_style_name_);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kDisplayName, style_display_name_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

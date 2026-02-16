@@ -14,17 +14,12 @@
 #include "inst/TableTableColumn.hpp"
 #include "inst/TableNamedExpressions.hpp"
 
-#include "ndff/Container.hpp"
-#include "ndff/Property.hpp"
-
 namespace ods {
 
-Sheet::Sheet(ods::inst::Abstract *parent, Tag *tag, ndff::Container *cntr) :
+Sheet::Sheet(ods::inst::Abstract *parent, Tag *tag) :
 	Abstract(parent, parent->ns(), id::TableTable)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 	CountColumns();
 }
@@ -228,46 +223,6 @@ Sheet::GetRow(cint place)
 	}
 	
 	return nullptr;
-}
-
-void Sheet::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->table(), ns::kName, table_name_);
-	CopyAttr(attrs, ns_->table(), ns::kStyleName, table_style_name_);
-
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->table()))
-			{
-				if (prop.name == ns::kTableRow)
-					rows_.append(new ods::Row(this, 0, cntr));
-				else if (prop.name == ns::kTableColumn)
-					columns_.append(new inst::TableTableColumn(this, 0, cntr));
-				else if (prop.name == ns::kNamedExpressions)
-					named_expressions_ = new inst::TableNamedExpressions(this, 0, cntr);
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void Sheet::Init(ods::Tag *tag)
@@ -525,15 +480,6 @@ void Sheet::WriteData(QXmlStreamWriter &xml)
 	
 	if (named_expressions_)
 		named_expressions_->Write(xml);
-}
-
-void Sheet::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->table(), ns::kName, table_name_);
-	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::

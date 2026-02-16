@@ -9,17 +9,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-OfficeSpreadsheet::OfficeSpreadsheet(Abstract *parent, Tag *tag, ndff::Container *cntr)
+OfficeSpreadsheet::OfficeSpreadsheet(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::OfficeSpreadsheet)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -88,46 +83,6 @@ OfficeSpreadsheet::GetSheet(QStringView name) const
 	}
 	
 	return nullptr;
-}
-
-void OfficeSpreadsheet::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	Op op = cntr->Next(prop, Op::TS);
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->table()))
-			{
-				if (prop.name == ns::kTable)
-					tables_.append(new ods::Sheet(this, 0, cntr));
-				else if (prop.name == ns::kCalculationSettings)
-					table_calculation_settings_ = new TableCalculationSettings(this, 0, cntr);
-				else if (prop.name == ns::kNamedExpressions) {
-					named_expressions_ = new TableNamedExpressions(this, 0, cntr);
-					for (TableNamedRange *nr: named_expressions_->named_ranges()) {
-						nr->global(true);
-					}
-				}
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void OfficeSpreadsheet::Init(Tag *tag)

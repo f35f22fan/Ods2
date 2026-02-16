@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API TextSheetName : public Abstract
 {
 public:
-	TextSheetName(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	TextSheetName(Abstract *parent, Tag *tag = 0);
 	TextSheetName(const TextSheetName &cloner);
 	virtual ~TextSheetName();
 	
@@ -21,7 +21,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
-	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 };
 

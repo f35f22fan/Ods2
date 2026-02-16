@@ -6,12 +6,10 @@
 
 namespace ods::inst {
 
-MetaEditingCycles::MetaEditingCycles(Abstract *parent, Tag *tag, ndff::Container *cntr)
+MetaEditingCycles::MetaEditingCycles(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::MetaEditingCycles)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

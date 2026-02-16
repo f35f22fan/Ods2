@@ -6,12 +6,10 @@
 
 namespace ods::inst {
 
-MetaCreationDate::MetaCreationDate(Abstract *parent, Tag *tag, ndff::Container *cntr)
+MetaCreationDate::MetaCreationDate(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::MetaCreationDate)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

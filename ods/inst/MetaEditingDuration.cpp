@@ -6,12 +6,10 @@
 
 namespace ods::inst {
 
-MetaEditingDuration::MetaEditingDuration(Abstract *parent, Tag *tag, ndff::Container *cntr)
+MetaEditingDuration::MetaEditingDuration(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::MetaEditingDuration)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

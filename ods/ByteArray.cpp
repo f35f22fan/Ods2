@@ -160,57 +160,8 @@ void ByteArray::add_string(QStringView s, const Pack p)
 		ci32 size = ba.size();
 		add(reinterpret_cast<const char*>(&size), sizeof size);
 		add(ba.data(), size);
-	} else if (p == Pack::NDFF) {
-		auto str_ba = s.toUtf8();
-		ci64 size = str_ba.size();
-		add_str_size(size);
-		add(str_ba.data(), size, ExactSize::Yes);
 	} else {
 		mtl_trace();
-	}
-}
-
-void ByteArray::add_str_size(cu64 n)
-{
-	// ndff::OP must be in the first byte
-	if (n <= (0xFFu >> 4)) {
-		add_u8((u8(n) << 4) | ndff::Op::S8);
-	} else if (n <= (0xFFFFu >> 4)) {
-		add_u16((u16(n) << 4) | u16(ndff::Op::S16));
-	} else if (n <= (0xFFFFFFFFu >> 4)) {
-		add_u32((u32(n) << 4) | u32(ndff::Op::S32_PS));
-	} else {
-		add_u64((n << 4) | u64(ndff::Op::S64));
-	}
-}
-
-void ByteArray::add_inum(ci64 n)
-{ // ndff::OP must be in the first byte
-	cint leave_3_bits = 5;
-	if (n < (0xFF >> leave_3_bits)) {
-		add_i8((i8(n) << 4) | ndff::Op::N8);
-	} else if (n < (0xFFFF >> leave_3_bits)) {
-		add_i16((i16(n) << 4) | i16(ndff::Op::N16));
-	} else if (n < (0xFFFFFFFF >> leave_3_bits)) {
-		add_i32((i32(n) << 4) | i32(ndff::Op::N32_TE));
-	} else {
-		add_u8(ndff::Op::N64);
-		add_i64(n);
-	}
-}
-
-void ByteArray::add_unum(cu64 n)
-{ // ndff::OP must be in the first byte
-	if (n <= (0xFFu >> 4)) {
-		add_u8((u8(n) << 4) | ndff::Op::N8);
-	} else if (n <= (0xFFFFu >> 4)) {
-		add_u16((u16(n) << 4) | u16(ndff::Op::N16));
-	} else if (n <= (0xFFFFFFFFu >> 4)) {
-		add_u32((u32(n) << 4) | u32(ndff::Op::N32_TE));
-	} else {
-		//mtl_info("==========UNUM: %lu", n);
-		add_u8(ndff::Op::N64);
-		add_u64(n);
 	}
 }
 
@@ -281,62 +232,6 @@ bool ByteArray::DumpToTerminal(QStringView full_path)
 	printf("\n");
 	
 	return true;
-}
-
-i64 ByteArray::next_inum()
-{
-	cu8 bits = next_u8() & 0x0F;
-	skip(-1);
-	if (bits == ndff::Op::N8) {
-		return next_i8() >> 4;
-	} else if (bits == ndff::Op::N16) {
-		return next_i16() >> 4;
-	} else if (bits == ndff::Op::N32_TE) {
-		return next_i32() >> 4;
-	} else if (bits == ndff::Op::N64) {
-		skip(1); // because it's not inline
-		return next_i64();
-	}
-	
-	mtl_warn();
-	return -1;
-}
-
-u64 ByteArray::next_str_size()
-{
-	cu8 bits = next_u8() & 0x0Fu;
-	skip(-1);
-	if (bits == ndff::Op::S8) {
-		return next_u8() >> 4;
-	} else if (bits == ndff::Op::S16) {
-		return next_u16() >> 4;
-	} else if (bits == ndff::Op::S32_PS) {
-		return next_u32() >> 4;
-	} else if (bits == ndff::Op::S64) {
-		return next_u64() >> 4;
-	} else {
-		mtl_warn();
-		return -1;
-	}
-}
-
-u64 ByteArray::next_unum()
-{
-	cu8 bits = next_u8() & 0x0F;
-	skip(-1);
-	if (bits == ndff::Op::N8) {
-		return next_u8() >> 4;
-	} else if (bits == ndff::Op::N16) {
-		return next_u16() >> 4;
-	} else if (bits == ndff::Op::N32_TE) {
-		return next_u32() >> 4;
-	} else if (bits == ndff::Op::N64) {
-		skip(1); // because it's not inline
-		return next_u64();
-	} else {
-		mtl_warn();
-		return 0;
-	}
 }
 
 void ByteArray::alloc(const isize n)
@@ -463,11 +358,8 @@ QString ByteArray::next_string(const Pack p)
 		return s;
 	}
 	
-	cu64 len = next_str_size();
-	auto s = QString::fromUtf8(data_ + at_, len);
-	at_ += len;
-	
-	return s;
+	mtl_trace();
+	return QString();
 }
 
 void ByteArray::SetUtf8(QStringView s, const ods::Clear c)

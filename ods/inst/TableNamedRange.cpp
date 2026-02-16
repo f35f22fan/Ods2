@@ -9,17 +9,12 @@
 #include "../ods.hh"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-TableNamedRange::TableNamedRange(Abstract *parent, Tag *tag, ndff::Container *cntr)
+TableNamedRange::TableNamedRange(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TableNamedRange)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -79,17 +74,6 @@ TableNamedRange::GetSheet()
 	return sheet_;
 }
 
-void TableNamedRange::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->style(), ns::kBaseCellAddress, table_base_cell_address_);
-	CopyAttr(attrs, ns_->text(), ns::kCellRangeAddress, table_cell_range_address_);
-	ReadStrings(cntr, op);
-}
-
 void TableNamedRange::Init(Tag *tag)
 {
 	tag->Copy(ns_->table(), ns::kName, name_);
@@ -117,16 +101,6 @@ void TableNamedRange::WriteData(QXmlStreamWriter &xml)
 	Write(xml, ns_->table(), ns::kBaseCellAddress, table_base_cell_address_);
 	Write(xml, ns_->table(), ns::kCellRangeAddress, table_cell_range_address_);
 	WriteNodes(xml);
-}
-
-void TableNamedRange::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba);
-	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->table(), ns::kName, name_);
-	WriteNdffProp(kw, *ba, ns_->table(), ns::kBaseCellAddress, table_base_cell_address_);
-	WriteNdffProp(kw, *ba, ns_->table(), ns::kCellRangeAddress, table_cell_range_address_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

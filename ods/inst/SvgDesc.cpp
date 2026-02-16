@@ -3,17 +3,13 @@
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../Tag.hpp"
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
 
 namespace ods::inst {
 
-SvgDesc::SvgDesc(Abstract *parent, Tag * tag, ndff::Container *cntr)
+SvgDesc::SvgDesc(Abstract *parent, Tag * tag)
 : Abstract (parent, parent->ns(), id::SvgDesc)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -44,44 +40,6 @@ SvgDesc::GetFirstString() const
 	}
 	
 	return nullptr;
-}
-
-void SvgDesc::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	//QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS);
-//	CopyAttr(attrs, ns_->xlink(), ns::kHref, xlink_href_);
-//	CopyAttr(attrs, ns_->xlink(), ns::kType, xlink_type_);
-//	CopyAttr(attrs, ns_->xlink(), ns::kShow, xlink_show_);
-//	CopyAttr(attrs, ns_->xlink(), ns::kActuate, xlink_actuate_);
-	
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-//			if (prop.is(ns_->table()))
-//			{
-//				if (prop.name == ns::kNamedRange)
-//					Append(new inst::TableNamedRange(this, 0, cntr), TakeOwnership::Yes);
-//			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void SvgDesc::Init(ods::Tag *tag)

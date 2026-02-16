@@ -26,7 +26,6 @@ set(hh_files
 	functions.hh
 	id.hh
 	io.hh
-	ndff/ndff.hh
 	ods.hh
 	op.hh
 	style.hh
@@ -66,10 +65,6 @@ set(lib_files
 	lang.hxx
 	Length.cpp Length.hpp
 	LineStyle.cpp LineStyle.hpp line.hxx
-	ndff/Container.cpp ndff/Container.hpp
-	ndff/FileEntryInfo.cpp ndff/FileEntryInfo.hpp
-	ndff/ndff.cc
-	ndff/Property.cpp ndff/Property.hpp
 	Ns.cpp Ns.hpp ns.hxx
 	ods ods.cc ods.hxx
 	op.cc

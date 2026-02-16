@@ -11,7 +11,7 @@ namespace ods::inst {
 class ODS_API OfficeDocumentMeta : public Abstract
 {
 public:
-	OfficeDocumentMeta(ods::Book *book, ods::Ns *ns, Tag *tag = 0, ndff::Container *cntr = 0);
+	OfficeDocumentMeta(ods::Book *book, ods::Ns *ns, Tag *tag = 0);
 	OfficeDocumentMeta(const OfficeDocumentMeta &cloner);
 	virtual ~OfficeDocumentMeta();
 	
@@ -22,10 +22,8 @@ public:
 	void ListUsedNamespaces(NsHash &list) override;
 	bool Save(const QString &dir_path);
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void Scan(ods::Tag *tag);

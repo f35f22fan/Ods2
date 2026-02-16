@@ -12,17 +12,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-NumberDateStyle::NumberDateStyle(Abstract *parent, Tag *tag, ndff::Container *cntr) :
+NumberDateStyle::NumberDateStyle(Abstract *parent, Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberDateStyle)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -48,57 +43,6 @@ NumberDateStyle::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this, ClonePart::Text);
 	
 	return p;
-}
-
-void NumberDateStyle::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->number(), ns::kAutomaticOrder, number_automatic_order_);
-	CopyAttr(attrs, ns_->number(), ns::kCountry, number_country_);
-	CopyAttr(attrs, ns_->number(), ns::kLanguage, number_language_);
-	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
-	
-	if (op == Op::N32_TE)
-		return;
-	
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->number()))
-			{
-				if (prop.name == ns::kDay) {
-					Append(new NumberDay(this, 0, cntr), TakeOwnership::Yes);
-				} else if (prop.name == ns::kHours)
-					Append(new NumberHours(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kMinutes)
-					Append(new NumberMinutes(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kMonth)
-					Append(new NumberMonth(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kSeconds)
-					Append(new NumberSeconds(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kText) {
-					Append(new NumberText(this, 0, cntr), TakeOwnership::Yes);
-				} else if (prop.name == ns::kYear)
-					Append(new NumberYear(this, 0, cntr), TakeOwnership::Yes);
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void NumberDateStyle::Init(ods::Tag *tag)
@@ -220,17 +164,6 @@ void NumberDateStyle::WriteData(QXmlStreamWriter &xml)
 	Write(xml, ns_->style(), ns::kName, style_name_);
 	
 	WriteNodes(xml);
-}
-
-void NumberDateStyle::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->number(), ns::kAutomaticOrder, number_automatic_order_);
-	WriteNdffProp(kw, *ba, ns_->number(), ns::kCountry, number_country_);
-	WriteNdffProp(kw, *ba, ns_->number(), ns::kLanguage, number_language_);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

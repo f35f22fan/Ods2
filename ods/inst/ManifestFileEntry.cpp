@@ -4,17 +4,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-ManifestFileEntry::ManifestFileEntry(Abstract *parent, Tag *tag, ndff::Container *cntr)
+ManifestFileEntry::ManifestFileEntry(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::ManifestFileEntry)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -37,18 +32,6 @@ ManifestFileEntry::Clone(Abstract *parent) const
 	p->manifest_version_ = manifest_version_;
 	
 	return p;
-}
-
-void ManifestFileEntry::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->manifest(), ns::kFullPath, manifest_full_path_);
-	CopyAttr(attrs, ns_->manifest(), ns::kMediaType, manifest_media_type_);
-	CopyAttr(attrs, ns_->manifest(), ns::kVersion, manifest_version_);
-	ReadStrings(cntr, op);
 }
 
 void ManifestFileEntry::Init(Tag *tag)
@@ -74,16 +57,6 @@ void ManifestFileEntry::WriteData(QXmlStreamWriter &xml)
 	Write(xml, ns_->manifest(), ns::kFullPath, manifest_full_path_);
 	Write(xml, ns_->manifest(), ns::kMediaType, manifest_media_type_);
 	Write(xml, ns_->manifest(), ns::kVersion, manifest_version_);
-}
-
-void ManifestFileEntry::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->manifest(), ns::kFullPath, manifest_full_path_);
-	WriteNdffProp(kw, *ba, ns_->manifest(), ns::kMediaType, manifest_media_type_);
-	WriteNdffProp(kw, *ba, ns_->manifest(), ns::kVersion, manifest_version_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

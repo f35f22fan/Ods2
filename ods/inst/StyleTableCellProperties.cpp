@@ -6,18 +6,13 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 #include "../VAlign.hpp"
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
 
 namespace ods::inst {
 
-StyleTableCellProperties::StyleTableCellProperties(Abstract *parent, Tag *tag,
-	ndff::Container *cntr)
+StyleTableCellProperties::StyleTableCellProperties(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::StyleTableCellProperties)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -121,44 +116,6 @@ Abstract* StyleTableCellProperties::Clone(Abstract *parent) const
 		p->style_vertical_align_ = style_vertical_align_->Clone();
 	
 	return p;
-}
-
-void StyleTableCellProperties::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	NdffAttrs attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	QString str;
-	CopyAttr(attrs, ns_->fo(), ns::kBackgroundColor, str);
-	fo_background_color_ = Color::FromString(str);
-	
-	CopyAttr(attrs, ns_->style(), ns::kDiagonalBlTr, style_diagonal_bl_tr_);
-	CopyAttr(attrs, ns_->style(), ns::kDiagonalTlBr, style_diagonal_tl_br_);
-	
-	CopyAttr(attrs, ns_->fo(), ns::kBorder, str);
-	fo_border_ = ods::attr::Border::FromString(str);
-	
-	CopyAttr(attrs, ns_->fo(), ns::kBorderLeft, str);
-	fo_border_left_ = ods::attr::Border::FromString(str);
-	
-	CopyAttr(attrs, ns_->fo(), ns::kBorderTop, str);
-	fo_border_top_ = ods::attr::Border::FromString(str);
-	
-	CopyAttr(attrs, ns_->fo(), ns::kBorderRight, str);
-	fo_border_right_ = ods::attr::Border::FromString(str);
-	
-	CopyAttr(attrs, ns_->fo(), ns::kBorderBottom, str);
-	fo_border_bottom_ = ods::attr::Border::FromString(str);
-	
-	CopyAttr(attrs, ns_->style(), ns::kBorderLineWidth, str);
-	style_border_line_width_ = ods::attr::StyleBorderLineWidth::FromString(str);
-	
-	CopyAttr(attrs, ns_->fo(), ns::kWrapOption, fo_wrap_option_);
-	CopyAttr(attrs, ns_->style(), ns::kVerticalAlign, str);
-	style_vertical_align_ = VAlign::FromString(str);
-	
-	ReadStrings(cntr, op);
 }
 
 void StyleTableCellProperties::Init(ods::Tag *tag)
@@ -293,50 +250,6 @@ void StyleTableCellProperties::WriteData(QXmlStreamWriter &xml)
 	Write(xml, ns_->fo(), ns::kWrapOption, fo_wrap_option_);
 	
 	WriteNodes(xml);
-}
-
-void StyleTableCellProperties::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	if (fo_background_color_.any())
-	{
-		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBackgroundColor,
-			fo_background_color_.toString());
-	}
-	
-	if (style_vertical_align_ != nullptr)
-	{
-		WriteNdffProp(kw, *ba, ns_->style(), ns::kVerticalAlign,
-			style_vertical_align_->toString());
-	}
-	
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kDiagonalBlTr, style_diagonal_bl_tr_);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kDiagonalTlBr, style_diagonal_tl_br_);
-	
-	if (fo_border_ != nullptr)
-		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorder, fo_border_->toString());
-	
-	if (fo_border_left_ != nullptr)
-		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorderLeft, fo_border_left_->toString());
-	
-	if (fo_border_top_ != nullptr)
-		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorderTop, fo_border_top_->toString());
-	
-	if (fo_border_right_ != nullptr)
-		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorderRight, fo_border_right_->toString());
-	
-	if (fo_border_bottom_ != nullptr)
-		WriteNdffProp(kw, *ba, ns_->fo(), ns::kBorderBottom, fo_border_bottom_->toString());
-	
-	if (style_border_line_width_ != nullptr)
-	{
-		WriteNdffProp(kw, *ba, ns_->style(), ns::kBorderLineWidth,
-			style_border_line_width_->toString());
-	}
-	
-	WriteNdffProp(kw, *ba, ns_->fo(), ns::kWrapOption, fo_wrap_option_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

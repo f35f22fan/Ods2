@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API MetaCreationDate : public Abstract
 {
 public:
-	MetaCreationDate(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	MetaCreationDate(Abstract *parent, Tag *tag = 0);
 	MetaCreationDate(const MetaCreationDate &cloner);
 	virtual ~MetaCreationDate();
 	

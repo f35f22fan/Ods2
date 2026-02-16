@@ -8,8 +8,6 @@
 #include "../Book.hpp"
 #include "../ByteArray.hpp"
 #include "../filename.hxx"
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
 #include "../Ns.hpp"
 #include "../ns.hxx"
 #include "../ods.hh"
@@ -19,15 +17,13 @@
 namespace ods::inst {
 
 OfficeDocumentContent::OfficeDocumentContent
-(ods::Book *book, ods::Ns *ns, ods::Tag *tag, ndff::Container *cntr)
+(ods::Book *book, ods::Ns *ns, ods::Tag *tag)
 : Abstract(nullptr, ns, id::OfficeDocumentContent)
 {
 	book_ = book;
 	book_->document_content_ = this;
 	
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -89,61 +85,6 @@ void OfficeDocumentContent::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->office(), ns::kVersion, office_version_);
 	Scan(tag);
-}
-
-void OfficeDocumentContent::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	Op op = cntr->Next(prop, Op::None);
-	mtl_info("First OP: %s", ndff::ops(op));
-	NdffAttrs attrs;
-	op = cntr->Next(prop, op, &attrs);
-	mtl_info("OP after attrs: %s", ndff::ops(op));
-	CopyAttr(attrs, ns_->office(), ns::kVersion, office_version_);
-	mtl_info("office_version_: %s", qPrintable(office_version_));
-	if (op == Op::N32_TE)
-	{
-		mtl_trace("op %s", ndff::ops(op));
-		return;
-	}
-	
-	if (op == Op::TCF_CMS)
-	{
-		op = cntr->Next(prop, op);
-		mtl_trace("op %s (After TCF)", ndff::ops(op));
-	}
-	
-	while (true)
-	{
-		mtl_trace("op %s", ndff::ops(op));
-		if (op == Op::TS)
-		{
-			mtl_trace();
-			if (prop.is(ns_->office()))
-			{
-				//mtl_trace("prop.name: %s", qPrintable(prop.name));
-				if (prop.name == ns::kScripts) {
-					office_scripts_ = new OfficeScripts(this, 0, cntr);
-				} else if (prop.name == ns::kFontFaceDecls) {
-					office_font_face_decls_ = new OfficeFontFaceDecls(this, 0, cntr);
-				} else if (prop.name == ns::kAutomaticStyles) {
-					office_automatic_styles_ = new OfficeAutomaticStyles(this, 0, cntr);
-				} else if (prop.name == ns::kBody) {
-					office_body_ = new OfficeBody(this, 0, cntr);
-				}
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %s", ndff::ops(op));
 }
 
 void OfficeDocumentContent::InitDefault()
@@ -244,14 +185,6 @@ void OfficeDocumentContent::WriteData(QXmlStreamWriter &xml)
 	
 	if (office_body_)
 		office_body_->Write(xml);
-}
-
-void OfficeDocumentContent::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->office(), ns::kVersion, office_version_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

@@ -18,7 +18,7 @@ namespace ods { // ods::
 class ODS_API Cell : public inst::Abstract
 {
 public:
-	Cell(ods::Row *parent, Tag *cell_tag, ndff::Container *cntr = 0);
+	Cell(ods::Row *parent, Tag *cell_tag);
 	Cell(ods::Row *parent);
 	Cell(const Cell &cloner);
 	virtual ~Cell();
@@ -105,7 +105,6 @@ public:
 		inst::TableTableColumn *table_column = nullptr) const;
 	
 	int QueryStart() const;
-	void ReadValue(ods::Tag *tag, NdffAttrs *ndff_attrs);
 	ods::Row* row() const { return row_; }
 	void SetBoolean(const bool flag);
 	void SetBooleanFromString(QStringView s);
@@ -142,16 +141,15 @@ public:
 	ods::ValueType value_type() const { return office_value_type_; }
 	void value_type_set(const ods::ValueType kType) { office_value_type_ = kType; }
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void* CloneValue() const;
 	void delete_region(const DeleteRegion &dr) { delete_region_ = dr; }
 	const DeleteRegion& delete_region() const { return delete_region_; }
-	void Init(ndff::Container *cntr);
+	QString GetAttr(ods::Tag *tag, Prefix *prefix, QStringView key);
 	void Init(ods::Tag *tag);
+	void ReadValue(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
-	QString GetAttr(ods::Tag *tag, NdffAttrs *attrs, Prefix *prefix, QStringView key);
 	bool selected() const { return bits_ & SelectedBit; }
 	
 	void selected(const bool do_set) {
@@ -164,7 +162,6 @@ private:
 	void Set(const QString &stype, const QString &value);
 	QString ToSchemaString() const;
 	void WriteValue(QXmlStreamWriter &xml);
-	void WriteValueNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba);
 	
 	ods::Row *row_ = nullptr;
 	void *value_data_ = nullptr;

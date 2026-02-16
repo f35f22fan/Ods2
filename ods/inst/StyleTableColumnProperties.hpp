@@ -10,8 +10,7 @@ namespace ods::inst {
 class ODS_API StyleTableColumnProperties : public Abstract
 {
 public:
-	StyleTableColumnProperties(Abstract *parent, ods::Tag *tag = 0,
-		ndff::Container *cntr = 0);
+	StyleTableColumnProperties(Abstract *parent, ods::Tag *tag = 0);
 	StyleTableColumnProperties(const StyleTableColumnProperties &cloner);
 	virtual ~StyleTableColumnProperties();
 	
@@ -27,10 +26,7 @@ public:
 	void ListUsedNamespaces(NsHash &list) override;
 	void SetColumnWidth(Length *length);
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	attr::VisualBreak *visual_break_ = nullptr;

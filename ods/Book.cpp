@@ -4,7 +4,6 @@
 #include "ByteArray.hpp"
 #include "filename.hxx"
 #include "io.hh"
-#include "ndff/FileEntryInfo.hpp"
 #include "Ns.hpp"
 #include "ns.hxx"
 #include "ods.hh"
@@ -26,9 +25,6 @@
 #include <QSaveFile>
 #include <QScreen>
 #include <QXmlStreamWriter>
-//#include <quazip/JlCompress.h>
-//#include <QtCore/private/qzipwriter_p.h>
-// #include <QtCore/private/qzipreader_p.h>
 #include "zip.hh"
 
 namespace ods {
@@ -64,39 +60,6 @@ Book::~Book()
 	named_ranges_ = nullptr;
 }
 
-bool Book::CreateMimetypeFei(ByteArray &buffer, ndff::FileEntryInfo &fei,
-	ci64 record_fei_loc)
-{
-	const char *s = "application/vnd.oasis.opendocument.spreadsheet";
-	fei.file_data().add(s, strlen(s) + 1, ExactSize::Yes);
-	
-	fei.self_loc(buffer.at());
-	fei.SetRegularFile(filename::MimeType);
-	fei.SetTimesToNow();
-	fei.WriteTo(buffer);
-	
-	if (record_fei_loc >= 0)
-		buffer.set_i64(record_fei_loc, fei.self_loc());
-	
-	return true;
-}
-
-i64 Book::CreateFeiTable(ByteArray &output, cu32 how_many,
-	ci64 record_result_loc)
-{
-	ci64 table_addr = output.at();
-	for (u32 i = 0; i < how_many; i++)
-	{
-		output.add_i64(ndff::ReservedFeiTableValue);
-	}
-	
-	output.add_i64(ndff::EndOfFeiTable);
-	if (record_result_loc != -1)
-		output.set_i64(record_result_loc, table_addr);
-	
-	return table_addr;
-}
-
 i32 Book::sheet_count() const
 {
 	auto *sp = spreadsheet();
@@ -113,132 +76,6 @@ ods::Sheet* Book::GetSheet(ci32 at)
 {
 	auto *sp = spreadsheet();
 	return sp ? sp->GetSheet(at) : nullptr;
-}
-
-void Book::CreateDictionaryRegion(ByteArray &buffer, inst::Keywords &list)
-{
-	QueryKeywords(list);
-	QVector<StringCount> vec;
-	
-	for (auto it = list.constBegin(); it != list.constEnd(); it++)
-	{
-		QStringView word = it.key();
-		const inst::IdAndCount idc = it.value();
-		StringCount sc;
-		sc.keyword = word.toString();
-		sc.count = idc.count;
-		sc.id = idc.id;
-		vec.append(sc);
-	}
-	
-	std::sort(vec.begin(), vec.end(), SortDictionaryEntries);
-	ByteArray buf;
-	for (StringCount &next: vec)
-	{
-		//mtl_info("Dictionary entry id: %d \"%s\"", next.id, qPrintable(next.keyword));
-		buf.add_inum(next.id);
-		buf.add_string(next.keyword, Pack::NDFF);
-	}
-	
-	const auto compression = Compression::ZSTD;
-	
-	switch (compression) {
-	case Compression::None: {
-		break;
-	};
-	case Compression::ZSTD: {
-		ci64 uncompressed_size = buf.size();
-		MTL_CHECK_VOID(buf.Compress(compression));
-        mtl_info("Compressed buf size: %lld, uncompressed: %lld",
-				 buf.size(), uncompressed_size);
-		//buf.DumpToTerminal();
-		break;
-	};
-	default: {
-		mtl_tbd();
-	};
-	}
-	
-	cu32 block_info = (u32(buf.size()) << 3) | compression;
-	buffer.add_i64(-1); // next block
-	buffer.add_u32(block_info);
-	buffer.add(buf);
-}
-
-void Book::CreateMainHeader(ByteArray &ba)
-{
-	ba.add((const char*)ndff::MagicNumber, 4, ExactSize::Yes);
-	cu8 info = (1 << 7) | 1; // LE
-	ba.add_u8(info);
-//==> Say version 0.1 is the minimum:
-	ba.add_u8(0); // smallest major version
-	ba.add_i16(1); // smallest minor version or -1 if doesn't matter
-//<==
-	ba.add_i64(-1); // namespaces_loc will be set later
-	ba.add_i64(-1); // dictionary_loc will be set later
-	ba.add_i64(-1); // top_files_loc to be set later
-	const char *doc_type = "ods";
-	cu8 doc_type_strlen = strlen(doc_type);
-	ba.add_u8(doc_type_strlen); // string length
-	ba.add(doc_type, doc_type_strlen, ExactSize::Yes); // the string itself
-	
-	{ // free space
-		cu8 free_space = 32;
-		ba.add_u8(free_space);
-		
-		if (free_space > 0)
-			ba.add_zeroes(free_space);
-	}
-
-}
-
-void Book::CreateNamespacesRegion(ByteArray &result, inst::NsHash &h)
-{
-	QueryUsedNamespaces(h, CreateIfNeeded::Yes);
-	auto it = h.constBegin();
-	ByteArray buf;
-	while (it != h.constEnd())
-	{
-		const UriId uri_id = it.key();
-		const QString uri = it.value();
-		it++;
-		buf.add_u16(uri_id);
-		buf.add_string(uri, Pack::NDFF);
-	}
-	
-	ci64 uncompressed_size = buf.size();
-	const auto compression = Compression::ZSTD;
-	switch (compression) {
-	case Compression::None: {
-		break;
-	};
-	case Compression::ZSTD: {
-		MTL_CHECK_VOID(buf.Compress(compression));
-        mtl_info("Compressed buf size: %lld, uncompressed: %lld",
-				 buf.size(), uncompressed_size);
-		//buf.DumpToTerminal();
-		break;
-	};
-	default: {
-		mtl_tbd();
-	};
-	}
-	
-	cu32 info = (u32(buf.size()) << 3) | compression;
-	result.add_u32(info);
-	result.add(buf);
-}
-
-Book* Book::FromNDFF(QStringView full_path)
-{
-	auto *book = Book::New(DevMode::Yes);
-	if (!book->InitNDFF(full_path))
-	{
-		delete book;
-		return 0;
-	}
-	
-	return book;
 }
 
 Book*
@@ -403,7 +240,7 @@ void Book::InitDefault()
 
 void Book::InitTempDir()
 {
-	const bool do_remove = true;
+	cbool do_remove = true;
 	temp_dir_.setAutoRemove(do_remove);
 	
 	if (dev_mode())
@@ -421,37 +258,6 @@ void Book::InitTempDir()
 	}
 }
 
-bool Book::InitNDFF(QStringView full_path)
-{
-	MTL_CHECK(ndff_.Init(this, full_path));
-	auto &ndff_buf = ndff_.buf();
-	{
-		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::ContentXml);
-		MTL_CHECK(ndff_.PrepareFor(fei));
-		document_content_ = new inst::OfficeDocumentContent(this, ndff_.ns(), 0, &ndff_);
-	}
-	{
-		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::StylesXml);
-		MTL_CHECK(ndff_.PrepareFor(fei));
-		document_styles_ = new inst::OfficeDocumentStyles(this, ndff_.ns(), 0, &ndff_);
-	}
-	{
-		ndff::FileEntryInfo *fei = ndff_.GetTopFile(filename::MetaXml);
-		MTL_CHECK(ndff_.PrepareFor(fei));
-		document_meta_ = new inst::OfficeDocumentMeta(this, ndff_.ns(), 0, &ndff_);
-	}
-	{
-		auto *folder = ndff_.GetTopFile(filename::MetaInf);
-		MTL_CHECK(folder);
-		ndff::FileEntryInfo *fei = folder->GetFile(filename::ManifestXml);
-		MTL_CHECK(ndff_.PrepareFor(fei));
-		manifest_ = new inst::ManifestManifest(this, ndff_.ns(), 0, &ndff_);
-	}
-	ndff_.SwitchToMainBuf();
-	
-	return true;
-}
-
 bool Book::Load(QString zip_filepath, QString *err)
 {
 	InitTempDir();
@@ -462,41 +268,14 @@ bool Book::Load(QString zip_filepath, QString *err)
 		return false;
 	}
 	
-	// QZipReader zr(zip_filepath);
-	// mtl_info("Loading from %s", qPrintable(zip_filepath));
-	// if (!zr.extractAll(temp_dir_path_)) {
-	// 	mtl_info("QZipReader error status: %d\n", zr.status());
-	// 	return;
-	// }
-	// for (auto next: zr.fileInfoList()) {
-	// 	auto ba = next.filePath.toLocal8Bit();
-	// 	mtl_info("===FILE: %s", ba.data());
-	// 	extracted_file_paths_.append(next.filePath);
-	// }
-	// mtl_info("QZipReader status=%d, FileOpenError=%d, temp_dir_path_=%s\n",
-	// 	zr.status(), QZipReader::Status::FileOpenError, qPrintable(temp_dir_path_));
-	
-	// mtl_info("zip_filepath=\"%s\", temp_dir_path=\"%s\"", qPrintable(zip_filepath),
-	// 	qPrintable(temp_dir_path_));
-    // QFile input(zip_filepath);
-    // QuaZip qz(&input);
-    // qz.setZip64Enabled(true);
-    // extracted_file_paths_ = JlCompress::extractDir(qz, temp_dir_path_);
-	
 	QString error_str;
 	extracted_file_paths_ = ods::zip::ExtractFiles(zip_filepath, temp_dir_path_, &error_str);
 	if (!error_str.isEmpty()) {
-        mtl_warn("%s", qPrintable(error_str));
+		mtl_warn("%s", qPrintable(error_str));
 		if (err)
 			*err = error_str;
 		return false;
 	}
-	//mtl_info("Count: %d", extracted_file_paths_.size());
-	
-	// for (int i = 0; i < extracted_file_paths_.size(); i++) {
-	// 	const auto path = extracted_file_paths_[i];
-	// 	mtl_info("path: %s", qPrintable(path));
-	// }
 	
 	if (extracted_file_paths_.isEmpty()) {
 		if (err != nullptr)
@@ -830,21 +609,6 @@ bool Book::Save(const QFile &target, QString *err)
 	QString zip_filepath = QFileInfo(target).absoluteFilePath();
 	MTL_CHECK(ods::zip::CompressDir(temp_dir_path_, zip_filepath, err));
 	
-	// if (!JlCompress::compressDir(zip_filepath, temp_dir_path_, true)) {
-	// 	mtl_warn("Failed to compress .ods file to %s", qPrintable(zip_filepath));
-	// 	return false;
-	// }
-	
-	if (ndff_enabled())
-	{
-		auto ms = timer.elapsed();
-		mtl_info("SaveToODS() took %lld ms", ms);
-		timer.restart();
-		ndff_path_ = zip_filepath + QLatin1String(".ndff");
-		SaveNDFF(err);
-		mtl_info("SaveToNDFF() took %lld ms", timer.elapsed());
-	}
-	
 	return true;
 }
 
@@ -872,126 +636,6 @@ bool WriteAll(QIODevice &file, const char *data, ci64 max, QString *err = 0)
 	return true;
 }
 
-bool Book::SaveFromScratch(QString *err)
-{
-	QSaveFile ndff_file(ndff_path_);
-	MTL_CHECK(ndff_file.open(QIODevice::WriteOnly | QIODevice::Truncate));
-	
-	ByteArray main_buffer;
-	CreateMainHeader(main_buffer);
-	inst::NsHash ns_hash;
-	{ //==> Namespaces region
-		ci64 ns_address = main_buffer.at();
-		CreateNamespacesRegion(main_buffer, ns_hash);
-		main_buffer.set_i64(ndff::MainHeaderPlaces::namespaces_loc, ns_address);
-	} //<== Namespaces region
-	
-	inst::Keywords keywords;
-	{ //==> Dictionary region
-		ci64 dict_location = main_buffer.at();
-		CreateDictionaryRegion(main_buffer, keywords);
-		main_buffer.set_i64(ndff::MainHeaderPlaces::dictionary_loc, dict_location);
-	} //<== Dictionary region
-	
-	QByteArray type_ods = QString::fromLatin1("ods").toUtf8();
-	main_buffer.add_u8(type_ods.size()); // must be u8 according to spec
-	main_buffer.add(type_ods.data(), type_ods.size(), ExactSize::Yes);
-	
-	/* The files are:
-		1) content.xml (file)
-		2) styles.xml (file)
-		3) mimetype (file)
-		4) meta.xml (file)
-		5) META-INF (folder)
-		6) manifest.xml (file)
- */
-	ci64 fei_table_loc = CreateFeiTable(main_buffer, 5,
-		ndff::MainHeaderPlaces::top_files_loc);
-	MTL_CHECK(fei_table_loc > 0);
-	i64 record_result_at = fei_table_loc;
-	
-	ndff::FileEntryInfo contents_fei(this);
-	contents_fei.SetFei(document_content_, filename::ContentXml,
-		ns_hash, keywords, main_buffer, record_result_at);
-	
-	ndff::FileEntryInfo styles_fei(this);
-	styles_fei.SetFei(document_styles_, filename::StylesXml,
-		ns_hash, keywords, main_buffer, record_result_at += 8);
-	
-	ndff::FileEntryInfo meta_fei(this);
-	meta_fei.SetFei(document_meta_, filename::MetaXml,
-		ns_hash, keywords, main_buffer, record_result_at += 8);
-	
-	ndff::FileEntryInfo manifest_fei(this);
-	manifest_fei.SetFei(manifest_, filename::ManifestXml,
-		ns_hash, keywords, main_buffer, -1);
-	
-	/// "META-INF" folder
-	ndff::FileEntryInfo folder_fei(this);
-	{
-		/// Tying "META-INFO/manifest.xml" to its parent folder
-		folder_fei.subfiles_loc(-manifest_fei.self_loc());
-		folder_fei.SetFolderFei(main_buffer, filename::MetaInf,
-			record_result_at += 8);
-	}
-	
-	ndff::FileEntryInfo mimetype_fei(this);
-	MTL_CHECK(CreateMimetypeFei(main_buffer, mimetype_fei, record_result_at += 8));
-	
-	mimetype_fei.SetFileData(main_buffer, filename::MimeType);
-	meta_fei.SetFileData(main_buffer, filename::MetaXml);
-	styles_fei.SetFileData(main_buffer, filename::StylesXml);
-	contents_fei.SetFileData(main_buffer, filename::ContentXml);
-	manifest_fei.SetFileData(main_buffer, filename::ManifestXml);
-	
-	mimetype_fei.WriteEfa(main_buffer);
-	meta_fei.WriteEfa(main_buffer);
-	styles_fei.WriteEfa(main_buffer);
-	contents_fei.WriteEfa(main_buffer);
-	manifest_fei.WriteEfa(main_buffer);
-	folder_fei.WriteEfa(main_buffer);
-	
-	//contents_fei.PrintFileName(main_buffer);
-	
-	MTL_CHECK(WriteAll(ndff_file, main_buffer.data(), main_buffer.size(), err));
-	
-	cbool ok = ndff_file.commit();
-	if (!ok && err)
-		*err = QString("Failed to save as ") + ndff_path_;
-	
-	return ok;
-}
-
-bool Book::SaveNDFF(QString *err)
-{
-	if (created_but_not_saved())
-	{
-		return SaveFromScratch(err);
-	}
-	mtl_tbd();
-	//ByteArray ba;
-	if (document_content_->CheckChanged(Recursively::Yes))
-	{
-		
-	}
-	
-	if (document_styles_->CheckChanged(Recursively::Yes))
-	{
-	}
-	
-	if (manifest_->CheckChanged(Recursively::Yes))
-	{
-		
-	}
-	
-	if (document_meta_->CheckChanged(Recursively::Yes))
-	{
-		
-	}
-	
-	return true;
-}
-
 bool Book::SaveXmlFile(inst::Abstract *top, const QString &full_path, QString *err)
 {
 	QSaveFile out(full_path);
@@ -1001,7 +645,7 @@ bool Book::SaveXmlFile(inst::Abstract *top, const QString &full_path, QString *e
 	WriteStartDocument(xml);
 	top->Write(xml);
 	xml.writeEndDocument();
-	const bool ok = out.commit();
+	cbool ok = out.commit();
 	
 	if (!ok && err != nullptr)
 		*err = QString("Failed to save as ") + full_path;
@@ -1023,7 +667,6 @@ Compression Book::WhatCompressionShouldBeUsed(QStringView file_path,
 	ci64 uncompressed_size) const
 {
 	return Compression::None;
-	//return ndff_.WhatCompressionShouldBeUsed(file_path, uncompressed_size);
 }
 
 void Book::WriteStartDocument(QXmlStreamWriter &xml)

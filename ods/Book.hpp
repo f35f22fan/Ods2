@@ -7,8 +7,6 @@
 
 #include "inst/Abstract.hpp"
 #include "inst/decl.hxx"
-#include "ndff/decl.hxx"
-#include "ndff/Container.hpp"
 
 #include <QMimeDatabase>
 #include <QHash>
@@ -26,14 +24,12 @@ class ODS_API Book
 	const Bits LoadingBit = 1u << 0;
 	const Bits DevModeBit = 1u << 1;
 	const Bits CreatedButNotSavedBit = 1u << 2;
-	const Bits NdffEnabledBit = 1u << 3;
 	
 private:
 	Book(const DevMode dm);
 public:
 	static Book* FromFile(const QString &full_path, QString *err,
 		const DevMode dm = DevMode::No);
-	static Book* FromNDFF(QStringView full_path);
 	static Book* New(const DevMode dm = DevMode::No);
 	virtual ~Book();
 	
@@ -96,23 +92,10 @@ public:
 			bits_ &= ~LoadingBit;
 	}
 	
-	bool ndff_enabled() const { return bits_ & NdffEnabledBit; }
-	// void ndff_enabled(cbool b) {
-	// 	if (b)
-	// 		bits_ |= NdffEnabledBit;
-	// 	else
-	// 		bits_ &= ~NdffEnabledBit;
-	// }
-	
-	QString ndff_path() const { return ndff_path_; }
-	
-	ndff::Container& ndff_container() { return ndff_; }
-	
 	void QueryUsedNamespaces(inst::NsHash &ns_hash, const CreateIfNeeded cr);
 	void QueryKeywords(inst::Keywords &words_hash);
 	// returns true on success
 	bool Save(const QFile &target, QString *err);
-	bool SaveNDFF(QString *err);
 	
 	//==> quick getters for convenience
 	i32 sheet_count() const;
@@ -135,7 +118,6 @@ private:
 	// @record_result_loc = -1 means don't record anything.
 	i64 CreateFeiTable(ByteArray &output, cu32 how_many,
 		ci64 record_result_loc = -1);
-	bool CreateMimetypeFei(ByteArray &buffer, ndff::FileEntryInfo &fei, ci64 record_fei_loc);
 	
 	bool created_but_not_saved() const { return bits_ & CreatedButNotSavedBit; }
 	void created_but_not_saved(const bool b) {
@@ -152,7 +134,6 @@ private:
 	QVector<inst::Abstract*> GetNamespaceClasses();
 	void InitDefault();
 	void InitTempDir();
-	bool InitNDFF(QStringView full_path);
 	bool Load(QString zip_filepath, QString *err);
 	void LoadContentXml(ci32 file_index, QString *err);
 	void LoadManifestXml(ci32 file_index, QString *err);
@@ -165,7 +146,6 @@ private:
 	QMimeDatabase db_;
 	QStringList extracted_file_paths_;
 	QString media_dir_path_;
-	QString ndff_path_;
 	QTemporaryDir temp_dir_;
 	QString temp_dir_path_;
 	inst::OfficeDocumentContent *document_content_ = nullptr;
@@ -175,7 +155,6 @@ private:
 	QVector<inst::TableNamedRange*> *named_ranges_ = nullptr;
 	
 	Bits bits_ = 0;
-	ndff::Container ndff_;
 	
 	friend class inst::OfficeDocumentContent;
 	friend class inst::OfficeDocumentMeta;

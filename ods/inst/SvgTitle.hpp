@@ -10,7 +10,7 @@ namespace ods::inst {
 class ODS_API SvgTitle : public Abstract
 {
 public:
-	SvgTitle(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
+	SvgTitle(Abstract *parent, ods::Tag *tag = 0);
 	SvgTitle(const SvgTitle &cloner);
 	virtual ~SvgTitle();
 	

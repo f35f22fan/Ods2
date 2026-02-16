@@ -11,17 +11,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-TextP::TextP(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
+TextP::TextP(Abstract *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::TextP)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -66,51 +61,6 @@ TextP::GetFirstString() const
 	}
 	
 	return nullptr;
-}
-
-void TextP::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	Op op = cntr->Next(prop, Op::TS);
-
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->text()))
-			{
-				if (prop.name == ns::kPageNumber)
-					Append(new inst::TextPageNumber(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kS)
-					Append(new inst::TextS(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kSheetName)
-					Append(new inst::TextSheetName(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kPageCount)
-					Append(new inst::TextPageCount(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kTime)
-					Append(new inst::TextTime(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kDate)
-					Append(new inst::TextDate(this, 0, cntr), TakeOwnership::Yes);
-			}
-		} else if (ndff::is_text(op)) {
-			QString s = cntr->NextString();
-			//mtl_printq(s);
-			Append(s);
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void TextP::Init(ods::Tag *tag)
@@ -158,13 +108,6 @@ void TextP::Scan(ods::Tag *tag)
 void TextP::WriteData(QXmlStreamWriter &xml)
 {
 	WriteNodes(xml);
-}
-
-void TextP::WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	CloseWriteNodesAndClose(h, kw, file, ba);
 }
 
 } // ods::inst::

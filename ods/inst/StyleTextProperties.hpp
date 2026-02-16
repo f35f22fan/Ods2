@@ -12,8 +12,7 @@ namespace ods::inst {
 class ODS_API StyleTextProperties : public ods::inst::Abstract
 {
 public:
-	StyleTextProperties(Abstract *parent, ods::Tag *tag = 0,
-		ndff::Container *cntr = 0);
+	StyleTextProperties(Abstract *parent, ods::Tag *tag = 0);
 	StyleTextProperties(const StyleTextProperties &cloner);
 	virtual ~StyleTextProperties();
 	
@@ -78,10 +77,7 @@ public:
 	text_line_through_type() const { return style_text_line_through_type_; }
 	
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	Color fo_background_color_ = {};

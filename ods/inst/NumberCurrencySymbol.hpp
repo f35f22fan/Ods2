@@ -10,7 +10,7 @@ namespace ods::inst {
 class ODS_API NumberCurrencySymbol : public Abstract
 {
 public:
-	NumberCurrencySymbol(Abstract *parent, ods::Tag *tag = 0, ndff::Container *cntr = 0);
+	NumberCurrencySymbol(Abstract *parent, ods::Tag *tag = 0);
 	NumberCurrencySymbol(const NumberCurrencySymbol &cloner);
 	virtual ~NumberCurrencySymbol();
 	
@@ -33,10 +33,7 @@ public:
 	QString GetSymbol();
 	
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
-	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	
 	// <number:currency-symbol number:language="en"

@@ -5,18 +5,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-NumberCurrencySymbol::NumberCurrencySymbol(Abstract *parent, Tag *tag,
-ndff::Container *cntr) :
+NumberCurrencySymbol::NumberCurrencySymbol(Abstract *parent, Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberCurrencySymbol)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -52,20 +46,6 @@ NumberCurrencySymbol::GetSymbol()
 	}
 
 	return QString();
-}
-
-void NumberCurrencySymbol::Init(ndff::Container *cntr)
-{
-	// number:currency-symbol(1.2) => has attrs, no children, has char data
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->number(), ns::kLanguage, number_language_);
-	CopyAttr(attrs, ns_->number(), ns::kCountry, number_country_);
-	CopyAttr(attrs, ns_->number(), ns::kRfcLanguageTag, number_rfc_language_tag_);
-	CopyAttr(attrs, ns_->number(), ns::kScript, number_script_);
-	ReadStrings(cntr, op);
 }
 
 void NumberCurrencySymbol::Init(ods::Tag *tag)
@@ -112,17 +92,6 @@ void NumberCurrencySymbol::WriteData(QXmlStreamWriter &xml)
 	Write(xml, ns_->number(), ns::kScript, number_script_);
 
 	WriteNodes(xml);
-}
-
-void NumberCurrencySymbol::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->number(), ns::kLanguage, number_language_);
-	WriteNdffProp(kw, *ba, ns_->number(), ns::kCountry, number_country_);
-	WriteNdffProp(kw, *ba, ns_->number(), ns::kRfcLanguageTag, number_rfc_language_tag_);
-	WriteNdffProp(kw, *ba, ns_->number(), ns::kScript, number_script_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API TextS : public Abstract
 {
 public:
-	TextS(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	TextS(Abstract *parent, Tag *tag = 0);
 	TextS(const TextS &cloner);
 	virtual ~TextS();
 	

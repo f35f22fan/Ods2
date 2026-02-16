@@ -4,13 +4,10 @@
 
 namespace ods::inst {
 
-OfficeScripts::OfficeScripts(Abstract *parent, Tag *tag,
-	ndff::Container *cntr)
+OfficeScripts::OfficeScripts(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::OfficeScripts)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

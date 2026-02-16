@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API TextPageNumber : public Abstract
 {
 public:
-	TextPageNumber(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	TextPageNumber(Abstract *parent, Tag *tag = 0);
 	TextPageNumber(const TextPageNumber &cloner);
 	virtual ~TextPageNumber();
 	
@@ -21,7 +21,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 
 private:
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 };
 

@@ -11,7 +11,7 @@ namespace ods::inst {
 class ODS_API DrawFrame : public Abstract
 {
 public:
-	DrawFrame(Abstract *parent, ods::Tag *tag, ndff::Container *cntr = 0);
+	DrawFrame(Abstract *parent, ods::Tag *tag);
 	DrawFrame(const DrawFrame &cloner);
 	
 	virtual ~DrawFrame();
@@ -41,10 +41,7 @@ public:
 	void y(const Length *l);
 	
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag*);
 	void Scan(ods::Tag*);
 	

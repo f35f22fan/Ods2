@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API MetaEditingCycles : public Abstract
 {
 public:
-	MetaEditingCycles(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	MetaEditingCycles(Abstract *parent, Tag *tag = 0);
 	MetaEditingCycles(const MetaEditingCycles &cloner);
 	virtual ~MetaEditingCycles();
 	

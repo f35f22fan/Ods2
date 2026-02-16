@@ -8,17 +8,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-StylePageLayout::StylePageLayout(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
+StylePageLayout::StylePageLayout(Abstract *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::StylePageLayout)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -41,45 +36,6 @@ StylePageLayout::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
-}
-
-void StylePageLayout::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->style(), ns::kName, style_name_);
-	if (op == Op::N32_TE)
-		return;
-	
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-	
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->style()))
-			{
-				if (prop.name == ns::kPageLayoutProperties)
-					Append(new StylePageLayoutProperties(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kFooterStyle)
-					Append(new StyleFooterStyle(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kHeaderStyle)
-					Append(new StyleHeaderStyle(this, 0, cntr), TakeOwnership::Yes);
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		
-		op = cntr->Next(prop, op);
-	}
-	
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void StylePageLayout::Init(ods::Tag *tag)
@@ -126,13 +82,4 @@ void StylePageLayout::WriteData(QXmlStreamWriter &xml)
 	WriteNodes(xml);
 }
 
-void StylePageLayout::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kName, style_name_);
-	CloseBasedOnChildren(h, kw, file, ba);
-}
-
 } // ods::inst::
-

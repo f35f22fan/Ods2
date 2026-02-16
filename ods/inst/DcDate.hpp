@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API DcDate : public Abstract
 {
 public:
-	DcDate(Abstract *parent, Tag *tag, ndff::Container *cntr = 0);
+	DcDate(Abstract *parent, Tag *tag);
 	DcDate(const DcDate &cloner);
 	virtual ~DcDate();
 	

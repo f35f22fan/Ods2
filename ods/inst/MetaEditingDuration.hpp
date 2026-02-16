@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API MetaEditingDuration : public Abstract
 {
 public:
-	MetaEditingDuration(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	MetaEditingDuration(Abstract *parent, Tag *tag = 0);
 	MetaEditingDuration(const MetaEditingDuration &cloner);
 	virtual ~MetaEditingDuration();
 	

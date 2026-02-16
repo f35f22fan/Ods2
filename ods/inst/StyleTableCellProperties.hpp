@@ -12,8 +12,7 @@ namespace ods::inst {
 class ODS_API StyleTableCellProperties : public Abstract
 {
 public:
-	StyleTableCellProperties(Abstract *parent, ods::Tag *tag = 0,
-		ndff::Container *cntr = 0);
+	StyleTableCellProperties(Abstract *parent, ods::Tag *tag = 0);
 	StyleTableCellProperties(const StyleTableCellProperties &cloner);
 	virtual ~StyleTableCellProperties();
 	
@@ -58,10 +57,7 @@ public:
 	
 	bool wrap_option() const { return fo_wrap_option_ == QLatin1String("wrap"); }
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
-	
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	
 	ods::Color fo_background_color_ = {};

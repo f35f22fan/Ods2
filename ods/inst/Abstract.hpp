@@ -6,7 +6,6 @@
 #include "../decl.hxx"
 #include "../err.hpp"
 #include "../id.hh"
-#include "../ndff/decl.hxx"
 #include "../ods.hxx"
 #include "../Prefix.hpp"
 #include "../style.hxx"
@@ -18,10 +17,6 @@
 #include <QFile>
 #include <QHash>
 #include <QXmlStreamWriter>
-
-namespace ods {
-using NdffAttrs = QHash<UriId, QVector<ndff::Property>>;
-}
 
 namespace ods::inst {
 
@@ -94,12 +89,6 @@ public:
 	bool CheckChanged(const Recursively r);
 	virtual Abstract* Clone(Abstract *parent = nullptr) const = 0;
 	
-	void CopyAttr(NdffAttrs &attrs, Prefix *prefix, QStringView attr_name, QString &result);
-	void CopyAttr(NdffAttrs &attrs, ods::Prefix *prefix, QStringView attr_name, ods::Bool &result);
-	void CopyAttr(NdffAttrs &attrs, ods::Prefix *prefix, QStringView attr_name, ods::Length **result);
-	void CopyAttrI8(NdffAttrs &attrs, Prefix *prefix, QStringView attr_name, i8 &result);
-	void CopyAttrI32(NdffAttrs &attrs, Prefix *prefix, QStringView attr_name, i32 &result);
-	
 	void DeleteNodes();
 	virtual QString FullName() const;
 	id::func func() const { return func_; }
@@ -145,8 +134,6 @@ public:
 	ods::Prefix* prefix() const { return prefix_; }
 	void prefix(ods::Prefix *p) { prefix_ = p; }
 	
-	void ReadStrings(ndff::Container *cntr);
-	void ReadStrings(ndff::Container *cntr, ndff::Op op);
 	void ReadStrings(Tag *tag);
 	
 	void SetString(QStringView s, const ClearTheRest ctr = ClearTheRest::Yes);
@@ -156,19 +143,6 @@ public:
 	
 	void Write(QXmlStreamWriter &xml);
 	virtual void WriteData(QXmlStreamWriter &xml) = 0;
-	virtual void WriteNDFF(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *output);
-	
-	void WriteNdffProp(inst::Keywords &kw, ByteArray &output,
-		Prefix *prefix, QString key, QStringView value);
-	
-	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
-		ods::Prefix *prefix, QString name, const ods::Bool value);
-	
-	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
-		ods::Prefix *prefix, QString name, const ods::Length *value);
-	
-	void WriteNdffProp(inst::Keywords &kw, ByteArray &ba,
-		Prefix *prefix, QString name, cint num, cint except);
 	
 	void WriteNodes(QXmlStreamWriter &xml);
 	
@@ -207,36 +181,9 @@ protected:
 	void Write(QXmlStreamWriter &xml, Prefix *prefix, QStringView name,
 		const int num, const int except);
 	
-	inline void WriteContentFollows(ByteArray &ba) {
-		ba.add_u8(ndff::Op::TCF_CMS);
-	}
 	void WriteNodes(NsHash &h, Keywords &kw, ByteArray &ba, const PrintText pt = PrintText::No);
-	inline void WriteSCT(ByteArray &ba) {
-		ba.add_u8(ndff::Op::SCT);
-	}
+	
     void WriteTag(Keywords &kw, ByteArray &ba);
-	
-	inline void CloseBasedOnChildren(NsHash &h, Keywords &kw, QFileDevice *file, ByteArray *ba)
-	{
-		if (has_children(IncludingText::Yes))
-			CloseWriteNodesAndClose(h, kw, file, ba);
-		else
-			CloseTag(file, ba);
-	}
-	
-	inline void CloseTag(QFileDevice *file, ByteArray *ba)
-	{
-		ba->add_u8(ndff::Op::N32_TE);
-	}
-	
-	inline void CloseWriteNodesAndClose(NsHash &h, Keywords &kw, QFileDevice *file,
-		ByteArray *ba, const PrintText pt = PrintText::No)
-	{
-		MTL_CHECK_VOID(ba != nullptr);
-		WriteContentFollows(*ba);
-		WriteNodes(h, kw, *ba, pt);
-		WriteSCT(*ba);
-	}
 	
 	ods::id::func func_;
 	ods::Ns *ns_ = nullptr;

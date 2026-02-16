@@ -3,17 +3,12 @@
 #include "../Ns.hpp"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-TextSheetName::TextSheetName(Abstract *parent, Tag *tag, ndff::Container *cntr)
+TextSheetName::TextSheetName(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TextSheetName)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -34,33 +29,6 @@ TextSheetName::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this);
 	
 	return p;
-}
-
-void TextSheetName::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	Op op = cntr->Next(prop, Op::TS);
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void TextSheetName::Init(Tag *tag)

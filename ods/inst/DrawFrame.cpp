@@ -9,17 +9,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-DrawFrame::DrawFrame(Abstract *parent, Tag *tag, ndff::Container *cntr)
+DrawFrame::DrawFrame(Abstract *parent, Tag *tag)
 : Abstract (parent, parent->ns(), id::DrawFrame)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -73,64 +68,6 @@ void DrawFrame::height(const Length *l)
 		svg_height_ = nullptr;
 	else
 		svg_height_ = l->Clone();
-}
-
-void DrawFrame::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	QString str;
-	
-	CopyAttr(attrs, ns_->svg(), ns::kX, str);
-	svg_x_ = Length::FromString(str);
-	
-	CopyAttr(attrs, ns_->svg(), ns::kY, str);
-	svg_y_ = Length::FromString(str);
-	
-	CopyAttr(attrs, ns_->svg(), ns::kHeight, str);
-	svg_height_ = Length::FromString(str);
-	
-	CopyAttr(attrs, ns_->svg(), ns::kWidth, str);
-	svg_width_ = Length::FromString(str);
-	
-	CopyAttr(attrs, ns_->draw(), ns::kZIndex, draw_z_index_);
-	CopyAttr(attrs, ns_->draw(), ns::kId, draw_id_);
-	CopyAttr(attrs, ns_->draw(), ns::kName, draw_name_);
-	CopyAttr(attrs, ns_->style(), ns::kRelWidth, style_rel_width_);
-	CopyAttr(attrs, ns_->style(), ns::kRelHeight, style_rel_height_);
-
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->draw()))
-			{
-				if (prop.name == ns::kImage)
-					Append(new inst::DrawImage(this, 0, cntr), TakeOwnership::Yes);
-			} else if (prop.is(ns_->svg())) {
-				if (prop.name == ns::kDesc)
-					Append(new SvgDesc(this, 0, cntr), TakeOwnership::Yes);
-				else if (prop.name == ns::kTitle)
-					Append(new SvgTitle(this, 0, cntr), TakeOwnership::Yes);
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void DrawFrame::Init(ods::Tag *tag)
@@ -289,28 +226,6 @@ DrawFrame::WriteData(QXmlStreamWriter &xml)
 	Write(xml, ns_->style(), ns::kRelHeight, style_rel_height_);
 	
 	WriteNodes(xml);
-}
-
-void DrawFrame::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	if (svg_x_)
-		WriteNdffProp(kw, *ba, ns_->svg(), ns::kX, svg_x_->toString());
-	if (svg_y_)
-		WriteNdffProp(kw, *ba, ns_->svg(), ns::kY, svg_y_->toString());
-	if (svg_width_)
-		WriteNdffProp(kw, *ba, ns_->svg(), ns::kWidth, svg_width_->toString());
-	if (svg_height_)
-		WriteNdffProp(kw, *ba, ns_->svg(), ns::kHeight, svg_height_->toString());
-	
-	WriteNdffProp(kw, *ba, ns_->draw(), ns::kZIndex, draw_z_index_);
-	WriteNdffProp(kw, *ba, ns_->draw(), ns::kId, draw_id_);
-	WriteNdffProp(kw, *ba, ns_->draw(), ns::kName, draw_name_);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kRelWidth, style_rel_width_);
-	WriteNdffProp(kw, *ba, ns_->style(), ns::kRelHeight, style_rel_height_);
-	
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

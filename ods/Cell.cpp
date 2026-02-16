@@ -32,18 +32,13 @@
 #include <float.h>
 #include <QFontMetrics>
 
-#include "ndff/Container.hpp"
-#include "ndff/Property.hpp"
-
 namespace ods { // ods::
 
-Cell::Cell(Row *parent, ods::Tag *tag, ndff::Container *cntr)
+Cell::Cell(Row *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::TableTableCell),
 row_(parent)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -169,6 +164,12 @@ Cell::FullName() const
 	return prefix_->With(tag_name_);
 }
 
+QString Cell::GetAttr(ods::Tag *tag, Prefix *prefix, QStringView key)
+{
+	auto *v = tag->GetAttr(prefix, key);
+	return v ? v->value() : QString();
+}
+
 const QString*
 Cell::GetCellString() const
 {
@@ -190,63 +191,9 @@ Cell::GetStyle(const CreateIfNeeded cin)
 		NewStyle() : style;
 }
 
-void Cell::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	NdffAttrs attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	ReadValue(0, &attrs);
-	CopyAttrI32(attrs, ns_->table(), ns::kNumberColumnsRepeated, ncr_);
-	CopyAttrI32(attrs, ns_->table(), ns::kNumberColumnsSpanned, ncs_);
-	CopyAttrI32(attrs, ns_->table(), ns::kNumberRowsSpanned, nrs_);
-	CopyAttr(attrs, ns_->table(), ns::kStyleName, table_style_name_);
-	
-	QString str;
-	if (office_value_type_ == ValueType::None)
-	{
-		CopyAttr(attrs, ns_->office(), ns::kValueType, str);
-		if (!str.isEmpty())
-			office_value_type_ = ods::TypeFromString(str);
-	}
-	
-	CopyAttr(attrs, ns_->office(), ns::kCurrency, office_currency_);
-	CopyAttr(attrs, ns_->table(), ns::kFormula, str);
-	formula_ = ods::Formula::FromString(str, this);
-
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->text()))
-			{
-				if (prop.name == ns::kP)
-					Append(new inst::TextP(this, 0, cntr), TakeOwnership::Yes);
-			} else if (prop.is(ns_->draw())) {
-				if (prop.name == ns::kFrame)
-					Append(new inst::DrawFrame(this, 0, cntr), TakeOwnership::Yes);
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
-}
-
 void Cell::Init(ods::Tag *tag)
 {
-	ReadValue(tag, 0);
+	ReadValue(tag);
 	tag->Copy(ns_->table(), ns::kNumberColumnsRepeated, ncr_);
 	tag->Copy(ns_->table(), ns::kNumberColumnsSpanned, ncs_);
 	tag->Copy(ns_->table(), ns::kNumberRowsSpanned, nrs_);
@@ -291,20 +238,6 @@ void Cell::ListUsedNamespaces(inst::NsHash &list)
 	{
 		inst::Add(ns_->office(), list);
 	}
-}
-
-QString Cell::GetAttr(ods::Tag *tag, NdffAttrs *attrs, Prefix *prefix,
-	QStringView key)
-{
-	if (attrs)
-	{
-		QString ret_val;
-		CopyAttr(*attrs, prefix, key, ret_val);
-		return ret_val;
-	}
-
-	auto *v = tag->GetAttr(prefix, key);
-	return v ? v->value() : QString();
 }
 
 inst::DrawFrame*
@@ -558,9 +491,9 @@ int Cell::QueryStart() const
 	return row_->QueryCellStart(this);
 }
 
-void Cell::ReadValue(ods::Tag *tag, NdffAttrs *attrs)
+void Cell::ReadValue(ods::Tag *tag)
 {
-	QString stype = GetAttr(tag, attrs, ns_->office(), ns::kValueType);
+	QString stype = GetAttr(tag, ns_->office(), ns::kValueType);
 	
 	if (stype.isEmpty())
 	{
@@ -572,7 +505,7 @@ void Cell::ReadValue(ods::Tag *tag, NdffAttrs *attrs)
 	
 	if (is_double() || is_currency() || is_percentage())
 	{
-		QString attr = GetAttr(tag, attrs, ns_->office(), ns::kValue);
+		QString attr = GetAttr(tag, ns_->office(), ns::kValue);
 		if (!attr.isEmpty())
 		{
 			bool ok;
@@ -588,7 +521,7 @@ void Cell::ReadValue(ods::Tag *tag, NdffAttrs *attrs)
 		// office:value-type="date" can be represented as
 		// a date or date-time, so check for ":" to guess which one.
 		
-		QString date_value_str = GetAttr(tag, attrs, ns_->office(), ns::kDateValue);
+		QString date_value_str = GetAttr(tag, ns_->office(), ns::kDateValue);
 		//mtl_printq2("date_value_str: ", date_value_str);
 		if (date_value_str.indexOf(':') != -1) {
 			auto dt = QDateTime::fromString(date_value_str, Qt::ISODate);
@@ -598,7 +531,7 @@ void Cell::ReadValue(ods::Tag *tag, NdffAttrs *attrs)
 			SetDate(new QDate(dt));
 		}
 	} else if (is_time()) {
-		QString attr = GetAttr(tag, attrs, ns_->office(), ns::kTimeValue);
+		QString attr = GetAttr(tag, ns_->office(), ns::kTimeValue);
 		auto *t = new ods::Time();
 		if (!t->Parse(attr)) {
 			auto ba = attr.toLocal8Bit();
@@ -608,7 +541,7 @@ void Cell::ReadValue(ods::Tag *tag, NdffAttrs *attrs)
 			SetValue(t, office_value_type_);
 		}
 	} else if (is_boolean()) {
-		QString attr = GetAttr(tag, attrs, ns_->office(), ns::kBooleanValue);
+		QString attr = GetAttr(tag, ns_->office(), ns::kBooleanValue);
 		
 		if (!attr.isEmpty())
 			SetBooleanFromString(attr);
@@ -863,40 +796,6 @@ void Cell::WriteData(QXmlStreamWriter &xml)
 	WriteNodes(xml);
 }
 
-void Cell::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba);
-	WriteTag(kw, *ba);
-	
-	WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberColumnsRepeated, ncr_, 1);
-	
-	{
-		/// Workaround for MS Office (2019): if ncs_ > 1
-		/// one must print out the nrs_ too, otherwise MS Office
-		/// will treat ncs_ as 1 regardless of its real value
-		
-		/// Update 2: Both ncs_ and nrs_ must be written out in case
-		/// any of them is != 1
-		
-		cint force_if_needed = (ncs_ != 1 || nrs_ != 1) ? -1 : 1;
-		
-		WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberRowsSpanned, nrs_, force_if_needed);
-		WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberColumnsSpanned, ncs_, force_if_needed);
-	}
-	
-	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);
-	
-	if (is_value_set())
-	{
-		auto str = ods::TypeToString(office_value_type_);
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kValueType, str);
-	}
-	
-	WriteValueNDFF(h, kw, file, ba);
-	
-	CloseBasedOnChildren(h, kw, file, ba);
-}
-
 void Cell::WriteValue(QXmlStreamWriter &xml)
 {
 	if (is_double())
@@ -941,51 +840,6 @@ void Cell::WriteValue(QXmlStreamWriter &xml)
 	
 	if (formula_ != nullptr) {
 		Write(xml, ns_->table(), ns::kFormula, formula_->ToXmlString());
-	}
-}
-
-void Cell::WriteValueNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	if (is_double())
-	{
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kValue, QString::number(*as_double()));
-	} else if (is_currency()) {
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kValue, QString::number(*as_double()));
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kCurrency, office_currency_);
-	} else if (is_percentage()) {
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kValue, QString::number(*as_double()));
-	} else if (is_date()) {
-//<table:table-cell table:style-name="ce5" office:value-type="date"
-//		office:date-value="1983-12-30">
-//<text:p>30.12.1983</text:p>
-//</table:table-cell>
-		auto *dt = as_date();
-		QString date_value = dt->toString(Qt::ISODate);
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kDateValue, date_value);
-	} else if (is_date_time()) {
-		QDateTime *dt = as_date_time();
-		QString date_value = dt->toString(Qt::ISODate);
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kDateValue, date_value);
-	} else if (is_time()) {
-		auto *dd = as_time();
-		MTL_CHECK_VOID(dd);
-		QString dur_value = dd->toString();
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kTimeValue, dur_value);
-	} else if (is_boolean()) {
-		QString str = *as_boolean() ? ns::True : ns::False;
-		WriteNdffProp(kw, *ba, ns_->office(), ns::kBooleanValue, str);
-	} else if (is_string()) {
-		// do nothing
-	} else if (!is_value_set()) {
-	} else {
-		auto str = QueryAddress();
-		auto *sheet = row_->sheet();
-		QString s = str + QLatin1String(", sheet name: ") + sheet->name();
-		mtl_printq(s);
-	}
-	
-	if (formula_ != nullptr) {
-		WriteNdffProp(kw, *ba, ns_->table(), ns::kFormula, formula_->ToXmlString());
 	}
 }
 

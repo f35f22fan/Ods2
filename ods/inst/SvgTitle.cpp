@@ -4,17 +4,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-SvgTitle::SvgTitle(Abstract *parent, Tag *tag, ndff::Container *cntr)
+SvgTitle::SvgTitle(Abstract *parent, Tag *tag)
 : Abstract (parent, parent->ns(), id::SvgTitle)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

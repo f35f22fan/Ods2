@@ -10,7 +10,7 @@ namespace ods::inst {
 class ODS_API TableTableColumn : public Abstract
 {
 public:
-	TableTableColumn(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	TableTableColumn(Abstract *parent, Tag *tag = 0);
 	TableTableColumn(const TableTableColumn &cloner);
 	virtual ~TableTableColumn();
 	
@@ -40,7 +40,6 @@ public:
 	void SetStyle(inst::StyleStyle *style);
 	void SetWidth(Length *length);
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	
 	void delete_region(const DeleteRegion &dr) {
@@ -51,7 +50,6 @@ private:
 	delete_region() const { return delete_region_; }
 	bool has_delete_region() const { return delete_region_.start != -1; }
 	
-	void Init(ndff::Container *cntr);
 	void Init(Tag *tag);
 	QString ToSchemaString() const;
 	

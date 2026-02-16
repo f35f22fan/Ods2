@@ -6,17 +6,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-OfficeBody::OfficeBody(Abstract *parent, Tag *tag, ndff::Container *cntr)
+OfficeBody::OfficeBody(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::OfficeBody)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 	else
 		InitDefault();
@@ -43,39 +38,6 @@ OfficeBody::Clone(Abstract *parent) const
 		p->office_spreadsheet_ = (OfficeSpreadsheet*)office_spreadsheet_->Clone();
 	
 	return p;
-}
-
-void OfficeBody::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	Op op = cntr->Next(prop, Op::TS);
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->office()))
-			{
-				if (prop.name == ns::kSpreadsheet)
-					office_spreadsheet_ = new inst::OfficeSpreadsheet(this, 0, cntr);
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
 }
 
 void OfficeBody::Init(Tag *tag)

@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API StyleRegionLeft : public Abstract
 {
 public:
-	StyleRegionLeft(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	StyleRegionLeft(Abstract *parent, Tag *tag = 0);
 	StyleRegionLeft(const StyleRegionLeft &cloner);
 	virtual ~StyleRegionLeft();
 	
@@ -21,8 +21,6 @@ public:
 	void WriteData(QXmlStreamWriter &xml) override;
 	
 private:
-	
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void Scan(ods::Tag *tag);
 };

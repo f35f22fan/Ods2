@@ -6,12 +6,10 @@
 
 namespace ods::inst {
 
-DcTitle::DcTitle(Abstract *parent, Tag *tag, ndff::Container *cntr)
+DcTitle::DcTitle(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::DcTitle)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

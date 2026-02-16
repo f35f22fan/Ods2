@@ -4,17 +4,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-NumberSeconds::NumberSeconds(Abstract *parent, ods::Tag *tag, ndff::Container *cntr)
+NumberSeconds::NumberSeconds(Abstract *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::NumberSeconds)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -37,17 +32,6 @@ NumberSeconds::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this, ClonePart::Text);
 	
 	return p;
-}
-
-void NumberSeconds::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttr(attrs, ns_->number(), ns::kStyle, number_style_);
-	CopyAttrI8(attrs, ns_->number(), ns::kDecimalPlaces, number_decimal_places_);
-	ReadStrings(cntr, op);
 }
 
 void NumberSeconds::Init(ods::Tag *tag)
@@ -78,19 +62,6 @@ void NumberSeconds::WriteData(QXmlStreamWriter &xml)
 	}
 	
 	WriteNodes(xml);
-}
-
-void NumberSeconds::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	if (number_decimal_places_ != -1)
-	{
-		WriteNdffProp(kw, *ba, ns_->number(), ods::ns::kDecimalPlaces,
-			QString::number(number_decimal_places_));
-	}
-	
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

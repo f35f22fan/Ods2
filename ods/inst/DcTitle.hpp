@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API DcTitle : public Abstract
 {
 public:
-	DcTitle(Abstract *parent, Tag *tag, ndff::Container *cntr = 0);
+	DcTitle(Abstract *parent, Tag *tag);
 	DcTitle(const DcTitle &cloner);
 	virtual ~DcTitle();
 	

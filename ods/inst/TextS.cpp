@@ -2,17 +2,12 @@
 
 #include "../Ns.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-TextS::TextS(Abstract *parent, Tag *tag, ndff::Container *cntr)
+TextS::TextS(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::TextS)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

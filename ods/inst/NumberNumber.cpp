@@ -4,17 +4,12 @@
 #include "../ns.hxx"
 #include "../Tag.hpp"
 
-#include "../ndff/Container.hpp"
-#include "../ndff/Property.hpp"
-
 namespace ods::inst {
 
-NumberNumber::NumberNumber(Abstract *parent, Tag *tag, ndff::Container *cntr) :
+NumberNumber::NumberNumber(Abstract *parent, Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberNumber)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -40,24 +35,6 @@ NumberNumber::Clone(Abstract *parent) const
 	p->CloneChildrenOf(this, ClonePart::Text);
 
 	return p;
-}
-
-void NumberNumber::Init(ndff::Container *cntr)
-{
-	// number:number(1.2) => has attrs, has children, no char data
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttrI8(attrs, ns_->number(), ns::kDecimalPlaces, number_decimal_places_);
-	CopyAttrI8(attrs, ns_->number(), ns::kMinIntegerDigits, number_min_integer_digits_);
-	
-	QString grouping;
-	CopyAttr(attrs, ns_->number(), ns::kGrouping, grouping);
-	if (!grouping.isEmpty())
-		number_grouping_ = (grouping == ns::True) ? 1 : 0;
-	
-	ReadStrings(cntr, op);
 }
 
 void NumberNumber::Init(Tag *tag)
@@ -102,28 +79,6 @@ void NumberNumber::WriteData(QXmlStreamWriter &xml)
 	}
 	
 	WriteNodes(xml);
-}
-
-void NumberNumber::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	
-	if (number_decimal_places_ != -1)
-		WriteNdffProp(kw, *ba, ns_->number(), ns::kDecimalPlaces,
-			QString::number(number_decimal_places_));
-	
-	if (number_min_integer_digits_ != -1)
-		WriteNdffProp(kw, *ba, ns_->number(), ns::kMinIntegerDigits,
-			QString::number(number_min_integer_digits_));
-	
-	if (number_grouping_ != -1)
-	{
-		WriteNdffProp(kw, *ba, ns_->number(), ns::kGrouping,
-			(number_grouping_ == 1) ? ns::True : ns::False);
-	}
-	
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::inst::

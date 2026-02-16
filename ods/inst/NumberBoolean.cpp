@@ -3,18 +3,12 @@
 #include "../Ns.hpp"
 #include "../Tag.hpp"
 
-#include "../ndff/Property.hpp"
-#include "../ndff/Container.hpp"
-
 namespace ods::inst {
 
-NumberBoolean::NumberBoolean(Abstract *parent, ods::Tag *tag,
-	ndff::Container *cntr) :
+NumberBoolean::NumberBoolean(Abstract *parent, ods::Tag *tag) :
 Abstract(parent, parent->ns(), id::NumberBoolean)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

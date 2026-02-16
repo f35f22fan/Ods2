@@ -12,7 +12,7 @@ namespace ods {
 class ODS_API Row : public ods::inst::Abstract
 {
 public:
-	Row(ods::Sheet *parent, ods::Tag *row_tag, ndff::Container *cntr = 0);
+	Row(ods::Sheet *parent, ods::Tag *row_tag);
 	Row(Sheet *parent);
 	Row(const Row &cloner);
 	virtual ~Row();
@@ -87,7 +87,6 @@ public:
 	ods::Cell* SplitOneCellAt(ods::Cell *multiple_cells, cint split_at);
 	
 	void WriteData(QXmlStreamWriter &xml) override;
-	void WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba) override;
 private:
 	void delete_region(const DeleteRegion &dr) {
 		delete_region_ = dr;
@@ -102,7 +101,6 @@ private:
 	void DeleteCellRegion(ods::Cell *cell, cint vec_index);
 	void MarkDeleteRegion(cint from, cint remaining);
 	void MarkCoveredCellsAfter(ods::Cell *cell, cint vec_index);
-	void Init(ndff::Container *cntr);
 	void Init(ods::Tag *tag);
 	void InitDefault();
 	void Scan(ods::Tag *tag);

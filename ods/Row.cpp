@@ -12,18 +12,13 @@
 #include "inst/StyleTableRowProperties.hpp"
 #include "inst/StyleTextProperties.hpp"
 
-#include "ndff/Container.hpp"
-#include "ndff/Property.hpp"
-
 namespace ods {
 
-Row::Row(ods::Sheet *parent, ods::Tag *tag, ndff::Container *cntr)
+Row::Row(ods::Sheet *parent, ods::Tag *tag)
 : Abstract(parent, parent->ns(), id::TableTableRow),
 sheet_(parent)
 {
-	if (cntr)
-		Init(cntr);
-	else if (tag)
+	if (tag)
 		Init(tag);
 }
 
@@ -146,42 +141,6 @@ Row::GetStyle() const
 	return Get(table_style_name_);
 }
 
-void Row::Init(ndff::Container *cntr)
-{
-	using Op = ndff::Op;
-	ndff::Property prop;
-	QHash<UriId, QVector<ndff::Property>> attrs;
-	Op op = cntr->Next(prop, Op::TS, &attrs);
-	CopyAttrI32(attrs, ns_->table(), ns::kNumberRowsRepeated, nrr_);
-	CopyAttr(attrs, ns_->table(), ns::kStyleName, table_style_name_);
-
-	if (op == Op::N32_TE)
-		return;
-
-	if (op == Op::TCF_CMS)
-		op = cntr->Next(prop, op);
-
-	while (true)
-	{
-		if (op == Op::TS)
-		{
-			if (prop.is(ns_->table()))
-			{
-				if (ods::IsAnyCell(prop.name))
-					cells_.append(new ods::Cell(this, 0, cntr));
-			}
-		} else if (ndff::is_text(op)) {
-			Append(cntr->NextString());
-		} else {
-			break;
-		}
-		op = cntr->Next(prop, op);
-	}
-
-	if (op != Op::SCT)
-		mtl_trace("Unexpected op: %d", op);
-}
-
 void Row::Init(ods::Tag *tag)
 {
 	tag->Copy(ns_->table(), ns::kNumberRowsRepeated, nrr_);
@@ -204,7 +163,7 @@ void Row::InitDefault()
 	if (cols_to_be_added > 0)
 	{
 		ods::Tag *tag = nullptr;
-		auto *cell = new Cell(this, tag, 0);
+		auto *cell = new Cell(this, tag);
 		cell->ncr(cols_to_be_added);
 		cells_.append(cell);
 	}
@@ -316,7 +275,7 @@ Cell* Row::NewCellAt(cint place, cint ncr, cint ncs)
 	}
 
 	ods::Tag *tag = nullptr;
-	auto *cell = new Cell(this, tag, 0);
+	auto *cell = new Cell(this, tag);
 	cell->ncr(ncr);
 	cell->ncs(ncs);
 	cell->selected(true);
@@ -517,20 +476,6 @@ void Row::WriteData(QXmlStreamWriter &xml)
 	
 	for (auto *cell: cells_)
 		cell->Write(xml);
-}
-
-void Row::WriteNDFF(inst::NsHash &h, inst::Keywords &kw, QFileDevice *file, ByteArray *ba)
-{
-	MTL_CHECK_VOID(ba != nullptr);
-	WriteTag(kw, *ba);
-	if (nrr_ != 1)
-	{
-		WriteNdffProp(kw, *ba, ns_->table(), ns::kNumberRowsRepeated,
-			QString::number(nrr_));
-	}
-	
-	WriteNdffProp(kw, *ba, ns_->table(), ns::kStyleName, table_style_name_);
-	CloseBasedOnChildren(h, kw, file, ba);
 }
 
 } // ods::

@@ -6,12 +6,10 @@
 
 namespace ods::inst {
 
-MetaGenerator::MetaGenerator(Abstract *parent, Tag *tag, ndff::Container *cntr)
+MetaGenerator::MetaGenerator(Abstract *parent, Tag *tag)
 : Abstract(parent, parent->ns(), id::MetaGenerator)
 {
-	if (cntr)
-		ReadStrings(cntr);
-	else if (tag)
+	if (tag)
 		ReadStrings(tag);
 }
 

@@ -3,8 +3,6 @@
 #include "ods.hxx"
 #include "global.hxx"
 
-#include "ndff/ndff.hh"
-
 #include <QFile>
 #include <QString>
 #include <vector>
@@ -13,7 +11,6 @@ namespace ods {
 
 enum class Pack: i8 {
 	Standard,
-	NDFF,
 };
 
 class ODS_API ByteArray {
@@ -69,15 +66,9 @@ public:
 	void next(char *p, const isize sz);
 	bool next_ba(ByteArray &output, ci64 len);
 	QString NextStringUtf8(ci64 len);
-	void join_i(const ndff::Op op, ci64 n);
-	void join_u(const ndff::Op op, cu64 n);
 	void add_str_size(cu64 n);
 	void add_unum(cu64 n);
 	void add_inum(ci64 n);
-	
-	ndff::Op next_op() { 
-		return (ndff::Op) (next_u8() & 0xFu);
-	}
 	
 	i8 next_i8();
 	u8 next_u8();
@@ -91,9 +82,6 @@ public:
 	f64 next_f64();
 	
 	QString next_string(const Pack p = Pack::Standard);
-	u64 next_str_size();
-	i64 next_inum();
-	u64 next_unum();
 	
 	inline void set_i32(cisize at, ci32 value) {
 		memcpy(data_ + at, &value, sizeof value);

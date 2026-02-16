@@ -9,7 +9,7 @@ namespace ods::inst {
 class ODS_API StyleBackgroundImage : public Abstract
 {
 public:
-	StyleBackgroundImage(Abstract *parent, Tag *tag = 0, ndff::Container *cntr = 0);
+	StyleBackgroundImage(Abstract *parent, Tag *tag = 0);
 	StyleBackgroundImage(const StyleBackgroundImage &cloner);
 	virtual ~StyleBackgroundImage();
 	
