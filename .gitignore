@@ -19,7 +19,7 @@
 *.exe
 *.out
 *.app
-build/*
+build*
 debug/*
 TBD.*
 .cache/*
