@@ -217,7 +217,7 @@ private:
 		QString *s;
 // The named range is owned by ods::Book, only copy its pointer and never destroy!
 		inst::TableNamedRange *named_range;
-		Data() { memset(this, 0, sizeof(Data)); }
+		Data() { memset(static_cast<void*>(this), 0, sizeof(Data)); }
 		~Data() {}
 	};
 	

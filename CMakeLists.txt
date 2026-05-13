@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(USE_SYSTEM_ZLIB "Use the system zlib on platforms that provide it (Linux / macOS)" ON)
+option(BUILD_STATIC_LIBRARIES "Build static libraries" OFF)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -20,6 +23,11 @@ endif()
 if(MSVC)
 	# This flag allows MSVC to compile variadic function arguments when they're omitted
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:preprocessor")
+endif()
+
+if(APPLE)
+  set(CMAKE_OSX_ARCHITECTURES "arm64")
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 13.5)
 endif()
 
 find_package(QT NAMES Qt6 COMPONENTS Core Gui REQUIRED)
@@ -37,9 +45,16 @@ if (BUILD_STATIC_LIBRARIES)
 	#set(ZLIB_STATIC "1")
 endif (BUILD_STATIC_LIBRARIES)
 
-#if (WIN32)
-	add_subdirectory(zlib SYSTEM)
-#endif()
+if (WIN32)
+  set(USE_SYSTEM_ZLIB NO)
+endif()
+
+if (USE_SYSTEM_ZLIB)
+  find_package(zlib REQUIRED)
+else()
+ 	add_subdirectory(zlib SYSTEM)
+endif()
+
 add_subdirectory(libzip)
 add_subdirectory(ods)
 add_subdirectory(examples)
