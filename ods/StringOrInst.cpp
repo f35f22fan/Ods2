@@ -6,15 +6,18 @@
 
 namespace ods {
 
-StringOrInst::StringOrInst(QStringView s)
+StringOrInst::StringOrInst(QStringView s, const bool temporary)
 {
 	s_ = s.toString();
 	is_string_ = true;
+	temporary_ = temporary;
 }
 
-StringOrInst::StringOrInst(inst::Abstract *inst, const TakeOwnership to):
+StringOrInst::StringOrInst(inst::Abstract *inst, const TakeOwnership to,
+	const bool temporary):
 	inst_(inst),
-	owns_inst_(to == TakeOwnership::Yes ? Owns::Yes : Owns::No) {}
+	owns_inst_(to == TakeOwnership::Yes ? Owns::Yes : Owns::No),
+	temporary_(temporary) {}
 
 StringOrInst::~StringOrInst()
 {
@@ -47,6 +50,7 @@ StringOrInst::DeleteData()
 		inst_ = nullptr;
 		owns_inst_ = Owns::No;
 	}
+	is_string_ = false;
 }
 
 bool
@@ -63,6 +67,7 @@ void StringOrInst::SetInst(inst::Abstract *a, const TakeOwnership to)
 	DeleteData();
 	inst_ = a,
 	owns_inst_ = (to == TakeOwnership::Yes) ? Owns::Yes : Owns::No;
+	is_string_ = false;
 }
 
 void

@@ -25,7 +25,6 @@ ManifestManifest::ManifestManifest(ods::Book *book, Ns *ns, Tag *tag)
 ManifestManifest::ManifestManifest(const ManifestManifest &cloner)
 : Abstract(cloner)
 {
-	delete ns_;
 }
 
 ManifestManifest::~ManifestManifest() {

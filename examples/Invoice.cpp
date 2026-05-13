@@ -367,6 +367,7 @@ void Invoice::Init(const ods::EnableNdff en)
 	}
 
 	QVector<InvoiceItem*> *items = GenItems();
+	ods::AutoDeleteVecP items_ad(items);
 	last_index = CreateTable(items, last_index);
 	
 	if (last_index == -1) {

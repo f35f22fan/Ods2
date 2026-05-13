@@ -173,7 +173,7 @@ void Row::ListChildren(QVector<StringOrInst*> &vec, const Recursively r)
 {
 	for (auto *cell: cells_)
 	{
-		vec.append(new StringOrInst(cell, TakeOwnership::No));
+		vec.append(new StringOrInst(cell, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			cell->ListChildren(vec, r);
 	}

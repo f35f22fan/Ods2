@@ -143,14 +143,24 @@ bool ReadFile(QString full_path, ByteArray& buf, ReadParams params) {
 	}
 	
 	// obtain file size:
-	fseek (pFile , 0 , SEEK_END);
+	if (fseek(pFile, 0, SEEK_END) != 0) {
+		fputs("Seek error", stderr);
+		fclose(pFile);
+		return false;
+	}
 	ci64 lSize = ftell (pFile);
+	if (lSize < 0) {
+		fputs("Tell error", stderr);
+		fclose(pFile);
+		return false;
+	}
 	rewind (pFile);
 	
 	// allocate memory to contain the whole file:
 	buffer = (char*) malloc (sizeof(char)*lSize);
 	if (buffer == NULL) {
 		fputs ("Memory error",stderr);
+		fclose(pFile);
 		return false;
 	}
 	
@@ -158,6 +168,8 @@ bool ReadFile(QString full_path, ByteArray& buf, ReadParams params) {
 	result = fread (buffer,1,lSize,pFile);
 	if (result != lSize) {
 		fputs ("Reading error",stderr);
+		free(buffer);
+		fclose(pFile);
 		return false;
 	}
 	

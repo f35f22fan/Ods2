@@ -38,9 +38,12 @@ Sheet::~Sheet()
 {
 	for (auto *next: rows_)
 		delete next;
-	
+
 	for (auto *next: columns_)
 		delete next;
+
+	delete named_expressions_;
+	named_expressions_ = nullptr;
 }
 
 Row*
@@ -249,21 +252,21 @@ void Sheet::ListChildren(QVector<StringOrInst*> &vec,
 {
 	for (auto *next: columns_)
 	{
-		vec.append(new StringOrInst(next, TakeOwnership::No));
+		vec.append(new StringOrInst(next, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			next->ListChildren(vec, r);
 	}
 	
 	for (auto *next: rows_)
 	{
-		vec.append(new StringOrInst(next, TakeOwnership::No));
+		vec.append(new StringOrInst(next, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			next->ListChildren(vec, r);
 	}
 	
 	if (named_expressions_)
 	{
-		vec.append(new StringOrInst(named_expressions_, TakeOwnership::No));
+		vec.append(new StringOrInst(named_expressions_, TakeOwnership::No, true));
 		
 		if (r == Recursively::Yes)
 			named_expressions_->ListChildren(vec, r);

@@ -195,6 +195,7 @@ protected:
 	i64 loc_within_file_ = -1;
 	Bits bits_ = 0;
 	ods::Id id_ = ods::Id::None;
+	bool owns_ns_ = false;
 };
 
 } // ods::inst::

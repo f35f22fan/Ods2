@@ -35,17 +35,21 @@ Abstract::Abstract(Abstract *parent, ods::Ns *ns, ods::id::func f) : parent_(par
 {
 	if (parent_)
 		book_ = parent_->book();
+	else
+		owns_ns_ = true;
 	
 	f(ns, this);
 }
 
 Abstract::Abstract(const Abstract &cloner)
-: parent_(cloner.parent())
+: parent_(cloner.parent()),
+book_(cloner.book_),
+loc_within_file_(cloner.loc_within_file_),
+bits_(cloner.bits_),
+id_(cloner.id_)
 {
 	(cloner.func())(cloner.ns(), this);
-	
-	for (auto next: cloner.nodes_)
-		nodes_.append(next);
+	CloneChildrenOf(&cloner);
 }
 
 Abstract::~Abstract()
@@ -53,6 +57,10 @@ Abstract::~Abstract()
 	for (auto *node: nodes_)
 		delete node;
 	nodes_.clear();
+
+	if (owns_ns_)
+		delete ns_;
+	ns_ = nullptr;
 }
 
 bool Abstract::AddText(StringOrTag *sot)
@@ -97,15 +105,26 @@ bool Abstract::CheckChanged(const Recursively r)
 		QVector<StringOrInst*> vec;
 		ListChildren(vec, Recursively::Yes);
 		
+		bool has_changed_child = false;
 		for (StringOrInst *item: vec)
 		{
 			if (item->is_inst())
 			{
 				Abstract *inst = item->as_inst();
-				if (inst->CheckChanged(Recursively::No))
-					return true;
+				if (inst->CheckChanged(Recursively::No)) {
+					has_changed_child = true;
+					break;
+				}
 			}
 		}
+
+		for (auto *item: vec) {
+			if (item->temporary())
+				delete item;
+		}
+
+		if (has_changed_child)
+			return true;
 	}
 	
 	return false;
@@ -113,6 +132,8 @@ bool Abstract::CheckChanged(const Recursively r)
 
 void Abstract::CloneChildrenOf(const Abstract *rhs, const ClonePart co)
 {
+	DeleteNodes();
+
 	for (StringOrInst *node: rhs->nodes_)
 	{
 		if (node->is_string())
@@ -121,7 +142,7 @@ void Abstract::CloneChildrenOf(const Abstract *rhs, const ClonePart co)
 				Append(node->as_string());
 		} else {
 			if (co & ClonePart::Class)
-				Append(node->as_inst()->Clone(), TakeOwnership::Yes);
+				Append(node->as_inst()->Clone(this), TakeOwnership::Yes);
 		}
 	}
 }

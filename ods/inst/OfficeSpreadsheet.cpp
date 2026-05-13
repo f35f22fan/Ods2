@@ -101,21 +101,21 @@ void OfficeSpreadsheet::ListChildren(QVector<StringOrInst*> &vec,
 {
 	if (table_calculation_settings_)
 	{
-		vec.append(new StringOrInst(table_calculation_settings_, TakeOwnership::No));
+		vec.append(new StringOrInst(table_calculation_settings_, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			table_calculation_settings_->ListChildren(vec, r);
 	}
 	
 	for (auto *table: tables_)
 	{
-		vec.append(new StringOrInst(table, TakeOwnership::No));
+		vec.append(new StringOrInst(table, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			table->ListChildren(vec, r);
 	}
 	
 	if (named_expressions_)
 	{
-		vec.append(new StringOrInst(named_expressions_, TakeOwnership::No));
+		vec.append(new StringOrInst(named_expressions_, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			named_expressions_->ListChildren(vec, r);
 	}

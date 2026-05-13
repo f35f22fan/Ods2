@@ -46,6 +46,8 @@ void Ns::DeleteData()
 	draw_ = 0;
 	delete fo_;
 	fo_ = 0;
+	delete form_;
+	form_ = 0;
 	delete loext_;
 	loext_ = 0;
 	delete manifest_;

@@ -128,8 +128,12 @@ Cell::CloneValue() const
 	
 	if (is_double() || is_percentage() || is_currency())
 		return new double(*as_double());
+	else if (is_integer())
+		return new i64(*as_integer());
+	else if (is_date_time())
+		return new QDateTime(*as_date_time());
 	else if (is_date())
-		return new QDateTime(QDate(*as_date()).startOfDay());
+		return new QDate(*as_date());
 	else if (is_time())
 		return new ods::Time(*as_time());
 	else if (is_boolean())
@@ -256,18 +260,22 @@ Cell::NewDrawFrame(const QString &full_path, QSize *real_size)
 		draw_frame = NewDrawFrame();
 	
 	auto *draw_image = (inst::DrawImage*) draw_frame->Get(ods::Id::DrawImage);
-	if (!draw_image)
-		draw_image = draw_frame->NewDrawImage();
+	const bool created_image = (draw_image == nullptr);
+	if (created_image)
+		draw_image = new inst::DrawImage(draw_frame);
 	
 	QSize sz;
 	if (draw_image->LoadImage(full_path, sz))
 	{
+		if (created_image)
+			draw_frame->Append(draw_image, TakeOwnership::Yes);
 		if (real_size)
 			*real_size = sz;
 		return draw_image;
 	}
 	
-	delete draw_image;
+	if (created_image)
+		delete draw_image;
 	
 	return 0;
 }
