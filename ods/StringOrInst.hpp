@@ -16,8 +16,9 @@ namespace ods {
 class ODS_API StringOrInst
 {
 public:
-	StringOrInst(QStringView s);
-	StringOrInst(inst::Abstract *inst, const TakeOwnership to);
+	StringOrInst(QStringView s, const bool temporary = false);
+	StringOrInst(inst::Abstract *inst, const TakeOwnership to,
+		const bool temporary = false);
 	
 	virtual ~StringOrInst();
 	
@@ -33,6 +34,7 @@ public:
 	void owns_inst(const Owns o) { owns_inst_ = o; }
 	void SetInst(inst::Abstract *a, const TakeOwnership to);
 	void SetString(QStringView s);
+	bool temporary() const { return temporary_; }
 	
 private:
 	NO_ASSIGN_COPY_MOVE(StringOrInst);
@@ -41,6 +43,7 @@ private:
 	QString s_;
 	Owns owns_inst_ = Owns::No;
 	bool is_string_ = false;
+	bool temporary_ = false;
 };
 
 

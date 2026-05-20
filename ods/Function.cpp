@@ -15,25 +15,44 @@
 
 namespace ods {
 
+static void DeleteFormulaNodeVec(QVector<FormulaNode*> *vec)
+{
+	if (vec == nullptr)
+		return;
+
+	for (auto *node: *vec)
+		delete node;
+	delete vec;
+}
+
+static void ClearFunctionArgs(QVector<QVector<FormulaNode*>*> *args)
+{
+	if (args == nullptr)
+		return;
+
+	for (QVector<FormulaNode*> *subvec: *args)
+		DeleteFormulaNodeVec(subvec);
+	args->clear();
+}
+
+static void DeleteFunctionArgs(QVector<QVector<FormulaNode*>*> *args)
+{
+	ClearFunctionArgs(args);
+	delete args;
+}
+
 Function::Function() {
 	args_ = new QVector<QVector<FormulaNode*>*>();
 }
 
 Function::~Function() {
-	if (args_ != nullptr) {
-		for (QVector<FormulaNode*> *subvec: *args_) {
-			for (auto k: *subvec) {
-				delete k;
-			}
-			delete subvec;
-		}
-		delete args_;
-		args_ = nullptr;
-	}
+	DeleteFunctionArgs(args_);
+	args_ = nullptr;
 }
 
 Function::Function(const Function &src)
 {
+	args_ = new QVector<QVector<FormulaNode*>*>();
 	DeepCopy(*this, src);
 }
 
@@ -118,7 +137,10 @@ Function::DeepCopy(ods::Function &dest, const ods::Function &src)
 {
 	dest.meta_ = src.meta_;
 	dest.parent_formula_ = src.parent_formula_;
-	dest.args_->clear();
+	if (dest.args_ == nullptr)
+		dest.args_ = new QVector<QVector<FormulaNode*>*>();
+	else
+		ClearFunctionArgs(dest.args_);
 	
 	if(src.args_ == nullptr) {
 		return false;
@@ -385,12 +407,8 @@ Function::TryNew(QStringView s, int &skip, ods::Sheet *default_sheet)
 //"SUM([.B1]+0.3;20.9;-2.4+3*MAX(18;7);[.B2];[.C1:.C2];MIN([.A1];5))*(-3+2)"
 	if (!(settings & ReachedFunctionEnd) && param_nodes != nullptr) {
 		mtl_trace();
-		for (QVector<FormulaNode*> *next: *param_nodes) {
-			for (auto k : *next) {
-				delete k;
-			}
-			delete next;
-		}
+		DeleteFunctionArgs(param_nodes);
+		DeleteFormulaNodeVec(new_vec);
 		return nullptr;
 	} else {
 		settings &= ~ReachedFunctionEnd;
@@ -406,6 +424,7 @@ Function::TryNew(QStringView s, int &skip, ods::Sheet *default_sheet)
 	skip += end_of_func_name + past_whitespaces + params_total;
 	Function *f = new Function();
 	f->meta_ = func_meta;
+	delete f->args_;
 	f->args_ = param_nodes;
 	return f;
 }

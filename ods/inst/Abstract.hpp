@@ -37,11 +37,11 @@ enum class ClonePart: u8 {
 
 inline ClonePart operator | (ClonePart a, ClonePart b)
 {
-	return static_cast<ClonePart>(a | b);
+	return static_cast<ClonePart>(static_cast<u8>(a) | static_cast<u8>(b));
 }
 
 inline bool operator & (ClonePart a, ClonePart b) {
-	return a & b;
+	return (static_cast<u8>(a) & static_cast<u8>(b)) != 0;
 }
 
 inline void Add(const Prefix *prefix, NsHash &list)
@@ -195,6 +195,7 @@ protected:
 	i64 loc_within_file_ = -1;
 	Bits bits_ = 0;
 	ods::Id id_ = ods::Id::None;
+	bool owns_ns_ = false;
 };
 
 } // ods::inst::

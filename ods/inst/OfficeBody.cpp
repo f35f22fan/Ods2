@@ -55,7 +55,7 @@ void OfficeBody::ListChildren(QVector<StringOrInst*> &vec,
 {
 	if (office_spreadsheet_)
 	{
-		vec.append(new StringOrInst(office_spreadsheet_, TakeOwnership::No));
+		vec.append(new StringOrInst(office_spreadsheet_, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			office_spreadsheet_->ListChildren(vec, r);
 	}

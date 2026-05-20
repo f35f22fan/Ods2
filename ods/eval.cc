@@ -328,7 +328,12 @@ EvalDeepestGroup(QVector<FormulaNode*> &input)
 
 	if (remove_braces)
 		add_end--;
-	
+
+	if (remove_braces) {
+		delete input[start];
+		delete input[start + count - 1];
+	}
+
 	for (int i = add_start; i < add_end; i++) {
 		FormulaNode *node = input[i];
 
@@ -399,6 +404,7 @@ ExtractCellValue(ods::Cell *cell, ods::FormulaNode &result)
 			return false;
 		}
 		ods::FormulaNode *value = f->Eval();
+		ods::AutoDelete ad(value);
 		MTL_CHECK(value);
 		result = *value;
 	} else if (cell->is_integer()) {
@@ -532,6 +538,7 @@ FlattenOutArgs(QVector<ods::FormulaNode*> &vec)
 				vec.insert(i + k, ext[k]);
 			}
 			vec.remove(i + ext.size());
+			delete node;
 		} else { // must not be processed
 		}
 	}

@@ -21,7 +21,12 @@ TableNamedExpressions::TableNamedExpressions(const TableNamedExpressions &cloner
 : Abstract(cloner)
 {}
 
-TableNamedExpressions::~TableNamedExpressions() {}
+TableNamedExpressions::~TableNamedExpressions()
+{
+	for (auto *item: named_ranges_)
+		delete item;
+	named_ranges_.clear();
+}
 
 Abstract*
 TableNamedExpressions::Clone(Abstract *parent) const
@@ -54,7 +59,7 @@ void TableNamedExpressions::ListChildren(QVector<StringOrInst*> &vec,
 {
 	for (auto *item: named_ranges_)
 	{
-		vec.append(new StringOrInst(item, TakeOwnership::No));
+		vec.append(new StringOrInst(item, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			item->ListChildren(vec, r);
 	}

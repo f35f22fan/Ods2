@@ -75,19 +75,18 @@ bool ListFiles(QString zip_filepath, QList<ods::zip::File> &list, QString *error
 	QByteArray ba = file.readAll();
 	MTL_CHECK(!ba.isEmpty());
 	
-	void *data = ba.data();
+	const void *data = ba.constData();
 	const size_t size = ba.size();
 	
 	zip_error_t error;
 	zip_error_init(&error);
 	zip_source_t *zip_src;
 	// create source from buffer
-	if ((zip_src = zip_source_buffer_create(data, size, 1, &error)) == NULL) {
+	if ((zip_src = zip_source_buffer_create(data, size, 0, &error)) == NULL) {
 		if (error_str) {
 			error_str->append("Can't create source: ");
 			error_str->append(zip_error_strerror(&error));
 		}
-		free(data);
 		zip_error_fini(&error);
 		return false;
 	}
@@ -136,7 +135,7 @@ bool ListFiles(QString zip_filepath, QList<ods::zip::File> &list, QString *error
 					error_str->append(sb.name).append("]: ").append(zip_strerror(za));
 				}
 				zip_close(za);
-				continue;
+				return false;
 			}
 			
 			sum = 0;
@@ -146,6 +145,8 @@ bool ListFiles(QString zip_filepath, QList<ods::zip::File> &list, QString *error
 					if (error_str) {
 						error_str->append("Failed to read [%s] data: ").append(sb.name);
 					}
+					zip_fclose(zipfile);
+					zip_close(za);
 					return false;
 				}
 				file.data.add(buffer, len);
@@ -155,7 +156,7 @@ bool ListFiles(QString zip_filepath, QList<ods::zip::File> &list, QString *error
 		}
 	}
 	
-	return true;
+	return zip_close(za) == 0;
 }
 
 bool CloseArchive(zip_t *archive, bool print_error) {
@@ -265,6 +266,7 @@ bool AddFileToArchive(zip_t *archive, QString file_fullpath,
 	// last param=1 means zip will free it when done:
 	zip_source_t *source = zip_source_buffer(archive, data, bufsize, 1);
 	if(source == NULL) {
+		free(data);
 		mtl_warn("Failed to create source buffer: %s ", zip_strerror(archive));
 		return false;
 	}

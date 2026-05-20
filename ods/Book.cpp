@@ -36,6 +36,15 @@ public:
 	i32 id = 0;
 };
 
+static void DeleteTemporaryChildren(QVector<StringOrInst*> &children)
+{
+	for (auto *child: children) {
+		if (child->temporary())
+			delete child;
+	}
+	children.clear();
+}
+
 bool SortDictionaryEntries(const StringCount &lhs, const StringCount &rhs)
 {
 	return lhs.count > rhs.count;
@@ -508,12 +517,14 @@ void Book::QueryKeywords(inst::Keywords &words_hash)
 		
 		QVector<StringOrInst*> children;
 		top->ListChildren(children, Recursively::Yes);
-		
+
 		for (StringOrInst *next: children)
 		{
 			if (next->is_inst())
 				next->as_inst()->ListKeywords(words_hash, inst::LimitTo::All);
 		}
+
+		DeleteTemporaryChildren(children);
 	}
 	
 	if (false)
@@ -534,6 +545,7 @@ void Book::QueryUsedNamespaces(inst::NsHash &ns_hash, const CreateIfNeeded cr)
 	if (cr == CreateIfNeeded::Yes && tops.isEmpty())
 	{
 		Ns *ns = Ns::Default();
+		AutoDelete<Ns*> ad(ns);
 		auto prefixes = ns->prefixes();
 		
 		for (Prefix *pref: prefixes)
@@ -550,12 +562,14 @@ void Book::QueryUsedNamespaces(inst::NsHash &ns_hash, const CreateIfNeeded cr)
 		
 		QVector<StringOrInst*> children;
 		top->ListChildren(children, Recursively::Yes);
-		
+
 		for (StringOrInst *next: children)
 		{
 			if (next->is_inst())
 				next->as_inst()->ListUsedNamespaces(ns_hash);
 		}
+
+		DeleteTemporaryChildren(children);
 	}
 }
 

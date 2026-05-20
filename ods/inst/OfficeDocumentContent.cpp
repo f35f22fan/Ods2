@@ -102,28 +102,28 @@ void OfficeDocumentContent::ListChildren(QVector<StringOrInst*> &vec,
 {
 	if (office_scripts_)
 	{
-		vec.append(new StringOrInst(office_scripts_, TakeOwnership::No));
+		vec.append(new StringOrInst(office_scripts_, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			office_scripts_->ListChildren(vec, r);
 	}
 	
 	if (office_font_face_decls_)
 	{
-		vec.append(new StringOrInst(office_font_face_decls_, TakeOwnership::No));
+		vec.append(new StringOrInst(office_font_face_decls_, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			office_font_face_decls_->ListChildren(vec, r);
 	}
 	
 	if (office_automatic_styles_)
 	{
-		vec.append(new StringOrInst(office_automatic_styles_, TakeOwnership::No));
+		vec.append(new StringOrInst(office_automatic_styles_, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			office_automatic_styles_->ListChildren(vec, r);
 	}
 	
 	if (office_body_)
 	{
-		vec.append(new StringOrInst(office_body_, TakeOwnership::No));
+		vec.append(new StringOrInst(office_body_, TakeOwnership::No, true));
 		if (r == Recursively::Yes)
 			office_body_->ListChildren(vec, r);
 	}
