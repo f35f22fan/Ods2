@@ -227,9 +227,7 @@ bool CompressDir(QString dir_to_compress, QString zip_filepath, QString *error_s
 		return false;
 	}
 	
-	CloseArchive(archive, true);
-	
-	return true;
+	return CloseArchive(archive, true);
 }
 
 zip_t* OpenArchive(QString fullpath, int flags) {
