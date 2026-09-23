@@ -227,14 +227,12 @@ bool CompressDir(QString dir_to_compress, QString zip_filepath, QString *error_s
 		return false;
 	}
 	
-	CloseArchive(archive, true);
-	
-	return true;
+	return CloseArchive(archive, true);
 }
 
 zip_t* OpenArchive(QString fullpath, int flags) {
 	int error = 0;
-	auto path_ba = fullpath.toLocal8Bit();
+	auto path_ba = fullpath.toStdString();
 	zip_t *archive = zip_open(path_ba.data(), flags , &error);
 	
 	if(!archive) {
